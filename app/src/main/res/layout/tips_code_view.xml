@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center_horizontal"
+    android:padding="6dp">
+
+    <TextView
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:textColor="@color/colorAccent"
+        android:text="Enter code"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+            <EditText
+                android:id="@+id/edtCode"
+                android:layout_width="160dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:inputType="textCapSentences|textNoSuggestions|textMultiLine"
+                android:background="@android:drawable/editbox_background_normal"/>
+
+        <android.support.v7.widget.AppCompatSpinner
+            android:id="@+id/spnCode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_gravity="center_vertical"
+            android:layout_below="@id/txtPostType"
+            android:entries="@array/code_type" />
+
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end">
+
+        <Button
+            android:id="@+id/btnDialogCancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorPrimaryDark"
+            android:textStyle="bold"
+            android:background="@color/fui_transparent"
+            style="@style/CustomButton"
+            android:text="Dismiss"/>
+        <Button
+            android:id="@+id/btnDialogAdd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
+            android:layout_marginStart="4dp"
+            android:textStyle="bold"
+            style="@style/CustomButton"
+            android:text="Add"/>
+    </LinearLayout>
+
+
+</LinearLayout>

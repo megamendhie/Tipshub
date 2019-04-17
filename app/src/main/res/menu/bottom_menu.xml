@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_home"
+            android:icon="@drawable/ic_home_black_24dp"
+            android:title="" />
+        <item
+            android:id="@+id/nav_recommended"
+            android:icon="@drawable/ic_filter_tilt_shift_black_24dp"
+            android:title=""/>
+        <item
+            android:id="@+id/nav_banker"
+            android:icon="@drawable/ic_check_circle_green_24dp"
+            android:title=""/>
+        <item
+            android:id="@+id/nav_notification"
+            android:icon="@drawable/ic_notifications_none_black_24dp"
+            android:title="" />
+    </group>
+</menu>
