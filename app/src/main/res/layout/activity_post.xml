@@ -78,14 +78,12 @@
         android:layout_marginTop="10dp"
         android:maxLength="450"
         android:minLines="10"
-        android:maxLines="10"
         android:gravity="start"
         android:textSize="16sp"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:inputType="textCapSentences|textMultiLine"
         android:background="@android:color/transparent"
         android:hint="@string/type_your_post"/>
-
 
     <LinearLayout
         android:id="@+id/lnrDown"
@@ -122,6 +120,5 @@
             style="@style/CustomButton"
             android:text="Post now"/>
     </LinearLayout>
-
 
 </RelativeLayout>

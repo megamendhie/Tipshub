@@ -13,6 +13,8 @@ import android.view.MenuItem;
 
 import com.google.firebase.auth.FirebaseAuth;
 
+import services.UserDataFetcher;
+
 public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
     BottomNavigationView btmNav;
     android.support.v4.app.Fragment fragment;
@@ -43,6 +45,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
         actionBar.setTitle("Home");
         loadFragment(new HomeFragment());
+        startService(new Intent(this, UserDataFetcher.class));
     }
 
 

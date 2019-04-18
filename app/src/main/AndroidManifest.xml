@@ -44,7 +44,11 @@
             </intent-filter>
         </service>
 
-        <activity android:name=".LandingActivity"></activity>
+        <activity android:name=".LandingActivity" />
+
+        <service android:name="services.UserDataFetcher" />
+
+        <activity android:name=".FullPostActivity"></activity>
     </application>
 
 </manifest>

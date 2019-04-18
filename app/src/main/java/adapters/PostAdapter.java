@@ -1,7 +1,11 @@
 package adapters;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateFormat;
@@ -10,29 +14,29 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.sqube.tipshub.FullPostActivity;
+import com.sqube.tipshub.LoginActivity;
 import com.sqube.tipshub.R;
 
-import javax.annotation.Nullable;
-
 import models.Post;
+import models.SerializedPost;
+import models.UserNetwork;
 import utils.Calculations;
 
 public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.PostHolder>{
     private final String TAG = "PostAdaper";
+    private Activity activity;
     private Context context;
     private String userId;
     private StorageReference storageReference;
@@ -41,7 +45,7 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
     private String[] type = {"3-5 odds", "6-10 odds", "11-50 odds", "50+ odds", "Draws"};
 
 
-    public PostAdapter(Query query, String userID, Context context) {
+    public PostAdapter(Query query, String userID, Activity activity, Context context) {
         /*
         Configure recycler adapter options:
         query defines the request made to Firestore
@@ -52,6 +56,7 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
                 .build());
 
         Log.i(TAG, "PostAdapter: created");
+        this.activity = activity;
         this.context = context;
         this.userId = userID;
         this.database = FirebaseFirestore.getInstance();
@@ -61,7 +66,7 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
-    protected void onBindViewHolder(@NonNull PostHolder holder, final int position, @NonNull Post model) {
+    protected void onBindViewHolder(@NonNull PostHolder holder, final int position, @NonNull final Post model) {
         Log.i(TAG, "onBindViewHolder: executed");
         final LinearLayout lnrCode = holder.lnrCode;
         final TextView mpost = holder.mpost;
@@ -78,6 +83,7 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
         final ImageView imgCode = holder.imgCode;
         final ImageView imgComment = holder.imgComment;
         final ImageView imgShare = holder.imgShare;
+        final ImageView imgOverflow = holder.imgOverflow;
         final String postId = getSnapshots().getSnapshot(position).getId();
         final boolean[] liked = new boolean[1];
         final boolean[] disliked = new boolean[1];
@@ -104,86 +110,112 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
         mUsername.setText(model.getUsername());
         mpost.setText(model.getContent());
         mTime.setText(DateFormat.format("dd MMM  (h:mm a)", model.getTime()));
-        database.collection("likes").document(postId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-                Log.i(TAG, "onSuccess: userID = " + userId);
-                if(documentSnapshot.contains(userId)){
-                    liked[0] = true;
-                    imgLikes.setColorFilter(context.getResources().getColor(R.color.colorPrimary));
-                }
-                else{
-                    liked[0] = false;
-                    imgLikes.setColorFilter(context.getResources().getColor(R.color.likeGrey));
-                }
-                return;
-            }
-        });
+        imgLikes.setColorFilter(model.getLikes().contains(userId)?
+                context.getResources().getColor(R.color.colorPrimary): context.getResources().getColor(R.color.likeGrey));
 
-        database.collection("dislikes").document(postId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-                if(documentSnapshot.contains(userId)){
-                    disliked[0] = true;
-                    imgDislikes.setColorFilter(context.getResources().getColor(R.color.colorPrimary));
-                }
-                else{
-                    disliked[0] = false;
-                    imgDislikes.setColorFilter(context.getResources().getColor(R.color.likeGrey));
-                }
-                return;
-            }
-        });
-
-        database.collection("likes").document(postId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-
-            }
-        });
+        imgDislikes.setColorFilter(model.getDislikes().contains(userId)?
+                context.getResources().getColor(R.color.colorPrimary): context.getResources().getColor(R.color.likeGrey));
 
         mComment.setText(model.getCommentsCount()==0? "":String.valueOf(model.getCommentsCount()));
         mLikesCount.setText(model.getLikesCount()==0? "":String.valueOf(model.getLikesCount()));
         mDislikesCount.setText(model.getDislikesCount()==0? "":String.valueOf(model.getDislikesCount()));
 
+        mpost.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, FullPostActivity.class);
+                intent.putExtra("model", (SerializedPost) model);
+                context.startActivity(intent);
+            }
+        });
+        imgComment.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, FullPostActivity.class);
+                intent.putExtra("model", (SerializedPost) model);
+                context.startActivity(intent);
+            }
+        });
         imgLikes.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 Log.i(TAG, "onClick: Key is " + postId);
                 Calculations calculations = new Calculations();
-                if(disliked[0]){
+                if(model.getDislikes().contains(userId))
                     calculations.Like(true, postId, userId);
-                }
                 else{
-                    if(liked[0]){
+                    if(model.getLikes().contains(userId))
                         calculations.Unlike(postId, userId);
-                    }
-                    else{
+                    else
                         calculations.Like(false, postId, userId);
-                    }
                 }
                 return false;
             }
         });
+
         imgDislikes.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 Log.i(TAG, "onClick: Key is " + postId);
                 Calculations calculations = new Calculations();
-                if(liked[0]){
+                if(model.getLikes().contains(userId))
                     calculations.Dislike(true, postId, userId);
-                }
                 else{
-                    if(disliked[0]){
+                    if(model.getDislikes().contains(userId))
                         calculations.Undislike(postId, userId);
-                    }
-                    else{
+                    else
                         calculations.Dislike(false, postId, userId);
-                    }
                 }
                 return false;
             }
         });
+        imgOverflow.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                displayOverflow(model.getUserId(), model.getStatus(), model.getType(), imgOverflow);
+            }
+        });
+    }
+
+    private void displayOverflow(String userId, int status, int type, ImageView imgOverflow) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        LayoutInflater inflater = activity.getLayoutInflater();
+        View dialogView;
+        if(userId.equals(this.userId))
+            dialogView = inflater.inflate(R.layout.dialog_mine, null);
+        else
+            dialogView = inflater.inflate(R.layout.dialog_member, null);
+        builder.setView(dialogView);
+        final AlertDialog dialog= builder.create();
+        dialog.show();
+
+        Button btnSubmit, btnDelete, btnShare, btnRost, btnFollow, btnSubscribe, btnObject;
+        btnSubmit = dialog.findViewById(R.id.btnSubmit);
+        btnDelete = dialog.findViewById(R.id.btnDelete);
+        btnShare = dialog.findViewById(R.id.btnShare);
+        btnRost = dialog.findViewById(R.id.btnRost);
+        btnFollow = dialog.findViewById(R.id.btnFollow);
+        btnSubscribe = dialog.findViewById(R.id.btnSubscribe);
+
+        btnFollow.setText(UserNetwork.getFollowing().contains(this.userId)? "yes": "no");
+    }
+
+    private void popUp(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.Theme_AppCompat_Light_Dialog_Alert);
+        builder.setMessage("You must login first")
+                .setPositiveButton("Login", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        context.startActivity(new Intent(context, LoginActivity.class));
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        //do nothing
+                    }
+                })
+                .show();
     }
 
     @Override
@@ -198,6 +230,7 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
         TextView mUsername;
         TextView mTime;
         TextView mLikes, mDislikes, mComment, mCode, mType;
+        ImageView imgOverflow;
         ImageView imgLikes, imgDislike, imgComment, imgShare, imgStatus, imgCode;
         public PostHolder(View itemView) {
             super(itemView);
@@ -218,7 +251,7 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
             imgShare = itemView.findViewById(R.id.imgShare);
             imgStatus = itemView.findViewById(R.id.imgStatus);
             imgCode = itemView.findViewById(R.id.imgCode);
-
+            imgOverflow = itemView.findViewById(R.id.imgOverflow);
         }
     }
 }

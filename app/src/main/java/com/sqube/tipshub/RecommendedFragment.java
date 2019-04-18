@@ -79,21 +79,10 @@ public class RecommendedFragment extends Fragment {
     private void loadPost() {
         Log.i(TAG, "loadPost: ");
         query = database.collection("posts").orderBy("time", Query.Direction.DESCENDING);
-        postAdapter = new PostAdapter(query, userId, getActivity().getApplicationContext());
+        postAdapter = new PostAdapter(query, userId, getActivity(), getContext());
         testList.setAdapter(postAdapter);
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
         if(postAdapter!=null)
             postAdapter.startListening();
     }
 
-    @Override
-    public void onStop() {
-        super.onStop();
-        if(postAdapter!=null)
-            postAdapter.stopListening();
-    }
 }

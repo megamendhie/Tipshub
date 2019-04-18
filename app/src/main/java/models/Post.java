@@ -1,6 +1,8 @@
 package models;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class Post {
     private String username;
@@ -11,7 +13,9 @@ public class Post {
     private int status;
     private int type;
     private long time;
+    private List<String> likes = new ArrayList<>();
     private long likesCount;
+    private List<String> dislikes = new ArrayList<>();
     private long dislikesCount;
     private long repostCount;
     private long commentsCount;
@@ -230,5 +234,21 @@ public class Post {
 
     public void setBookingCode(String bookingCode) {
         this.bookingCode = bookingCode;
+    }
+
+    public List<String> getLikes() {
+        return likes;
+    }
+
+    public void setLikes(List<String> likes) {
+        this.likes = likes;
+    }
+
+    public List<String> getDislikes() {
+        return dislikes;
+    }
+
+    public void setDislikes(List<String> dislikes) {
+        this.dislikes = dislikes;
     }
 }
