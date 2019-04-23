@@ -6,7 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateFormat;
-import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -15,7 +15,7 @@ import android.widget.TextView;
 import com.google.firebase.auth.FirebaseAuth;
 
 import adapters.CommentAdapter;
-import models.SerializedPost;
+import models.Post;
 
 public class FullPostActivity extends AppCompatActivity {
     LinearLayout lnrCode;
@@ -49,7 +49,7 @@ public class FullPostActivity extends AppCompatActivity {
 
         imgDp = findViewById(R.id.imgDp);
         imgLike = findViewById(R.id.imgLike);
-        imgDislike = findViewById(R.id.imgComment);
+        imgDislike = findViewById(R.id.imgDislike);
         imgComment = findViewById(R.id.imgComment);
         imgShare = findViewById(R.id.imgShare);
         imgStatus = findViewById(R.id.imgStatus);
@@ -61,17 +61,14 @@ public class FullPostActivity extends AppCompatActivity {
 
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
         commentsList.setLayoutManager(layoutManager);
-        SerializedPost model = (SerializedPost) getIntent().getSerializableExtra("model");
-        mpost.setText(model.getContent());
         String[] testString = {"A", "B", "C", "D", "E", "F"};
         CommentAdapter adapter = new CommentAdapter(testString);
         commentsList.setAdapter(adapter);
-
         loadPost();
     }
 
     private void loadPost() {
-        SerializedPost model = (SerializedPost) getIntent().getSerializableExtra("model");
+        Post model = (Post) getIntent().getSerializableExtra("model");
         imgStatus.setVisibility(model.getStatus()==1? View.GONE: View.VISIBLE);
         if(model.getBookingCode()!=null && !model.getBookingCode().isEmpty()){
             mCode.setText(model.getBookingCode() + " @" + code[(model.getRecommendedBookie()-1)]);
@@ -107,8 +104,8 @@ public class FullPostActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onOptionsMenuClosed(Menu menu) {
-        super.onOptionsMenuClosed(menu);
+    public boolean onOptionsItemSelected(MenuItem item) {
         finish();
+        return super.onOptionsItemSelected(item);
     }
 }

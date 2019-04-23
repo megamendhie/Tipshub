@@ -11,7 +11,6 @@ import android.support.v7.widget.RecyclerView;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -30,7 +29,6 @@ import com.sqube.tipshub.LoginActivity;
 import com.sqube.tipshub.R;
 
 import models.Post;
-import models.SerializedPost;
 import models.UserNetwork;
 import utils.Calculations;
 
@@ -43,7 +41,6 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
     private FirebaseFirestore database;
     private String[] code = {"1xBet", "Bet9ja", "Nairabet", "SportyBet", "BlackBet", "Bet365"};
     private String[] type = {"3-5 odds", "6-10 odds", "11-50 odds", "50+ odds", "Draws"};
-
 
     public PostAdapter(Query query, String userID, Activity activity, Context context) {
         /*
@@ -124,7 +121,7 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context, FullPostActivity.class);
-                intent.putExtra("model", (SerializedPost) model);
+                intent.putExtra("model", model);
                 context.startActivity(intent);
             }
         });
@@ -132,15 +129,15 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context, FullPostActivity.class);
-                intent.putExtra("model", (SerializedPost) model);
+                intent.putExtra("model", model);
                 context.startActivity(intent);
             }
         });
-        imgLikes.setOnTouchListener(new View.OnTouchListener() {
+        imgLikes.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
+            public void onClick(View v) {
                 Log.i(TAG, "onClick: Key is " + postId);
-                Calculations calculations = new Calculations();
+                Calculations calculations = new Calculations(context);
                 if(model.getDislikes().contains(userId))
                     calculations.Like(true, postId, userId);
                 else{
@@ -149,15 +146,14 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
                     else
                         calculations.Like(false, postId, userId);
                 }
-                return false;
             }
         });
 
-        imgDislikes.setOnTouchListener(new View.OnTouchListener() {
+        imgDislikes.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
+            public void onClick(View v) {
                 Log.i(TAG, "onClick: Key is " + postId);
-                Calculations calculations = new Calculations();
+                Calculations calculations = new Calculations(context);
                 if(model.getLikes().contains(userId))
                     calculations.Dislike(true, postId, userId);
                 else{
@@ -166,7 +162,6 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
                     else
                         calculations.Dislike(false, postId, userId);
                 }
-                return false;
             }
         });
         imgOverflow.setOnClickListener(new View.OnClickListener() {

@@ -134,6 +134,8 @@
                     android:id="@+id/imgLike"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:clickable="true"
+                    android:background="@drawable/img_like_bg"
                     android:src="@drawable/ic_thumb_up_black_24dp"/>
                 <TextView
                     android:id="@+id/txtLike"
@@ -153,6 +155,8 @@
                     android:id="@+id/imgDislike"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:clickable="true"
+                    android:background="@drawable/img_like_bg"
                     android:src="@drawable/ic_thumb_down_black_24dp"/>
                 <TextView
                     android:id="@+id/txtDislike"

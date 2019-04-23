@@ -70,7 +70,7 @@ public class RepostActivity extends AppCompatActivity implements View.OnClickLis
         postReference.document("[POST URL]").get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
-                Calculations calculations = new Calculations();
+                Calculations calculations = new Calculations(getApplicationContext());
                 Post post = documentSnapshot.toObject(Post.class);
                 post.setRepostCount(post.getRepostCount()+1);
                 double postRelevance = calculations.getPostRelevance(post.getLikesCount(), post.getDislikesCount(), post.getRepostCount());

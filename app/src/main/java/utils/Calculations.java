@@ -1,7 +1,9 @@
 package utils;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -18,6 +20,11 @@ import java.util.Map;
 public final class Calculations {
     private FirebaseFirestore database = FirebaseFirestore.getInstance();
     private String TAG = "Calculations";
+    Context context;
+
+    public Calculations(Context context){
+        this.context = context;
+    }
 
     public double getPostRelevance(long like, long dislike, long repost){
         return (1+like + repost +(like*repost))/(1+dislike);
@@ -74,6 +81,7 @@ public final class Calculations {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Log.w(TAG, "Transaction failure.", e);
+                        Toast.makeText(context, "Connection failed", Toast.LENGTH_SHORT).show();
                     }
                 });
 
@@ -106,7 +114,20 @@ public final class Calculations {
                 transaction.update(postPath, upd);
                 return null;
             }
-        });
+        })
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "Transaction success!");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Transaction failure.", e);
+                        Toast.makeText(context, "Connection failed", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     public void Dislike(final boolean liked, final String postId, final String userId){
@@ -143,16 +164,18 @@ public final class Calculations {
                 transaction.update(postPath, upd);
                 return null;
             }
-        }).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                Log.d(TAG, "Transaction success!");
-            }
         })
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "Transaction success!");
+                    }
+                })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Log.w(TAG, "Transaction failure.", e);
+                        Toast.makeText(context, "Connection failed", Toast.LENGTH_SHORT).show();
                     }
                 });
         //send notification
@@ -183,7 +206,20 @@ public final class Calculations {
                 transaction.update(postPath, upd);
                 return null;
             }
-        });
+        })
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "Transaction success!");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Transaction failure.", e);
+                        Toast.makeText(context, "Connection failed", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
 }
