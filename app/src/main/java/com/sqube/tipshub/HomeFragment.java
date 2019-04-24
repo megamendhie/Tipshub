@@ -83,8 +83,10 @@ public class HomeFragment extends Fragment{
         query = database.collection("posts").orderBy("time", Query.Direction.DESCENDING);
         postAdapter = new PostAdapter(query, userId, getActivity(), getContext());
         testList.setAdapter(postAdapter);
-        if(postAdapter!=null)
+        if(postAdapter!=null){
+            Log.i(TAG, "loadPost: started listening");
             postAdapter.startListening();
+        }
     }
 
 }
