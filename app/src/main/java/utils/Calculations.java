@@ -34,7 +34,7 @@ public final class Calculations {
         return (2*subscribers)+ subscribedTo + followers + (0.5* following);
     }
 
-    public void Like(final boolean disliked, final String postId, final String userId){
+    public void onLike(final String postId, final String userId){
         final DocumentReference postPath =  database.collection("posts").document(postId);
         database.runTransaction(new Transaction.Function<Void>() {
             @Override
@@ -48,20 +48,29 @@ public final class Calculations {
                 }
 
                 //retrieve likes, likesCount, dislikes, dislikesCount, and repostCount from snapshot
-                long likesCount = snapshot.getLong("likesCount") + 1;
+                long likesCount = snapshot.getLong("likesCount");
                 long dislikesCount = snapshot.getLong("dislikesCount");
                 long repostCount = snapshot.getLong("repostCount");
                 List<String> likes = (List) snapshot.get("likes");
                 List<String> dislikes = (List) snapshot.get("dislikes");
                 Map<String, Object> upd = new HashMap<>();
-
-                //remove user's Id from dislikes list if it's available
-                if(disliked){
-                    dislikesCount -= 1;
+                if(dislikes.contains(userId)){
+                    dislikesCount -=1;
+                    likesCount +=1;
                     dislikes.remove(userId);
+                    likes.add(userId);
+                }
+                else{
+                    if(likes.contains(userId)){
+                        likesCount -=1;
+                        likes.remove(userId);
+                    }
+                    else{
+                        likesCount +=1;
+                        likes.add(userId);
+                    }
                 }
                 double postRelevance = getPostRelevance(likesCount, dislikesCount, repostCount);
-                likes.add(userId);
                 upd.put("likesCount", likesCount);
                 upd.put("dislikesCount", dislikesCount);
                 upd.put("likes", likes);
@@ -88,49 +97,7 @@ public final class Calculations {
         //send notification
     }
 
-    public void Unlike(final String postId, final String userId){
-        final DocumentReference postPath =  database.collection("posts").document(postId);
-        database.runTransaction(new Transaction.Function<Void>() {
-            @Override
-            public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
-                DocumentSnapshot snapshot = transaction.get(postPath);
-                if(!snapshot.exists()){
-                    Log.i(TAG, "apply: unlike doesn't exist");
-                    return null;
-                }
-
-                //retrieve likes, likesCount, dislikes, dislikesCount, and repostCount from snapshot
-                long likesCount = snapshot.getLong("likesCount") -1;
-                long dislikesCount = snapshot.getLong("dislikesCount");
-                long repostCount = snapshot.getLong("repostCount");
-                List<String> likes = (List) snapshot.get("likes");
-                Map<String, Object> upd = new HashMap<>();
-
-                double postRelevance = getPostRelevance(likesCount, dislikesCount, repostCount);
-                likes.remove(userId);
-                upd.put("likesCount", likesCount);
-                upd.put("likes", likes);
-                upd.put("relevance", postRelevance);
-                transaction.update(postPath, upd);
-                return null;
-            }
-        })
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "Transaction success!");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Transaction failure.", e);
-                        Toast.makeText(context, "Connection failed", Toast.LENGTH_SHORT).show();
-                    }
-                });
-    }
-
-    public void Dislike(final boolean liked, final String postId, final String userId){
+    public void onDislike(final String postId, final String userId){
         final DocumentReference postPath =  database.collection("posts").document(postId);
         database.runTransaction(new Transaction.Function<Void>() {
             @Override
@@ -143,19 +110,28 @@ public final class Calculations {
 
                 //retrieve likes, likesCount, dislikes, dislikesCount, and repostCount from snapshot
                 long likesCount = snapshot.getLong("likesCount");
-                long dislikesCount = snapshot.getLong("dislikesCount")+1;
+                long dislikesCount = snapshot.getLong("dislikesCount");
                 long repostCount = snapshot.getLong("repostCount");
                 List<String> likes = (List) snapshot.get("likes");
                 List<String> dislikes = (List) snapshot.get("dislikes");
                 Map<String, Object> upd = new HashMap<>();
-
-                //remove user's Id from dislikes list if it's available
-                if(liked){
-                    likesCount -= 1;
+                if(likes.contains(userId)){
+                    likesCount -=1;
+                    dislikesCount +=1;
                     likes.remove(userId);
+                    dislikes.add(userId);
+                }
+                else{
+                    if(dislikes.contains(userId)){
+                        dislikesCount -=1;
+                        dislikes.remove(userId);
+                    }
+                    else{
+                        dislikesCount +=1;
+                        dislikes.add(userId);
+                    }
                 }
                 double postRelevance = getPostRelevance(likesCount, dislikesCount, repostCount);
-                dislikes.add(userId);
                 upd.put("likesCount", likesCount);
                 upd.put("dislikesCount", dislikesCount);
                 upd.put("likes", likes);
@@ -179,47 +155,6 @@ public final class Calculations {
                     }
                 });
         //send notification
-    }
-
-    public void Undislike(final String postId, final String userId){
-        final DocumentReference postPath =  database.collection("posts").document(postId);
-        database.runTransaction(new Transaction.Function<Void>() {
-            @Override
-            public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
-                DocumentSnapshot snapshot = transaction.get(postPath);
-                if(!snapshot.exists()){
-                    return null;
-                }
-
-                //retrieve likes, likesCount, dislikes, dislikesCount, and repostCount from snapshot
-                long likesCount = snapshot.getLong("likesCount");
-                long dislikesCount = snapshot.getLong("dislikesCount")-1;
-                long repostCount = snapshot.getLong("repostCount");
-                List<String> dislikes = (List) snapshot.get("likes");
-                Map<String, Object> upd = new HashMap<>();
-
-                double postRelevance = getPostRelevance(likesCount, dislikesCount, repostCount);
-                dislikes.remove(userId);
-                upd.put("dislikesCount", dislikesCount);
-                upd.put("dislikes", dislikes);
-                upd.put("relevance", postRelevance);
-                transaction.update(postPath, upd);
-                return null;
-            }
-        })
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "Transaction success!");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Transaction failure.", e);
-                        Toast.makeText(context, "Connection failed", Toast.LENGTH_SHORT).show();
-                    }
-                });
     }
 
 }

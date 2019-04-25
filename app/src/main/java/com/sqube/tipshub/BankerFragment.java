@@ -30,7 +30,7 @@ public class BankerFragment extends Fragment {
     private FirebaseAuth auth;
     private FirebaseUser user;
     String userId;
-    PostAdapter postAdapter;
+    PostAdapter subAdapter, latestAdapter, winAdapter;
     com.github.clans.fab.FloatingActionButton fapTip, fabNormal;
     FloatingActionMenu fabMenu;
     RecyclerView subscribedList, latestList, winningsList;
@@ -49,11 +49,18 @@ public class BankerFragment extends Fragment {
         subscribedList = rootView.findViewById(R.id.subscribedList);
         latestList = rootView.findViewById(R.id.latestList);
         winningsList = rootView.findViewById(R.id.winningsList);
+
+        subscribedList.setLayoutManager(new LinearLayoutManager(getActivity()));
         latestList.setLayoutManager(new LinearLayoutManager(getActivity()));
+        winningsList.setLayoutManager(new LinearLayoutManager(getActivity()));
+        
         database = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
         userId = user.getUid();
+        long stopTime = new Date().getTime() - (48*60*60*1000);
+        query = database.collection("posts").orderBy("time").whereGreaterThanOrEqualTo("time", stopTime)
+                .orderBy("type").whereEqualTo("type", 0);
         loadSub();
         loadLatest();
         loadWinning();
@@ -64,17 +71,20 @@ public class BankerFragment extends Fragment {
     }
 
     private void loadLatest() {
-        long stopTime = new Date().getTime() - (48*60*60*1000);
         Log.i(TAG, "loadPost: ");
-        query = database.collection("posts").orderBy("time").whereGreaterThanOrEqualTo("time", stopTime)
-                .orderBy("type").whereEqualTo("type", 0).limit(10);
-        postAdapter = new PostAdapter(query, userId, getActivity(), getContext());
-        latestList.setAdapter(postAdapter);
-        if(postAdapter!=null)
-            postAdapter.startListening();
+        latestAdapter = new PostAdapter(query.orderBy("relevance", Query.Direction.DESCENDING).limit(10),
+                userId, getActivity(), getContext());
+        latestList.setAdapter(latestAdapter);
+        if(latestAdapter!=null)
+            latestAdapter.startListening();
     }
 
     private void loadWinning() {
+        Log.i(TAG, "loadPost: ");
+        winAdapter = new PostAdapter(query.orderBy("status").whereEqualTo("status", 2), userId, getActivity(), getContext());
+        latestList.setAdapter(winAdapter);
+        if(winAdapter!=null)
+            winAdapter.startListening();
     }
 
 }

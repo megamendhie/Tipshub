@@ -32,7 +32,7 @@ import models.Post;
 import models.UserNetwork;
 import utils.Calculations;
 
-public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.PostHolder>{
+public class SubscribedBankerAdapter extends FirestoreRecyclerAdapter<Post, SubscribedBankerAdapter.PostHolder>{
     private final String TAG = "PostAdaper";
     private Activity activity;
     private Context context;
@@ -42,7 +42,7 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
     private String[] code = {"1xBet", "Bet9ja", "Nairabet", "SportyBet", "BlackBet", "Bet365"};
     private String[] type = {"3-5 odds", "6-10 odds", "11-50 odds", "50+ odds", "Draws"};
 
-    public PostAdapter(Query query, String userID, Activity activity, Context context) {
+    public SubscribedBankerAdapter(Query query, String userID, Activity activity, Context context) {
         /*
         Configure recycler adapter options:
         query defines the request made to Firestore
@@ -178,7 +178,7 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
         btnFollow = dialog.findViewById(R.id.btnFollow);
         btnSubscribe = dialog.findViewById(R.id.btnSubscribe);
 
-        btnFollow.setText(UserNetwork.getFollowing().contains(this.userId)? "UNFOLLOW": "FOLLOW");
+        btnFollow.setText(UserNetwork.getFollowing().contains(this.userId)? "yes": "no");
     }
 
     private void popUp(){
