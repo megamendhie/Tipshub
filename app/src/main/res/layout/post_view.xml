@@ -10,7 +10,7 @@
     <LinearLayout
         android:id="@+id/container_post"
         android:orientation="vertical"
-        android:background="@android:color/transparent"
+        android:background="@drawable/container_bg"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="@dimen/vertical_padding">
@@ -92,6 +92,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
             android:padding="1dp"
+            android:clickable="true"
             android:background="@drawable/tip_type_bg"
             android:paddingEnd="4dp"
             android:layout_gravity="end">
@@ -117,7 +118,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginTop="5dp"
+            android:layout_marginTop="6dp"
             android:layout_marginStart="4dp"
             android:layout_marginEnd="4dp"
             android:weightSum="10">

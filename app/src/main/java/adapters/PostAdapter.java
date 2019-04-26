@@ -31,9 +31,11 @@ import com.sqube.tipshub.R;
 import models.Post;
 import models.UserNetwork;
 import utils.Calculations;
+import utils.Reusable;
 
 public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.PostHolder>{
     private final String TAG = "PostAdaper";
+    Reusable reusable = new Reusable();
     private Activity activity;
     private Context context;
     private String userId;
@@ -66,6 +68,7 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
     protected void onBindViewHolder(@NonNull PostHolder holder, final int position, @NonNull final Post model) {
         Log.i(TAG, "onBindViewHolder: executed");
         final LinearLayout lnrCode = holder.lnrCode;
+        final LinearLayout lnrContainer = holder.lnrContainer;
         final TextView mpost = holder.mpost;
         final TextView mUsername = holder.mUsername;
         final TextView mTime = holder.mTime;
@@ -82,8 +85,6 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
         final ImageView imgShare = holder.imgShare;
         final ImageView imgOverflow = holder.imgOverflow;
         final String postId = getSnapshots().getSnapshot(position).getId();
-        final boolean[] liked = new boolean[1];
-        final boolean[] disliked = new boolean[1];
 
         imgStatus.setVisibility(model.getStatus()==1? View.GONE: View.VISIBLE);
         if(model.getBookingCode()!=null && !model.getBookingCode().isEmpty()){
@@ -117,10 +118,18 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
         mLikesCount.setText(model.getLikesCount()==0? "":String.valueOf(model.getLikesCount()));
         mDislikesCount.setText(model.getDislikesCount()==0? "":String.valueOf(model.getDislikesCount()));
 
-        mpost.setOnClickListener(new View.OnClickListener() {
+        imgShare.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                reusable.shareTips(activity, model.getUsername(), model.getContent());
+            }
+        });
+
+        lnrContainer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context, FullPostActivity.class);
+                intent.putExtra("postId", postId);
                 intent.putExtra("model", model);
                 context.startActivity(intent);
             }
@@ -129,6 +138,7 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context, FullPostActivity.class);
+                intent.putExtra("postId", postId);
                 intent.putExtra("model", model);
                 context.startActivity(intent);
             }
@@ -154,6 +164,12 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
             @Override
             public void onClick(View v) {
                 displayOverflow(model.getUserId(), model.getStatus(), model.getType(), imgOverflow);
+            }
+        });
+        lnrCode.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
             }
         });
     }
@@ -206,7 +222,7 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
     }
 
     public class PostHolder extends RecyclerView.ViewHolder {
-        LinearLayout lnrCode;
+        LinearLayout lnrCode, lnrContainer;
         TextView mpost;
         TextView mUsername;
         TextView mTime;
@@ -216,6 +232,7 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
         public PostHolder(View itemView) {
             super(itemView);
             lnrCode = itemView.findViewById(R.id.lnrCode);
+            lnrContainer = itemView.findViewById(R.id.container_post);
             mpost = itemView.findViewById(R.id.txtPost);
             mUsername = itemView.findViewById(R.id.txtUsername);
             mTime = itemView.findViewById(R.id.txtTime);

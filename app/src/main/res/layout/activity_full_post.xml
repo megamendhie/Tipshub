@@ -78,6 +78,7 @@
                         android:id="@+id/imgOverflow"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:background="@drawable/img_like_bg"
                         android:contentDescription="more_options"
                         android:tint="@android:color/darker_gray"
                         android:src="@drawable/ic_more_vert_black_24dp"/>
@@ -124,7 +125,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:layout_marginTop="5dp"
+                    android:layout_marginTop="6dp"
                     android:layout_marginStart="4dp"
                     android:layout_marginEnd="4dp"
                     android:weightSum="10">
@@ -137,6 +138,7 @@
                         android:gravity="center_vertical">
                         <ImageView
                             android:id="@+id/imgLike"
+                            android:background="@drawable/img_like_bg"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:src="@drawable/ic_thumb_up_black_24dp"/>
@@ -158,6 +160,7 @@
                             android:id="@+id/imgDislike"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:background="@drawable/img_like_bg"
                             android:src="@drawable/ic_thumb_down_black_24dp"/>
                         <TextView
                             android:id="@+id/txtDislike"
@@ -177,6 +180,7 @@
                             android:id="@+id/imgComment"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:background="@drawable/img_like_bg"
                             android:src="@drawable/ic_comment_black_24dp"/>
                         <TextView
                             android:id="@+id/txtComment"
@@ -196,6 +200,7 @@
                             android:id="@+id/imgShare"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:background="@drawable/img_like_bg"
                             android:src="@drawable/ic_share_black_24dp"/>
                     </LinearLayout>
 

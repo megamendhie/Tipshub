@@ -91,6 +91,7 @@ public class RecommendedFragment extends Fragment {
         peopleList.setAdapter(adapter);
 
         loadPost();
+        loadNews();
         return rootView;
     }
 
@@ -122,7 +123,7 @@ public class RecommendedFragment extends Fragment {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            String xml = CacheHelper.retrieve(getContext(),"newsKey");
+            String xml = CacheHelper.retrieve(getContext(),"TipshubNews");
             if(xml==null||xml.equals("")){}
             else{
                 onPostExecute(xml);
@@ -133,7 +134,7 @@ public class RecommendedFragment extends Fragment {
             String xml = "";
 
             String urlParameters = "";
-            xml = NewsFunction.excuteGet("https://newsapi.org/v2/everything?domains=espnfc.com&language=en&pageSize=20&apiKey="+myAPI_Key, urlParameters);
+            xml = NewsFunction.excuteGet("https://newsapi.org/v2/everything?domains=espnfc.com&language=en&pageSize=10&apiKey="+myAPI_Key, urlParameters);
             return  xml;
         }
         @Override
@@ -166,9 +167,9 @@ public class RecommendedFragment extends Fragment {
                     }
 
                     //Delete previous cache and cache new info for later use
-                    File cache = new File(getContext() + "/newsKey.srl");
+                    File cache = new File(getContext() + "/TipshubNews.srl");
                     cache.delete();
-                    CacheHelper.save(getContext(), "newsKey", xml);
+                    CacheHelper.save(getContext(), "TipshubNews", xml);
                 } catch (JSONException e) {
                     Toast.makeText(getContext(), "Unexpected error", Toast.LENGTH_SHORT).show();
                 }

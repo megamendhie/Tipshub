@@ -1,56 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v7.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/crdContainer"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginStart="6dp"
-    android:layout_marginEnd="6dp"
-    android:clipToPadding="false"
-    android:paddingTop="3dp"
-    android:paddingBottom="3dp"
-    xmlns:card_view="http://schemas.android.com/tools"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:layout_marginBottom="4dp"
+    android:foreground="?android:attr/selectableItemBackground"
+    android:elevation="10dp">
 
-    <android.support.v7.widget.CardView
-        android:id="@+id/crdContainer"
-        android:layout_width="match_parent"
+    <LinearLayout
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:foreground="?android:attr/selectableItemBackground"
-        app:cardCornerRadius="6dp"
-        android:elevation="10dp">
+        android:descendantFocusability="blocksDescendants"
+        android:orientation="horizontal"
+        android:padding="6dp"
+        android:layout_weight="7">
 
-        <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:descendantFocusability="blocksDescendants"
-            android:orientation="horizontal"
-            android:layout_weight="7"
-            android:padding="4dp">
-
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_gravity="center_vertical"
-                android:padding="4dp">
-
-                <ImageView
-                    android:id="@+id/galleryImage"
-                    android:layout_width="90dp"
-                    android:layout_height="90dp"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/icn"
-                    />
-            </LinearLayout>
-
-
+            <ImageView
+                android:id="@+id/galleryImage"
+                android:layout_width="90dp"
+                android:layout_height="90dp"
+                android:scaleType="centerCrop"
+                android:src="@mipmap/ic_launcher_round"/>
 
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:layout_weight="7"
-                >
+                android:layout_marginStart="5dp"
+                android:layout_weight="7">
                 <TextView
                     android:id="@+id/title"
                     android:layout_width="wrap_content"
@@ -69,7 +47,7 @@
                     android:id="@+id/sdetails"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="#6c6c6c"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:textSize="16sp"
                     android:maxLines="2"
                     android:minLines="2"
@@ -124,4 +102,3 @@
 
         </LinearLayout>
     </android.support.v7.widget.CardView>
-</RelativeLayout>

@@ -11,7 +11,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.sqube.tipshub.R;
 
 import java.util.ArrayList;
@@ -52,6 +51,7 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ListNewsViewHo
             holder.time.setText(song.get(KEY_PUBLISHEDAT));
             holder.sdetails.setText(song.get(KEY_DESCRIPTION));
 
+            /*
             if(song.get(KEY_URLTOIMAGE).toString().length() < 5)
             {
                 //holder.galleryImage.setVisibility(View.GONE);
@@ -60,6 +60,7 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ListNewsViewHo
                         .load(song.get(KEY_URLTOIMAGE).toString())
                         .into(holder.galleryImage);
             }
+            */
             holder.crdContainer.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
