@@ -6,6 +6,13 @@
     android:layout_height="match_parent"
     tools:context=".FullPostActivity">
 
+    <ProgressBar
+        android:id="@+id/prgPost"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_centerInParent="true"/>
+
     <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -261,12 +268,14 @@
                 android:layout_height="40dp"
                 android:src="@drawable/sample_dp"/>
             <EditText
+                android:id="@+id/edtComment"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="14.5"
                 android:maxLines="8"
                 android:hint="Post a comment"/>
             <android.support.design.widget.FloatingActionButton
+                android:id="@+id/fabPost"
                 android:layout_weight="0.5"
                 android:layout_width="40dp"
                 android:layout_height="40dp"

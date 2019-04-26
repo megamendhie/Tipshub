@@ -9,8 +9,8 @@ public class Post implements Serializable{
     private String username;
     private String userId;
     private String content;
-    private String imgUrl1;
-    private String imgUrl2;
+    private String imgUrl1="";
+    private String imgUrl2="";
     private int status;
     private int type;
     private long time;

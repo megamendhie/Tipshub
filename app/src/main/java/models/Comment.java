@@ -8,14 +8,13 @@ public class Comment {
     private String username;
     private String userId;
     private String content;
-    private String imgUrl1;
-    private String imgUrl2;
+    private String imgUrl1="";
+    private String imgUrl2="";
     private long time;
     private List<String> likes = new ArrayList<>();
     private long likesCount;
     private List<String> dislikes = new ArrayList<>();
-    private long dislikesCount;
-    private long repostCount;
+    private long dislikesCount;;
     private long relevance;
     private long reportCount;
 
@@ -30,8 +29,7 @@ public class Comment {
 
         this.likesCount = 0;
         this.dislikesCount = 0;
-        this.repostCount = 0;
-        this.relevance = 1;
+        this.relevance = 0;
         this.reportCount = 0;
     }
 
@@ -97,14 +95,6 @@ public class Comment {
 
     public void setDislikesCount(long dislikesCount) {
         this.dislikesCount = dislikesCount;
-    }
-
-    public long getRepostCount() {
-        return repostCount;
-    }
-
-    public void setRepostCount(long repostCount) {
-        this.repostCount = repostCount;
     }
 
     public long getRelevance() {

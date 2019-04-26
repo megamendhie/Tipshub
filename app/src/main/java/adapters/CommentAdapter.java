@@ -13,11 +13,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.storage.FirebaseStorage;
@@ -28,7 +28,7 @@ import models.Post;
 import models.UserNetwork;
 import utils.Calculations;
 
-public class CommentAdapter extends FirestoreRecyclerAdapter<Post, CommentAdapter.PostHolder>{
+public class CommentAdapter extends FirestoreRecyclerAdapter<Post, CommentAdapter.CommentHolder>{
     private final String TAG = "PostAdaper";
     private Activity activity;
     private Context context;
@@ -57,10 +57,9 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Post, CommentAdapte
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
-    protected void onBindViewHolder(@NonNull PostHolder holder, final int position, @NonNull final Post model) {
+    protected void onBindViewHolder(@NonNull CommentHolder holder, final int position, @NonNull final Post model) {
         Log.i(TAG, "onBindViewHolder: executed");
-        final LinearLayout lnrContainer = holder.lnrContainer;
-        final TextView mpost = holder.mpost;
+        final TextView mComment = holder.mComment;
         final TextView mUsername = holder.mUsername;
         final TextView mTime = holder.mTime;
         final TextView mLikesCount = holder.mLikes;
@@ -70,9 +69,10 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Post, CommentAdapte
         final ImageView imgShare = holder.imgShare;
         final ImageView imgOverflow = holder.imgOverflow;
         final String postId = getSnapshots().getSnapshot(position).getId();
+        final DocumentReference commentRef = getSnapshots().getSnapshot(position).getReference();
 
         mUsername.setText(model.getUsername());
-        mpost.setText(model.getContent());
+        mComment.setText(model.getContent());
         mTime.setText(DateFormat.format("dd MMM  (h:mm a)", model.getTime()));
         imgLikes.setColorFilter(model.getLikes().contains(userId)?
                 context.getResources().getColor(R.color.colorPrimary): context.getResources().getColor(R.color.likeGrey));
@@ -88,7 +88,7 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Post, CommentAdapte
             public void onClick(View v) {
                 Log.i(TAG, "onClick: Key is " + postId);
                 Calculations calculations = new Calculations(context);
-                calculations.onLike(postId, userId);
+                calculations.onCommentLike(commentRef, userId);
             }
         });
 
@@ -97,7 +97,7 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Post, CommentAdapte
             public void onClick(View v) {
                 Log.i(TAG, "onClick: Key is " + postId);
                 Calculations calculations = new Calculations(context);
-                calculations.onDislike( postId, userId);
+                calculations.onCommentDislike(commentRef, userId);
             }
         });
         imgOverflow.setOnClickListener(new View.OnClickListener() {
@@ -132,23 +132,21 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Post, CommentAdapte
     }
 
     @Override
-    public PostHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public CommentHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.comment_view, parent, false);
-        return new PostHolder(view);
+        return new CommentHolder(view);
     }
 
-    public class PostHolder extends RecyclerView.ViewHolder {
-        LinearLayout lnrContainer;
-        TextView mpost;
+    public class CommentHolder extends RecyclerView.ViewHolder {
+        TextView mComment;
         TextView mUsername;
         TextView mTime;
         TextView mLikes, mDislikes;
         ImageView imgOverflow;
         ImageView imgLikes, imgDislike, imgShare;
-        public PostHolder(View itemView) {
+        public CommentHolder(View itemView) {
             super(itemView);
-            lnrContainer = itemView.findViewById(R.id.container_post);
-            mpost = itemView.findViewById(R.id.txtPost);
+            mComment = itemView.findViewById(R.id.txtPost);
             mUsername = itemView.findViewById(R.id.txtUsername);
             mTime = itemView.findViewById(R.id.txtTime);
             mLikes = itemView.findViewById(R.id.txtLike);
