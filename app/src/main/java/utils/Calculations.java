@@ -7,23 +7,75 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.Transaction;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import models.UserNetwork;
+
 public final class Calculations {
     private FirebaseFirestore database = FirebaseFirestore.getInstance();
     private String TAG = "Calculations";
-    Context context;
+    private Context context;
 
     public Calculations(Context context){
         this.context = context;
+    }
+
+    public void recommend(final String myId, final String yourId){
+        if(UserNetwork.getFollowing()==null){
+            return;
+        }
+        if(!UserNetwork.getFollowing().contains(yourId)){
+            final CollectionReference ref =  database.collection("recommended").document(myId)
+                    .collection("rec");
+            ref.document(yourId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot snapshot) {
+                    Map<String, Object> update = new HashMap<>();
+                    if(snapshot.exists()){
+                        update.put("count", snapshot.get("count", long.class) + 1);
+                    }
+                    else{
+                        update.put("count", 1);
+                        update.put("id", yourId);
+                        update.put("dateAdded", new Date().getTime());
+                    }
+                    ref.document(yourId).set(update, SetOptions.merge());
+                }
+            });
+            ref.orderBy("dateAdded", Query.Direction.ASCENDING).get()
+                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                        @Override
+                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                            if(queryDocumentSnapshots.size() >= 50){
+                                int counter = queryDocumentSnapshots.size() - 40;
+                                long time = new Date().getTime();
+                                for(DocumentSnapshot snapshot: queryDocumentSnapshots.getDocuments()){
+                                    counter--;
+                                    if((time - snapshot.get("dateAdded", long.class))> 604800000)
+                                        snapshot.getReference().delete();
+                                    else
+                                        break;
+                                    if(counter>=10)
+                                        break;
+                                }
+                            }
+
+                        }
+                    });
+        }
     }
 
     public double getPostRelevance(long like, long dislike, long repost){
@@ -38,7 +90,7 @@ public final class Calculations {
         return (2*subscribers)+ subscribedTo + followers + (0.5* following);
     }
 
-    public void onLike(final String postId, final String userId){
+    public void onLike(final String postId, final String userId, final String postOwnerId){
         final DocumentReference postPath =  database.collection("posts").document(postId);
         database.runTransaction(new Transaction.Function<Void>() {
             @Override
@@ -88,6 +140,9 @@ public final class Calculations {
             @Override
             public void onSuccess(Void aVoid) {
                 Log.d(TAG, "Transaction success!");
+                if(userId!=postOwnerId){
+                    recommend(userId, postOwnerId);
+                }
             }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -161,7 +216,7 @@ public final class Calculations {
         //send notification
     }
 
-    public void onCommentLike(final DocumentReference commentRef, final String userId){
+    public void onCommentLike(final DocumentReference commentRef, final String userId, final String postOwnerId){
         database.runTransaction(new Transaction.Function<Void>() {
             @Override
             public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
@@ -209,6 +264,9 @@ public final class Calculations {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Log.d(TAG, "Transaction success!");
+                        if(userId!=postOwnerId){
+                            recommend(userId, postOwnerId);
+                        }
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {

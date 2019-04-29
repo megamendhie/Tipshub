@@ -69,5 +69,15 @@ public final class Reusable {
         activity.startActivity(Intent.createChooser(share, "Share via:"));
     }
 
+    public void shareComment(Activity activity, String username, String post){
+        String output = "@"+username+"'s comment on Tipshub:\n\n"+ post + "\n\nApp link: http://bit.ly/SecuredTips" ;
+
+        Intent share = new Intent(Intent.ACTION_SEND);share.setType("text/plain");
+        share.putExtra(Intent.EXTRA_TEXT, output);
+        share.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY |
+                Intent.FLAG_ACTIVITY_NEW_DOCUMENT |
+                Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+        activity.startActivity(Intent.createChooser(share, "Share via:"));
+    }
 
 }
