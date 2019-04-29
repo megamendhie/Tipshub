@@ -138,7 +138,7 @@ public class SubscribedBankerAdapter extends FirestoreRecyclerAdapter<Post, Subs
             public void onClick(View v) {
                 Log.i(TAG, "onClick: Key is " + postId);
                 Calculations calculations = new Calculations(context);
-                calculations.onLike(postId, userId);
+                calculations.onLike(postId, userId, model.getUserId());
             }
         });
 

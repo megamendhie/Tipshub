@@ -27,6 +27,7 @@ import com.sqube.tipshub.R;
 import models.Post;
 import models.UserNetwork;
 import utils.Calculations;
+import utils.Reusable;
 
 public class CommentAdapter extends FirestoreRecyclerAdapter<Post, CommentAdapter.CommentHolder>{
     private final String TAG = "PostAdaper";
@@ -88,7 +89,15 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Post, CommentAdapte
             public void onClick(View v) {
                 Log.i(TAG, "onClick: Key is " + postId);
                 Calculations calculations = new Calculations(context);
-                calculations.onCommentLike(commentRef, userId);
+                calculations.onCommentLike(commentRef, userId, model.getUserId());
+            }
+        });
+
+        imgShare.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Reusable reusable = new Reusable();
+                reusable.shareComment(activity, model.getUsername(), model.getContent());
             }
         });
 

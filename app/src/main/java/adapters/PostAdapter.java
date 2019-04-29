@@ -148,7 +148,7 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
             public void onClick(View v) {
                 Log.i(TAG, "onClick: Key is " + postId);
                 Calculations calculations = new Calculations(context);
-                calculations.onLike(postId, userId);
+                calculations.onLike(postId, userId, model.getUserId());
             }
         });
 

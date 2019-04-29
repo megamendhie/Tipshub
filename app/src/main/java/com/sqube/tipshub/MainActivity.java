@@ -56,6 +56,11 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                 .build();
         mGoogleSignInClient = GoogleSignIn.getClient(MainActivity.this, gso);
         auth = FirebaseAuth.getInstance();
+        if(auth.getCurrentUser()==null){
+            startActivity(new Intent(MainActivity.this, LoginActivity.class));
+            finish();
+            return;
+        }
         auth.addAuthStateListener(new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {

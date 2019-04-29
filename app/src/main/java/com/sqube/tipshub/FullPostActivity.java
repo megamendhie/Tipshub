@@ -207,7 +207,7 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.imgLike:
-                calculations.onLike(postId, userId);
+                calculations.onLike(postId, userId, model.getUserId());
                 break;
             case R.id.imgDislike:
                 calculations.onDislike(postId, userId);
@@ -228,13 +228,17 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
             return;
         }
         else{
-            commentReference.add(new Comment(username, userId, comment)).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+            commentReference.add(new Comment(username, userId, comment))
+                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                 @Override
                 public void onSuccess(DocumentReference documentReference) {
                     Snackbar.make(edtComment, "Comment added", Snackbar.LENGTH_SHORT).show();
                     comment= "";
                     edtComment.setText("");
                     increaseCommentCount();
+                    if(userId!=model.getUserId()){
+                        calculations.recommend(userId, model.getUserId());
+                    }
                 }
             });
         }
