@@ -164,7 +164,7 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
         imgOverflow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                displayOverflow(model.getUserId(), model.getStatus(), model.getType(), imgOverflow);
+                displayOverflow(model, model.getUserId(), postId, model.getStatus(), model.getType(), imgOverflow);
             }
         });
         lnrCode.setOnClickListener(new View.OnClickListener() {
@@ -175,7 +175,7 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
         });
     }
 
-    private void displayOverflow(String userId, int status, int type, ImageView imgOverflow) {
+    private void displayOverflow(final Post model, String userId, final String postId, int status, int type, ImageView imgOverflow) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         LayoutInflater inflater = activity.getLayoutInflater();
         View dialogView;
@@ -187,15 +187,24 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
         final AlertDialog dialog= builder.create();
         dialog.show();
 
-        Button btnSubmit, btnDelete, btnShare, btnRost, btnFollow, btnSubscribe, btnObject;
+        Button btnSubmit, btnDelete, btnShare, btnRepost, btnFollow, btnSubscribe, btnObject;
         btnSubmit = dialog.findViewById(R.id.btnSubmit);
         btnDelete = dialog.findViewById(R.id.btnDelete);
         btnShare = dialog.findViewById(R.id.btnShare);
-        btnRost = dialog.findViewById(R.id.btnRost);
+        btnRepost = dialog.findViewById(R.id.btnRepost);
         btnFollow = dialog.findViewById(R.id.btnFollow);
         btnSubscribe = dialog.findViewById(R.id.btnSubscribe);
 
         btnFollow.setText(UserNetwork.getFollowing().contains(this.userId)? "UNFOLLOW": "FOLLOW");
+        btnRepost.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, FullPostActivity.class);
+                intent.putExtra("postId", postId);
+                intent.putExtra("model", model);
+                context.startActivity(intent);
+            }
+        });
     }
 
     private void popUp(){

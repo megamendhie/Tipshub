@@ -151,6 +151,9 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
 
     private void loadPost() {
         model = (Post) getIntent().getSerializableExtra("model");
+        if(model==null){
+            return;
+        }
         imgStatus.setVisibility(model.getStatus()==1? View.GONE: View.VISIBLE);
         if(model.getBookingCode()!=null && !model.getBookingCode().isEmpty()){
             mCode.setText(model.getBookingCode() + " @" + code[(model.getRecommendedBookie()-1)]);

@@ -5,5 +5,6 @@
     <color name="colorAccent">#ff01579b</color>
     <color name="colorAccentLight">#067ecf</color>
     <color name="likeGrey">#B4B4B4</color>
+    <color name="likeButton">#F2465C</color>
     <color name="greyBackground">#e5eff7</color>
 </resources>

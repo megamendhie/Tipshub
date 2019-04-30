@@ -9,6 +9,13 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
 
+    <ProgressBar
+        android:id="@+id/prgLogin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="gone"/>
+
     <LinearLayout
         android:gravity="bottom"
         android:orientation="horizontal"
@@ -27,21 +34,22 @@
             android:layout_height="1.0dip"
             android:layout_weight="10.0" />
     </LinearLayout>
+
     <EditText
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:textSize="16.0sp"
-        android:gravity="start"
         android:id="@+id/edtPost"
-        android:background="@android:color/transparent"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10.0dip"
-        android:hint="@string/type_your_post"
-        android:maxLines="10"
-        android:minLines="2"
-        android:maxLength="450"
         android:layout_below="@id/lnrUp"
-        android:inputType="textCapSentences|textMultiLine" />
+        android:layout_marginTop="10.0dip"
+        android:maxLength="450"
+        android:minLines="2"
+        android:maxLines="10"
+        android:gravity="start"
+        android:textSize="16sp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:inputType="textCapSentences|textMultiLine"
+        android:background="@android:color/transparent"
+        android:hint="@string/type_your_post"/>
     <LinearLayout
         android:orientation="vertical"
         android:background="@android:drawable/editbox_background_normal"
@@ -51,31 +59,61 @@
         android:layout_marginTop="6.0dip"
         android:layout_below="@id/edtPost"
         android:layout_marginStart="18.0dip">
-        <RelativeLayout
-            android:gravity="center_vertical"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content">
-            <TextView
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                android:textStyle="bold"
-                android:id="@+id/txtChildUsername"
-                android:layout_width="wrap_content"
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="10">
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/childDp"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/sample_dp"/>
+            <LinearLayout
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Username" />
+                android:orientation="vertical"
+                android:layout_weight="10"
+                android:layout_marginStart="4dp">
+                <TextView
+                    android:id="@+id/txtChildUsername"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="megamendhie"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:id="@+id/txtChildType"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:textStyle="bold"
+                    android:text="3-5 odds"/>
+            </LinearLayout>
+
+
             <ImageView
-                android:layout_width="20.0dip"
-                android:layout_height="20.0dip"
-                android:src="@mipmap/ic_launcher_round"
+                android:id="@+id/imgStatus"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
                 android:scaleType="centerCrop"
-                android:layout_alignParentEnd="true" />
-        </RelativeLayout>
+                android:layout_marginEnd="6dp"
+                android:layout_marginTop="2dp"
+                android:tint="#25b153"
+                android:src="@drawable/ic_check_circle_green_24dp"/>
+
+        </LinearLayout>
         <TextView
+            android:id="@+id/txtPost"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             android:textSize="16.0sp"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="I have seen a lot of beautiful things I want to share later.
-         /n bu not now I have seen a lot of beautiful things I want to share later. /n bu not now" />
+            android:layout_marginTop="4dp"
+            android:text="" />
     </LinearLayout>
     <LinearLayout
         android:gravity="end"
