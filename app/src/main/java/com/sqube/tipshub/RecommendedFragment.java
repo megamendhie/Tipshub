@@ -99,8 +99,7 @@ public class RecommendedFragment extends Fragment {
     private void loadPost() {
         long stopTime = new Date().getTime() - (48*60*60*1000);
         Log.i(TAG, "loadPost: ");
-        query = database.collection("posts").orderBy("time", Query.Direction.DESCENDING)
-                .orderBy("relevance", Query.Direction.DESCENDING).limit(10);
+        query = database.collection("posts").orderBy("timeRelevance", Query.Direction.DESCENDING).limit(10);
         postAdapter = new PostAdapter(query, userId, getActivity(), getContext());
         trendingList.setAdapter(postAdapter);
         if(postAdapter!=null){

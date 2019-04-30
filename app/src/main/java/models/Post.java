@@ -21,6 +21,7 @@ public class Post implements Serializable{
     private long repostCount;
     private long commentsCount;
     private long relevance;
+    private long timeRelevance;
     private long reportCount;
 
     private boolean hasChild;
@@ -48,6 +49,7 @@ public class Post implements Serializable{
         this.repostCount = 0;
         this.commentsCount = 0;
         this.relevance = 1;
+        this.timeRelevance = 1;
         this.reportCount = 0;
 
         this.hasChild = true;
@@ -69,6 +71,7 @@ public class Post implements Serializable{
         this.repostCount = 0;
         this.commentsCount = 0;
         this.relevance = 1;
+        this.timeRelevance = 1;
         this.reportCount = 0;
 
         this.bookingCode = bookingCode;
@@ -251,5 +254,13 @@ public class Post implements Serializable{
 
     public void setDislikes(List<String> dislikes) {
         this.dislikes = dislikes;
+    }
+
+    public long getTimeRelevance() {
+        return timeRelevance;
+    }
+
+    public void setTimeRelevance(long timeRelevance) {
+        this.timeRelevance = timeRelevance;
     }
 }

@@ -44,6 +44,7 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
     private String[] code = {"1xBet", "Bet9ja", "Nairabet", "SportyBet", "BlackBet", "Bet365"};
     private String[] type = {"3-5 odds", "6-10 odds", "11-50 odds", "50+ odds", "Draws"};
 
+
     public PostAdapter(Query query, String userID, Activity activity, Context context) {
         /*
         Configure recycler adapter options:

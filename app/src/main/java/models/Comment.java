@@ -16,6 +16,7 @@ public class Comment {
     private List<String> dislikes = new ArrayList<>();
     private long dislikesCount;;
     private long relevance;
+    private long timeRelevance;
     private long reportCount;
 
 
@@ -30,6 +31,7 @@ public class Comment {
         this.likesCount = 0;
         this.dislikesCount = 0;
         this.relevance = 0;
+        this.timeRelevance = 1;
         this.reportCount = 0;
     }
 
@@ -127,5 +129,13 @@ public class Comment {
 
     public void setDislikes(List<String> dislikes) {
         this.dislikes = dislikes;
+    }
+
+    public long getTimeRelevance() {
+        return timeRelevance;
+    }
+
+    public void setTimeRelevance(long timeRelevance) {
+        this.timeRelevance = timeRelevance;
     }
 }

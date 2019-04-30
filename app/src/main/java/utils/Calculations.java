@@ -87,6 +87,10 @@ public final class Calculations {
         return (1+like + repost +(like*repost))/(1+dislike);
     }
 
+    public double getTimeRelevance(double relevance, long time){
+        return ((time * relevance)/1000);
+    }
+
     public double getCommentRelevance(long like, long dislike){
         return (like + (0.5* dislike));
     }
@@ -113,6 +117,7 @@ public final class Calculations {
                 long likesCount = snapshot.getLong("likesCount");
                 long dislikesCount = snapshot.getLong("dislikesCount");
                 long repostCount = snapshot.getLong("repostCount");
+                long time = snapshot.getLong("time");
                 List<String> likes = (List) snapshot.get("likes");
                 List<String> dislikes = (List) snapshot.get("dislikes");
                 Map<String, Object> upd = new HashMap<>();
@@ -135,11 +140,13 @@ public final class Calculations {
                     }
                 }
                 double postRelevance = getPostRelevance(likesCount, dislikesCount, repostCount);
+                double timeRelevance = getTimeRelevance(postRelevance, time);
                 upd.put("likesCount", likesCount);
                 upd.put("dislikesCount", dislikesCount);
                 upd.put("likes", likes);
                 upd.put("dislikes", dislikes);
                 upd.put("relevance", postRelevance);
+                upd.put("timeRelevance", timeRelevance);
                 transaction.update(postPath, upd);
                 return null;
             }
@@ -180,6 +187,7 @@ public final class Calculations {
                 long likesCount = snapshot.getLong("likesCount");
                 long dislikesCount = snapshot.getLong("dislikesCount");
                 long repostCount = snapshot.getLong("repostCount");
+                long time = snapshot.getLong("time");
                 List<String> likes = (List) snapshot.get("likes");
                 List<String> dislikes = (List) snapshot.get("dislikes");
                 Map<String, Object> upd = new HashMap<>();
@@ -200,11 +208,13 @@ public final class Calculations {
                     }
                 }
                 double postRelevance = getPostRelevance(likesCount, dislikesCount, repostCount);
+                double timeRelevance = getTimeRelevance(postRelevance, time);
                 upd.put("likesCount", likesCount);
                 upd.put("dislikesCount", dislikesCount);
                 upd.put("likes", likes);
                 upd.put("dislikes", dislikes);
                 upd.put("relevance", postRelevance);
+                upd.put("timeRelevance", timeRelevance);
                 transaction.update(postPath, upd);
                 return null;
             }
@@ -241,6 +251,7 @@ public final class Calculations {
                 //retrieve likes, likesCount, dislikes and dislikesCount from snapshot
                 long likesCount = snapshot.getLong("likesCount");
                 long dislikesCount = snapshot.getLong("dislikesCount");
+                long time = snapshot.getLong("time");
                 List<String> likes = (List) snapshot.get("likes");
                 List<String> dislikes = (List) snapshot.get("dislikes");
                 Map<String, Object> upd = new HashMap<>();
@@ -263,11 +274,13 @@ public final class Calculations {
                     }
                 }
                 double postRelevance = getCommentRelevance(likesCount, dislikesCount);
+                double timeRelevance = getTimeRelevance(postRelevance, time);
                 upd.put("likesCount", likesCount);
                 upd.put("dislikesCount", dislikesCount);
                 upd.put("likes", likes);
                 upd.put("dislikes", dislikes);
                 upd.put("relevance", postRelevance);
+                upd.put("timeRelevance", timeRelevance);
                 transaction.update(commentRef, upd);
                 return null;
             }
@@ -305,6 +318,7 @@ public final class Calculations {
                 //retrieve likes, likesCount, dislikes, dislikesCount, and repostCount from snapshot
                 long likesCount = snapshot.getLong("likesCount");
                 long dislikesCount = snapshot.getLong("dislikesCount");
+                long time = snapshot.getLong("time");
                 List<String> likes = (List) snapshot.get("likes");
                 List<String> dislikes = (List) snapshot.get("dislikes");
                 Map<String, Object> upd = new HashMap<>();
@@ -325,11 +339,13 @@ public final class Calculations {
                     }
                 }
                 double postRelevance = getCommentRelevance(likesCount, dislikesCount);
+                double timeRelevance = getTimeRelevance(postRelevance, time);
                 upd.put("likesCount", likesCount);
                 upd.put("dislikesCount", dislikesCount);
                 upd.put("likes", likes);
                 upd.put("dislikes", dislikes);
                 upd.put("relevance", postRelevance);
+                upd.put("timeRelevance", timeRelevance);
                 transaction.update(commentRef, upd);
                 return null;
             }
