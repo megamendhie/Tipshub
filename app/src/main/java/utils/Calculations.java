@@ -52,7 +52,12 @@ public final class Calculations {
                         update.put("id", yourId);
                         update.put("dateAdded", new Date().getTime());
                     }
-                    ref.document(yourId).set(update, SetOptions.merge());
+                    ref.document(yourId).set(update, SetOptions.merge()).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.i(TAG, "onFailure: " + e.getMessage());
+                        }
+                    });
                 }
             });
             ref.orderBy("dateAdded", Query.Direction.ASCENDING).get()
@@ -92,6 +97,7 @@ public final class Calculations {
 
     public void onLike(final String postId, final String userId, final String postOwnerId){
         final DocumentReference postPath =  database.collection("posts").document(postId);
+        final boolean[] like = {true};
         database.runTransaction(new Transaction.Function<Void>() {
             @Override
             public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
@@ -111,6 +117,7 @@ public final class Calculations {
                 List<String> dislikes = (List) snapshot.get("dislikes");
                 Map<String, Object> upd = new HashMap<>();
                 if(dislikes.contains(userId)){
+                    like[0] = false;
                     dislikesCount -=1;
                     likesCount +=1;
                     dislikes.remove(userId);
@@ -118,6 +125,7 @@ public final class Calculations {
                 }
                 else{
                     if(likes.contains(userId)){
+                        like[0] = false;
                         likesCount -=1;
                         likes.remove(userId);
                     }
@@ -140,7 +148,8 @@ public final class Calculations {
             @Override
             public void onSuccess(Void aVoid) {
                 Log.d(TAG, "Transaction success!");
-                if(userId!=postOwnerId){
+                if(like[0] && !userId.equals(postOwnerId)){
+                    Log.i(TAG, "onSuccess: recommeded started" + like[0] +" "+ userId.equals(postOwnerId));
                     recommend(userId, postOwnerId);
                 }
             }
@@ -217,6 +226,7 @@ public final class Calculations {
     }
 
     public void onCommentLike(final DocumentReference commentRef, final String userId, final String postOwnerId){
+        final boolean[] like = {true};
         database.runTransaction(new Transaction.Function<Void>() {
             @Override
             public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
@@ -235,6 +245,7 @@ public final class Calculations {
                 List<String> dislikes = (List) snapshot.get("dislikes");
                 Map<String, Object> upd = new HashMap<>();
                 if(dislikes.contains(userId)){
+                    like[0] = false;
                     dislikesCount -=1;
                     likesCount +=1;
                     dislikes.remove(userId);
@@ -242,6 +253,7 @@ public final class Calculations {
                 }
                 else{
                     if(likes.contains(userId)){
+                        like[0] = false;
                         likesCount -=1;
                         likes.remove(userId);
                     }
@@ -264,7 +276,7 @@ public final class Calculations {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Log.d(TAG, "Transaction success!");
-                        if(userId!=postOwnerId){
+                        if(!userId.equals(postOwnerId) && like[0]){
                             recommend(userId, postOwnerId);
                         }
                     }

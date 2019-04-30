@@ -118,7 +118,7 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
 
     //listen for changes in likesCount, dislikesCount and update
     private void listener() {
-        postReference.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+        postReference.addSnapshotListener(FullPostActivity.this, new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
                 if(documentSnapshot.exists()){
@@ -236,7 +236,7 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
                     comment= "";
                     edtComment.setText("");
                     increaseCommentCount();
-                    if(userId!=model.getUserId()){
+                    if(!userId.equals(model.getUserId())){
                         calculations.recommend(userId, model.getUserId());
                     }
                 }
