@@ -50,12 +50,8 @@ public class RepostActivity extends AppCompatActivity implements View.OnClickLis
     private String username;
     private String userId;
     private String content;
-
     private String childLink;
-    private String childUsername;
-    private String childUserId;
-    private String childContent;
-    private int childStatus;
+
     boolean postExist=false;
     private String[] type = {"3-5 odds", "6-10 odds", "11-50 odds", "50+ odds", "Draws"};
 
@@ -85,6 +81,8 @@ public class RepostActivity extends AppCompatActivity implements View.OnClickLis
         txtChildUsername = findViewById(R.id.txtChildUsername);
         childLink = getIntent().getStringExtra("postId");
         postReference = database.collection("posts").document(childLink);
+
+        loadPost();
     }
 
 
@@ -93,15 +91,10 @@ public class RepostActivity extends AppCompatActivity implements View.OnClickLis
         if(model==null){
             return;
         }
-        //retrieve child elements from the model
         postExist=true;
-        childStatus = model.getStatus();
-        childUserId = model.getUserId();
-        childUsername = model.getChildUsername();
-        childContent = model.getContent();
 
         //set visibility for status and type
-        imgStatus.setVisibility(childStatus ==1? View.GONE: View.VISIBLE);
+        imgStatus.setVisibility(model.getStatus() ==1? View.GONE: View.VISIBLE);
         if(model.getType()==0){
             txtChildType.setVisibility(View.GONE);
         }
@@ -110,8 +103,8 @@ public class RepostActivity extends AppCompatActivity implements View.OnClickLis
             txtChildType.setText(type[model.getType()-1]);
         }
 
-        txtChildUsername.setText(childUsername);
-        txtPost.setText(childContent);
+        txtChildUsername.setText(model.getUsername());
+        txtPost.setText(model.getContent());
     }
 
     //listen to changes on child node. Update
@@ -138,6 +131,11 @@ public class RepostActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     public void post(){
+        content = edtPost.getText().toString();
+        if(content.length()<3){
+            Toast.makeText(this, "Content too small", Toast.LENGTH_LONG).show();
+            return;
+        }
         prgBar.setVisibility(View.VISIBLE);
         final DocumentReference postPath =  database.collection("posts").document(childLink);
         final Calculations calculations= new Calculations(getApplicationContext());
@@ -175,15 +173,16 @@ public class RepostActivity extends AppCompatActivity implements View.OnClickLis
                     public void onSuccess(Void aVoid) {
                         Log.d("RepostActivity", "Transaction success!");
                         //Repost the content
-                        content = edtPost.getText().toString();
-                        Post post = new Post(username, userId, content, 1, 0, childLink, childUsername, childUserId);
+                        Post post = new Post(username, userId, content, 1, 0, childLink, model.getUsername(),
+                                model.getUserId(), model.getContent(), model.getImgUrl1(), model.getImgUrl2(), model.getBookingCode(),
+                                model.getRecommendedBookie());
                         database.collection("posts").add(post);
 
                         //add to recommended user
-                        if(!userId.equals(childUserId)){
-                            calculations.recommend(userId, childUserId);
+                        if(!userId.equals(model.getUserId())){
+                            calculations.recommend(userId, model.getUserId());
                         }
-                        setlastSeen();
+                        setLastPostTime();
 
                     }
                 })
@@ -198,7 +197,7 @@ public class RepostActivity extends AppCompatActivity implements View.OnClickLis
        //send notification
     }
 
-    public void setlastSeen(){
+    public void setLastPostTime(){
         database.collection("profiles").document(userId)
                 .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
@@ -232,12 +231,7 @@ public class RepostActivity extends AppCompatActivity implements View.OnClickLis
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.btnPost:
-                /*
                 post();
-                sendNotification();
-                 */
-                Toast.makeText(getApplicationContext(), "Posted", Toast.LENGTH_LONG).show();
-                finish();
                 break;
             case R.id.btnClose:
                 startActivity(new Intent(this, LoginActivity.class));

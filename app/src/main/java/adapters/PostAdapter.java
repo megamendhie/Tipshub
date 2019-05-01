@@ -20,6 +20,8 @@ import android.widget.TextView;
 
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.storage.FirebaseStorage;
@@ -27,6 +29,7 @@ import com.google.firebase.storage.StorageReference;
 import com.sqube.tipshub.FullPostActivity;
 import com.sqube.tipshub.LoginActivity;
 import com.sqube.tipshub.R;
+import com.sqube.tipshub.RepostActivity;
 
 import models.Post;
 import models.UserNetwork;
@@ -70,6 +73,7 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
         Log.i(TAG, "onBindViewHolder: executed");
         final LinearLayout lnrCode = holder.lnrCode;
         final LinearLayout lnrContainer = holder.lnrContainer;
+        final LinearLayout lnrChildContainer = holder.lnrChildContainer;
         final TextView mpost = holder.mpost;
         final TextView mUsername = holder.mUsername;
         final TextView mTime = holder.mTime;
@@ -88,6 +92,7 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
         final String postId = getSnapshots().getSnapshot(position).getId();
 
         imgStatus.setVisibility(model.getStatus()==1? View.GONE: View.VISIBLE);
+        lnrChildContainer.setVisibility(model.isHasChild()? View.VISIBLE: View.GONE);
         if(model.getBookingCode()!=null && !model.getBookingCode().isEmpty()){
             mCode.setText(model.getBookingCode() + " @" + code[(model.getRecommendedBookie()-1)]);
             mCode.setVisibility(View.VISIBLE);
@@ -173,6 +178,51 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
 
             }
         });
+
+        if(model.isHasChild()){
+            displayChildContent(model.getChildLink(), holder);
+        }
+    }
+
+    private void displayChildContent(final String childLink, final PostHolder holder) {
+        final LinearLayout lnrChildCode = holder.lnrChildCode, lnrChildContainer = holder.lnrChildContainer;
+        final TextView childPost= holder.childPost;
+        final TextView childUsername = holder.childUsername;
+        final TextView childCode = holder.childCode, childType = holder.childType;
+        final ImageView imgChildStatus = holder.imgChildStatus, imgChildCode = holder.imgChildCode;
+
+        database.collection("posts").document(childLink).get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                Post model = documentSnapshot.toObject(Post.class);
+
+                imgChildStatus.setVisibility(model.getStatus()==1? View.GONE: View.VISIBLE);
+                if(model.getBookingCode()!=null && !model.getBookingCode().isEmpty()){
+                    childCode.setText(model.getBookingCode() + " @" + code[(model.getRecommendedBookie()-1)]);
+                    childCode.setVisibility(View.VISIBLE);
+                    imgChildCode.setVisibility(View.VISIBLE);
+                    lnrChildCode.setVisibility(View.VISIBLE);
+                }
+                else{
+                    lnrChildCode.setVisibility(View.GONE);
+                    childCode.setVisibility(View.GONE);
+                    imgChildCode.setVisibility(View.GONE);
+                }
+                if(model.getType()==0){
+                    childType.setVisibility(View.GONE);
+                }
+                else{
+                    childType.setVisibility(View.VISIBLE);
+                    childType.setText(type[model.getType()-1]);
+                }
+
+                childUsername.setText(model.getUsername());
+                childPost.setText(model.getContent());
+            }
+        });
+
+
     }
 
     private void displayOverflow(final Post model, String userId, final String postId, int status, int type, ImageView imgOverflow) {
@@ -195,14 +245,18 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
         btnFollow = dialog.findViewById(R.id.btnFollow);
         btnSubscribe = dialog.findViewById(R.id.btnSubscribe);
 
-        btnFollow.setText(UserNetwork.getFollowing().contains(this.userId)? "UNFOLLOW": "FOLLOW");
+        if(UserNetwork.getFollowing()==null)
+            btnFollow.setVisibility(View.GONE);
+        else
+            btnFollow.setText(UserNetwork.getFollowing().contains(this.userId)? "UNFOLLOW": "FOLLOW");
         btnRepost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(context, FullPostActivity.class);
+                Intent intent = new Intent(context, RepostActivity.class);
                 intent.putExtra("postId", postId);
                 intent.putExtra("model", model);
                 context.startActivity(intent);
+                dialog.cancel();
             }
         });
     }
@@ -232,19 +286,24 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
     }
 
     public class PostHolder extends RecyclerView.ViewHolder {
-        LinearLayout lnrCode, lnrContainer;
-        TextView mpost;
-        TextView mUsername;
+        LinearLayout lnrCode, lnrContainer,  lnrChildCode, lnrChildContainer;
+        TextView mpost, childPost;
+        TextView mUsername, childUsername;
         TextView mTime;
-        TextView mLikes, mDislikes, mComment, mCode, mType;
+        TextView mLikes, mDislikes, mComment, mCode, mType, childCode, childType;
         ImageView imgOverflow;
-        ImageView imgLikes, imgDislike, imgComment, imgShare, imgStatus, imgCode;
+        ImageView imgLikes, imgDislike, imgComment, imgShare, imgStatus, imgCode, imgChildStatus, imgChildCode;
         public PostHolder(View itemView) {
             super(itemView);
             lnrCode = itemView.findViewById(R.id.lnrCode);
             lnrContainer = itemView.findViewById(R.id.container_post);
+            lnrChildCode = itemView.findViewById(R.id.lnrChildCode);
+            lnrChildContainer = itemView.findViewById(R.id.container_child_post);
+
             mpost = itemView.findViewById(R.id.txtPost);
+            childPost = itemView.findViewById(R.id.txtChildPost);
             mUsername = itemView.findViewById(R.id.txtUsername);
+            childUsername = itemView.findViewById(R.id.txtChildUsername);
             mTime = itemView.findViewById(R.id.txtTime);
 
             mLikes = itemView.findViewById(R.id.txtLike);
@@ -252,14 +311,18 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
             mComment = itemView.findViewById(R.id.txtComment);
             mCode = itemView.findViewById(R.id.txtCode);
             mType = itemView.findViewById(R.id.txtPostType);
+            childCode = itemView.findViewById(R.id.txtChildCode);
+            childType = itemView.findViewById(R.id.txtChildType);
 
             imgLikes = itemView.findViewById(R.id.imgLike);
             imgDislike = itemView.findViewById(R.id.imgDislike);
             imgComment = itemView.findViewById(R.id.imgComment);
             imgShare = itemView.findViewById(R.id.imgShare);
-            imgStatus = itemView.findViewById(R.id.imgStatus);
             imgCode = itemView.findViewById(R.id.imgCode);
+            imgStatus = itemView.findViewById(R.id.imgStatus);
             imgOverflow = itemView.findViewById(R.id.imgOverflow);
+            imgChildCode = itemView.findViewById(R.id.imgChildCode);
+            imgChildStatus = itemView.findViewById(R.id.imgChildStatus);
         }
     }
 }

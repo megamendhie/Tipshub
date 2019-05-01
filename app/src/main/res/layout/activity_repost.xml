@@ -2,7 +2,6 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:background="@android:color/white"
     android:paddingLeft="@dimen/vertical_padding"
     android:paddingTop="@dimen/vertical_padding"
     android:paddingRight="@dimen/vertical_padding"
@@ -43,7 +42,7 @@
         android:layout_marginTop="10.0dip"
         android:maxLength="450"
         android:minLines="2"
-        android:maxLines="10"
+        android:maxLines="12"
         android:gravity="start"
         android:textSize="16sp"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
@@ -67,8 +66,8 @@
             android:weightSum="10">
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/childDp"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
                 android:layout_gravity="center_vertical"
                 android:src="@drawable/sample_dp"/>
             <LinearLayout
@@ -90,7 +89,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@color/colorPrimaryDark"
-                    android:textStyle="bold"
                     android:text="3-5 odds"/>
             </LinearLayout>
 
@@ -112,7 +110,7 @@
             android:textSize="16.0sp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="8dp"
             android:text="" />
     </LinearLayout>
     <LinearLayout

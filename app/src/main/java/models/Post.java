@@ -23,20 +23,25 @@ public class Post implements Serializable{
     private long relevance;
     private long timeRelevance;
     private long reportCount;
+    private int recommendedBookie;
+    private String bookingCode;
 
     private boolean hasChild;
     private String childLink;
     private String childUsername;
     private String childUserId;
-
-    private int recommendedBookie;
-    private String bookingCode;
+    private String childContent;
+    private String childImgUrl1="";
+    private String childImgUrl2="";
+    private String childBookingCode;
+    private int childBookie;
 
 
     public Post(){}
 
     public Post(String username, String userId, String content, int status, int type,
-                String childLink, String childUsername, String childUserId){
+                String childLink, String childUsername, String childUserId, String childContent,
+                String childImgUrl1, String childImgUrl2, String childBookingCode, int childBookie){
         this.username = username;
         this.userId = userId;
         this.content = content;
@@ -56,6 +61,11 @@ public class Post implements Serializable{
         this.childLink = childLink;
         this.childUsername = childUsername;
         this.childUserId = childUserId;
+        this.childContent = childContent;
+        this.childImgUrl1= childImgUrl1;
+        this.childImgUrl2= childImgUrl2;
+        this.childBookingCode= childBookingCode;
+        this.childBookie= childBookie;
     }
 
     public Post(String username, String userId, String content, int status, int type, String bookingCode, int recommendedBookie){
@@ -262,5 +272,45 @@ public class Post implements Serializable{
 
     public void setTimeRelevance(long timeRelevance) {
         this.timeRelevance = timeRelevance;
+    }
+
+    public String getChildContent() {
+        return childContent;
+    }
+
+    public void setChildContent(String childContent) {
+        this.childContent = childContent;
+    }
+
+    public String getChildImgUrl1() {
+        return childImgUrl1;
+    }
+
+    public void setChildImgUrl1(String childImgUrl1) {
+        this.childImgUrl1 = childImgUrl1;
+    }
+
+    public String getChildImgUrl2() {
+        return childImgUrl2;
+    }
+
+    public void setChildImgUrl2(String childImgUrl2) {
+        this.childImgUrl2 = childImgUrl2;
+    }
+
+    public String getChildBookingCode() {
+        return childBookingCode;
+    }
+
+    public void setChildBookingCode(String childBookingCode) {
+        this.childBookingCode = childBookingCode;
+    }
+
+    public int getChildBookie() {
+        return childBookie;
+    }
+
+    public void setChildBookie(int childBookie) {
+        this.childBookie = childBookie;
     }
 }

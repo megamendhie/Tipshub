@@ -112,6 +112,98 @@
                 android:text="okooji ee"/>
         </LinearLayout>
 
+        <LinearLayout
+            android:id="@+id/container_child_post"
+            android:orientation="vertical"
+            android:background="@android:drawable/editbox_background_normal"
+            android:padding="6.0dip"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6.0dip"
+            android:layout_below="@id/edtPost"
+            android:layout_marginStart="18.0dip">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="10">
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/childDp"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center_vertical"
+                    android:src="@drawable/sample_dp"/>
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_weight="10"
+                    android:layout_marginStart="4dp">
+                    <TextView
+                        android:id="@+id/txtChildUsername"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="megamendhie"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                        android:textStyle="bold"/>
+
+                    <TextView
+                        android:id="@+id/txtChildType"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/colorPrimaryDark"
+                        android:text="3-5 odds"/>
+                </LinearLayout>
+
+
+                <ImageView
+                    android:id="@+id/imgChildStatus"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:scaleType="centerCrop"
+                    android:layout_marginEnd="6dp"
+                    android:layout_marginTop="2dp"
+                    android:tint="#25b153"
+                    android:src="@drawable/ic_check_circle_green_24dp"/>
+
+            </LinearLayout>
+            <TextView
+                android:id="@+id/txtChildPost"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:textSize="16.0sp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="" />
+
+            <LinearLayout
+                android:id="@+id/lnrChildCode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:padding="1dp"
+                android:clickable="true"
+                android:background="@drawable/tip_type_bg"
+                android:paddingEnd="4dp"
+                android:layout_gravity="end">
+                <ImageView
+                    android:id="@+id/imgChildCode"
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:layout_gravity="center_vertical"
+                    android:src="@drawable/hashtag"
+                    android:tint="@color/colorPrimaryDark"/>
+                <TextView
+                    android:id="@+id/txtChildCode"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#0e0e0e"
+                    android:textStyle="bold"
+                    android:text="okooji ee"/>
+            </LinearLayout>
+        </LinearLayout>
+
 
 
         <LinearLayout
