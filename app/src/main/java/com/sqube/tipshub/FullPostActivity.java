@@ -18,11 +18,14 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
@@ -48,27 +51,26 @@ import utils.Reusable;
 public class FullPostActivity extends AppCompatActivity implements View.OnClickListener, TextWatcher {
     private FirebaseFirestore database;
     CollectionReference commentReference;
-    DocumentReference postReference;
-    LinearLayout lnrCode;
-    TextView mpost;
-    TextView mUsername;
-    TextView mTime;
+    DocumentReference postReference, childReference;
+    LinearLayout lnrCode, lnrFullPost, lnrChildPost;
+    TextView mpost, mUsername, mTime;
     Query query;
     Calculations calculations;
     String comment;
+    boolean childDisplayed;
     final String TAG = "FullPostActivity";
     Reusable reusable = new Reusable();
     TextView mLikes, mDislikes, mComment, mCode, mType;
-    ImageView imgOverflow;
-    ImageView imgDp,imgLike, imgDislike, imgComment, imgShare, imgStatus, imgCode;
+    ImageView imgOverflow, imgDp,imgLike, imgDislike, imgComment, imgShare, imgStatus, imgCode;
     EditText edtComment;
     FloatingActionButton fabPost;
+    ProgressBar prgPost;
     RecyclerView commentsList;
     CommentAdapter commentAdapter;
     ActionBar actionBar;
     Post model;
 
-    String userId, username, postId;
+    String userId, username, postId, childLink;
     private String[] code = {"1xBet", "Bet9ja", "Nairabet", "SportyBet", "BlackBet", "Bet365"};
     private String[] type = {"3-5 odds", "6-10 odds", "11-50 odds", "50+ odds", "Draws"};
 
@@ -94,11 +96,15 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
         imgLike = findViewById(R.id.imgLike); imgLike.setOnClickListener(this);
         imgDislike = findViewById(R.id.imgDislike); imgDislike.setOnClickListener(this);
         imgShare = findViewById(R.id.imgShare); imgShare.setOnClickListener(this);
-
         imgComment = findViewById(R.id.imgComment);
         imgStatus = findViewById(R.id.imgStatus);
         imgCode = findViewById(R.id.imgCode);
+        prgPost = findViewById(R.id.prgPost); prgPost.setVisibility(View.VISIBLE);
         lnrCode = findViewById(R.id.lnrCode);
+        lnrFullPost = findViewById(R.id.container_post);
+        lnrFullPost.setVisibility(View.GONE);
+        lnrChildPost = findViewById(R.id.container_child_post);
+        lnrChildPost.setVisibility(View.GONE);
 
         calculations = new Calculations(getApplicationContext());
         database = FirebaseFirestore.getInstance();
@@ -110,9 +116,9 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
         commentsList.setLayoutManager(new LinearLayoutManager(this));
         postId = getIntent().getStringExtra("postId");
         postReference = database.collection("posts").document(postId);
-        loadPost();
-        loadComment();
+        //loadPost();
         listener();
+        loadComment();
 
     }
 
@@ -122,8 +128,18 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
                 if(documentSnapshot.exists()){
+                    lnrFullPost.setVisibility(View.VISIBLE);
+                    prgPost.setVisibility(View.GONE);
+                    //retrieve post from database
                     model = documentSnapshot.toObject(Post.class);
+
+                    //bind post contents to views
                     imgStatus.setVisibility(model.getStatus()==1? View.GONE: View.VISIBLE);
+                    mUsername.setText(model.getUsername());
+                    mpost.setText(model.getContent());
+                    mTime.setText(DateFormat.format("dd MMM  (h:mm a)", model.getTime()));
+
+                    //display booking code if available
                     if(model.getBookingCode()!=null && !model.getBookingCode().isEmpty()){
                         mCode.setText(model.getBookingCode() + " @" + code[(model.getRecommendedBookie()-1)]);
                         mCode.setVisibility(View.VISIBLE);
@@ -135,6 +151,16 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
                         mCode.setVisibility(View.GONE);
                         imgCode.setVisibility(View.GONE);
                     }
+
+                    if(model.getType()==0){
+                        mType.setVisibility(View.GONE);
+                    }
+                    else{
+                        mType.setVisibility(View.VISIBLE);
+                        mType.setText(type[model.getType()-1]);
+                    }
+
+                    //display likes, dislikes, and comments
                     imgLike.setColorFilter(model.getLikes().contains(userId)?
                             getResources().getColor(R.color.colorPrimary): getResources().getColor(R.color.likeGrey));
 
@@ -144,47 +170,63 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
                     mComment.setText(model.getCommentsCount()==0? "":String.valueOf(model.getCommentsCount()));
                     mLikes.setText(model.getLikesCount()==0? "":String.valueOf(model.getLikesCount()));
                     mDislikes.setText(model.getDislikesCount()==0? "":String.valueOf(model.getDislikesCount()));
+                    if(model.isHasChild()){
+                        childLink = model.getChildLink();
+                        displayChildContent();
+                    }
                 }
             }
         });
     }
 
-    private void loadPost() {
-        model = (Post) getIntent().getSerializableExtra("model");
-        if(model==null){
+    private void displayChildContent() {
+        if(childDisplayed){
             return;
         }
-        imgStatus.setVisibility(model.getStatus()==1? View.GONE: View.VISIBLE);
-        if(model.getBookingCode()!=null && !model.getBookingCode().isEmpty()){
-            mCode.setText(model.getBookingCode() + " @" + code[(model.getRecommendedBookie()-1)]);
-            mCode.setVisibility(View.VISIBLE);
-            imgCode.setVisibility(View.VISIBLE);
-            lnrCode.setVisibility(View.VISIBLE);
-        }
-        else{
-            lnrCode.setVisibility(View.GONE);
-            mCode.setVisibility(View.GONE);
-            imgCode.setVisibility(View.GONE);
-        }
-        if(model.getType()==0){
-            mType.setVisibility(View.GONE);
-        }
-        else{
-            mType.setVisibility(View.VISIBLE);
-            mType.setText(type[model.getType()-1]);
-        }
-        mUsername.setText(model.getUsername());
-        mpost.setText(model.getContent());
-        mTime.setText(DateFormat.format("dd MMM  (h:mm a)", model.getTime()));
-        imgLike.setColorFilter(model.getLikes().contains(userId)?
-                getResources().getColor(R.color.colorPrimary): getResources().getColor(R.color.likeGrey));
+        //initialize child post views
+        final LinearLayout lnrChildCode = findViewById(R.id.lnrChildCode);
+        final TextView childPost= findViewById(R.id.txtChildPost);
+        final TextView childUsername = findViewById(R.id.txtChildUsername);
+        final TextView childCode = findViewById(R.id.txtChildCode);
+        final TextView childType = findViewById(R.id.txtChildType);
+        final ImageView imgChildStatus = findViewById(R.id.imgChildStatus);
+        final ImageView imgChildCode = findViewById(R.id.imgCode);
 
-        imgDislike.setColorFilter(model.getDislikes().contains(userId)?
-                getResources().getColor(R.color.colorPrimary): getResources().getColor(R.color.likeGrey));
+        childDisplayed = true;
+        database.collection("posts").document(childLink).get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if(!task.getResult().exists())
+                    return;
+                Post childModel = task.getResult().toObject(Post.class); //retrieve child post
 
-        mComment.setText(model.getCommentsCount()==0? "":String.valueOf(model.getCommentsCount()));
-        mLikes.setText(model.getLikesCount()==0? "":String.valueOf(model.getLikesCount()));
-        mDislikes.setText(model.getDislikesCount()==0? "":String.valueOf(model.getDislikesCount()));
+                //bind post to views
+                imgChildStatus.setVisibility(childModel.getStatus()==1? View.GONE: View.VISIBLE);
+                if(childModel.getBookingCode()!=null && !childModel.getBookingCode().isEmpty()){
+                    childCode.setText(childModel.getBookingCode() + " @" + code[(childModel.getRecommendedBookie()-1)]);
+                    childCode.setVisibility(View.VISIBLE);
+                    imgChildCode.setVisibility(View.VISIBLE);
+                    lnrChildCode.setVisibility(View.VISIBLE);
+                }
+                else{
+                    lnrChildCode.setVisibility(View.GONE);
+                    childCode.setVisibility(View.GONE);
+                    imgChildCode.setVisibility(View.GONE);
+                }
+                if(childModel.getType()==0){
+                    childType.setVisibility(View.GONE);
+                }
+                else{
+                    childType.setVisibility(View.VISIBLE);
+                    childType.setText(type[childModel.getType()-1]);
+                }
+                childUsername.setText(childModel.getUsername());
+                childPost.setText(childModel.getContent());
+
+                lnrChildPost.setVisibility(View.VISIBLE); //display child layout if child post exists
+            }
+        });
 
     }
 

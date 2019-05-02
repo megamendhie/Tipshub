@@ -180,45 +180,44 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
         });
 
         if(model.isHasChild()){
-            displayChildContent(model.getChildLink(), holder);
+            displayChildContent(model, holder);
         }
     }
 
-    private void displayChildContent(final String childLink, final PostHolder holder) {
+    private void displayChildContent(final Post model, final PostHolder holder) {
         final LinearLayout lnrChildCode = holder.lnrChildCode, lnrChildContainer = holder.lnrChildContainer;
         final TextView childPost= holder.childPost;
         final TextView childUsername = holder.childUsername;
         final TextView childCode = holder.childCode, childType = holder.childType;
         final ImageView imgChildStatus = holder.imgChildStatus, imgChildCode = holder.imgChildCode;
 
-        database.collection("posts").document(childLink).get()
+        imgChildStatus.setVisibility(model.getStatus()==1? View.GONE: View.VISIBLE);
+        if(model.getChildBookingCode()!=null && !model.getChildBookingCode().isEmpty()){
+            childCode.setText(model.getChildBookingCode() + " @" + code[(model.getChildBookie()-1)]);
+            childCode.setVisibility(View.VISIBLE);
+            imgChildCode.setVisibility(View.VISIBLE);
+            lnrChildCode.setVisibility(View.VISIBLE);
+        }
+        else{
+            lnrChildCode.setVisibility(View.GONE);
+            childCode.setVisibility(View.GONE);
+            imgChildCode.setVisibility(View.GONE);
+        }
+        if(model.getChildType()==0){
+            childType.setVisibility(View.GONE);
+        }
+        else{
+            childType.setVisibility(View.VISIBLE);
+            childType.setText(type[model.getChildType()-1]);
+        }
+
+        childUsername.setText(model.getChildUsername());
+        childPost.setText(model.getChildContent());
+        database.collection("posts").document(model.getChildLink()).get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
-                Post model = documentSnapshot.toObject(Post.class);
-
-                imgChildStatus.setVisibility(model.getStatus()==1? View.GONE: View.VISIBLE);
-                if(model.getBookingCode()!=null && !model.getBookingCode().isEmpty()){
-                    childCode.setText(model.getBookingCode() + " @" + code[(model.getRecommendedBookie()-1)]);
-                    childCode.setVisibility(View.VISIBLE);
-                    imgChildCode.setVisibility(View.VISIBLE);
-                    lnrChildCode.setVisibility(View.VISIBLE);
-                }
-                else{
-                    lnrChildCode.setVisibility(View.GONE);
-                    childCode.setVisibility(View.GONE);
-                    imgChildCode.setVisibility(View.GONE);
-                }
-                if(model.getType()==0){
-                    childType.setVisibility(View.GONE);
-                }
-                else{
-                    childType.setVisibility(View.VISIBLE);
-                    childType.setText(type[model.getType()-1]);
-                }
-
-                childUsername.setText(model.getUsername());
-                childPost.setText(model.getContent());
+                imgChildStatus.setVisibility(documentSnapshot.toObject(Post.class).getStatus()==1? View.GONE: View.VISIBLE);
             }
         });
 

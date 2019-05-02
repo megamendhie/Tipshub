@@ -174,8 +174,8 @@ public class RepostActivity extends AppCompatActivity implements View.OnClickLis
                         Log.d("RepostActivity", "Transaction success!");
                         //Repost the content
                         Post post = new Post(username, userId, content, 1, 0, childLink, model.getUsername(),
-                                model.getUserId(), model.getContent(), model.getImgUrl1(), model.getImgUrl2(), model.getBookingCode(),
-                                model.getRecommendedBookie());
+                                model.getUserId(), model.getContent(), model.getType(), model.getImgUrl1(), model.getImgUrl2(),
+                                model.getBookingCode(), model.getRecommendedBookie());
                         database.collection("posts").add(post);
 
                         //add to recommended user

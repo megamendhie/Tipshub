@@ -35,12 +35,13 @@ public class Post implements Serializable{
     private String childImgUrl2="";
     private String childBookingCode;
     private int childBookie;
+    private int childType;
 
 
     public Post(){}
 
     public Post(String username, String userId, String content, int status, int type,
-                String childLink, String childUsername, String childUserId, String childContent,
+                String childLink, String childUsername, String childUserId, String childContent, int childType,
                 String childImgUrl1, String childImgUrl2, String childBookingCode, int childBookie){
         this.username = username;
         this.userId = userId;
@@ -62,6 +63,7 @@ public class Post implements Serializable{
         this.childUsername = childUsername;
         this.childUserId = childUserId;
         this.childContent = childContent;
+        this.childType = childType;
         this.childImgUrl1= childImgUrl1;
         this.childImgUrl2= childImgUrl2;
         this.childBookingCode= childBookingCode;
@@ -312,5 +314,13 @@ public class Post implements Serializable{
 
     public void setChildBookie(int childBookie) {
         this.childBookie = childBookie;
+    }
+
+    public int getChildType() {
+        return childType;
+    }
+
+    public void setChildType(int childType) {
+        this.childType = childType;
     }
 }

@@ -51,6 +51,10 @@
                     android:layout_height="wrap_content"
                     android:textColor="@color/colorPrimaryDark"
                     android:textStyle="bold"
+                    android:clickable="false"
+                    android:background="@drawable/tip_type_bg"
+                    android:paddingStart="1.5dp"
+                    android:paddingEnd="2dp"
                     android:text="3-5 odds"/>
             </LinearLayout>
 
@@ -152,7 +156,11 @@
                         android:id="@+id/txtChildType"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:clickable="false"
                         android:textColor="@color/colorPrimaryDark"
+                        android:background="@drawable/tip_type_bg"
+                        android:paddingStart="1.5dp"
+                        android:paddingEnd="2dp"
                         android:text="3-5 odds"/>
                 </LinearLayout>
 
