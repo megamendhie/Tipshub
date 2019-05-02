@@ -70,7 +70,7 @@
 
     </LinearLayout>
 
-    <EditText
+    <MultiAutoCompleteTextView
         android:id="@+id/edtPost"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -13,8 +13,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.MultiAutoCompleteTextView;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -34,12 +36,13 @@ import java.util.Map;
 
 import models.Post;
 import models.Profile;
+import utils.SpaceTokenizer;
 
 public class PostActivity extends AppCompatActivity implements View.OnClickListener {
     private ActionBar actionBar;
     private Button btnPost;
     private TextView btnClose, btnAdd, txtNormal;
-    private EditText edtPost;
+    private MultiAutoCompleteTextView edtPost;
     private ProgressBar prgBar;
     private Spinner spnType;
     FirebaseFirestore database;
@@ -125,6 +128,11 @@ public class PostActivity extends AppCompatActivity implements View.OnClickListe
 
             }
         });
+        String[] clubs = getResources().getStringArray(R.array.club_arrays);
+        ArrayAdapter<String> club_adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, clubs);
+        edtPost.setAdapter(club_adapter);
+        edtPost.setTokenizer(new SpaceTokenizer());
+        edtPost.setThreshold(3);
     }
 
     @Override

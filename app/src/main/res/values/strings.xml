@@ -26,6 +26,937 @@
     </array>
 
 
+    <array name="club_arrays">
+        <item>Liverpool</item>
+        <item>Man City</item>
+        <item>Tottenham</item>
+        <item>Chelsea</item>
+        <item>Arsenal</item>
+        <item>Man Utd</item>
+        <item>Watford</item>
+        <item>Leicester</item>
+        <item>West Ham</item>
+        <item>Everton</item>
+        <item>Wolves</item>
+        <item>Bournemouth</item>
+        <item>Brighton</item>
+        <item>Crystal Palace</item>
+        <item>Burnley</item>
+        <item>Southampton</item>
+        <item>Cardiff</item>
+        <item>Newcastle</item>
+        <item>Fulham</item>
+        <item>Huddersfield</item>
+        <item>Leeds</item>
+        <item>Sheffield Utd</item>
+        <item>Norwich</item>
+        <item>West Brom</item>
+        <item>Middlesbrough</item>
+        <item>Derby</item>
+        <item>Bristol City</item>
+        <item>Birmingham</item>
+        <item>Nottingham</item>
+        <item>Hull</item>
+        <item>QPR</item>
+        <item>Aston Villa</item>
+        <item>Swansea</item>
+        <item>Blackburn</item>
+        <item>Stoke</item>
+        <item>Sheffield Wed</item>
+        <item>Brentford</item>
+        <item>Preston</item>
+        <item>Wigan</item>
+        <item>Millwall</item>
+        <item>Rotherham</item>
+        <item>Reading</item>
+        <item>Bolton</item>
+        <item>Ipswich</item>
+        <item>Portsmouth</item>
+        <item>Luton</item>
+        <item>Sunderland</item>
+        <item>Charlton</item>
+        <item>Barnsley</item>
+        <item>Peterborough</item>
+        <item>Doncaster</item>
+        <item>Coventry</item>
+        <item>Blackpool</item>
+        <item>Fleetwood</item>
+        <item>Burton</item>
+        <item>Southend</item>
+        <item>Wycombe</item>
+        <item>Accrington</item>
+        <item>Scunthorpe</item>
+        <item>Walsall</item>
+        <item>Gillingham</item>
+        <item>Shrewsbury</item>
+        <item>Rochdale</item>
+        <item>Bristol Rovers</item>
+        <item>Oxford Utd</item>
+        <item>Bradford City</item>
+        <item>Plymouth</item>
+        <item>AFC Wimbledon</item>
+        <item>Lincoln</item>
+        <item>Bury</item>
+        <item>Mansfield</item>
+        <item>MK Dons</item>
+        <item>Colchester</item>
+        <item>Carlisle</item>
+        <item>Forest Green</item>
+        <item>Exeter</item>
+        <item>Tranmere</item>
+        <item>Stevenage</item>
+        <item>Oldham</item>
+        <item>Swindon</item>
+        <item>Newport Co</item>
+        <item>Crewe</item>
+        <item>Grimsby</item>
+        <item>Northampton</item>
+        <item>Crawley</item>
+        <item>Cheltenham</item>
+        <item>Port Vale</item>
+        <item>Cambridge Utd</item>
+        <item>Morecambe</item>
+        <item>Yeovil</item>
+        <item>Macclesfield</item>
+        <item>Notts Co</item>
+        <item>Barcelona</item>
+        <item>Atl. Madrid</item>
+        <item>Sevilla</item>
+        <item>Real Madrid</item>
+        <item>Alaves</item>
+        <item>Getafe</item>
+        <item>Betis</item>
+        <item>Real Sociedad</item>
+        <item>Girona</item>
+        <item>Espanyol</item>
+        <item>Valencia</item>
+        <item>Levante</item>
+        <item>Leganes</item>
+        <item>Valladolid</item>
+        <item>Ath Bilbao</item>
+        <item>Eibar</item>
+        <item>Celta Vigo</item>
+        <item>Rayo Vallecano</item>
+        <item>Villarreal</item>
+        <item>Huesca</item>
+        <item>Granada CF</item>
+        <item>Albacete</item>
+        <item>Malaga</item>
+        <item>Dep. La Coruna</item>
+        <item>Alcorcon</item>
+        <item>Osasuna</item>
+        <item>Cadiz CF</item>
+        <item>Mallorca</item>
+        <item>R. Oviedo</item>
+        <item>Almeria</item>
+        <item>Las Palmas</item>
+        <item>Gijon</item>
+        <item>Elche</item>
+        <item>Lugo</item>
+        <item>Numancia</item>
+        <item>Zaragoza</item>
+        <item>Tenerife</item>
+        <item>Rayo Majadahonda</item>
+        <item>Extremadura UD</item>
+        <item>Reus Deportiu</item>
+        <item>Cordoba</item>
+        <item>Gimnastic</item>
+        <item>Fuenlabrada</item>
+        <item>Ponferradina</item>
+        <item>Atl. Madrid B</item>
+        <item>San Sebastian Reyes</item>
+        <item>Leonesa</item>
+        <item>Real Madrid B</item>
+        <item>Pontevedra</item>
+        <item>Unionistas</item>
+        <item>Coruxo FC</item>
+        <item>Guijuelo</item>
+        <item>Internacional de Madrid</item>
+        <item>Las Palmas B</item>
+        <item>Valladolid B</item>
+        <item>Burgos</item>
+        <item>Salmantino</item>
+        <item>Celta Vigo B</item>
+        <item>Navalcarnero</item>
+        <item>Union Adarve</item>
+        <item>Rapido de Bouzas</item>
+        <item>Dep. La Coruna B</item>
+        <item>Santander</item>
+        <item>Mirandes</item>
+        <item>Barakaldo</item>
+        <item>R. Oviedo B</item>
+        <item>UD Logrones</item>
+        <item>Leioa</item>
+        <item>Gijon B</item>
+        <item>Langreo</item>
+        <item>Ath Bilbao B</item>
+        <item>R. Sociedad B</item>
+        <item>Calahorra</item>
+        <item>Arenas Club</item>
+        <item>R. Union</item>
+        <item>Izarra</item>
+        <item>Tudelano</item>
+        <item>Torrelavega</item>
+        <item>Gernika</item>
+        <item>Amorebieta</item>
+        <item>CD Vitoria</item>
+        <item>Durango</item>
+        <item>Juventus</item>
+        <item>Napoli</item>
+        <item>Inter</item>
+        <item>Lazio</item>
+        <item>AC Milan</item>
+        <item>AS Roma</item>
+        <item>Sampdoria</item>
+        <item>Atalanta</item>
+        <item>Torino</item>
+        <item>Fiorentina</item>
+        <item>Sassuolo</item>
+        <item>Parma</item>
+        <item>Cagliari</item>
+        <item>Genoa</item>
+        <item>Udinese</item>
+        <item>Spal</item>
+        <item>Empoli</item>
+        <item>Bologna</item>
+        <item>Frosinone</item>
+        <item>Chievo</item>
+        <item>Palermo</item>
+        <item>Brescia</item>
+        <item>Pescara</item>
+        <item>Lecce</item>
+        <item>Verona</item>
+        <item>Benevento</item>
+        <item>Spezia</item>
+        <item>Perugia</item>
+        <item>Cittadella</item>
+        <item>Ascoli</item>
+        <item>Salernitana</item>
+        <item>Cremonese</item>
+        <item>Venezia</item>
+        <item>Cosenza</item>
+        <item>Carpi</item>
+        <item>Livorno</item>
+        <item>Crotone</item>
+        <item>Foggia</item>
+        <item>Padova</item>
+        <item>PSV</item>
+        <item>Ajax</item>
+        <item>Feyenoord</item>
+        <item>Utrecht</item>
+        <item>Vitesse</item>
+        <item>Heracles</item>
+        <item>AZ Alkmaar</item>
+        <item>Venlo</item>
+        <item>Sittard</item>
+        <item>Heerenveen</item>
+        <item>Den Haag</item>
+        <item>Willem II</item>
+        <item>FC Emmen</item>
+        <item>Excelsior</item>
+        <item>Groningen</item>
+        <item>Zwolle</item>
+        <item>Breda</item>
+        <item>Graafschap</item>
+        <item>Den Bosch</item>
+        <item>Twente</item>
+        <item>Sparta Rotterdam</item>
+        <item>G.A. Eagles</item>
+        <item>Roda</item>
+        <item>Oss</item>
+        <item>Jong PSV</item>
+        <item>Jong Ajax</item>
+        <item>Cambuur</item>
+        <item>Almere City</item>
+        <item>FC Volendam</item>
+        <item>Waalwijk</item>
+        <item>Maastricht</item>
+        <item>Eindhoven FC</item>
+        <item>Nijmegen</item>
+        <item>Telstar</item>
+        <item>Helmond</item>
+        <item>Jong Utrecht</item>
+        <item>Jong AZ</item>
+        <item>Dordrecht</item>
+        <item>AFC</item>
+        <item>IJsselmeervogels</item>
+        <item>Katwijk</item>
+        <item>HFC</item>
+        <item>Jong Sparta Rot.</item>
+        <item>Spakenburg</item>
+        <item>Excelsior Maassluis</item>
+        <item>HHC</item>
+        <item>GVVV</item>
+        <item>Jong Vitesse</item>
+        <item>Rijnsburgse Boys</item>
+        <item>De Treffers</item>
+        <item>Kozakken Boys</item>
+        <item>Jong Almere City</item>
+        <item>Barendrecht</item>
+        <item>Scheveningen</item>
+        <item>Lienden</item>
+        <item>VVSB</item>
+        <item>Jong FC Twente</item>
+        <item>Jong Feyenoord</item>
+        <item>Jong Waalwijk</item>
+        <item>Jong Zwolle</item>
+        <item>Jong Heracles</item>
+        <item>Jong Willem II</item>
+        <item>Jong Sittard</item>
+        <item>Jong Den Haag</item>
+        <item>Jong Nijmegen</item>
+        <item>Jong FC Emmen</item>
+        <item>Jong Heerenveen</item>
+        <item>Jong De Graafschap</item>
+        <item>Jong Dordrecht</item>
+        <item>Jong Roda</item>
+        <item>Jong NAC Breda</item>
+        <item>Jong G.A. Eagles</item>
+        <item>Jong Achilles 29</item>
+        <item>Jong Excelsior</item>
+        <item>Jong FC Eindhoven</item>
+        <item>Jong Helmond</item>
+        <item>Jong Cambuur</item>
+        <item>Dortmund</item>
+        <item>Bayern Munich</item>
+        <item>B. Monchengladbach</item>
+        <item>RB Leipzig</item>
+        <item>Wolfsburg</item>
+        <item>Eintracht Frankfurt</item>
+        <item>Hoffenheim</item>
+        <item>Hertha Berlin</item>
+        <item>Bayer Leverkusen</item>
+        <item>Werder Bremen</item>
+        <item>Freiburg</item>
+        <item>Mainz</item>
+        <item>Schalke</item>
+        <item>Dusseldorf</item>
+        <item>Augsburg</item>
+        <item>Stuttgart</item>
+        <item>Hannover</item>
+        <item>Nurnberg</item>
+        <item>Hamburger SV</item>
+        <item>FC Koln</item>
+        <item>St. Pauli</item>
+        <item>Union Berlin</item>
+        <item>Holstein Kiel</item>
+        <item>Heidenheim</item>
+        <item>Paderborn</item>
+        <item>Bochum</item>
+        <item>Regensburg</item>
+        <item>SG Dynamo Dresden</item>
+        <item>Greuther Furth</item>
+        <item>Aue</item>
+        <item>Darmstadt</item>
+        <item>Arminia Bielefeld</item>
+        <item>Sandhausen</item>
+        <item>Duisburg</item>
+        <item>Magdeburg</item>
+        <item>Ingolstadt</item>
+        <item>VfL Osnabruck</item>
+        <item>Karlsruher</item>
+        <item>Uerdingen</item>
+        <item>Hallescher</item>
+        <item>Unterhaching</item>
+        <item>Wehen</item>
+        <item>Preussen Munster</item>
+        <item>Hansa Rostock</item>
+        <item>Munich 1860</item>
+        <item>Zwickau</item>
+        <item>Kaiserslautern</item>
+        <item>Wurzburger Kickers</item>
+        <item>Lotte</item>
+        <item>Energie Cottbus</item>
+        <item>Fortuna Koln</item>
+        <item>Meppen</item>
+        <item>Grossaspach</item>
+        <item>Jena</item>
+        <item>Aalen</item>
+        <item>Braunschweig</item>
+        <item>Paris SG</item>
+        <item>Lille</item>
+        <item>Lyon</item>
+        <item>St Etienne</item>
+        <item>Montpellier</item>
+        <item>Strasbourg</item>
+        <item>Rennes</item>
+        <item>Nice</item>
+        <item>Marseille</item>
+        <item>Reims</item>
+        <item>Bordeaux</item>
+        <item>Nantes</item>
+        <item>Nimes</item>
+        <item>Toulouse</item>
+        <item>Angers</item>
+        <item>Caen</item>
+        <item>Amiens</item>
+        <item>Dijon</item>
+        <item>Monaco</item>
+        <item>Guingamp</item>
+        <item>Metz</item>
+        <item>Brest</item>
+        <item>Paris FC</item>
+        <item>Lorient</item>
+        <item>Lens</item>
+        <item>Clermont</item>
+        <item>Grenoble</item>
+        <item>Niort</item>
+        <item>Le Havre</item>
+        <item>Troyes</item>
+        <item>Auxerre</item>
+        <item>Orleans</item>
+        <item>AC Ajaccio</item>
+        <item>Chateauroux</item>
+        <item>GFC Ajaccio</item>
+        <item>Valenciennes</item>
+        <item>Sochaux</item>
+        <item>Beziers</item>
+        <item>Red Star</item>
+        <item>Nancy</item>
+        <item>Le Mans</item>
+        <item>Chambly</item>
+        <item>Rodez</item>
+        <item>Laval</item>
+        <item>Quevilly Rouen</item>
+        <item>Lyon Duchere</item>
+        <item>Boulogne</item>
+        <item>Cholet</item>
+        <item>Marignane</item>
+        <item>Concarneau</item>
+        <item>Pau</item>
+        <item>Villefranche</item>
+        <item>Avranches</item>
+        <item>Bourg Peronnas</item>
+        <item>Sannois</item>
+        <item>Dunkerque</item>
+        <item>Tours</item>
+        <item>JA Drancy</item>
+        <item>Perth Glory</item>
+        <item>Melbourne Victory</item>
+        <item>Sydney FC</item>
+        <item>Melbourne City</item>
+        <item>Wellington Phoenix</item>
+        <item>Adelaide United</item>
+        <item>Newcastle Jets</item>
+        <item>WS Wanderers</item>
+        <item>Brisbane Roar</item>
+        <item>Central Coast Mariners</item>
+        <item>Blacktown City</item>
+        <item>Manly Utd</item>
+        <item>Marconi Stallions</item>
+        <item>Sutherland Sharks</item>
+        <item>Sydney Olympic</item>
+        <item>APIA Tigers</item>
+        <item>Sydney Utd</item>
+        <item>Wollongong Wolves</item>
+        <item>Rockdale City Suns</item>
+        <item>Sydney FC U21</item>
+        <item>Druitt Town Rangers</item>
+        <item>Hakoah Sydney</item>
+        <item>FC Porto</item>
+        <item>Benfica</item>
+        <item>Braga</item>
+        <item>Sporting</item>
+        <item>Guimaraes</item>
+        <item>Belenenses</item>
+        <item>Moreirense</item>
+        <item>Portimonense</item>
+        <item>Santa Clara</item>
+        <item>Rio Ave</item>
+        <item>Setubal</item>
+        <item>Nacional</item>
+        <item>Tondela</item>
+        <item>Maritimo</item>
+        <item>Boavista</item>
+        <item>Feirense</item>
+        <item>Chaves</item>
+        <item>Aves</item>
+        <item>Ferreira</item>
+        <item>Famalicao</item>
+        <item>Estoril</item>
+        <item>Benfica B</item>
+        <item>Academica</item>
+        <item>Penafiel</item>
+        <item>Mafra</item>
+        <item>FC Porto B</item>
+        <item>SC Farense</item>
+        <item>Varzim</item>
+        <item>Leixoes</item>
+        <item>Guimaraes B</item>
+        <item>Academico Viseu</item>
+        <item>CD Cova da Piedade</item>
+        <item>Braga B</item>
+        <item>Oliveirense</item>
+        <item>Covilha</item>
+        <item>Arouca</item>
+        <item>Enyimba</item>
+        <item>Sunshine Stars</item>
+        <item>Kwara</item>
+        <item>Enugu Rangers</item>
+        <item>Lobi Stars</item>
+        <item>Wikki Tourist</item>
+        <item>Niger Tornadoes</item>
+        <item>Rivers United</item>
+        <item>Bendel</item>
+        <item>Katsina Utd</item>
+        <item>Remo Stars</item>
+        <item>MFM FC</item>
+        <item>Kano Pillars</item>
+        <item>Nasarawa</item>
+        <item>El Kanemi</item>
+        <item>Ifeanyi Ubah</item>
+        <item>Plateau United</item>
+        <item>Gombe</item>
+        <item>Yobe Stars</item>
+        <item>Go Round</item>
+        <item>Kada</item>
+        <item>Heartland</item>
+        <item>Akwa United</item>
+        <item>Abia Warriors</item>
+        <item>Afghanistan🇦🇫</item>
+        <item>Australia🇦🇺</item>
+        <item>Bahrain🇧🇭</item>
+        <item>Bangladesh🇧🇩</item>
+        <item>Bhutan🇧🇹</item>
+        <item>Cambodia🇰🇭</item>
+        <item>China🇨🇳</item>
+        <item>Chinese Taipei</item>
+        <item>East Timor</item>
+        <item>Hong Kong🇭🇰</item>
+        <item>India🇮🇳</item>
+        <item>Iran🇮🇷</item>
+        <item>Iraq🇮🇶</item>
+        <item>Japan🇯🇵</item>
+        <item>Jordan🇯🇴</item>
+        <item>Kyrgyzstan🇰🇬</item>
+        <item>Laos🇱🇦</item>
+        <item>Lebanon🇱🇧</item>
+        <item>Macau🇲🇴</item>
+        <item>Malaysia🇲🇾</item>
+        <item>Maldives🇲🇻</item>
+        <item>Myanmar🇲🇲</item>
+        <item>Nepal🇳🇵</item>
+        <item>North Korea🇰🇵</item>
+        <item>Oman🇴🇲</item>
+        <item>Palestine🇵🇸</item>
+        <item>Philippines🇵🇭</item>
+        <item>Qatar🇶🇦</item>
+        <item>Saudi Arabia🇸🇦</item>
+        <item>Singapore🇸🇬</item>
+        <item>South Korea🇰🇷</item>
+        <item>Syria🇸🇾</item>
+        <item>Tajikistan🇹🇯</item>
+        <item>Thailand🇹🇭</item>
+        <item>Turkmenistan🇹🇲</item>
+        <item>UAE🇦🇪</item>
+        <item>Uzbekistan🇺🇿</item>
+        <item>Vietnam🇻🇳</item>
+        <item>Yemen🇾🇪</item>
+        <item>Algeria🇩🇿</item>
+        <item>Angola🇦🇴</item>
+        <item>Benin🇧🇯</item>
+        <item>Botswana🇧🇼</item>
+        <item>Burkina Faso🇧🇫</item>
+        <item>Burundi🇧🇮</item>
+        <item>Cameroon🇨🇲</item>
+        <item>Cape Verde🇨🇻</item>
+        <item>Central Africa🇨🇫</item>
+        <item>Comoros🇰🇲</item>
+        <item>Congo🇨🇬</item>
+        <item>Djibouti🇩🇯</item>
+        <item>D.R. Congo🇨🇩</item>
+        <item>Egypt🇪🇬</item>
+        <item>Equatorial Guinea🇬🇶</item>
+        <item>Swaziland🇸🇿</item>
+        <item>Ethiopia🇪🇹</item>
+        <item>Gabon🇬🇦</item>
+        <item>Gambia🇬🇲</item>
+        <item>Ghana🇬🇭</item>
+        <item>Guinea🇬🇳</item>
+        <item>Guinea Bissau🇬🇼</item>
+        <item>Ivory Coast🇨🇮</item>
+        <item>Côte d’Ivoire🇨🇮</item>
+        <item>Kenya🇰🇪</item>
+        <item>Lesotho🇱🇸</item>
+        <item>Liberia🇱🇷</item>
+        <item>Libya🇱🇾</item>
+        <item>Madagascar</item>
+        <item>Malawi</item>
+        <item>Mali</item>
+        <item>Mauritania</item>
+        <item>Mauritius</item>
+        <item>Morocco</item>
+        <item>Mozambique</item>
+        <item>Namibia</item>
+        <item>Niger</item>
+        <item>Nigeria</item>
+        <item>Rwanda</item>
+        <item>Sao Tome</item>
+        <item>Senegal</item>
+        <item>Seychelles</item>
+        <item>Sierra Leone</item>
+        <item>South Africa</item>
+        <item>South Sudan</item>
+        <item>Sudan</item>
+        <item>Tanzania</item>
+        <item>Togo</item>
+        <item>Tunisia</item>
+        <item>Uganda</item>
+        <item>Zambia</item>
+        <item>Zimbabwe</item>
+        <item>Albania</item>
+        <item>Andorra</item>
+        <item>Armenia</item>
+        <item>Austria</item>
+        <item>Azerbaijan</item>
+        <item>Belarus</item>
+        <item>Belgium</item>
+        <item>Bosnia</item>
+        <item>Bulgaria</item>
+        <item>Croatia</item>
+        <item>Cyprus</item>
+        <item>Czech Republic</item>
+        <item>Denmark</item>
+        <item>England</item>
+        <item>Estonia</item>
+        <item>Faroe Islands</item>
+        <item>Finland</item>
+        <item>France</item>
+        <item>FYR Macedonia</item>
+        <item>Georgia</item>
+        <item>Germany</item>
+        <item>Gibraltar</item>
+        <item>Greece</item>
+        <item>Hungary</item>
+        <item>Iceland</item>
+        <item>Ireland</item>
+        <item>Israel</item>
+        <item>Italy</item>
+        <item>Kazakhstan</item>
+        <item>Kosovo</item>
+        <item>Latvia</item>
+        <item>Liechtenstein</item>
+        <item>Lithuania</item>
+        <item>Luxembourg</item>
+        <item>Malta</item>
+        <item>Moldova</item>
+        <item>Montenegro</item>
+        <item>Netherlands</item>
+        <item>Northern Ireland</item>
+        <item>Norway</item>
+        <item>Poland</item>
+        <item>Portugal</item>
+        <item>Romania</item>
+        <item>Russia</item>
+        <item>San Marino</item>
+        <item>Scotland</item>
+        <item>Serbia</item>
+        <item>Slovakia</item>
+        <item>Slovenia</item>
+        <item>Spain</item>
+        <item>Sweden</item>
+        <item>Switzerland</item>
+        <item>Turkey</item>
+        <item>Ukraine</item>
+        <item>Wales</item>
+        <item>Argentina</item>
+        <item>Bolivia</item>
+        <item>Brazil</item>
+        <item>Chile</item>
+        <item>Colombia</item>
+        <item>Costa Rica</item>
+        <item>Cuba</item>
+        <item>Ecuador</item>
+        <item>Haiti</item>
+        <item>Jamaica</item>
+        <item>Mexico</item>
+        <item>Panama</item>
+        <item>Paraguay</item>
+        <item>Peru</item>
+        <item>Trinidad</item>
+        <item>Uruguay</item>
+        <item>USA</item>
+        <item>Venezuela</item>
+        <item>Celtic</item>
+        <item>Rangers</item>
+        <item>Kilmarnock</item>
+        <item>Aberdeen</item>
+        <item>Hearts</item>
+        <item>St Johnstone</item>
+        <item>Livingston</item>
+        <item>Hibernian</item>
+        <item>Motherwell</item>
+        <item>Hamilton</item>
+        <item>St. Mirren</item>
+        <item>Dundee FC</item>
+        <item>Ross County</item>
+        <item>Ayr</item>
+        <item>Dundee Utd</item>
+        <item>Queen of South</item>
+        <item>Inverness</item>
+        <item>Morton</item>
+        <item>Dunfermline</item>
+        <item>Alloa</item>
+        <item>Falkirk</item>
+        <item>Partick Thistle</item>
+        <item>Arbroath</item>
+        <item>Raith</item>
+        <item>East Fife</item>
+        <item>Forfar Athletic</item>
+        <item>Airdrieonians</item>
+        <item>Montrose</item>
+        <item>Stranraer</item>
+        <item>Dumbarton</item>
+        <item>Brechin</item>
+        <item>Stenhousemuir</item>
+        <item>Basaksehir</item>
+        <item>Trabzonspor</item>
+        <item>Yeni Malatyaspor</item>
+        <item>Kasimpasa</item>
+        <item>Galatasaray</item>
+        <item>Antalyaspor</item>
+        <item>Besiktas</item>
+        <item>Konyaspor</item>
+        <item>Sivasspor</item>
+        <item>Goztepe</item>
+        <item>Bursaspor</item>
+        <item>Ankaragucu</item>
+        <item>Kayserispor</item>
+        <item>Alanyaspor</item>
+        <item>Akhisarspor</item>
+        <item>Erzurum BB</item>
+        <item>Fenerbahce</item>
+        <item>Rizespor</item>
+        <item>Genclerbirligi</item>
+        <item>Denizlispor</item>
+        <item>Gaziantep</item>
+        <item>Umraniyespor</item>
+        <item>Hatayspor</item>
+        <item>Osmanlispor</item>
+        <item>Boluspor</item>
+        <item>Altinordu</item>
+        <item>Adana Demirspor</item>
+        <item>Balikesirspor</item>
+        <item>Adanaspor AS</item>
+        <item>Istanbulspor AS</item>
+        <item>Giresunspor</item>
+        <item>Altay</item>
+        <item>Elazigspor</item>
+        <item>Eskisehirspor</item>
+        <item>Afjet Afyonspor</item>
+        <item>Kardemir Karabuk</item>
+        <item>Zenit Petersburg</item>
+        <item>Krasnodar</item>
+        <item>CSKA Moscow</item>
+        <item>Spartak Moscow</item>
+        <item>Lokomotiv Moscow</item>
+        <item>Rubin Kazan</item>
+        <item>FK Rostov</item>
+        <item>Akhmat Grozny</item>
+        <item>Ural</item>
+        <item>Orenburg</item>
+        <item>Arsenal Tula</item>
+        <item>Dynamo Moscow</item>
+        <item>FK Krylya Sovetov Samara</item>
+        <item>Ufa</item>
+        <item>FK Anzi Makhackala</item>
+        <item>Yenisey</item>
+        <item>FC Tambov</item>
+        <item>Tomsk</item>
+        <item>Kursk</item>
+        <item>Chertanovo M.</item>
+        <item>Nizhny Novgorod</item>
+        <item>Sochi</item>
+        <item>Shinnik Yaroslavl</item>
+        <item>Krasnodar 2</item>
+        <item>Spartak Moscow 2</item>
+        <item>Luch</item>
+        <item>M. Saransk</item>
+        <item>SKA Khabarovsk</item>
+        <item>FK Chimki Moskovska oblast</item>
+        <item>F. Voronezh</item>
+        <item>R. Volgograd</item>
+        <item>Baltika</item>
+        <item>Armavir</item>
+        <item>Tyumen</item>
+        <item>Sibir</item>
+        <item>Zenit Petersburg 2</item>
+        <item>Slavia Prague</item>
+        <item>Plzen</item>
+        <item>Ostrava</item>
+        <item>Jablonec</item>
+        <item>Sparta Prague</item>
+        <item>Zlin</item>
+        <item>Liberec</item>
+        <item>Teplice</item>
+        <item>Opava</item>
+        <item>Mlada Boleslav</item>
+        <item>Slovacko</item>
+        <item>Pribram</item>
+        <item>Bohemians 1905</item>
+        <item>Sigma Olomouc</item>
+        <item>Karvina</item>
+        <item>Dukla Prague</item>
+        <item>Ceske Budejovice</item>
+        <item>Jihlava</item>
+        <item>Hradec Kralove</item>
+        <item>Varnsdorf</item>
+        <item>FK Pardubice</item>
+        <item>Usti nad Labem</item>
+        <item>Brno</item>
+        <item>Vlasim</item>
+        <item>Sokolov</item>
+        <item>Vitkovice</item>
+        <item>Trinec</item>
+        <item>Prostejov</item>
+        <item>Znojmo</item>
+        <item>Chrudim</item>
+        <item>Mas Taborsko</item>
+        <item>Zizkov</item>
+        <item>APOEL</item>
+        <item>AEL Limassol</item>
+        <item>Apollon</item>
+        <item>Nea Salamis</item>
+        <item>Anorthosis</item>
+        <item>AEK Larnaca</item>
+        <item>Omonia</item>
+        <item>Doxa</item>
+        <item>Alki Oroklini</item>
+        <item>Paphos</item>
+        <item>Paralimni</item>
+        <item>Ermis</item>
+        <item>FC Copenhagen</item>
+        <item>Midtjylland</item>
+        <item>Brondby</item>
+        <item>Esbjerg</item>
+        <item>Aalborg</item>
+        <item>Randers FC</item>
+        <item>Odense</item>
+        <item>Horsens</item>
+        <item>Nordsjaelland</item>
+        <item>Aarhus</item>
+        <item>Sonderjyske</item>
+        <item>Vendsyssel</item>
+        <item>Vejle</item>
+        <item>Hobro</item>
+        <item></item>
+        <item>Ol. Nicosia</item>
+        <item>Othellos Athienou</item>
+        <item>Achnas</item>
+        <item>Aris</item>
+        <item>ASIL Lysi</item>
+        <item>Karmiotissa</item>
+        <item>Anagennisi Derynia</item>
+        <item>Omonia Aradippou</item>
+        <item>Chloraka</item>
+        <item>Sotiras</item>
+        <item>Ayia Napa</item>
+        <item>Zakakiou</item>
+        <item>Thoi Lakatamias</item>
+        <item>M.E.A.P. Nisou</item>
+        <item>Voroklinis</item>
+        <item>Paeek</item>
+        <item>Viborg</item>
+        <item>Silkeborg</item>
+        <item>Fredericia</item>
+        <item>Nykobing</item>
+        <item>Naestved</item>
+        <item>F. Amager</item>
+        <item>Koge</item>
+        <item>Lyngby</item>
+        <item>Thisted FC</item>
+        <item>Roskilde</item>
+        <item>Hvidovre</item>
+        <item>Helsingor</item>
+        <item>Zamalek</item>
+        <item>Pyramids</item>
+        <item>Misr Elmaqasah</item>
+        <item>Al Ahly</item>
+        <item>El-Entag El-Harby</item>
+        <item>Arab Contractors</item>
+        <item>El Gaish</item>
+        <item>Haras El Hodood</item>
+        <item>Smouha</item>
+        <item>El Daklyeh</item>
+        <item>Nogoom FC</item>
+        <item>Wadi Degla</item>
+        <item>Al Ittihad</item>
+        <item>Enppi</item>
+        <item>El Masry</item>
+        <item>El Gounah</item>
+        <item>El Ismaily</item>
+        <item>Petrojet</item>
+        <item>Sepahan</item>
+        <item>Padideh Khorasan</item>
+        <item>Persepolis</item>
+        <item>Tractor</item>
+        <item>Esteghlal F.C.</item>
+        <item>Pars Janoobi Jam</item>
+        <item>Foolad</item>
+        <item>Saipa</item>
+        <item>Paykan</item>
+        <item>Nassaji Mazandaran</item>
+        <item>Sanat Naft</item>
+        <item>Naft Ahvaz</item>
+        <item>Machine Sazi</item>
+        <item>Zob Ahan</item>
+        <item>Sepidrood Rasht</item>
+        <item>Esteghlal Khuzestan</item>
+        <item>PAOK</item>
+        <item>Olympiakos Piraeus</item>
+        <item>Atromitos</item>
+        <item>AEK Athens FC</item>
+        <item>Panathinaikos</item>
+        <item>Panetolikos</item>
+        <item>Aris</item>
+        <item>Xanthi FC</item>
+        <item>Panionios</item>
+        <item>Asteras Tripolis</item>
+        <item>AEL Larissa</item>
+        <item>Giannina</item>
+        <item>OFI Crete</item>
+        <item>Lamia</item>
+        <item>Levadiakos</item>
+        <item>Smyrnis</item>
+        <item>Volos NFC</item>
+        <item>Apollon Larissa</item>
+        <item>Kerkyra</item>
+        <item>Platanias FC</item>
+        <item>Ergotelis</item>
+        <item>Apollon Pontou</item>
+        <item>Iraklis</item>
+        <item>Panachaiki</item>
+        <item>Dramas</item>
+        <item>Karaiskakis</item>
+        <item>Chania Kissamikos</item>
+        <item>Irodotos</item>
+        <item>Sparti</item>
+        <item>AO Trikala</item>
+        <item>Aittitos Spata</item>
+        <item>Aiginiakos</item>
+        <item>Ov 1.5</item>
+        <item>Ov 2.5</item>
+        <item>Ov 3.5</item>
+        <item>Un 1.5</item>
+        <item>Un 2.5</item>
+        <item>Un 3.5</item>
+        <item>BTTS</item>
+        <item>GG</item>
+        <item>NG</item>
+        <item>DNB</item>
+        <item>HWEH</item>
+        <item>AWEH</item>
+        <item>1/1</item>
+        <item>1/X</item>
+        <item>1/2</item>
+        <item>2/1</item>
+        <item>2/X</item>
+        <item>2/2</item>
+        <item>X/1</item>
+        <item>X/X</item>
+        <item>X/2</item>
+    </array>
+
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
