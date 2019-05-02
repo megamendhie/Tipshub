@@ -15,9 +15,10 @@ import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.EditText;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.MultiAutoCompleteTextView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -47,6 +48,7 @@ import models.Comment;
 import models.Post;
 import utils.Calculations;
 import utils.Reusable;
+import utils.SpaceTokenizer;
 
 public class FullPostActivity extends AppCompatActivity implements View.OnClickListener, TextWatcher {
     private FirebaseFirestore database;
@@ -62,7 +64,7 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
     Reusable reusable = new Reusable();
     TextView mLikes, mDislikes, mComment, mCode, mType;
     ImageView imgOverflow, imgDp,imgLike, imgDislike, imgComment, imgShare, imgStatus, imgCode;
-    EditText edtComment;
+    MultiAutoCompleteTextView edtComment;
     FloatingActionButton fabPost;
     ProgressBar prgPost;
     RecyclerView commentsList;
@@ -116,6 +118,13 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
         commentsList.setLayoutManager(new LinearLayoutManager(this));
         postId = getIntent().getStringExtra("postId");
         postReference = database.collection("posts").document(postId);
+
+        String[] clubs = getResources().getStringArray(R.array.club_arrays);
+        ArrayAdapter<String> club_adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, clubs);
+        edtComment.setAdapter(club_adapter);
+        edtComment.setTokenizer(new SpaceTokenizer());
+        edtComment.setThreshold(3);
+        
         //loadPost();
         listener();
         loadComment();

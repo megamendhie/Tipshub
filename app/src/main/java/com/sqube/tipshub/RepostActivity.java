@@ -5,12 +5,15 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.MultiAutoCompleteTextView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -33,11 +36,12 @@ import java.util.Map;
 import de.hdodenhof.circleimageview.CircleImageView;
 import models.Post;
 import utils.Calculations;
+import utils.SpaceTokenizer;
 
 public class RepostActivity extends AppCompatActivity implements View.OnClickListener {
     ActionBar actionBar;
     Button btnPost, btnClose;
-    private EditText edtPost;
+    private MultiAutoCompleteTextView edtPost;
     private ProgressBar prgBar;
     private TextView txtPost, txtChildUsername, txtChildType;
     private ImageView imgStatus;
@@ -81,6 +85,30 @@ public class RepostActivity extends AppCompatActivity implements View.OnClickLis
         txtChildUsername = findViewById(R.id.txtChildUsername);
         childLink = getIntent().getStringExtra("postId");
         postReference = database.collection("posts").document(childLink);
+
+        edtPost.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
+                if (charSequence.toString().trim().length() > 2) {
+                    content = edtPost.getText().toString();
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+        String[] clubs = getResources().getStringArray(R.array.club_arrays);
+        ArrayAdapter<String> club_adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, clubs);
+        edtPost.setAdapter(club_adapter);
+        edtPost.setTokenizer(new SpaceTokenizer());
+        edtPost.setThreshold(3);
 
         loadPost();
     }
