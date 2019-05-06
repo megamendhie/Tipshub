@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateFormat;
 import android.util.Log;
@@ -28,9 +29,11 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.sqube.tipshub.FullPostActivity;
 import com.sqube.tipshub.LoginActivity;
+import com.sqube.tipshub.MyProfileActivity;
 import com.sqube.tipshub.R;
 import com.sqube.tipshub.RepostActivity;
 
+import de.hdodenhof.circleimageview.CircleImageView;
 import models.Post;
 import models.UserNetwork;
 import utils.Calculations;
@@ -74,6 +77,8 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
         final LinearLayout lnrCode = holder.lnrCode;
         final LinearLayout lnrContainer = holder.lnrContainer;
         final LinearLayout lnrChildContainer = holder.lnrChildContainer;
+        final CardView crdChildPost = holder.crdChildPost;
+        final CircleImageView imgDp = holder.imgDp;
         final TextView mpost = holder.mpost;
         final TextView mUsername = holder.mUsername;
         final TextView mTime = holder.mTime;
@@ -92,7 +97,7 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
         final String postId = getSnapshots().getSnapshot(position).getId();
 
         imgStatus.setVisibility(model.getStatus()==1? View.GONE: View.VISIBLE);
-        lnrChildContainer.setVisibility(model.isHasChild()? View.VISIBLE: View.GONE);
+        crdChildPost.setVisibility(model.isHasChild()? View.VISIBLE: View.GONE);
         if(model.getBookingCode()!=null && !model.getBookingCode().isEmpty()){
             mCode.setText(model.getBookingCode() + " @" + code[(model.getRecommendedBookie()-1)]);
             mCode.setVisibility(View.VISIBLE);
@@ -111,7 +116,23 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
             mType.setVisibility(View.VISIBLE);
             mType.setText(type[model.getType()-1]);
         }
+        imgDp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(model.getUserId().equals(userId)){
+                    context.startActivity(new Intent(context, MyProfileActivity.class));
+                }
+            }
+        });
         mUsername.setText(model.getUsername());
+        mUsername.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(model.getUserId().equals(userId)){
+                    context.startActivity(new Intent(context, MyProfileActivity.class));
+                }
+            }
+        });
         mpost.setText(model.getContent());
         mTime.setText(DateFormat.format("dd MMM  (h:mm a)", model.getTime()));
         imgLikes.setColorFilter(model.getLikes().contains(userId)?
@@ -185,7 +206,7 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
     }
 
     private void displayChildContent(final Post model, final PostHolder holder) {
-        final LinearLayout lnrChildCode = holder.lnrChildCode, lnrChildContainer = holder.lnrChildContainer;
+        final LinearLayout lnrChildCode = holder.lnrChildCode;
         final TextView childPost= holder.childPost;
         final TextView childUsername = holder.childUsername;
         final TextView childCode = holder.childCode, childType = holder.childType;
@@ -285,7 +306,9 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
     }
 
     public class PostHolder extends RecyclerView.ViewHolder {
+        CircleImageView imgDp;
         LinearLayout lnrCode, lnrContainer,  lnrChildCode, lnrChildContainer;
+        CardView crdChildPost;
         TextView mpost, childPost;
         TextView mUsername, childUsername;
         TextView mTime;
@@ -294,6 +317,8 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
         ImageView imgLikes, imgDislike, imgComment, imgShare, imgStatus, imgCode, imgChildStatus, imgChildCode;
         public PostHolder(View itemView) {
             super(itemView);
+            imgDp = itemView.findViewById(R.id.imgDp);
+            crdChildPost = itemView.findViewById(R.id.crdChildPost);
             lnrCode = itemView.findViewById(R.id.lnrCode);
             lnrContainer = itemView.findViewById(R.id.container_post);
             lnrChildCode = itemView.findViewById(R.id.lnrChildCode);

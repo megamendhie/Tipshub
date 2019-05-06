@@ -1,8 +1,6 @@
 package models;
 
-import java.util.Date;
-
-public class Profile {
+public class ProfileShort {
     //personal info
     private String a_userId;
     private String a0_firstName;
@@ -14,7 +12,6 @@ public class Profile {
     private long a6_dOB;
     private long a7_dateJoined;
     private long a8_lastSeen;
-    private String a9_bank;
 
     //contact info
     private String b0_country;
@@ -22,9 +19,6 @@ public class Profile {
     private String b2_dpUrl;
     private String b3_dpTmUrl;
     private String b4_coverUrl;
-    private String b5_authProvider;
-    private String b6_twitter;
-    private String b7_facebook;
 
     //stats
     private boolean c0_verified;
@@ -73,37 +67,7 @@ public class Profile {
     private long e6b_WG;
     private long e6c_WGP;
 
-    public Profile(String firstName, String lastName, String email, String authProvider ){
-        this.a0_firstName = firstName;
-        this.a1_lastName = lastName;
-        this.a3_email = email;
-        this.b5_authProvider = authProvider;
-        this.a7_dateJoined = new Date().getTime();
-        this.a8_lastSeen = new Date().getTime();
-
-        this.a2_username="";
-        this.a4_gender="";
-        this.a5_bio="";
-        this.a9_bank="";
-        this.b0_country="";
-        this.b1_phone="";
-        this.b2_dpUrl="";
-        this.b3_dpTmUrl="";
-        this.b4_coverUrl="";
-        this.b6_twitter="";
-        this.b7_facebook="";
-    }
-
-    public Profile(){}
-
-    public Profile(String userId, String firstName, String lastName, String username, String email, String authProvider){
-        this.a_userId = userId;
-        this.a0_firstName = firstName;
-        this.a1_lastName = lastName;
-        this.a2_username = username;
-        this.a3_email = email;
-        this.b5_authProvider = authProvider;
-    }
+    public ProfileShort(){}
 
     public String getA_userId() {
         return a_userId;
@@ -185,14 +149,6 @@ public class Profile {
         this.a8_lastSeen = a8_lastSeen;
     }
 
-    public String getA9_bank() {
-        return a9_bank;
-    }
-
-    public void setA9_bank(String a9_bank) {
-        this.a9_bank = a9_bank;
-    }
-
     public String getB0_country() {
         return b0_country;
     }
@@ -231,30 +187,6 @@ public class Profile {
 
     public void setB4_coverUrl(String b4_coverUrl) {
         this.b4_coverUrl = b4_coverUrl;
-    }
-
-    public String getB5_authProvider() {
-        return b5_authProvider;
-    }
-
-    public void setB5_authProvider(String b5_authProvider) {
-        this.b5_authProvider = b5_authProvider;
-    }
-
-    public String getB6_twitter() {
-        return b6_twitter;
-    }
-
-    public void setB6_twitter(String b6_twitter) {
-        this.b6_twitter = b6_twitter;
-    }
-
-    public String getB7_facebook() {
-        return b7_facebook;
-    }
-
-    public void setB7_facebook(String b7_facebook) {
-        this.b7_facebook = b7_facebook;
     }
 
     public boolean isC0_verified() {

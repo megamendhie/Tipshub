@@ -27,8 +27,14 @@ import services.UserDataFetcher;
 
 public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
     BottomNavigationView btmNav;
-    android.support.v4.app.Fragment fragment;
+    //android.support.v4.app.Fragment fragment;
+    final Fragment fragmentH  = new HomeFragment();
+    final Fragment fragmentR = new RecommendedFragment();
+    final Fragment fragmentB = new BankerFragment();
+    final Fragment fragmentN = new NotificationFragment();
+    Fragment fragmentActive = fragmentH;
     FragmentManager fragmentManager = getSupportFragmentManager();
+    FragmentTransaction fragmentTransaction;
     private DrawerLayout mDrawerLayout;
     View header;
     NavigationView navigationView;
@@ -75,8 +81,16 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
 
         actionBar.setTitle("Home");
-        loadFragment(new HomeFragment());
+        loadFragmentAgain();
         startService(new Intent(this, UserDataFetcher.class));
+    }
+
+    private void loadFragmentAgain() {
+        fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.add(R.id.main_container,fragmentN, "fragmentN").hide(fragmentN).commit();
+        fragmentTransaction.add(R.id.main_container,fragmentB, "fragmentB").hide(fragmentB).commit();
+        fragmentTransaction.add(R.id.main_container,fragmentR, "fragmentN").hide(fragmentR).commit();
+        fragmentTransaction.add(R.id.main_container,fragmentH, "fragmentN").commit();
     }
 
 
@@ -85,34 +99,43 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         int id = item.getItemId();
         switch (id){
             case R.id.nav_home:
+                if(fragmentActive==fragmentH){
+                    fragmentTransaction.detach(fragmentH).attach(fragmentH).commit();
+                    return true;
+                }
                 actionBar.setTitle("Home");
-                fragment = new HomeFragment();
-                loadFragment(fragment);
+                fragmentTransaction.hide(fragmentActive).show(fragmentH).commit();
+                fragmentActive = fragmentH;
                 return true;
             case R.id.nav_recommended:
+                if(fragmentActive==fragmentR){
+                    fragmentTransaction.detach(fragmentR).attach(fragmentR).commit();
+                    return true;
+                }
                 actionBar.setTitle("Recommended");
-                fragment = new RecommendedFragment();
-                loadFragment(fragment);
+                fragmentTransaction.hide(fragmentActive).show(fragmentR).commit();
+                fragmentActive = fragmentR;
                 return true;
             case R.id.nav_banker:
+                if(fragmentActive==fragmentB){
+                    fragmentTransaction.detach(fragmentB).attach(fragmentB).commit();
+                    return true;
+                }
                 actionBar.setTitle("Sure Banker");
-                fragment = new BankerFragment();
-                loadFragment(fragment);
+                fragmentTransaction.hide(fragmentActive).show(fragmentB).commit();
+                fragmentActive = fragmentB;
                 return true;
             case R.id.nav_notification:
+                if(fragmentActive==fragmentN){
+                    fragmentTransaction.detach(fragmentN).attach(fragmentN).commit();
+                    return true;
+                }
                 actionBar.setTitle("Notifications");
-                fragment = new NotificationFragment();
-                loadFragment(fragment);
+                fragmentTransaction.hide(fragmentActive).show(fragmentN).commit();
+                fragmentActive = fragmentN;
                 return true;
         }
         return false;
-    }
-
-    public void loadFragment(Fragment fragment){
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
-        transaction.replace(R.id.main_container, fragment);
-        transaction.addToBackStack(null);
-        transaction.commit();
     }
 
     @Override

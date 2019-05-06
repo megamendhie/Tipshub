@@ -81,7 +81,7 @@
                     android:gravity="center"
                     android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:layout_marginStart="3dp"
-                    android:text="32 posts"/>
+                    android:text="32 tips"/>
 
 
                 <TextView
@@ -91,7 +91,7 @@
                     android:gravity="center"
                     android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:layout_marginStart="5dp"
-                    android:text="||  Tips accuracy: 87%"/>
+                    android:text="||  Accuracy: 87%"/>
             </LinearLayout>
 
             <TextView

@@ -7,7 +7,7 @@
             android:title="" />
         <item
             android:id="@+id/nav_recommended"
-            android:icon="@drawable/ic_filter_tilt_shift_black_24dp"
+            android:icon="@drawable/ic_search_black_24dp"
             android:title=""/>
         <item
             android:id="@+id/nav_banker"

@@ -24,10 +24,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:background="@color/colorPrimary"
-            app:itemIconTint="@android:color/white"
-            app:itemTextColor="@android:color/white"
+            android:background="@android:color/white"
+            app:labelVisibilityMode="unlabeled"
+            app:itemIconTint="@color/tab_color_selector"
+            app:itemTextColor="@color/tab_color_selector"
             app:menu="@menu/bottom_menu"
+            app:layout_behavior="@string/hide_bottom_view_on_scroll_behavior"
             tools:override="true"/>
     </RelativeLayout>
 
