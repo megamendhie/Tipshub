@@ -53,7 +53,7 @@
                 android:textSize="18sp"
                 android:layout_marginTop="10dp"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                android:text="Latest Gist"/>
+                android:text="Sports Update"/>
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/newsList"
                 android:nestedScrollingEnabled="false"

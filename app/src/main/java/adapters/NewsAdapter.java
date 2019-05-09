@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.sqube.tipshub.R;
 
 import java.util.ArrayList;
@@ -19,7 +20,7 @@ import java.util.HashMap;
 public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ListNewsViewHolder>{
     private Activity activity;
     private ArrayList<HashMap<String, String>> data;
-    HashMap<String, String> song = new HashMap<String, String>();
+    HashMap<String, String> news = new HashMap<String, String>();
     private final String KEY_AUTHOR = "author";
     private final String KEY_TITLE = "title";
     private final String KEY_DESCRIPTION = "description";
@@ -44,27 +45,26 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ListNewsViewHo
 
     @Override
     public void onBindViewHolder(@NonNull ListNewsViewHolder holder, int position) {
-        song = data.get(position);
+        news = data.get(position);
         try{
-            holder.author.setText(song.get(KEY_AUTHOR));
-            holder.title.setText(song.get(KEY_TITLE));
-            holder.time.setText(song.get(KEY_PUBLISHEDAT));
-            holder.sdetails.setText(song.get(KEY_DESCRIPTION));
+            holder.author.setText(news.get(KEY_AUTHOR));
+            holder.title.setText(news.get(KEY_TITLE));
+            holder.time.setText(news.get(KEY_PUBLISHEDAT));
+            holder.sdetails.setText(news.get(KEY_DESCRIPTION));
 
-            /*
-            if(song.get(KEY_URLTOIMAGE).toString().length() < 5)
+
+            if(news.get(KEY_URLTOIMAGE).toString().length() < 5)
             {
                 //holder.galleryImage.setVisibility(View.GONE);
             }else{
                 Glide.with(activity)
-                        .load(song.get(KEY_URLTOIMAGE).toString())
+                        .load(news.get(KEY_URLTOIMAGE))
                         .into(holder.galleryImage);
             }
-            */
             holder.crdContainer.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Log.i("Testing", "onClick: " + song.get(KEY_TITLE )+ " " + song.get(KEY_URLTOIMAGE));
+                    Log.i("Testing", "onClick: " + news.get(KEY_TITLE )+ " " + news.get(KEY_URLTOIMAGE));
                     //Intent i = new Intent(activity.getApplicationContext(), NewsStoryActivity.class);
                     //i.putExtra("url", data.get(+position).get(MainActivity.KEY_URL));
                     //activity.startActivity(i);

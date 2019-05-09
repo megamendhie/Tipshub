@@ -29,6 +29,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.sqube.tipshub.FullPostActivity;
 import com.sqube.tipshub.LoginActivity;
+import com.sqube.tipshub.MemberProfileActivity;
 import com.sqube.tipshub.MyProfileActivity;
 import com.sqube.tipshub.R;
 import com.sqube.tipshub.RepostActivity;
@@ -96,6 +97,7 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
         final ImageView imgOverflow = holder.imgOverflow;
         final String postId = getSnapshots().getSnapshot(position).getId();
 
+        mUsername.setText(model.getUsername());
         imgStatus.setVisibility(model.getStatus()==1? View.GONE: View.VISIBLE);
         crdChildPost.setVisibility(model.isHasChild()? View.VISIBLE: View.GONE);
         if(model.getBookingCode()!=null && !model.getBookingCode().isEmpty()){
@@ -116,20 +118,31 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
             mType.setVisibility(View.VISIBLE);
             mType.setText(type[model.getType()-1]);
         }
+        //listen to dp click and open user profile
         imgDp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(model.getUserId().equals(userId)){
                     context.startActivity(new Intent(context, MyProfileActivity.class));
                 }
+                else{
+                    Intent intent = new Intent(context, MemberProfileActivity.class);
+                    intent.putExtra("userId", model.getUserId());
+                    context.startActivity(intent);
+                }
             }
         });
-        mUsername.setText(model.getUsername());
+        //listen to username click and open user profile
         mUsername.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(model.getUserId().equals(userId)){
                     context.startActivity(new Intent(context, MyProfileActivity.class));
+                }
+                else{
+                    Intent intent = new Intent(context, MemberProfileActivity.class);
+                    intent.putExtra("userId", model.getUserId());
+                    context.startActivity(intent);
                 }
             }
         });

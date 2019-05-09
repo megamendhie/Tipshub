@@ -7,6 +7,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -16,8 +18,11 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import adapters.PerformanceAdapter;
 import de.hdodenhof.circleimageview.CircleImageView;
 import models.ProfileShort;
 
@@ -28,7 +33,12 @@ public class MyProfileActivity extends AppCompatActivity {
     private String userId, username;
     private FirebaseFirestore database;
     private CircleImageView imgDp;
+    ProfileShort profile;
+    private RecyclerView recyclerView;
+    PerformanceAdapter adapter;
+    ArrayList<Map<String, Object>> performanceList = new ArrayList<>();
     private TextView txtName, txtUsername, txtBio;
+    private TextView txtPost, txtAccuracy;
     private TextView txtFollowers, txtFollowing, txtSubscribers, txtSubscriptions;
 
     @Override
@@ -42,11 +52,16 @@ public class MyProfileActivity extends AppCompatActivity {
         txtName = findViewById(R.id.txtFullName);
         txtUsername = findViewById(R.id.txtUsername);
         txtBio = findViewById(R.id.txtBio);
+        txtPost = findViewById(R.id.txtPost);
+        txtAccuracy = findViewById(R.id.txtAccuracy);
         txtFollowers = findViewById(R.id.txtFollowers);
         txtFollowing = findViewById(R.id.txtFollowing);
         txtSubscribers = findViewById(R.id.txtSubscribers);
         txtSubscriptions = findViewById(R.id.txtSubscribing);
-
+        recyclerView = findViewById(R.id.performanceList);
+        LinearLayoutManager lm = new LinearLayoutManager(getApplicationContext());
+        adapter = new PerformanceAdapter(this, performanceList);
+        recyclerView.setLayoutManager(lm);
         user = FirebaseAuth.getInstance().getCurrentUser();
         userId = user.getUid();
         username = user.getDisplayName();
@@ -56,7 +71,7 @@ public class MyProfileActivity extends AppCompatActivity {
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 if(!documentSnapshot.exists())
                     return;
-                ProfileShort profile = documentSnapshot.toObject(ProfileShort.class);
+                profile = documentSnapshot.toObject(ProfileShort.class);
                 txtName.setText(profile.getA0_firstName()+" "+ profile.getA1_lastName());
                 txtUsername.setText("@"+profile.getA2_username());
                 txtBio.setText(profile.getA5_bio());
@@ -64,46 +79,74 @@ public class MyProfileActivity extends AppCompatActivity {
                 txtFollowing.setText(String.valueOf(profile.getC5_following()));
                 txtSubscribers.setText(String.valueOf(profile.getC6_subscribers()));
                 txtSubscriptions.setText(String.valueOf(profile.getC7_subscriptions()));
-                for(int i=1; i<=6; i++){
-                    /*
-                    long =
-
-                    //values for No Of Games, Won Games, and Won Games Percentage for 3-5 odds
-                    e1a_NOG;
-                    e1b_WG;
-                    e1c_WGP;
-
-                    //values for No Of Games, Won Games, and Won Games Percentage for 6-10 odds
-                    e2a_NOG;
-                    e2b_WG;
-                    e2c_WGP;
-
-                    //values for No Of Games, Won Games, and Won Games Percentage for 11-50 odds
-                    e3a_NOG;
-                    e3b_WG;
-                    e3c_WGP;
-
-                    //values for No Of Games, Won Games, and Won Games Percentage for 50+ odds
-                    e4a_NOG;
-                    e4b_WG;
-                    e4c_WGP;
-
-                    //values for No Of Games, Won Games, and Won Games Percentage for draws
-                    e5a_NOG;
-                    e5b_WG;
-                    e5c_WGP;
-
-                    //values for No Of Games, Won Games, and Won Games Percentage for banker
-                    e6a_NOG;
-                    e6b_WG;
-                    e6c_WGP;
-                    */
+                txtPost.setText(profile.getE0a_NOG() + " tips  • ");
+                txtAccuracy.setText(profile.getE0b_WG()+ " won");
+                if(profile.getE0a_NOG()>0){
+                    for(int i=1; i<=6; i++){
+                        Map<String, Object> row = getRow(i);
+                        if(!row.isEmpty())
+                            performanceList.add(row);
+                    }
+                    recyclerView.setAdapter(adapter);
                 }
             }
         });
         setupViewPager(viewPager); //set up view pager with fragments
+    }
 
-
+    private  Map<String, Object> getRow(int i) {
+        Map<String, Object> row = new HashMap<>();
+        switch (i){
+            case 1:
+                if(profile.getE1a_NOG()>0){
+                    row.put("type", i);
+                    row.put("NOG", profile.getE1a_NOG());
+                    row.put("WG", profile.getE1b_WG());
+                    row.put("WGP", profile.getE1c_WGP());
+                }
+                break;
+            case 2:
+                if(profile.getE2a_NOG()>0){
+                    row.put("type", i);
+                    row.put("NOG", profile.getE2a_NOG());
+                    row.put("WG", profile.getE2b_WG());
+                    row.put("WGP", profile.getE2c_WGP());
+                }
+                break;
+            case 3:
+                if(profile.getE3a_NOG()>0){
+                    row.put("type", i);
+                    row.put("NOG", profile.getE3a_NOG());
+                    row.put("WG", profile.getE3b_WG());
+                    row.put("WGP", profile.getE3c_WGP());
+                }
+                break;
+            case 4:
+                if(profile.getE4a_NOG()>0){
+                    row.put("type", i);
+                    row.put("NOG", profile.getE4a_NOG());
+                    row.put("WG", profile.getE4b_WG());
+                    row.put("WGP", profile.getE4c_WGP());
+                }
+                break;
+            case 5:
+                if(profile.getE5a_NOG()>0){
+                    row.put("type", i);
+                    row.put("NOG", profile.getE5a_NOG());
+                    row.put("WG", profile.getE5b_WG());
+                    row.put("WGP", profile.getE5c_WGP());
+                }
+                break;
+            case 6:
+                if(profile.getE6a_NOG()>0){
+                    row.put("type", i);
+                    row.put("NOG", profile.getE6a_NOG());
+                    row.put("WG", profile.getE6b_WG());
+                    row.put("WGP", profile.getE6c_WGP());
+                }
+                break;
+        }
+        return row;
     }
 
     private void setupViewPager(ViewPager viewPager) {

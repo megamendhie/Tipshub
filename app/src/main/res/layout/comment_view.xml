@@ -38,7 +38,6 @@
                     android:id="@+id/txtUsername"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="megamendhie"
                     android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:textStyle="bold"/>
 
@@ -46,8 +45,7 @@
                 <TextView
                     android:id="@+id/txtTime"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="5min ago"/>
+                    android:layout_height="wrap_content"/>
             </LinearLayout>
 
             <ImageView
@@ -65,9 +63,7 @@
             android:layout_height="wrap_content"
             android:textSize="16sp"
             android:layout_marginTop="10dp"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            android:text="I have seen a lot of beautiful things I want to share later.
-         /n bu not now I have seen a lot of beautiful things I want to share later. /n bu not now"/>
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -93,8 +89,7 @@
                     android:id="@+id/txtLike"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="2dp"
-                    android:text="100"/>
+                    android:layout_marginStart="2dp"/>
             </LinearLayout>
 
             <LinearLayout
@@ -112,8 +107,7 @@
                     android:id="@+id/txtDislike"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="2dp"
-                    android:text="33"/>
+                    android:layout_marginStart="2dp"/>
             </LinearLayout>
 
             <LinearLayout

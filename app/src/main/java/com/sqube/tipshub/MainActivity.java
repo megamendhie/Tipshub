@@ -81,15 +81,15 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
 
         actionBar.setTitle("Home");
-        loadFragmentAgain();
+        loadFragment();
         startService(new Intent(this, UserDataFetcher.class));
     }
 
-    private void loadFragmentAgain() {
+    private void loadFragment() {
         fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.add(R.id.main_container,fragmentN, "fragmentN").hide(fragmentN).commit();
-        fragmentTransaction.add(R.id.main_container,fragmentB, "fragmentB").hide(fragmentB).commit();
-        fragmentTransaction.add(R.id.main_container,fragmentR, "fragmentN").hide(fragmentR).commit();
+        fragmentTransaction.add(R.id.main_container,fragmentN, "fragmentN").hide(fragmentN);
+        fragmentTransaction.add(R.id.main_container,fragmentB, "fragmentB").hide(fragmentB);
+        fragmentTransaction.add(R.id.main_container,fragmentR, "fragmentN").hide(fragmentR);
         fragmentTransaction.add(R.id.main_container,fragmentH, "fragmentN").commit();
     }
 
@@ -100,20 +100,20 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         switch (id){
             case R.id.nav_home:
                 if(fragmentActive==fragmentH){
-                    fragmentTransaction.detach(fragmentH).attach(fragmentH).commit();
+                    fragmentManager.beginTransaction().detach(fragmentH).attach(fragmentH).commit();
                     return true;
                 }
                 actionBar.setTitle("Home");
-                fragmentTransaction.hide(fragmentActive).show(fragmentH).commit();
+                fragmentManager.beginTransaction().hide(fragmentActive).show(fragmentH).commit();
                 fragmentActive = fragmentH;
                 return true;
             case R.id.nav_recommended:
                 if(fragmentActive==fragmentR){
-                    fragmentTransaction.detach(fragmentR).attach(fragmentR).commit();
+                    fragmentManager.beginTransaction().detach(fragmentR).attach(fragmentR).commit();
                     return true;
                 }
                 actionBar.setTitle("Recommended");
-                fragmentTransaction.hide(fragmentActive).show(fragmentR).commit();
+                fragmentManager.beginTransaction().hide(fragmentActive).show(fragmentR).commit();
                 fragmentActive = fragmentR;
                 return true;
             case R.id.nav_banker:
@@ -127,11 +127,11 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                 return true;
             case R.id.nav_notification:
                 if(fragmentActive==fragmentN){
-                    fragmentTransaction.detach(fragmentN).attach(fragmentN).commit();
+                    fragmentManager.beginTransaction().detach(fragmentN).attach(fragmentN).commit();
                     return true;
                 }
                 actionBar.setTitle("Notifications");
-                fragmentTransaction.hide(fragmentActive).show(fragmentN).commit();
+                fragmentManager.beginTransaction().hide(fragmentActive).show(fragmentN).commit();
                 fragmentActive = fragmentN;
                 return true;
         }

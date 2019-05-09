@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,9 +25,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import adapters.NewsAdapter;
 import adapters.PeopleAdapter;
@@ -138,7 +141,7 @@ public class RecommendedFragment extends Fragment {
         }
         @Override
         protected void onPostExecute(String xml) {
-            if(xml==null){
+            if(xml==null||xml.isEmpty()){
                 return;
             }
 
@@ -148,6 +151,11 @@ public class RecommendedFragment extends Fragment {
                 try {
                     JSONObject jsonResponse = new JSONObject(xml);
                     JSONArray jsonArray = jsonResponse.optJSONArray("articles");
+                    SimpleDateFormat oldFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.ENGLISH);
+                    oldFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+                    SimpleDateFormat newFormatter = new SimpleDateFormat("dd MMM", Locale.ENGLISH);
+                    newFormatter.setTimeZone(TimeZone.getDefault());
+                    Date dt;
 
                     for (int i = 0; i < jsonArray.length(); i++) {
                         JSONObject jsonObject = jsonArray.getJSONObject(i);
@@ -157,10 +165,11 @@ public class RecommendedFragment extends Fragment {
                         map.put(KEY_DESCRIPTION, jsonObject.optString(KEY_DESCRIPTION));
                         map.put(KEY_URL, jsonObject.optString(KEY_URL).toString());
                         map.put(KEY_URLTOIMAGE, jsonObject.optString(KEY_URLTOIMAGE));
-                        long date = jsonObject.optLong(KEY_PUBLISHEDAT);
-                        String newsDate = DateFormat.format("dd MMM", date).toString();
-                        //map.put(KEY_PUBLISHEDAT, newsDate);
-                        map.put(KEY_PUBLISHEDAT, jsonObject.optString(KEY_PUBLISHEDAT).toString());
+                        //long date = jsonObject.optLong(KEY_PUBLISHEDAT);
+                        dt = oldFormat.parse(jsonObject.optString(KEY_PUBLISHEDAT));
+                        String newsDate = newFormatter.format(dt);
+                        map.put(KEY_PUBLISHEDAT, newsDate);
+                        //map.put(KEY_PUBLISHEDAT, jsonObject.optString(KEY_PUBLISHEDAT).toString());
 
                         dataList.add(map);
                     }
@@ -169,7 +178,8 @@ public class RecommendedFragment extends Fragment {
                     File cache = new File(getContext() + "/TipshubNews.srl");
                     cache.delete();
                     CacheHelper.save(getContext(), "TipshubNews", xml);
-                } catch (JSONException e) {
+                } catch (JSONException | ParseException e) {
+                    Log.i(TAG, "onPostExecute: "+ e.getMessage());
                     Toast.makeText(getContext(), "Unexpected error", Toast.LENGTH_SHORT).show();
                 }
 

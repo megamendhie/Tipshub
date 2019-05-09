@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateFormat;
@@ -22,15 +23,18 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.sqube.tipshub.MemberProfileActivity;
+import com.sqube.tipshub.MyProfileActivity;
 import com.sqube.tipshub.R;
 
-import models.Post;
+import de.hdodenhof.circleimageview.CircleImageView;
+import models.Comment;
 import models.UserNetwork;
 import utils.Calculations;
 import utils.Reusable;
 
-public class CommentAdapter extends FirestoreRecyclerAdapter<Post, CommentAdapter.CommentHolder>{
-    private final String TAG = "PostAdaper";
+public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAdapter.CommentHolder>{
+    private final String TAG = "CommentAdaper";
     private Activity activity;
     private Context context;
     private String userId;
@@ -41,13 +45,13 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Post, CommentAdapte
         /*
         Configure recycler adapter options:
         query defines the request made to Firestore
-        Post.class instructs the adapter to convert each DocumentSnapshot to a Post object
+        Comment.class instructs the adapter to convert each DocumentSnapshot to a Comment object
         */
-        super(new FirestoreRecyclerOptions.Builder<Post>()
-                .setQuery(query, Post.class)
+        super(new FirestoreRecyclerOptions.Builder<Comment>()
+                .setQuery(query, Comment.class)
                 .build());
 
-        Log.i(TAG, "PostAdapter: created");
+        Log.i(TAG, "CommentAdapter: created");
         this.activity = activity;
         this.context = context;
         this.userId = userID;
@@ -58,13 +62,14 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Post, CommentAdapte
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
-    protected void onBindViewHolder(@NonNull CommentHolder holder, final int position, @NonNull final Post model) {
+    protected void onBindViewHolder(@NonNull CommentHolder holder, final int position, @NonNull final Comment model) {
         Log.i(TAG, "onBindViewHolder: executed");
         final TextView mComment = holder.mComment;
         final TextView mUsername = holder.mUsername;
         final TextView mTime = holder.mTime;
         final TextView mLikesCount = holder.mLikes;
         final TextView mDislikesCount = holder.mDislikes;
+        final CircleImageView imgDp = holder.imgDp;
         final ImageView imgLikes = holder.imgLikes;
         final ImageView imgDislikes = holder.imgDislike;
         final ImageView imgShare = holder.imgShare;
@@ -72,6 +77,7 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Post, CommentAdapte
         final String postId = getSnapshots().getSnapshot(position).getId();
         final DocumentReference commentRef = getSnapshots().getSnapshot(position).getReference();
 
+        //set username and comment content
         mUsername.setText(model.getUsername());
         mComment.setText(model.getContent());
         mTime.setText(DateFormat.format("dd MMM  (h:mm a)", model.getTime()));
@@ -83,6 +89,36 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Post, CommentAdapte
 
         mLikesCount.setText(model.getLikesCount()==0? "":String.valueOf(model.getLikesCount()));
         mDislikesCount.setText(model.getDislikesCount()==0? "":String.valueOf(model.getDislikesCount()));
+
+        //listen to dp click and open user profile
+        imgDp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(model.getUserId().equals(userId)){
+                    context.startActivity(new Intent(context, MyProfileActivity.class));
+                }
+                else{
+                    Intent intent = new Intent(context, MemberProfileActivity.class);
+                    intent.putExtra("userId", model.getUserId());
+                    context.startActivity(intent);
+                }
+            }
+        });
+
+        //listen to username click and open user profile
+        mUsername.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(model.getUserId().equals(userId)){
+                    context.startActivity(new Intent(context, MyProfileActivity.class));
+                }
+                else{
+                    Intent intent = new Intent(context, MemberProfileActivity.class);
+                    intent.putExtra("userId", model.getUserId());
+                    context.startActivity(intent);
+                }
+            }
+        });
 
         imgLikes.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -112,12 +148,12 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Post, CommentAdapte
         imgOverflow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                displayOverflow(model.getUserId(), model.getStatus(), model.getType(), imgOverflow);
+                displayOverflow(model.getUserId());
             }
         });
     }
 
-    private void displayOverflow(String userId, int status, int type, ImageView imgOverflow) {
+    private void displayOverflow(String userId) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         LayoutInflater inflater = activity.getLayoutInflater();
         View dialogView;
@@ -148,6 +184,7 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Post, CommentAdapte
     }
 
     public class CommentHolder extends RecyclerView.ViewHolder {
+        CircleImageView imgDp;
         TextView mComment;
         TextView mUsername;
         TextView mTime;
@@ -156,6 +193,7 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Post, CommentAdapte
         ImageView imgLikes, imgDislike, imgShare;
         public CommentHolder(View itemView) {
             super(itemView);
+            imgDp = itemView.findViewById(R.id.imgDp);
             mComment = itemView.findViewById(R.id.txtPost);
             mUsername = itemView.findViewById(R.id.txtUsername);
             mTime = itemView.findViewById(R.id.txtTime);
