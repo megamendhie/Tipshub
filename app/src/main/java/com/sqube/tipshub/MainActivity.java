@@ -122,7 +122,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                     return true;
                 }
                 actionBar.setTitle("Sure Banker");
-                fragmentTransaction.hide(fragmentActive).show(fragmentB).commit();
+                fragmentManager.beginTransaction().hide(fragmentActive).show(fragmentB).commit();
                 fragmentActive = fragmentB;
                 return true;
             case R.id.nav_notification:
