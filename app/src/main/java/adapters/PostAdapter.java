@@ -223,6 +223,7 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
         final TextView childPost= holder.childPost;
         final TextView childUsername = holder.childUsername;
         final TextView childCode = holder.childCode, childType = holder.childType;
+        final CircleImageView childDp = holder.childDp;
         final ImageView imgChildStatus = holder.imgChildStatus, imgChildCode = holder.imgChildCode;
 
         imgChildStatus.setVisibility(model.getStatus()==1? View.GONE: View.VISIBLE);
@@ -255,7 +256,34 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
             }
         });
 
-
+        //listen to dp click and open user profile
+        childDp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(model.getChildUserId().equals(userId)){
+                    context.startActivity(new Intent(context, MyProfileActivity.class));
+                }
+                else{
+                    Intent intent = new Intent(context, MemberProfileActivity.class);
+                    intent.putExtra("userId", model.getChildUserId());
+                    context.startActivity(intent);
+                }
+            }
+        });
+        //listen to username click and open user profile
+        childUsername.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(model.getChildUserId().equals(userId)){
+                    context.startActivity(new Intent(context, MyProfileActivity.class));
+                }
+                else{
+                    Intent intent = new Intent(context, MemberProfileActivity.class);
+                    intent.putExtra("userId", model.getChildUserId());
+                    context.startActivity(intent);
+                }
+            }
+        });
     }
 
     private void displayOverflow(final Post model, String userId, final String postId, int status, int type, ImageView imgOverflow) {
@@ -319,7 +347,7 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
     }
 
     public class PostHolder extends RecyclerView.ViewHolder {
-        CircleImageView imgDp;
+        CircleImageView imgDp, childDp;
         LinearLayout lnrCode, lnrContainer,  lnrChildCode, lnrChildContainer;
         CardView crdChildPost;
         TextView mpost, childPost;
@@ -331,6 +359,7 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
         public PostHolder(View itemView) {
             super(itemView);
             imgDp = itemView.findViewById(R.id.imgDp);
+            childDp = itemView.findViewById(R.id.childDp);
             crdChildPost = itemView.findViewById(R.id.crdChildPost);
             lnrCode = itemView.findViewById(R.id.lnrCode);
             lnrContainer = itemView.findViewById(R.id.container_post);

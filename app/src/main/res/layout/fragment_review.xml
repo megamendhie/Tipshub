@@ -1,17 +1,75 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="#EEEEEE"
     tools:context=".ReviewFragment">
 
-    <TextView
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/postList"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <com.github.clans.fab.FloatingActionMenu
+        android:id="@+id/fabMenu"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:padding="5dp"
-        android:background="@android:drawable/editbox_background_normal"
-        android:layout_marginTop="20dp"
-        android:text="@string/txt_no_post" />
+        android:tint="@android:color/white"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_gravity="bottom|end"
+        android:layout_marginBottom="20dp"
+        android:layout_marginEnd="20dp"
+        app:menu_animationDelayPerItem="30"
+        app:menu_colorNormal="@color/colorAccent"
+        app:menu_colorPressed="@color/colorPrimary"
+        app:menu_labels_colorRipple="@color/colorAccentLight"
+        app:menu_backgroundColor="@android:color/transparent"
+        app:menu_buttonSpacing="4dp"
+        app:menu_colorRipple="@color/colorAccent"
+        app:menu_fab_size="normal"
+        app:menu_icon="@drawable/ic_comment_white_24dp"
+        app:menu_labels_margin="0dp"
+        app:menu_openDirection="up">
 
-</FrameLayout>
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/fabPost"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/fab_add"
+            app:fab_colorNormal="@color/colorPrimary"
+            app:fab_colorPressed="@color/colorPrimary"
+            app:fab_colorRipple="@color/colorAccentLight"
+            app:fab_hideAnimation="@anim/fab_scale_down"
+            app:fab_label="Tips"
+            app:fab_shadowColor="#66000000"
+            app:fab_shadowRadius="4dp"
+            app:fab_shadowXOffset="1dp"
+            app:fab_shadowYOffset="3dp"
+            app:fab_showAnimation="@anim/fab_scale_up"
+            app:fab_showShadow="true"
+            app:fab_size="mini" />
+
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/fabNormal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/fab_add"
+            app:fab_colorNormal="@color/colorPrimary"
+            app:fab_colorPressed="@color/colorPrimary"
+            app:fab_colorRipple="@color/colorAccentLight"
+            app:fab_hideAnimation="@anim/fab_scale_down"
+            app:fab_label="Normal post"
+            app:fab_shadowColor="#66000000"
+            app:fab_shadowRadius="4dp"
+            app:fab_shadowXOffset="1dp"
+            app:fab_shadowYOffset="3dp"
+            app:fab_showAnimation="@anim/fab_scale_up"
+            app:fab_showShadow="true"
+            app:fab_size="mini" />
+    </com.github.clans.fab.FloatingActionMenu>
+
+</RelativeLayout>

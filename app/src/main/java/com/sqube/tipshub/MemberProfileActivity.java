@@ -6,9 +6,11 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.MenuItem;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -27,6 +29,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import models.ProfileShort;
 
 public class MemberProfileActivity extends AppCompatActivity {
+    private ActionBar actionBar;
     private ViewPager viewPager;
     private TabLayout tabLayout;
     private FirebaseUser user;
@@ -36,6 +39,7 @@ public class MemberProfileActivity extends AppCompatActivity {
     ProfileShort profile;
     private RecyclerView recyclerView;
     PerformanceAdapter adapter;
+    Fragment postFragment, bankerFragment, reviewFragment;
     ArrayList<Map<String, Object>> performanceList = new ArrayList<>();
     private TextView txtName, txtUsername, txtBio;
     private TextView txtPost, txtAccuracy;
@@ -45,6 +49,10 @@ public class MemberProfileActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_member_profile);
+        actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
         viewPager = findViewById(R.id.viewpager);
         tabLayout = findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
@@ -77,6 +85,7 @@ public class MemberProfileActivity extends AppCompatActivity {
                 txtName.setText(profile.getA0_firstName()+" "+ profile.getA1_lastName());
                 txtUsername.setText("@"+profile.getA2_username());
                 txtBio.setText(profile.getA5_bio());
+                actionBar.setTitle(profile.getA0_firstName()+" "+ profile.getA1_lastName());
                 txtFollowers.setText(String.valueOf(profile.getC4_followers()));
                 txtFollowing.setText(String.valueOf(profile.getC5_following()));
                 txtSubscribers.setText(String.valueOf(profile.getC6_subscribers()));
@@ -154,10 +163,19 @@ public class MemberProfileActivity extends AppCompatActivity {
     }
 
     private void setupViewPager(ViewPager viewPager) {
+        Bundle bundle = new Bundle();
+        bundle.putString("userId", userId);
+        postFragment = new PostFragment();
+        bankerFragment = new BankersFragment();
+        reviewFragment = new ReviewFragment();
+        //passing bunder with userId to fragment
+        postFragment.setArguments(bundle);
+        bankerFragment.setArguments(bundle);
+        reviewFragment.setArguments(bundle);
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        adapter.addFragment(new PostFragment(), "Posts");
-        adapter.addFragment(new BankersFragment(), "Bankers");
-        adapter.addFragment(new ReviewFragment(), "Review");
+        adapter.addFragment(postFragment, "Posts");
+        adapter.addFragment(bankerFragment, "Bankers");
+        adapter.addFragment(reviewFragment, "Review");
         viewPager.setAdapter(adapter);
     }
 
@@ -188,6 +206,12 @@ public class MemberProfileActivity extends AppCompatActivity {
         public CharSequence getPageTitle(int position) {
             return mFragmentTitleList.get(position);
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        finish();
+        return true;
     }
 }
 
