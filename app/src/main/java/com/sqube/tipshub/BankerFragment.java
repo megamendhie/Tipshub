@@ -18,6 +18,7 @@ import com.google.firebase.firestore.Query;
 
 import java.util.Date;
 
+import adapters.BankerAdapter;
 import adapters.PostAdapter;
 
 
@@ -30,7 +31,8 @@ public class BankerFragment extends Fragment {
     private FirebaseAuth auth;
     private FirebaseUser user;
     String userId;
-    PostAdapter subAdapter, latestAdapter, winAdapter;
+    PostAdapter subAdapter, winAdapter;
+    BankerAdapter latestAdapter;
     com.github.clans.fab.FloatingActionButton fapTip, fabNormal;
     FloatingActionMenu fabMenu;
     RecyclerView subscribedList, latestList, winningsList;
@@ -59,21 +61,27 @@ public class BankerFragment extends Fragment {
         user = auth.getCurrentUser();
         userId = user.getUid();
         long stopTime = new Date().getTime() - (48*60*60*1000);
-        query = database.collection("posts").orderBy("time").whereGreaterThanOrEqualTo("time", stopTime)
-                .orderBy("type").whereEqualTo("type", 0);
-        loadSub();
+        //query = database.collection("posts").orderBy("time", Query.Direction.DESCENDING).whereEqualTo("type", 0);
+        //loadSub();
         loadLatest();
-        loadWinning();
+        //loadWinning();
         return rootView;
     }
 
     private void loadSub() {
+        /*
+        Log.i(TAG, "loadPost: ");
+        winAdapter = new PostAdapter(query.limit(8), userId, getActivity(), getContext());
+        latestList.setAdapter(winAdapter);
+        if(winAdapter!=null)
+            winAdapter.startListening();
+            */
     }
 
     private void loadLatest() {
         Log.i(TAG, "loadPost: ");
-        latestAdapter = new PostAdapter(query.orderBy("relevance", Query.Direction.DESCENDING).limit(10),
-                userId, getActivity(), getContext());
+        latestAdapter = new BankerAdapter(database.collection("posts").orderBy("time", Query.Direction.DESCENDING)
+                .whereEqualTo("type", 0).limit(8), userId, getActivity(), getContext());
         latestList.setAdapter(latestAdapter);
         if(latestAdapter!=null)
             latestAdapter.startListening();
@@ -81,7 +89,7 @@ public class BankerFragment extends Fragment {
 
     private void loadWinning() {
         Log.i(TAG, "loadPost: ");
-        winAdapter = new PostAdapter(query.orderBy("status").whereEqualTo("status", 2), userId, getActivity(), getContext());
+        winAdapter = new PostAdapter(query.whereEqualTo("status", 1), userId, getActivity(), getContext());
         latestList.setAdapter(winAdapter);
         if(winAdapter!=null)
             winAdapter.startListening();

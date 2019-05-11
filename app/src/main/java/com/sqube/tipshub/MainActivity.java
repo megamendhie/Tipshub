@@ -118,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                 return true;
             case R.id.nav_banker:
                 if(fragmentActive==fragmentB){
-                    fragmentTransaction.detach(fragmentB).attach(fragmentB).commit();
+                    fragmentManager.beginTransaction().detach(fragmentB).attach(fragmentB).commit();
                     return true;
                 }
                 actionBar.setTitle("Sure Banker");
