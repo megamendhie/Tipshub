@@ -26,7 +26,7 @@ import java.util.Map;
 
 import adapters.PerformanceAdapter;
 import de.hdodenhof.circleimageview.CircleImageView;
-import models.ProfileShort;
+import models.ProfileMedium;
 
 public class MyProfileActivity extends AppCompatActivity {
     private ActionBar actionBar;
@@ -36,7 +36,7 @@ public class MyProfileActivity extends AppCompatActivity {
     private String userId, username;
     private FirebaseFirestore database;
     private CircleImageView imgDp;
-    ProfileShort profile;
+    ProfileMedium profile;
     private RecyclerView recyclerView;
     PerformanceAdapter adapter;
     Fragment postFragment, bankerFragment, reviewFragment;
@@ -79,7 +79,7 @@ public class MyProfileActivity extends AppCompatActivity {
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 if(!documentSnapshot.exists())
                     return;
-                profile = documentSnapshot.toObject(ProfileShort.class);
+                profile = documentSnapshot.toObject(ProfileMedium.class);
                 txtName.setText(profile.getA0_firstName()+" "+ profile.getA1_lastName());
                 txtUsername.setText("@"+profile.getA2_username());
                 actionBar.setTitle(profile.getA0_firstName()+" "+ profile.getA1_lastName());

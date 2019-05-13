@@ -4,6 +4,7 @@ package com.sqube.tipshub;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -51,6 +52,7 @@ public class HomeFragment extends Fragment{
         intent = new Intent(getActivity().getApplicationContext(), PostActivity.class);
         testList = rootView.findViewById(R.id.testList);
         testList.setLayoutManager(new LinearLayoutManager(getActivity()));
+        ((DefaultItemAnimator) testList.getItemAnimator()).setSupportsChangeAnimations(false);
         database = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();

@@ -51,7 +51,6 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
     private String[] code = {"1xBet", "Bet9ja", "Nairabet", "SportyBet", "BlackBet", "Bet365"};
     private String[] type = {"3-5 odds", "6-10 odds", "11-50 odds", "50+ odds", "Draws", "Banker tip"};
 
-
     public PostAdapter(Query query, String userID, Activity activity, Context context) {
         /*
         Configure recycler adapter options:
@@ -227,9 +226,9 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
         final TextView childUsername = holder.childUsername;
         final TextView childCode = holder.childCode, childType = holder.childType;
         final CircleImageView childDp = holder.childDp;
-        final ImageView imgChildStatus = holder.imgChildStatus, imgChildCode = holder.imgChildCode;
+        final ImageView imgChildCode = holder.imgChildCode;
 
-        imgChildStatus.setVisibility(model.getStatus()==1? View.GONE: View.VISIBLE);
+        //holder.imgChildStatus.setVisibility(model.getStatus()==1? View.GONE: View.VISIBLE);
         if(model.getChildBookingCode()!=null && !model.getChildBookingCode().isEmpty()){
             childCode.setText(model.getChildBookingCode() + " @" + code[(model.getChildBookie()-1)]);
             childCode.setVisibility(View.VISIBLE);
@@ -255,7 +254,7 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
-                imgChildStatus.setVisibility(documentSnapshot.toObject(Post.class).getStatus()==1? View.GONE: View.VISIBLE);
+                holder.imgChildStatus.setVisibility(documentSnapshot.toObject(Post.class).getStatus()==1? View.INVISIBLE: View.VISIBLE);
             }
         });
 

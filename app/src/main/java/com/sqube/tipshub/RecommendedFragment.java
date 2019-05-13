@@ -5,6 +5,7 @@ import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -77,9 +78,9 @@ public class RecommendedFragment extends Fragment {
         View rootView=inflater.inflate(R.layout.fragment_recommended, container, false);
         peopleList = rootView.findViewById(R.id.peopleList);
         peopleList.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false));
-
         trendingList = rootView.findViewById(R.id.trendingList);
         trendingList.setLayoutManager(new LinearLayoutManager(getActivity()));
+        ((DefaultItemAnimator) trendingList.getItemAnimator()).setSupportsChangeAnimations(false);
 
         newsList = rootView.findViewById(R.id.newsList);
         newsList.setLayoutManager(new LinearLayoutManager(getActivity()));

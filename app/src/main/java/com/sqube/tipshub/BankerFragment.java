@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -53,6 +54,9 @@ public class BankerFragment extends Fragment {
         latestList = rootView.findViewById(R.id.latestList);
         winningsList = rootView.findViewById(R.id.winningsList);
         fabPost = rootView.findViewById(R.id.fabPost);
+        ((DefaultItemAnimator) subscribedList.getItemAnimator()).setSupportsChangeAnimations(false);
+        ((DefaultItemAnimator) winningsList.getItemAnimator()).setSupportsChangeAnimations(false);
+        ((DefaultItemAnimator) latestList.getItemAnimator()).setSupportsChangeAnimations(false);
 
         subscribedList.setLayoutManager(new LinearLayoutManager(getActivity()));
         latestList.setLayoutManager(new LinearLayoutManager(getActivity()));
