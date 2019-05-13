@@ -36,14 +36,6 @@
         android:drawableTint="@color/colorPrimary"
         android:text="SUBSCRIBE" />
     <Button
-        android:id="@+id/btnRepost"
-        android:layout_width="180dp"
-        android:layout_height="wrap_content"
-        android:drawableLeft="@drawable/ic_retweet"
-        android:drawableTint="@color/colorPrimary"
-        android:text="Repost" />
-
-    <Button
         android:id="@+id/btnShare"
         android:layout_width="180dp"
         android:layout_height="wrap_content"

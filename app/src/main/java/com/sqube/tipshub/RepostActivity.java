@@ -57,7 +57,7 @@ public class RepostActivity extends AppCompatActivity implements View.OnClickLis
     private String childLink;
 
     boolean postExist=false;
-    private String[] type = {"3-5 odds", "6-10 odds", "11-50 odds", "50+ odds", "Draws"};
+    private String[] type = {"3-5 odds", "6-10 odds", "11-50 odds", "50+ odds", "Draws", "Banker tip"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

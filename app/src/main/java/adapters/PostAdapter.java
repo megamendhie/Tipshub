@@ -49,7 +49,7 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
     private StorageReference storageReference;
     private FirebaseFirestore database;
     private String[] code = {"1xBet", "Bet9ja", "Nairabet", "SportyBet", "BlackBet", "Bet365"};
-    private String[] type = {"3-5 odds", "6-10 odds", "11-50 odds", "50+ odds", "Draws"};
+    private String[] type = {"3-5 odds", "6-10 odds", "11-50 odds", "50+ odds", "Draws", "Banker tip"};
 
 
     public PostAdapter(Query query, String userID, Activity activity, Context context) {
@@ -93,7 +93,7 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
         final ImageView imgStatus = holder.imgStatus;
         final ImageView imgCode = holder.imgCode;
         final ImageView imgComment = holder.imgComment;
-        final ImageView imgShare = holder.imgShare;
+        final ImageView imgRepost = holder.imgRepost;
         final ImageView imgOverflow = holder.imgOverflow;
         final String postId = getSnapshots().getSnapshot(position).getId();
 
@@ -158,10 +158,13 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
         mLikesCount.setText(model.getLikesCount()==0? "":String.valueOf(model.getLikesCount()));
         mDislikesCount.setText(model.getDislikesCount()==0? "":String.valueOf(model.getDislikesCount()));
 
-        imgShare.setOnClickListener(new View.OnClickListener() {
+        imgRepost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                reusable.shareTips(activity, model.getUsername(), model.getContent());
+                Intent intent = new Intent(context, RepostActivity.class);
+                intent.putExtra("postId", postId);
+                intent.putExtra("model", model);
+                context.startActivity(intent);
             }
         });
 
@@ -298,11 +301,10 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
         final AlertDialog dialog= builder.create();
         dialog.show();
 
-        Button btnSubmit, btnDelete, btnShare, btnRepost, btnFollow, btnSubscribe, btnObject;
+        Button btnSubmit, btnDelete, btnShare, btnFollow, btnSubscribe, btnObject;
         btnSubmit = dialog.findViewById(R.id.btnSubmit);
         btnDelete = dialog.findViewById(R.id.btnDelete);
         btnShare = dialog.findViewById(R.id.btnShare);
-        btnRepost = dialog.findViewById(R.id.btnRepost);
         btnFollow = dialog.findViewById(R.id.btnFollow);
         btnSubscribe = dialog.findViewById(R.id.btnSubscribe);
 
@@ -310,13 +312,10 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
             btnFollow.setVisibility(View.GONE);
         else
             btnFollow.setText(UserNetwork.getFollowing().contains(this.userId)? "UNFOLLOW": "FOLLOW");
-        btnRepost.setOnClickListener(new View.OnClickListener() {
+        btnShare.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(context, RepostActivity.class);
-                intent.putExtra("postId", postId);
-                intent.putExtra("model", model);
-                context.startActivity(intent);
+                reusable.shareTips(activity, model.getUsername(), model.getContent());
                 dialog.cancel();
             }
         });
@@ -355,7 +354,7 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
         TextView mTime;
         TextView mLikes, mDislikes, mComment, mCode, mType, childCode, childType;
         ImageView imgOverflow;
-        ImageView imgLikes, imgDislike, imgComment, imgShare, imgStatus, imgCode, imgChildStatus, imgChildCode;
+        ImageView imgLikes, imgDislike, imgComment, imgRepost, imgStatus, imgCode, imgChildStatus, imgChildCode;
         public PostHolder(View itemView) {
             super(itemView);
             imgDp = itemView.findViewById(R.id.imgDp);
@@ -383,7 +382,7 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
             imgLikes = itemView.findViewById(R.id.imgLike);
             imgDislike = itemView.findViewById(R.id.imgDislike);
             imgComment = itemView.findViewById(R.id.imgComment);
-            imgShare = itemView.findViewById(R.id.imgShare);
+            imgRepost = itemView.findViewById(R.id.imgRepost);
             imgCode = itemView.findViewById(R.id.imgCode);
             imgStatus = itemView.findViewById(R.id.imgStatus);
             imgOverflow = itemView.findViewById(R.id.imgOverflow);

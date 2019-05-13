@@ -74,7 +74,7 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
 
     String userId, username, postId, childLink;
     private String[] code = {"1xBet", "Bet9ja", "Nairabet", "SportyBet", "BlackBet", "Bet365"};
-    private String[] type = {"3-5 odds", "6-10 odds", "11-50 odds", "50+ odds", "Draws"};
+    private String[] type = {"3-5 odds", "6-10 odds", "11-50 odds", "50+ odds", "Draws", "Banker tip"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

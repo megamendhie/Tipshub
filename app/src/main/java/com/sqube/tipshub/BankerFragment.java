@@ -1,7 +1,9 @@
 package com.sqube.tipshub;
 
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -10,7 +12,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.github.clans.fab.FloatingActionMenu;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -31,12 +32,12 @@ public class BankerFragment extends Fragment {
     private FirebaseAuth auth;
     private FirebaseUser user;
     String userId;
-    PostAdapter subAdapter, winAdapter;
-    BankerAdapter latestAdapter;
-    com.github.clans.fab.FloatingActionButton fapTip, fabNormal;
-    FloatingActionMenu fabMenu;
+    PostAdapter subAdapter;
+    BankerAdapter latestAdapter, winAdapter;
+    FloatingActionButton fabPost;
     RecyclerView subscribedList, latestList, winningsList;
     private final String TAG = "RecFragment";
+    Intent intent;
 
     public BankerFragment() {
         // Required empty public constructor
@@ -51,20 +52,30 @@ public class BankerFragment extends Fragment {
         subscribedList = rootView.findViewById(R.id.subscribedList);
         latestList = rootView.findViewById(R.id.latestList);
         winningsList = rootView.findViewById(R.id.winningsList);
+        fabPost = rootView.findViewById(R.id.fabPost);
 
         subscribedList.setLayoutManager(new LinearLayoutManager(getActivity()));
         latestList.setLayoutManager(new LinearLayoutManager(getActivity()));
         winningsList.setLayoutManager(new LinearLayoutManager(getActivity()));
-        
+
+        intent = new Intent(getActivity().getApplicationContext(), PostActivity.class);
         database = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
         userId = user.getUid();
+
+        fabPost.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                intent.putExtra("type", "banker");
+                startActivity(intent);
+            }
+        });
         long stopTime = new Date().getTime() - (48*60*60*1000);
         //query = database.collection("posts").orderBy("time", Query.Direction.DESCENDING).whereEqualTo("type", 0);
         //loadSub();
         loadLatest();
-        //loadWinning();
+        loadWinning();
         return rootView;
     }
 
@@ -81,16 +92,17 @@ public class BankerFragment extends Fragment {
     private void loadLatest() {
         Log.i(TAG, "loadPost: ");
         latestAdapter = new BankerAdapter(database.collection("posts").orderBy("time", Query.Direction.DESCENDING)
-                .whereEqualTo("type", 0).limit(8), userId, getActivity(), getContext());
+                .whereEqualTo("type", 6).limit(8), userId, getActivity(), getContext());
         latestList.setAdapter(latestAdapter);
         if(latestAdapter!=null)
             latestAdapter.startListening();
     }
 
     private void loadWinning() {
-        Log.i(TAG, "loadPost: ");
-        winAdapter = new PostAdapter(query.whereEqualTo("status", 1), userId, getActivity(), getContext());
-        latestList.setAdapter(winAdapter);
+        Log.i(TAG, "loadWinning: ");
+        winAdapter = new BankerAdapter(database.collection("posts").orderBy("time", Query.Direction.DESCENDING)
+                .whereEqualTo("type", 6).whereEqualTo("status", 2).limit(8), userId, getActivity(), getContext());
+        winningsList.setAdapter(winAdapter);
         if(winAdapter!=null)
             winAdapter.startListening();
     }

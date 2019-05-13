@@ -297,12 +297,12 @@
                 android:layout_weight="1"
                 android:gravity="center_vertical">
                 <ImageView
-                    android:id="@+id/imgShare"
+                    android:id="@+id/imgRepost"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:clickable="true"
                     android:background="@drawable/img_like_bg"
-                    android:src="@drawable/ic_share_black_24dp"/>
+                    app:srcCompat="@drawable/ic_retweet"/>
             </LinearLayout>
 
         </LinearLayout>

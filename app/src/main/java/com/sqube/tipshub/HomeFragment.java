@@ -28,7 +28,7 @@ public class HomeFragment extends Fragment{
     private final String TAG = "HomeFrag";
     String userId;
     PostAdapter postAdapter;
-    FloatingActionButton fapTip, fabNormal;
+    FloatingActionButton fabTip, fabNormal;
     FloatingActionMenu fabMenu;
     RecyclerView testList;
     Intent intent;
@@ -57,8 +57,8 @@ public class HomeFragment extends Fragment{
         userId = user.getUid();
         fabMenu = rootView.findViewById(R.id.fabMenu);
         fabNormal = rootView.findViewById(R.id.fabNormal);
-        fapTip = rootView.findViewById(R.id.fabPost);
-        fapTip.setOnClickListener(new View.OnClickListener() {
+        fabTip = rootView.findViewById(R.id.fabPost);
+        fabTip.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 fabMenu.close(false);

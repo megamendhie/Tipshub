@@ -53,7 +53,7 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
     private StorageReference storageReference;
     private FirebaseFirestore database;
     private String[] code = {"1xBet", "Bet9ja", "Nairabet", "SportyBet", "BlackBet", "Bet365"};
-    private String[] type = {"3-5 odds", "6-10 odds", "11-50 odds", "50+ odds", "Draws", "Banker"};
+    private String[] type = {"3-5 odds", "6-10 odds", "11-50 odds", "50+ odds", "Draws", "Banker tip"};
 
 
     public BankerAdapter(Query query, String userID, Activity activity, Context context) {
@@ -98,7 +98,7 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
         final ImageView imgStatus = holder.imgStatus;
         final ImageView imgCode = holder.imgCode;
         final ImageView imgComment = holder.imgComment;
-        final ImageView imgShare = holder.imgShare;
+        final ImageView imgRepost = holder.imgRepost;
         final ImageView imgOverflow = holder.imgOverflow;
         final String postId = getSnapshots().getSnapshot(position).getId();
 
@@ -177,21 +177,27 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
         mLikesCount.setText(model.getLikesCount()==0? "":String.valueOf(model.getLikesCount()));
         mDislikesCount.setText(model.getDislikesCount()==0? "":String.valueOf(model.getDislikesCount()));
 
-        imgShare.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                reusable.shareTips(activity, model.getUsername(), model.getContent());
-            }
-        });
-
         final boolean finalMakePublic = makePublic;
         final boolean finalMakeVisible = makeVisible;
+        imgRepost.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(!finalMakeVisible) {
+                    Snackbar.make(mComment, "No access to post", Snackbar.LENGTH_SHORT).show();
+                    return;
+                }
+                Intent intent = new Intent(context, RepostActivity.class);
+                intent.putExtra("postId", postId);
+                intent.putExtra("model", model);
+                context.startActivity(intent);
+            }
+        });
         lnrContainer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //display full post with comments if visibility or public is set true
                 if(!finalMakePublic && !finalMakeVisible) {
-                    Snackbar.make(mComment, "kk", Snackbar.LENGTH_LONG);
+                    Snackbar.make(mComment, "No access to post", Snackbar.LENGTH_SHORT).show();
                     return;
                 }
                 Intent intent = new Intent(context, FullPostActivity.class);
@@ -205,7 +211,7 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
             public void onClick(View v) {
                 //display full post with comments if visibility or public is set true
                 if(!finalMakePublic && !finalMakeVisible) {
-                    Snackbar.make(mComment, "kk", Snackbar.LENGTH_LONG);
+                    Snackbar.make(mComment, "No access to post", Snackbar.LENGTH_SHORT).show();
                     return;
                 }
                 Intent intent = new Intent(context, FullPostActivity.class);
@@ -330,28 +336,24 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
         final AlertDialog dialog= builder.create();
         dialog.show();
 
-        Button btnSubmit, btnDelete, btnShare, btnRepost, btnFollow, btnSubscribe, btnObject;
+        Button btnSubmit, btnDelete, btnShare, btnFollow, btnSubscribe, btnObject;
         btnSubmit = dialog.findViewById(R.id.btnSubmit);
         btnDelete = dialog.findViewById(R.id.btnDelete);
         btnShare = dialog.findViewById(R.id.btnShare);
-        btnRepost = dialog.findViewById(R.id.btnRepost);
         btnFollow = dialog.findViewById(R.id.btnFollow);
         btnSubscribe = dialog.findViewById(R.id.btnSubscribe);
         if(!makePublic){
-            btnRepost.setVisibility(View.GONE);
+            btnShare.setVisibility(View.GONE);
         }
 
         if(UserNetwork.getFollowing()==null)
             btnFollow.setVisibility(View.GONE);
         else
             btnFollow.setText(UserNetwork.getFollowing().contains(this.userId)? "UNFOLLOW": "FOLLOW");
-        btnRepost.setOnClickListener(new View.OnClickListener() {
+        btnShare.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(context, RepostActivity.class);
-                intent.putExtra("postId", postId);
-                intent.putExtra("model", model);
-                context.startActivity(intent);
+                reusable.shareTips(activity, model.getUsername(), model.getContent());
                 dialog.cancel();
             }
         });
@@ -391,7 +393,7 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
         TextView mTime;
         TextView mLikes, mDislikes, mComment, mCode, mType, childCode, childType, mSub;
         ImageView imgOverflow;
-        ImageView imgLikes, imgDislike, imgComment, imgShare, imgStatus, imgCode, imgChildStatus, imgChildCode;
+        ImageView imgLikes, imgDislike, imgComment, imgRepost, imgStatus, imgCode, imgChildStatus, imgChildCode;
         public PostHolder(View itemView) {
             super(itemView);
             imgDp = itemView.findViewById(R.id.imgDp);
@@ -421,7 +423,7 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
             imgLikes = itemView.findViewById(R.id.imgLike);
             imgDislike = itemView.findViewById(R.id.imgDislike);
             imgComment = itemView.findViewById(R.id.imgComment);
-            imgShare = itemView.findViewById(R.id.imgShare);
+            imgRepost = itemView.findViewById(R.id.imgRepost);
             imgCode = itemView.findViewById(R.id.imgCode);
             imgStatus = itemView.findViewById(R.id.imgStatus);
             imgOverflow = itemView.findViewById(R.id.imgOverflow);

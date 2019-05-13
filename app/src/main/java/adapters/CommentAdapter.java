@@ -165,10 +165,9 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
         final AlertDialog dialog= builder.create();
         dialog.show();
 
-        Button btnSubmit, btnDelete, btnShare, btnFollow, btnSubscribe, btnObject;
+        Button btnSubmit, btnDelete, btnFollow, btnSubscribe, btnObject;
         btnSubmit = dialog.findViewById(R.id.btnSubmit);
         btnDelete = dialog.findViewById(R.id.btnDelete);
-        btnShare = dialog.findViewById(R.id.btnShare);
         btnFollow = dialog.findViewById(R.id.btnFollow);
         btnSubscribe = dialog.findViewById(R.id.btnSubscribe);
         if(UserNetwork.getFollowing()==null)

@@ -1,61 +1,75 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.NestedScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="#EEEEEE"
     tools:context=".BankerFragment">
-
-    <LinearLayout
+    <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:textSize="18sp"
-            android:layout_marginStart="3dp"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            android:text="People you subscribed"/>
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/subscribedList"
+        android:layout_height="match_parent">
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:layout_marginTop="5dp"/>
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:layout_marginStart="3dp"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:text="People you subscribed"/>
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/subscribedList"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:layout_marginTop="5dp"/>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:textSize="18sp"
-            android:layout_marginTop="10dp"
-            android:layout_marginStart="3dp"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            android:text="Latest Bankers"/>
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/latestList"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:layout_marginTop="10dp"
+                android:layout_marginStart="3dp"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:text="Latest Bankers"/>
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/latestList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"/>
 
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:textSize="18sp"
-            android:layout_marginStart="3dp"
-            android:layout_marginTop="10dp"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            android:text="Recent Winners"/>
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/winningsList"
-            android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:layout_marginTop="5dp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:layout_marginStart="3dp"
+                android:layout_marginTop="10dp"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:text="Recent Winners"/>
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/winningsList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"/>
 
-    </LinearLayout>
-</android.support.v4.widget.NestedScrollView>
+        </LinearLayout>
+    </android.support.v4.widget.NestedScrollView>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fabPost"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_gravity="bottom|end"
+        android:layout_marginBottom="27dp"
+        android:layout_marginEnd="25dp"
+        android:tint="@android:color/white"
+        app:srcCompat="@drawable/ic_beta"/>
+</RelativeLayout>

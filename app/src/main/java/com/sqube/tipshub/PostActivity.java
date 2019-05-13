@@ -92,6 +92,13 @@ public class PostActivity extends AppCompatActivity implements View.OnClickListe
             txtNormal.setVisibility(View.GONE);
             type = 1;
         }
+        else if(getIntent().getStringExtra("type").equals("banker")){
+            spnType.setVisibility(View.GONE);
+            btnAdd.setVisibility(View.VISIBLE);
+            txtNormal.setText("Banker");
+            txtNormal.setVisibility(View.VISIBLE);
+            type = 6;
+        }
         else{
             spnType.setVisibility(View.GONE);
             btnAdd.setVisibility(View.GONE);
