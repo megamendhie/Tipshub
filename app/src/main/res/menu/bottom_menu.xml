@@ -11,7 +11,7 @@
             android:title=""/>
         <item
             android:id="@+id/nav_banker"
-            android:icon="@drawable/ic_beta"
+            android:icon="@drawable/ic_beta_small"
             android:title=""/>
         <item
             android:id="@+id/nav_notification"

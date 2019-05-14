@@ -13,6 +13,8 @@ public class ProfileShort {
     private String b2_dpUrl;
     private String b3_dpTmUrl;
     private String b4_coverUrl;
+    private long c4_followers;
+    private long c5_following;
 
     //values for overall No Of Games, Won Games, and Won Games Percentage
     private long e0a_NOG;
@@ -116,5 +118,21 @@ public class ProfileShort {
 
     public void setE0c_WGP(long e0c_WGP) {
         this.e0c_WGP = e0c_WGP;
+    }
+
+    public long getC4_followers() {
+        return c4_followers;
+    }
+
+    public void setC4_followers(long c4_followers) {
+        this.c4_followers = c4_followers;
+    }
+
+    public long getC5_following() {
+        return c5_following;
+    }
+
+    public void setC5_following(long c5_following) {
+        this.c5_following = c5_following;
     }
 }

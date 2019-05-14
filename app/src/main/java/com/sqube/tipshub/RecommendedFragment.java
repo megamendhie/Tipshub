@@ -35,8 +35,8 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import adapters.NewsAdapter;
-import adapters.PeopleAdapter;
 import adapters.PostAdapter;
+import adapters.PeopleAdapter;
 import utils.CacheHelper;
 import utils.NewsFunction;
 
@@ -47,6 +47,7 @@ public class RecommendedFragment extends Fragment {
     private FirebaseUser user;
     String userId;
     PostAdapter postAdapter;
+    PeopleAdapter peopleAdapter;
     FloatingActionButton fapTip, fabNormal;
     FloatingActionMenu fabMenu;
     RecyclerView peopleList, trendingList, newsList;
@@ -90,13 +91,20 @@ public class RecommendedFragment extends Fragment {
         user = auth.getCurrentUser();
         userId = user.getUid();
 
-        String[] testString = {"A", "B", "C", "E", "F", "G"};
-        PeopleAdapter adapter = new PeopleAdapter(testString);
-        peopleList.setAdapter(adapter);
-
+        loadPeople();
         loadPost();
         loadNews();
         return rootView;
+    }
+
+    private void loadPeople() {
+        peopleAdapter = new PeopleAdapter(database.collection("profiles").orderBy("c2_score",
+                Query.Direction.DESCENDING).limit(8), userId, getActivity(), getContext());
+        peopleList.setAdapter(peopleAdapter);
+        if(peopleAdapter !=null){
+            Log.i(TAG, "loadPeople: started listening");
+            peopleAdapter.startListening();
+        }
     }
 
 

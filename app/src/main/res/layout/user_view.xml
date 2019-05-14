@@ -34,7 +34,7 @@
                     android:id="@+id/imgDp"
                     android:layout_width="100dp"
                     android:layout_height="100dp"
-                    android:src="@drawable/sample_dp" />
+                    app:srcCompat="@drawable/ic_beta_small" />
                 <Button
                     android:id="@+id/btnFollow"
                     android:layout_width="wrap_content"
