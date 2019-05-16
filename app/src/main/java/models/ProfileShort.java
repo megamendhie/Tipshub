@@ -16,10 +16,18 @@ public class ProfileShort {
     private long c4_followers;
     private long c5_following;
 
+    //subs
+    private long d0_subAmount;
+
     //values for overall No Of Games, Won Games, and Won Games Percentage
     private long e0a_NOG;
     private long e0b_WG;
     private long e0c_WGP;
+
+    //values for No Of Games, Won Games, and Won Games Percentage for banker
+    private long e6a_NOG;
+    private long e6b_WG;
+    private long e6c_WGP;
 
     public ProfileShort(){}
 
@@ -134,5 +142,37 @@ public class ProfileShort {
 
     public void setC5_following(long c5_following) {
         this.c5_following = c5_following;
+    }
+
+    public long getD0_subAmount() {
+        return d0_subAmount;
+    }
+
+    public void setD0_subAmount(long d0_subAmount) {
+        this.d0_subAmount = d0_subAmount;
+    }
+
+    public long getE6a_NOG() {
+        return e6a_NOG;
+    }
+
+    public void setE6a_NOG(long e6a_NOG) {
+        this.e6a_NOG = e6a_NOG;
+    }
+
+    public long getE6b_WG() {
+        return e6b_WG;
+    }
+
+    public void setE6b_WG(long e6b_WG) {
+        this.e6b_WG = e6b_WG;
+    }
+
+    public long getE6c_WGP() {
+        return e6c_WGP;
+    }
+
+    public void setE6c_WGP(long e6c_WGP) {
+        this.e6c_WGP = e6c_WGP;
     }
 }

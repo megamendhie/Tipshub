@@ -50,6 +50,7 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
     private Activity activity;
     private Context context;
     private String userId;
+    private Calculations calculations;
     private StorageReference storageReference;
     private FirebaseFirestore database;
     private String[] code = {"1xBet", "Bet9ja", "Nairabet", "SportyBet", "BlackBet", "Bet365"};
@@ -70,6 +71,7 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
         this.activity = activity;
         this.context = context;
         this.userId = userID;
+        this.calculations = new Calculations(context);
         this.database = FirebaseFirestore.getInstance();
         storageReference = FirebaseStorage.getInstance().getReference()
                 .child("profile_images");
@@ -223,8 +225,23 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
         imgLikes.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i(TAG, "onClick: Key is " + postId);
-                Calculations calculations = new Calculations(context);
+                model.getDislikes().contains(userId);
+                if(model.getDislikes().contains(userId)){
+                    imgLikes.setColorFilter(context.getResources().getColor(R.color.colorPrimary));
+                    imgDislikes.setColorFilter(context.getResources().getColor(R.color.likeGrey));
+                    mLikesCount.setText(String.valueOf(model.getLikesCount()+1));
+                    mDislikesCount.setText(model.getDislikesCount()-1>0? String.valueOf(model.getDislikesCount()-1):"");
+                }
+                else{
+                    if(model.getLikes().contains(userId)){
+                        imgLikes.setColorFilter(context.getResources().getColor(R.color.likeGrey));
+                        mLikesCount.setText(model.getLikesCount()-1>0?String.valueOf(model.getLikesCount()-1):"");
+                    }
+                    else{
+                        imgLikes.setColorFilter(context.getResources().getColor(R.color.colorPrimary));
+                        mLikesCount.setText(String.valueOf(model.getLikesCount()+1));
+                    }
+                }
                 calculations.onLike(postId, userId, model.getUserId());
             }
         });
@@ -232,8 +249,22 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
         imgDislikes.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i(TAG, "onClick: Key is " + postId);
-                Calculations calculations = new Calculations(context);
+                if(model.getLikes().contains(userId)){
+                    imgLikes.setColorFilter(context.getResources().getColor(R.color.likeGrey));
+                    imgDislikes.setColorFilter(context.getResources().getColor(R.color.colorPrimary));
+                    mLikesCount.setText(model.getLikesCount()-1>0? String.valueOf(model.getLikesCount()-1):"");
+                    mDislikesCount.setText(String.valueOf(model.getDislikesCount()+1));
+                }
+                else{
+                    if(model.getDislikes().contains(userId)){
+                        imgDislikes.setColorFilter(context.getResources().getColor(R.color.likeGrey));
+                        mDislikesCount.setText(model.getDislikesCount()-1>0? String.valueOf(model.getDislikesCount()-1): "");
+                    }
+                    else{
+                        imgDislikes.setColorFilter(context.getResources().getColor(R.color.colorPrimary));
+                        mDislikesCount.setText(String.valueOf(model.getDislikesCount()+1));
+                    }
+                }
                 calculations.onDislike( postId, userId);
             }
         });

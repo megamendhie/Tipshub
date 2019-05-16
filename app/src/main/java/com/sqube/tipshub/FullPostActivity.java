@@ -261,9 +261,11 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.imgLike:
+                onLike();
                 calculations.onLike(postId, userId, model.getUserId());
                 break;
             case R.id.imgDislike:
+                onDislike();
                 calculations.onDislike(postId, userId);
                 break;
             case R.id.imgShare:
@@ -272,6 +274,45 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
             case R.id.fabPost:
                 postComment();
                 break;
+        }
+    }
+
+    private void onLike(){
+        model.getDislikes().contains(userId);
+        if(model.getDislikes().contains(userId)){
+            imgLike.setColorFilter(getResources().getColor(R.color.colorPrimary));
+            imgDislike.setColorFilter(getResources().getColor(R.color.likeGrey));
+            mLikes.setText(String.valueOf(model.getLikesCount()+1));
+            mDislikes.setText(model.getDislikesCount()-1>0? String.valueOf(model.getDislikesCount()-1):"");
+        }
+        else{
+            if(model.getLikes().contains(userId)){
+                imgLike.setColorFilter(getResources().getColor(R.color.likeGrey));
+                mLikes.setText(model.getLikesCount()-1>0?String.valueOf(model.getLikesCount()-1):"");
+            }
+            else{
+                imgLike.setColorFilter(getResources().getColor(R.color.colorPrimary));
+                mLikes.setText(String.valueOf(model.getLikesCount()+1));
+            }
+        }
+    }
+
+    private void onDislike(){
+        if(model.getLikes().contains(userId)){
+            imgLike.setColorFilter(getResources().getColor(R.color.likeGrey));
+            imgDislike.setColorFilter(getResources().getColor(R.color.colorPrimary));
+            mLikes.setText(model.getLikesCount()-1>0? String.valueOf(model.getLikesCount()-1):"");
+            mDislikes.setText(String.valueOf(model.getDislikesCount()+1));
+        }
+        else{
+            if(model.getDislikes().contains(userId)){
+                imgDislike.setColorFilter(getResources().getColor(R.color.likeGrey));
+                mDislikes.setText(model.getDislikesCount()-1>0? String.valueOf(model.getDislikesCount()-1): "");
+            }
+            else{
+                imgDislike.setColorFilter(getResources().getColor(R.color.colorPrimary));
+                mDislikes.setText(String.valueOf(model.getDislikesCount()+1));
+            }
         }
     }
 
