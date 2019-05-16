@@ -31,7 +31,7 @@ public class HomeFragment extends Fragment{
     PostAdapter postAdapter;
     FloatingActionButton fabTip, fabNormal;
     FloatingActionMenu fabMenu;
-    RecyclerView testList;
+    public RecyclerView testList;
     Intent intent;
     public HomeFragment() {
         // Required empty public constructor

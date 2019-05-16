@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     Button btnLogout;
 
     private CircleImageView imgDp;
-    TextView txtName, txtUsername, txtFollowing, txtFollowers;
+    TextView txtName, txtUsername, txtTips, txtFollowing, txtFollowers;
     String userId;
 
 
@@ -87,6 +87,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         imgDp.setOnClickListener(this);
         txtName = header.findViewById(R.id.txtName);
         txtUsername = header.findViewById(R.id.txtUsername);
+        txtTips = header.findViewById(R.id.txtTips);
         txtFollowing = header.findViewById(R.id.txtFollowing);
         txtFollowers = header.findViewById(R.id.txtFollowers);
 
@@ -152,6 +153,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                     ProfileShort profile = documentSnapshot.toObject(ProfileShort.class);
                     txtName.setText(profile.getA0_firstName()+" "+profile.getA1_lastName());
                     txtUsername.setText(profile.getA2_username());
+                    txtTips.setText(profile.getE0a_NOG()>1? profile.getE0a_NOG()+ " tips": profile.getE0a_NOG()+ " tip");
                     txtFollowers.setText(String.valueOf(profile.getC4_followers()));
                     txtFollowing.setText(String.valueOf(profile.getC5_following()));
                 }
@@ -211,11 +213,17 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
     @Override
     public void onClick(View v) {
-        if(v.getId()==R.id.btnLogout){
-            if(auth.getCurrentUser()!=null)
-                Logout();
-            else
-                Toast.makeText(MainActivity.this, "No user logged in", Toast.LENGTH_LONG).show();
+        switch (v.getId()){
+            case R.id.btnLogout:
+                if(auth.getCurrentUser()!=null)
+                    Logout();
+                else
+                    Toast.makeText(MainActivity.this, "No user logged in", Toast.LENGTH_LONG).show();
+                break;
+            case R.id.imgDp:
+                startActivity(new Intent(MainActivity.this, MyProfileActivity.class));
+                break;
+
         }
     }
 
