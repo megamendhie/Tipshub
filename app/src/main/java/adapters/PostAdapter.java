@@ -33,6 +33,7 @@ import com.sqube.tipshub.MemberProfileActivity;
 import com.sqube.tipshub.MyProfileActivity;
 import com.sqube.tipshub.R;
 import com.sqube.tipshub.RepostActivity;
+import com.sqube.tipshub.SubscriptionActivity;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import models.Post;
@@ -47,6 +48,9 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
     private Context context;
     private String userId;
     private StorageReference storageReference;
+    Calculations calculations;
+    final int NORMAL_POST=1, BANKER_POST = 0;
+
     private FirebaseFirestore database;
     private String[] code = {"1xBet", "Bet9ja", "Nairabet", "SportyBet", "BlackBet", "Bet365"};
     private String[] type = {"3-5 odds", "6-10 odds", "11-50 odds", "50+ odds", "Draws", "Banker tip"};
@@ -65,14 +69,26 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
         this.activity = activity;
         this.context = context;
         this.userId = userID;
+        this.calculations = new Calculations(context);
         this.database = FirebaseFirestore.getInstance();
         storageReference = FirebaseStorage.getInstance().getReference()
                 .child("profile_images");
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        if(getItem(position).getType()==6){
+            return BANKER_POST;
+        }
+        return NORMAL_POST;
+    }
+
     @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onBindViewHolder(@NonNull PostHolder holder, final int position, @NonNull final Post model) {
+        if(model.getType()==6){
+            return;
+        }
         Log.i(TAG, "onBindViewHolder: executed");
         final LinearLayout lnrCode = holder.lnrCode;
         final LinearLayout lnrContainer = holder.lnrContainer;
@@ -188,8 +204,23 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
         imgLikes.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i(TAG, "onClick: Key is " + postId);
-                Calculations calculations = new Calculations(context);
+                model.getDislikes().contains(userId);
+                if(model.getDislikes().contains(userId)){
+                    imgLikes.setColorFilter(context.getResources().getColor(R.color.colorPrimary));
+                    imgDislikes.setColorFilter(context.getResources().getColor(R.color.likeGrey));
+                    mLikesCount.setText(String.valueOf(model.getLikesCount()+1));
+                    mDislikesCount.setText(model.getDislikesCount()-1>0? String.valueOf(model.getDislikesCount()-1):"");
+                }
+                else{
+                    if(model.getLikes().contains(userId)){
+                        imgLikes.setColorFilter(context.getResources().getColor(R.color.likeGrey));
+                        mLikesCount.setText(model.getLikesCount()-1>0?String.valueOf(model.getLikesCount()-1):"");
+                    }
+                    else{
+                        imgLikes.setColorFilter(context.getResources().getColor(R.color.colorPrimary));
+                        mLikesCount.setText(String.valueOf(model.getLikesCount()+1));
+                    }
+                }
                 calculations.onLike(postId, userId, model.getUserId());
             }
         });
@@ -197,8 +228,22 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
         imgDislikes.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i(TAG, "onClick: Key is " + postId);
-                Calculations calculations = new Calculations(context);
+                if(model.getLikes().contains(userId)){
+                    imgLikes.setColorFilter(context.getResources().getColor(R.color.likeGrey));
+                    imgDislikes.setColorFilter(context.getResources().getColor(R.color.colorPrimary));
+                    mLikesCount.setText(model.getLikesCount()-1>0? String.valueOf(model.getLikesCount()-1):"");
+                    mDislikesCount.setText(String.valueOf(model.getDislikesCount()+1));
+                }
+                else{
+                    if(model.getDislikes().contains(userId)){
+                        imgDislikes.setColorFilter(context.getResources().getColor(R.color.likeGrey));
+                        mDislikesCount.setText(model.getDislikesCount()-1>0? String.valueOf(model.getDislikesCount()-1): "");
+                    }
+                    else{
+                        imgDislikes.setColorFilter(context.getResources().getColor(R.color.colorPrimary));
+                        mDislikesCount.setText(String.valueOf(model.getDislikesCount()+1));
+                    }
+                }
                 calculations.onDislike( postId, userId);
             }
         });
@@ -288,6 +333,9 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
         });
     }
 
+    /*
+        Displays overflow containing options like follow, subscribe, disagree, etc.
+     */
     private void displayOverflow(final Post model, String userId, final String postId, int status, int type, ImageView imgOverflow) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         LayoutInflater inflater = activity.getLayoutInflater();
@@ -306,6 +354,18 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
         btnShare = dialog.findViewById(R.id.btnShare);
         btnFollow = dialog.findViewById(R.id.btnFollow);
         btnSubscribe = dialog.findViewById(R.id.btnSubscribe);
+
+        if(UserNetwork.getSubscibed()==null||UserNetwork.getSubscibed().contains(model.getUserId()))
+            btnSubscribe.setVisibility(View.GONE);
+        btnSubscribe.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, SubscriptionActivity.class);
+                intent.putExtra("userId", model.getUserId());
+                context.startActivity(intent);
+                context.startActivity(intent);
+            }
+        });
 
         if(UserNetwork.getFollowing()==null)
             btnFollow.setVisibility(View.GONE);
@@ -340,7 +400,11 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
 
     @Override
     public PostHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.post_view, parent, false);
+        View view = null;
+        if(viewType==BANKER_POST)
+            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.post_empty, parent, false);
+        else
+            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.post_view, parent, false);
         return new PostHolder(view);
     }
 
