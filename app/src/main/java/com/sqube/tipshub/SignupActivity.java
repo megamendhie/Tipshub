@@ -3,9 +3,13 @@ package com.sqube.tipshub;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+
+import com.hbb20.CountryCodePicker;
 
 public class SignupActivity extends AppCompatActivity implements View.OnClickListener {
     Button btnSignup;
@@ -15,7 +19,6 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
         btnSignup = findViewById(R.id.btnSignup); btnSignup.setOnClickListener(this);
-
     }
 
     @Override
@@ -40,10 +43,15 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
         dialog.setCancelable(false);
         dialog.show();
 
+        final CountryCodePicker ccp = dialog.findViewById(R.id.ccp);
+        final EditText editTextCarrierNumber= dialog.findViewById(R.id.editText_carrierNumber);
+        ccp.registerCarrierNumberEditText(editTextCarrierNumber);
         Button btnSave = dialog.findViewById(R.id.btnSave);
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.i("CountryCodePicker", "onClick: "+ ccp.getSelectedCountryName()
+                        + ", " + ccp.getSelectedCountryCode() + ", " + editTextCarrierNumber.getText().toString());
                 dialog.cancel();
             }
         });

@@ -35,6 +35,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.UploadTask;
+import com.hbb20.CountryCodePicker;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -107,7 +108,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 if(task.isSuccessful()){
                     userId = mAuth.getCurrentUser().getUid();
                     Log.i("onComplete", "onAuthWithGoogle: login successful");
-                    Log.i("onComplete", "onAuthWithGoogle: provider: " + mAuth.getCurrentUser().getProviders());
+                    Log.i("onComplete", "onAuthWithGoogle: provider: " + mAuth.getCurrentUser().getProviderId());
                     Log.i("onComplete", "photoUrl: " + mAuth.getCurrentUser().getPhotoUrl().toString());
                     database.collection("profiles").document(userId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                 @Override
@@ -200,6 +201,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         final EditText edtPhone = dialog.findViewById(R.id.edtUsername);
         final RadioGroup rdbGroup = dialog.findViewById(R.id.rdbGroup);
         CircleImageView imgDp = dialog.findViewById(R.id.imgDp);
+        final CountryCodePicker ccp = dialog.findViewById(R.id.ccp);
+        final EditText editTextCarrierNumber= dialog.findViewById(R.id.editText_carrierNumber);
+        ccp.registerCarrierNumberEditText(editTextCarrierNumber);
         Glide.with(this).load(profileUri).into(imgDp);
         Button btnSave = dialog.findViewById(R.id.btnSave);
 
@@ -209,6 +213,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 String username = edtUsername.getText().toString().trim();
                 String phone = edtPhone.getText().toString().trim();
                 String gender ="";
+                String country = ccp.getSelectedCountryName();
                 switch (rdbGroup.getCheckedRadioButtonId()) {
                     case R.id.rdbMale:
                         gender = "male";
@@ -230,15 +235,19 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     Toast.makeText(LoginActivity.this, "Username is too short", Toast.LENGTH_LONG).show();
                     return;
                 }
-                if(TextUtils.isEmpty(phone)){
+                if(TextUtils.isEmpty(phone) || phone.length()<3){
                     Toast.makeText(LoginActivity.this, "Enter phone number", Toast.LENGTH_LONG).show();
                     return;
                 }
 
+                if(phone.charAt(0) == '0')
+                    phone = phone.substring(1);
+                phone = ccp.getSelectedCountryCode()+phone;
                 //Map new user datails, and ready to save to db
                 Map<String, String> url = new HashMap<>();
                 url.put("a2_username", username);
                 url.put("a4_gender", gender);
+                url.put("b0_country", country);
                 url.put("b1_phone", phone);
                 url.put("b2_dpUrl", profileUrl);
                 url.put("b3_dpTmUrl", profileUrlTm);
