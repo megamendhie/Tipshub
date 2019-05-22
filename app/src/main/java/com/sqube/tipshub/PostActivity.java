@@ -39,7 +39,6 @@ import models.Profile;
 import utils.SpaceTokenizer;
 
 public class PostActivity extends AppCompatActivity implements View.OnClickListener {
-    private ActionBar actionBar;
     private Button btnPost;
     private TextView btnClose, btnAdd, txtNormal;
     private MultiAutoCompleteTextView edtPost;
@@ -48,7 +47,6 @@ public class PostActivity extends AppCompatActivity implements View.OnClickListe
     FirebaseFirestore database;
     FirebaseAuth auth;
     FirebaseUser user;
-    CollectionReference usersReference;
     CollectionReference postReference;
 
     private String username;
@@ -67,7 +65,7 @@ public class PostActivity extends AppCompatActivity implements View.OnClickListe
             getWindow().setExitTransition(new Explode());
         }
         setContentView(R.layout.activity_post);
-        actionBar = getSupportActionBar();
+        ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setTitle("Post");

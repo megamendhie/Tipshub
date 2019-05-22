@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
@@ -7,163 +7,161 @@
     android:layout_height="match_parent"
     android:padding="@dimen/vertical_padding"
     tools:context=".SubscriptionActivity">
-
-    <TextView
+    <ProgressBar
+        android:id="@+id/prgPost"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="30sp"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-        android:layout_marginTop="10dp"
-        android:text="Subscribe To"/>
-
-    <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/imgDp"
-        android:layout_width="160dp"
-        android:layout_height="160dp"
-        android:layout_marginTop="20dp"
-        android:layout_gravity="center_horizontal"
-        android:src="@drawable/sample_dp"/>
+        android:layout_centerInParent="true"/>
 
     <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="6dp">
-        <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:paddingTop="4dp"
-            android:layout_gravity="center_vertical"
-            android:src="@drawable/symbol_at"/>
-
-        <TextView
-            android:id="@+id/txtUsername"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:textSize="24sp"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            android:layout_marginStart="2dp"/>
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal">
-        <ImageView
-            android:id="@+id/imgPointIcon"
-            android:layout_width="18dp"
-            android:layout_height="18dp"
-            android:layout_marginTop="2dp"
-            app:srcCompat="@android:drawable/btn_star_big_on" />
-
-        <TextView
-            android:id="@+id/txtPost"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            android:layout_marginStart="3dp"
-            android:text="32 banker tips"/>
-
-
-        <TextView
-            android:id="@+id/txtWon"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            android:layout_marginStart="5dp"
-            android:text="||  12 won"/>
-    </LinearLayout>
-    <TextView
-        android:id="@+id/txtAccuracy"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:layout_marginStart="5dp"
-        android:text="Accuracy: 87%"/>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@drawable/tip_type_bg"
-        android:layout_gravity="center_horizontal"
-        android:padding="10dp"
-        android:layout_marginTop="20dp">
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="18sp"
-            android:text="Subscription:"
-            android:textColor="@color/colorPrimaryDark"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
+            android:textSize="30sp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+            android:text="Subscribe To:"/>
 
-        <TextView
-            android:id="@+id/txtAmount"
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/imgDp"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_marginTop="15dp"
+            android:layout_gravity="center_horizontal"
+            android:src="@drawable/sample_dp"/>
+
+        <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="@color/colorPrimaryDark"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="6dp">
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:paddingTop="4dp"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/symbol_at"/>
+
+            <TextView
+                android:id="@+id/txtUsername"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:textSize="24sp"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:layout_marginStart="2dp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal">
+            <ImageView
+                android:id="@+id/imgPointIcon"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_marginTop="2dp"
+                app:srcCompat="@android:drawable/btn_star_big_on" />
+
+            <TextView
+                android:id="@+id/txtPost"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:layout_marginStart="3dp"/>
+
+
+            <TextView
+                android:id="@+id/txtWon"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:layout_marginStart="5dp"/>
+        </LinearLayout>
+        <TextView
+            android:id="@+id/txtAccuracy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             android:layout_marginStart="5dp"/>
+
+            <TextView
+                android:id="@+id/txtAmount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="N3000 for 2 weeks"
+                android:layout_gravity="center_horizontal"
+                android:textColor="#F80051"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginTop="10dp"
+                android:drawableStart="@drawable/ic_arrow_forward_black_24dp"
+                android:drawableEnd="@drawable/ic_arrow_back_black_24dp"
+                android:drawableTint="#F3BF02"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:layout_marginStart="7dp"/>
+
+        <Button
+            android:id="@+id/btnSubscribe"
+            style="@style/Base.Widget.AppCompat.Button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:textColor="@color/colorAccent"
+            android:textStyle="bold"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
+            android:layout_gravity="center_horizontal"
+            android:background="@color/bg_off_green"
+            android:text="Subscribe now" />
+
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/likeGrey"
+            android:layout_marginTop="15dp"/>
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:layout_marginTop="10dp"
+            android:textStyle="bold"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:layout_marginStart="5dp"
+            android:text="Benefits:"/>
+
+        <TextView
+            android:id="@+id/txtBenefitOne"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="60dp"
+            android:textSize="16sp"
+            android:drawableStart="@drawable/ic_arrow_forward_black_24dp"
+            android:drawableTint="#F3BF02"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:layout_marginStart="5dp"/>
+
+        <TextView
+            android:id="@+id/txtBenefitTwo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="60dp"
+            android:textSize="16sp"
+            android:drawableStart="@drawable/ic_arrow_forward_black_24dp"
+            android:drawableTint="#F3BF02"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:layout_marginStart="5dp"/>
+
     </LinearLayout>
-
-
-    <TextView
-        android:id="@+id/txtAmountLocal"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:text="about NGN 5000"/>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginTop="15dp"/>
-
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="18sp"
-        android:layout_marginTop="10dp"
-        android:textStyle="bold"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:layout_marginStart="5dp"
-        android:text="Benefits:"/>
-
-    <TextView
-        android:id="@+id/txtBenefitOne"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:layout_marginEnd="60dp"
-        android:textSize="16sp"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:layout_marginStart="5dp"/>
-
-    <TextView
-        android:id="@+id/txtBenefitTwo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:layout_marginEnd="60dp"
-        android:textSize="16sp"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:layout_marginStart="5dp"/>
-    <Button
-        style="@style/Base.Widget.AppCompat.Button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@color/colorAccent"
-        android:textColor="@android:color/white"
-        android:textStyle="bold"
-        android:layout_marginTop="30dp"
-        android:layout_gravity="end"
-        android:text="Subscribe"/>
-
-</LinearLayout>
+</RelativeLayout>

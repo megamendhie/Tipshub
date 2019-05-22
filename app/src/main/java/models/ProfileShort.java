@@ -10,6 +10,7 @@ public class ProfileShort {
     private String a5_bio;
 
     //contact info
+    private String b0_country;
     private String b2_dpUrl;
     private String b3_dpTmUrl;
     private String b4_coverUrl;
@@ -17,7 +18,7 @@ public class ProfileShort {
     private long c5_following;
 
     //subs
-    private long d0_subAmount;
+    private int d0_subAmount;
 
     //values for overall No Of Games, Won Games, and Won Games Percentage
     private long e0a_NOG;
@@ -144,11 +145,11 @@ public class ProfileShort {
         this.c5_following = c5_following;
     }
 
-    public long getD0_subAmount() {
+    public int getD0_subAmount() {
         return d0_subAmount;
     }
 
-    public void setD0_subAmount(long d0_subAmount) {
+    public void setD0_subAmount(int d0_subAmount) {
         this.d0_subAmount = d0_subAmount;
     }
 
@@ -174,5 +175,13 @@ public class ProfileShort {
 
     public void setE6c_WGP(long e6c_WGP) {
         this.e6c_WGP = e6c_WGP;
+    }
+
+    public String getB0_country() {
+        return b0_country;
+    }
+
+    public void setB0_country(String b0_country) {
+        this.b0_country = b0_country;
     }
 }

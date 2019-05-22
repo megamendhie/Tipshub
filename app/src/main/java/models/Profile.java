@@ -39,7 +39,7 @@ public class Profile {
     private long c9_todayPostCount;
 
     //subs
-    private long d0_subAmount;
+    private int d0_subAmount;
 
     //values for overall No Of Games, Won Games, and Won Games Percentage
     private long e0a_NOG;
@@ -508,11 +508,11 @@ public class Profile {
         this.e6c_WGP = e6c_WGP;
     }
 
-    public long getD0_subAmount() {
+    public int getD0_subAmount() {
         return d0_subAmount;
     }
 
-    public void setD0_subAmount(long d0_subAmount) {
+    public void setD0_subAmount(int d0_subAmount) {
         this.d0_subAmount = d0_subAmount;
     }
 }

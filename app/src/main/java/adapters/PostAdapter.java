@@ -77,7 +77,7 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
 
     @Override
     public int getItemViewType(int position) {
-        if(getItem(position).getType()==6){
+        if(getItem(position).getType()==6 && getItem(position).getStatus()!=2){
             return BANKER_POST;
         }
         return NORMAL_POST;
@@ -86,7 +86,7 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
     @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onBindViewHolder(@NonNull PostHolder holder, final int position, @NonNull final Post model) {
-        if(model.getType()==6){
+        if(model.getType()==6 && getItem(position).getStatus()!=2){
             return;
         }
         Log.i(TAG, "onBindViewHolder: executed");
@@ -363,7 +363,7 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
                 Intent intent = new Intent(context, SubscriptionActivity.class);
                 intent.putExtra("userId", model.getUserId());
                 context.startActivity(intent);
-                context.startActivity(intent);
+                dialog.cancel();
             }
         });
 

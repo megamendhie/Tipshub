@@ -7,4 +7,5 @@
     <color name="likeGrey">#B4B4B4</color>
     <color name="likeButton">#F2465C</color>
     <color name="greyBackground">#e5eff7</color>
+    <color name="bg_off_green">#d3edfc</color>
 </resources>
