@@ -13,7 +13,9 @@ import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.sqube.tipshub.MainActivity;
@@ -24,6 +26,19 @@ import java.util.Random;
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private final String ADMIN_CHANNEL_ID ="admin_channel";
+    private static final String SUBSCRIBE_TO = "userABC";
+    private static final String TAG = "FbMessagingService";
+
+
+    @Override
+    public void onNewToken(String token) {
+        super.onNewToken(token);
+
+        // Once the token is generated, subscribe to topic with the userId
+        FirebaseMessaging.getInstance().subscribeToTopic(SUBSCRIBE_TO);
+        Log.i(TAG, "onTokenRefresh completed with token: " + token);
+
+    }
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
@@ -41,6 +56,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this , 0, intent,
+
                 PendingIntent.FLAG_ONE_SHOT);
 
         Bitmap largeIcon = BitmapFactory.decodeResource(getResources(),

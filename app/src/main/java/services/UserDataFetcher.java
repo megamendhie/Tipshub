@@ -12,6 +12,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 
 import javax.annotation.Nullable;
 
+import models.ProfileMedium;
 import models.UserNetwork;
 
 public class UserDataFetcher extends IntentService {
@@ -40,6 +41,13 @@ public class UserDataFetcher extends IntentService {
             return;
         }
         userID = auth.getCurrentUser().getUid();
+        database.collection("profiles").document(userID).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                Log.i(TAG, "onEvent: profile");
+                UserNetwork.setProfile(documentSnapshot.toObject(ProfileMedium.class));
+            }
+        });
         database.collection("followers").document(userID).addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {

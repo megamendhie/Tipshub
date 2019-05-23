@@ -7,7 +7,7 @@ public final class UserNetwork {
     private static DocumentSnapshot following;
     private static DocumentSnapshot subscibers;
     private static DocumentSnapshot subscibed;
-
+    private static ProfileMedium profile;
     public static DocumentSnapshot getFollowers() {
         return followers;
     }
@@ -38,5 +38,13 @@ public final class UserNetwork {
 
     public static void setSubscibed(DocumentSnapshot mSubscibed) {
         subscibed = mSubscibed;
+    }
+
+    public static ProfileMedium getProfile() {
+        return profile;
+    }
+
+    public static void setProfile(ProfileMedium profile) {
+        UserNetwork.profile = profile;
     }
 }
