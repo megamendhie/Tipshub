@@ -2,9 +2,11 @@ package com.sqube.tipshub;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -14,21 +16,25 @@ import android.widget.TextView;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 
 import java.util.Locale;
 
-import javax.annotation.Nullable;
-
 import de.hdodenhof.circleimageview.CircleImageView;
 import models.ProfileShort;
+import models.UserNetwork;
 
 public class SubscriptionActivity extends AppCompatActivity implements View.OnClickListener {
     private String userId, username, myId, myUsername;
     private FirebaseFirestore database;
+    DatabaseReference dbRef;
+    String countryCode, currencyCode, userDefaultCountry = "nigeria";
     private CircleImageView imgDp;
     private ProfileShort profile;
     private TextView txtUsername;
@@ -36,7 +42,8 @@ public class SubscriptionActivity extends AppCompatActivity implements View.OnCl
     private TextView txtAmount, txtBenefitOne, txtBenefitTwo;
     private Button btnSubscribe;
     int[] amount = {0,0,0,0};
-    String[] currency = {"&#8358;", "&#36;", "&#8364;", "&#8373;", "KES", "UGX", "TZS" };
+    int value;
+    final String[] currencySymbol = {"&#8358;", "&#36;", "&#8364;", "&#xa3;", "&#8373;", "KES ", "UGX ", "TZS ", "ZAR " };
     int cash=0;
 
     @Override
@@ -61,22 +68,11 @@ public class SubscriptionActivity extends AppCompatActivity implements View.OnCl
         txtBenefitTwo = findViewById(R.id.txtBenefitTwo);
         btnSubscribe = findViewById(R.id.btnSubscribe);
         database = FirebaseFirestore.getInstance();
+        dbRef = FirebaseDatabase.getInstance().getReference().child("SystemConfig").child("Subscription");
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         myId = user.getUid();
         myUsername = user.getDisplayName();
         userId = getIntent().getStringExtra("userId");
-        database.collection("settings").document("subscriptions")
-                .addSnapshotListener(SubscriptionActivity.this, new EventListener<DocumentSnapshot>() {
-                    @Override
-                    public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-                        if(documentSnapshot.exists()){
-                            amount[0] = documentSnapshot.get("sub1", Integer.class)!=null? documentSnapshot.get("sub1", int.class): 0;
-                            amount[1] = documentSnapshot.get("sub2", Integer.class)!=null? documentSnapshot.get("sub2", int.class): 0;
-                            amount[2] = documentSnapshot.get("sub3", Integer.class)!=null? documentSnapshot.get("sub3", int.class): 0;
-                            amount[3] = documentSnapshot.get("sub4", Integer.class)!=null? documentSnapshot.get("sub4", int.class): 0;
-                        }
-                    }
-                });
         displayViews();
     }
 
@@ -98,14 +94,36 @@ public class SubscriptionActivity extends AppCompatActivity implements View.OnCl
                 txtAccuracy.setText("Banker Accuracy: " + a + "%");
                 txtBenefitOne.setText("See all banker tips from "+ username);
                 txtBenefitTwo.setText("Receive notification when "+ username +" posts banker tips");
+                if(UserNetwork.getProfile()!=null && !UserNetwork.getProfile().getB0_country().isEmpty())
+                    userDefaultCountry = UserNetwork.getProfile().getB0_country();
+                currencyCode = getCurrency(userDefaultCountry);
+                setPrice(currencyCode);
+            }
+        });
+    }
+
+    private void setPrice(final String currency){
+        dbRef.child(currency).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Log.i("SubAct", "onDataChange: " + currency);
+                amount[0] = dataSnapshot.child("sub1").getValue(Integer.class)!=null? dataSnapshot.child("sub1").getValue(int.class):0;
+                amount[1] = dataSnapshot.child("sub1").getValue(Integer.class)!=null? dataSnapshot.child("sub1").getValue(int.class):0;
+                amount[2] = dataSnapshot.child("sub1").getValue(Integer.class)!=null? dataSnapshot.child("sub1").getValue(int.class):0;
+                amount[3] = dataSnapshot.child("sub1").getValue(Integer.class)!=null? dataSnapshot.child("sub1").getValue(int.class):0;
 
                 //update amount tipster charges
                 if(String.valueOf(profile.getD0_subAmount()).toLowerCase().equals("null"))
                     cash = amount[0];
                 else
                     cash = amount[profile.getD0_subAmount()];
-                String r = String.format(Locale.ENGLISH,"&#8358;%d for 2 weeks",cash);
+                String r = String.format(Locale.ENGLISH,"%s%d for 2 weeks", currencySymbol[value],cash);
                 txtAmount.setText(Html.fromHtml(r));
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
             }
         });
     }
@@ -125,6 +143,64 @@ public class SubscriptionActivity extends AppCompatActivity implements View.OnCl
                 intent.putExtra("userId", userId);
                 startActivity(intent);
                 break;
+        }
+    }
+
+    private String getCurrency(String country){
+        switch (country.toLowerCase()){
+            case "nigeria":
+                value=0;
+                countryCode = "NG";
+                return "NGN";
+            case "ghana":
+                value=4;
+                countryCode = "GH";
+                return "GHS";
+            case "kenya":
+                value = 5;
+                countryCode = "KE";
+                return "KES";
+            case "uganda":
+                value = 6;
+                countryCode = "NG";
+                return "UGX";
+            case "tanzania":
+                value = 7;
+                countryCode = "NG";
+                return "TZS";
+            case "south africa":
+                value=8;
+                countryCode = "NG";
+                return "ZAR";
+            case "united kingdom":
+                value=3;
+                countryCode = "NG";
+                return "GBP";
+            case "austria":
+            case "belgium":
+            case "cyprus":
+            case "estonia":
+            case "finland":
+            case "france":
+            case "germany":
+            case "greece":
+            case "ireland":
+            case "italy":
+            case "Latvia":
+            case "Lithuania":
+            case "Luxembourg":
+            case "Malta":
+            case "Portugal":
+            case "Slovakia":
+            case "Slovenia":
+            case "Spain":
+                value=2;
+                countryCode = "NG";
+                return "EUR";
+            default:
+                value=1;
+                countryCode = "NG";
+                return "USD";
         }
     }
 }

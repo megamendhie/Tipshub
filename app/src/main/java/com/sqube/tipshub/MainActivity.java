@@ -28,8 +28,6 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 
-import java.util.List;
-
 import javax.annotation.Nullable;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -228,8 +226,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     }
 
     public void Logout(){
-        final List<String> providers = auth.getCurrentUser().getProviders();
-        if(providers.get(0).equals("google.com")){
+        if(user.getProviderData().get(1).getProviderId().equals("google.com")){
             auth.signOut();
             mGoogleSignInClient.signOut();
         }

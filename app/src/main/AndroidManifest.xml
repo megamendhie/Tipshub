@@ -32,11 +32,6 @@
         <activity android:name=".RepostActivity" />
         <activity android:name=".SubscriptionActivity"/>
 
-        <service android:name="services.MyFirebaseInstanceIDService">
-            <intent-filter>
-                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
-            </intent-filter>
-        </service>
         <service
             android:name="services.MyFirebaseMessagingService"
             android:permission="com.google.android.c2dm.permission.SEND">

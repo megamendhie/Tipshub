@@ -21,14 +21,16 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.google.firebase:firebase-core:16.0.8'       //Analytics
-    implementation 'com.google.firebase:firebase-auth:16.2.0'       //Authentication
+    implementation 'com.google.firebase:firebase-core:16.0.9'       //Analytics
+    implementation 'com.google.firebase:firebase-auth:17.0.0'       //Authentication
     implementation 'com.google.firebase:firebase-firestore:18.2.0'  //Cloud Firestore
-    implementation 'com.google.firebase:firebase-storage:16.1.0'    //Storage
-    implementation 'com.google.firebase:firebase-messaging:17.3.3'  //Messaging
+    implementation 'com.google.firebase:firebase-storage:17.0.0'    //Storage
+    implementation 'com.google.firebase:firebase-messaging:18.0.0'  //Messaging
+    implementation 'com.google.firebase:firebase-database:17.0.0' //RT database
     implementation 'com.firebaseui:firebase-ui-storage:4.2.0'
     implementation 'com.firebaseui:firebase-ui-firestore:4.2.1'
     implementation 'com.firebaseui:firebase-ui-auth:4.2.1'
+    implementation 'com.hbb20:ccp:2.2.9'
     implementation 'com.android.support:appcompat-v7:28.0.0-alpha1'
     implementation 'com.android.support:design:28.0.0'
     implementation 'com.android.support.constraint:constraint-layout:1.1.3'
