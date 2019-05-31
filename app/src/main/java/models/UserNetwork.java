@@ -7,7 +7,8 @@ public final class UserNetwork {
     private static DocumentSnapshot following;
     private static DocumentSnapshot subscibers;
     private static DocumentSnapshot subscibed;
-    private static ProfileMedium profile;
+    private static DocumentSnapshot profile;
+
     public static DocumentSnapshot getFollowers() {
         return followers;
     }
@@ -41,10 +42,10 @@ public final class UserNetwork {
     }
 
     public static ProfileMedium getProfile() {
-        return profile;
+        return profile.toObject(ProfileMedium.class);
     }
 
-    public static void setProfile(ProfileMedium profile) {
+    public static void setProfile(DocumentSnapshot profile) {
         UserNetwork.profile = profile;
     }
 }

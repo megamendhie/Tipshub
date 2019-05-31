@@ -26,6 +26,8 @@ import java.util.Map;
 
 import adapters.PerformanceAdapter;
 import de.hdodenhof.circleimageview.CircleImageView;
+import fragments.BankersFragment;
+import fragments.ReviewFragment;
 import models.ProfileMedium;
 
 public class MemberProfileActivity extends AppCompatActivity {

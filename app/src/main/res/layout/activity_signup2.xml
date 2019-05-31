@@ -85,7 +85,6 @@
             app:ccp_countryPreference="us,ng,ke"
             />
 
-
         <EditText
             android:id="@+id/editText_carrierNumber"
             android:layout_width="match_parent"
@@ -114,7 +113,7 @@
             android:layout_gravity="center_vertical"/>
 
         <RadioGroup
-            android:id="@+id/rdbGroup"
+            android:id="@+id/rdbGroupGender"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"

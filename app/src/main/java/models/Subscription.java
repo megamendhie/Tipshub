@@ -6,11 +6,14 @@ import java.util.Date;
 
 public class Subscription {
     private boolean active;
+    private int status;
+    private long timestamp;
+    private String amount;
     private String dateDelete;
     private String dateEnd;
     private String dateNotify;
     private String dateStart;
-    private int duration;
+    private String duration;
     private String subFrom;
     private String subFromId;
     private String subTo;
@@ -18,8 +21,11 @@ public class Subscription {
 
     public Subscription(){}
 
-    public Subscription(String subFrom, String subFromId, String subTo, String subToId, int duration){
+    public Subscription(String amount, String subFrom, String subFromId, String subTo, String subToId, String duration){
         this.active = true;
+        this.status = 1;
+        this.timestamp = new Date().getTime();
+        this.amount = amount;
         this.subFrom = subFrom;
         this.subFromId = subFromId;
         this.subTo = subTo;
@@ -30,12 +36,12 @@ public class Subscription {
 
     private void setDate() {
         final Date today = new Date();
-        SimpleDateFormat sdf = new SimpleDateFormat("yy-MM-dd");
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
         String currentTime = sdf.format(today.getTime());
         Calendar c = Calendar.getInstance();
-        if(duration==1)
+        if(duration.equals("2 weeks"))
             c.add(Calendar.WEEK_OF_MONTH, 2);
-        if(duration==2)
+        if(duration.equals("1 month"))
             c.add(Calendar.MONTH, 1);
         this.dateStart = currentTime;
         this.dateEnd = sdf.format(c.getTime());
@@ -86,11 +92,11 @@ public class Subscription {
         this.dateStart = dateStart;
     }
 
-    public int getDuration() {
+    public String getDuration() {
         return duration;
     }
 
-    public void setDuration(int duration) {
+    public void setDuration(String duration) {
         this.duration = duration;
     }
 
@@ -124,5 +130,29 @@ public class Subscription {
 
     public void setSubToId(String subToId) {
         this.subToId = subToId;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public String getAmount() {
+        return amount;
+    }
+
+    public void setAmount(String amount) {
+        this.amount = amount;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
     }
 }

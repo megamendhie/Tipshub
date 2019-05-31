@@ -6,6 +6,7 @@ public class ProfileShort {
     private String a0_firstName;
     private String a1_lastName;
     private String a2_username;
+    private String a3_email;
     private String a4_gender;
     private String a5_bio;
 
@@ -183,5 +184,13 @@ public class ProfileShort {
 
     public void setB0_country(String b0_country) {
         this.b0_country = b0_country;
+    }
+
+    public String getA3_email() {
+        return a3_email;
+    }
+
+    public void setA3_email(String a3_email) {
+        this.a3_email = a3_email;
     }
 }

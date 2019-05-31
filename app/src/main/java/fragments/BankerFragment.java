@@ -1,4 +1,4 @@
-package com.sqube.tipshub;
+package fragments;
 
 
 import android.content.Intent;
@@ -17,6 +17,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.sqube.tipshub.PostActivity;
+import com.sqube.tipshub.R;
 
 import java.util.Date;
 

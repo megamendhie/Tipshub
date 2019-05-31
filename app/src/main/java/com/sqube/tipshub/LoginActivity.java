@@ -199,7 +199,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         dialog.show();
         final EditText edtUsername = dialog.findViewById(R.id.edtUsername);
         final EditText edtPhone = dialog.findViewById(R.id.edtUsername);
-        final RadioGroup rdbGroup = dialog.findViewById(R.id.rdbGroup);
+        final RadioGroup rdbGroup = dialog.findViewById(R.id.rdbGroupGender);
         CircleImageView imgDp = dialog.findViewById(R.id.imgDp);
         final CountryCodePicker ccp = dialog.findViewById(R.id.ccp);
         final EditText editTextCarrierNumber= dialog.findViewById(R.id.editText_carrierNumber);

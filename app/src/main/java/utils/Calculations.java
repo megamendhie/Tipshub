@@ -91,11 +91,11 @@ public final class Calculations {
         return ((time * relevance)/1000);
     }
 
-    public double getCommentRelevance(long like, long dislike){
+    private double getCommentRelevance(long like, long dislike){
         return (like + (0.5* dislike));
     }
 
-    public double getUserRelevance(long followers, long following, long subscribers, long subscribedTo){
+    private double getUserRelevance(long followers, long following, long subscribers, long subscribedTo){
         return (2*subscribers)+ subscribedTo + followers + (0.5* following);
     }
 
@@ -364,6 +364,96 @@ public final class Calculations {
                     }
                 });
         //send notification
+    }
+
+    public void increaseSubcriptions(String myId){
+        final DocumentReference postPath =  database.collection("profile").document(myId);
+        database.runTransaction(new Transaction.Function<Void>() {
+            @Override
+            public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
+                DocumentSnapshot snapshot = transaction.get(postPath);
+                //Check if post exist first
+                if(!snapshot.exists()){
+                    return null;
+                }
+
+                //retrieve likes, likesCount, dislikes, dislikesCount, and repostCount from snapshot
+                long followers = snapshot.getLong("c4_followers");
+                long following = snapshot.getLong("c5_following");
+                long subscribers = snapshot.getLong("c6_subscribers");
+                long subscriptions = snapshot.getLong("c7_subscriptions") + 1;
+                double score = getUserRelevance(followers, following, subscribers, subscriptions);
+                Map<String, Object> upd = new HashMap<>();
+                upd.put("c2_score", score);
+                upd.put("c7_subscriptions", subscriptions);
+                transaction.update(postPath, upd);
+                return null;
+            }
+        })
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "Transaction success!");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Transaction failure.", e);
+                        Toast.makeText(context, "Connection failed", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    public void increaseSubcribers(String yourId){
+        final DocumentReference postPath =  database.collection("profile").document(yourId);
+        database.runTransaction(new Transaction.Function<Void>() {
+            @Override
+            public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
+                DocumentSnapshot snapshot = transaction.get(postPath);
+                //Check if post exist first
+                if(!snapshot.exists()){
+                    return null;
+                }
+
+                //retrieve likes, likesCount, dislikes, dislikesCount, and repostCount from snapshot
+                long followers = snapshot.getLong("c4_followers");
+                long following = snapshot.getLong("c5_following");
+                long subscribers = snapshot.getLong("c6_subscribers")+1;
+                long subscriptions = snapshot.getLong("c7_subscriptions");
+                double score = getUserRelevance(followers, following, subscribers, subscriptions);
+                Map<String, Object> upd = new HashMap<>();
+                upd.put("c2_score", score);
+                upd.put("c6_subscribers", subscribers);
+                transaction.update(postPath, upd);
+                return null;
+            }
+        })
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "Transaction success!");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Transaction failure.", e);
+                        Toast.makeText(context, "Connection failed", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    public void sendPushNotification(boolean addToInbox){
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("type", "like");
+        payload.put("title", "title");
+        payload.put("message", "usurper and 34 others like your post");
+        payload.put("imgageUrl", "odjf839");
+        payload.put("sendTo", "userId");
+        payload.put("intent", "open");
+        //send to notification tray
+        //if addToInbox is true, then send to user's inbox;
     }
 
 

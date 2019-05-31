@@ -37,6 +37,7 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
         AlertDialog.Builder builder = new AlertDialog.Builder(SignupActivity.this);
         LayoutInflater inflater = getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.activity_signup2, null);
+        final boolean[] numberValid = new boolean[1];
         builder.setView(dialogView);
 
         final AlertDialog dialog= builder.create();
@@ -44,15 +45,21 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
         dialog.show();
 
         final CountryCodePicker ccp = dialog.findViewById(R.id.ccp);
-        final EditText editTextCarrierNumber= dialog.findViewById(R.id.editText_carrierNumber);
-        ccp.registerCarrierNumberEditText(editTextCarrierNumber);
+        final EditText edtCarrierNumber= dialog.findViewById(R.id.editText_carrierNumber);
+        ccp.registerCarrierNumberEditText(edtCarrierNumber);
         Button btnSave = dialog.findViewById(R.id.btnSave);
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.i("CountryCodePicker", "onClick: "+ ccp.getSelectedCountryName()
-                        + ", " + ccp.getSelectedCountryCode() + ", " + editTextCarrierNumber.getText().toString());
+                        + ", " + ccp.getFullNumber() + ", " + numberValid[0]);
                 dialog.cancel();
+            }
+        });
+        ccp.setPhoneNumberValidityChangeListener(new CountryCodePicker.PhoneNumberValidityChangeListener() {
+            @Override
+            public void onValidityChanged(boolean isValidNumber) {
+                numberValid[0] =isValidNumber;
             }
         });
     }

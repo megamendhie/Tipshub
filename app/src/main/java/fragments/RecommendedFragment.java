@@ -1,4 +1,4 @@
-package com.sqube.tipshub;
+package fragments;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
@@ -20,6 +20,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.sqube.tipshub.R;
 
 import org.json.JSONArray;
 import org.json.JSONException;

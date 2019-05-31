@@ -1,5 +1,6 @@
 package com.sqube.tipshub;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -11,6 +12,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -26,6 +29,8 @@ import java.util.Map;
 
 import adapters.PerformanceAdapter;
 import de.hdodenhof.circleimageview.CircleImageView;
+import fragments.BankersFragment;
+import fragments.ReviewFragment;
 import models.ProfileMedium;
 
 public class MyProfileActivity extends AppCompatActivity {
@@ -68,6 +73,13 @@ public class MyProfileActivity extends AppCompatActivity {
         txtSubscriptions = findViewById(R.id.txtSubscribing);
         recyclerView = findViewById(R.id.performanceList);
         LinearLayoutManager lm = new LinearLayoutManager(getApplicationContext());
+        Button btnEdit = findViewById(R.id.btnEdit);
+        btnEdit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+             startActivity(new Intent(MyProfileActivity.this, SettingsActivity.class));
+            }
+        });
         adapter = new PerformanceAdapter(this, performanceList);
         recyclerView.setLayoutManager(lm);
         user = FirebaseAuth.getInstance().getCurrentUser();

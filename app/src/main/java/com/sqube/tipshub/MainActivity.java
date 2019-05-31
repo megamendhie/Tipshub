@@ -23,6 +23,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -31,6 +32,10 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import javax.annotation.Nullable;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import fragments.BankerFragment;
+import fragments.HomeFragment;
+import fragments.NotificationFragment;
+import fragments.RecommendedFragment;
 import models.ProfileShort;
 import services.UserDataFetcher;
 
@@ -38,7 +43,9 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     GoogleSignInClient mGoogleSignInClient;
     private FirebaseAuth auth;
     private FirebaseFirestore database;
+    FirebaseDatabase sysDatabase;
     private FirebaseUser user;
+    private Intent serviceIntent;
 
     ActionBar actionBar;
     BottomNavigationView btmNav;
@@ -105,19 +112,22 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 if(auth.getCurrentUser()==null){
+                    stopService(serviceIntent);
                     startActivity(new Intent(MainActivity.this, LoginActivity.class));
                     finish();
                     return;
                 }
             }
         });
+        serviceIntent = new Intent(this, UserDataFetcher.class);
+        startService(serviceIntent);
         database = FirebaseFirestore.getInstance();
+        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
         user = auth.getCurrentUser();
         userId = user.getUid();
 
         actionBar.setTitle("Home");
         loadFragment();
-        startService(new Intent(this, UserDataFetcher.class));
         setHeader();
     }
 
@@ -158,7 +168,6 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
             }
         });
     }
-
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -204,6 +213,11 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                 return true;
             case R.id.nav_profile:
                 startActivity(new Intent(MainActivity.this, MyProfileActivity.class));
+                break;
+            case R.id.nav_settings:
+                startActivity(new Intent(MainActivity.this, SettingsActivity.class));
+                break;
+            case R.id.nav_account:
                 break;
         }
         return false;

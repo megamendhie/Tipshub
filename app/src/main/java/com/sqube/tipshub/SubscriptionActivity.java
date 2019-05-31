@@ -39,7 +39,9 @@ import java.util.UUID;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import models.ProfileShort;
+import models.Subscription;
 import models.UserNetwork;
+import utils.Calculations;
 
 public class SubscriptionActivity extends AppCompatActivity implements View.OnClickListener {
     private String userId, username, myId, myUsername, email, narration= "For 2 weeks", firstName, lastName;
@@ -47,12 +49,14 @@ public class SubscriptionActivity extends AppCompatActivity implements View.OnCl
     DatabaseReference dbRef;
     String countryCode, currencyCode, userDefaultCountry = "nigeria";
     private String TAG = "SubscriptionActivity";
+    private String duration;
     private CircleImageView imgDp;
     private ProfileShort profile;
     private TextView txtUsername;
     private TextView txtPost, txtWon, txtAccuracy;
     private TextView txtAmount,txtAmount2, txtBenefitOne, txtBenefitTwo;
     private Button btnSubscribe, btnSubscribe2;
+    String amt;
     int[] amount = {0,0,0,0};
     int value;
     boolean acceptAccount, acceptCard, acceptMpesa, accpetGhMobile, accpetUgMobile;
@@ -84,6 +88,7 @@ public class SubscriptionActivity extends AppCompatActivity implements View.OnCl
         btnSubscribe2 = findViewById(R.id.btnSubscribe2); btnSubscribe2.setOnClickListener(this);
         database = FirebaseFirestore.getInstance();
         dbRef = FirebaseDatabase.getInstance().getReference().child("SystemConfig").child("Subscription");
+        dbRef.keepSynced(true);
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         myId = user.getUid();
         myUsername = user.getDisplayName();
@@ -165,9 +170,13 @@ public class SubscriptionActivity extends AppCompatActivity implements View.OnCl
                 startActivity(intent);
                 break;
             case R.id.btnSubscribe:
+                duration="2 weeks";
+                amt = String.format(Locale.ENGLISH,"%s%d", currencySymbol[value],cash);
                 pay(cash);
                 break;
             case R.id.btnSubscribe2:
+                duration="1 month";
+                amt = String.format(Locale.ENGLISH,"%s%d", currencySymbol[value],cash*2);
                 pay(cash * 2);
                 break;
         }
@@ -275,6 +284,7 @@ public class SubscriptionActivity extends AppCompatActivity implements View.OnCl
             String message = data.getStringExtra("response");
             if (resultCode == RavePayActivity.RESULT_SUCCESS) {
                 Log.i(TAG, "onActivityResult: Success");
+                updateDatabase();
                 popUp1();
             }
             else if (resultCode == RavePayActivity.RESULT_CANCELLED) {
@@ -342,7 +352,12 @@ public class SubscriptionActivity extends AppCompatActivity implements View.OnCl
         }
     }
 
-    private void onSuccessful(){
-        //
+    private void updateDatabase(){
+        Subscription sub = new Subscription(amt, myUsername, myId, userId, username, duration);
+        Calculations calculations = new Calculations(SubscriptionActivity.this);
+        database.collection("subscriptions").add(sub);
+        calculations.increaseSubcriptions(myId);
+        calculations.increaseSubcribers(userId);
+        //send notification
     }
 }
