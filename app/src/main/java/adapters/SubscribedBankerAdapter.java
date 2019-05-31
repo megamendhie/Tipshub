@@ -36,6 +36,7 @@ public class SubscribedBankerAdapter extends FirestoreRecyclerAdapter<Post, Subs
     private final String TAG = "PostAdaper";
     private Activity activity;
     private Context context;
+    Calculations calculations;
     private String userId;
     private StorageReference storageReference;
     private FirebaseFirestore database;
@@ -55,6 +56,7 @@ public class SubscribedBankerAdapter extends FirestoreRecyclerAdapter<Post, Subs
         Log.i(TAG, "PostAdapter: created");
         this.activity = activity;
         this.context = context;
+        calculations = new Calculations(context);
         this.userId = userID;
         this.database = FirebaseFirestore.getInstance();
         storageReference = FirebaseStorage.getInstance().getReference()
@@ -137,8 +139,8 @@ public class SubscribedBankerAdapter extends FirestoreRecyclerAdapter<Post, Subs
             @Override
             public void onClick(View v) {
                 Log.i(TAG, "onClick: Key is " + postId);
-                Calculations calculations = new Calculations(context);
-                calculations.onLike(postId, userId, model.getUserId());
+                String substring = model.getContent().substring(0, Math.min(model.getContent().length(), 50));
+                calculations.onLike(postId, userId, model.getUserId(), substring);
             }
         });
 
@@ -146,8 +148,8 @@ public class SubscribedBankerAdapter extends FirestoreRecyclerAdapter<Post, Subs
             @Override
             public void onClick(View v) {
                 Log.i(TAG, "onClick: Key is " + postId);
-                Calculations calculations = new Calculations(context);
-                calculations.onDislike( postId, userId);
+                String substring = model.getContent().substring(0, Math.min(model.getContent().length(), 50));
+                calculations.onDislike( postId, userId, model.getUserId(), substring);
             }
         });
         imgOverflow.setOnClickListener(new View.OnClickListener() {

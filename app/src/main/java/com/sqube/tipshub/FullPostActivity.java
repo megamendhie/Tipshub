@@ -259,14 +259,17 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
 
     @Override
     public void onClick(View v) {
+        String substring;
         switch (v.getId()){
             case R.id.imgLike:
                 onLike();
-                calculations.onLike(postId, userId, model.getUserId());
+                 substring = model.getContent().substring(0, Math.min(model.getContent().length(), 50));
+                calculations.onLike(postId, userId, model.getUserId(), substring);
                 break;
             case R.id.imgDislike:
                 onDislike();
-                calculations.onDislike(postId, userId);
+                substring = model.getContent().substring(0, Math.min(model.getContent().length(), 50));
+                calculations.onDislike( postId, userId, model.getUserId(), substring);
                 break;
             case R.id.imgShare:
                 reusable.shareTips(FullPostActivity.this, model.getUsername(), model.getContent());
