@@ -1,21 +1,38 @@
 package models;
 
+import java.util.Date;
+
 public class Notification {
-    private String type;
+    private String action;
     private String title;
     private String message;
-    private String imgageUrl;
+    private String type;
+    private String intentUrl;
+    private String imageUrl;
     private String sendTo;
-    private String intent;
+    private String sentFrom;
+    private long time;
 
     public Notification(){}
 
-    public String getType() {
-        return type;
+    public Notification(String action, String title, String message, String type, String intentUrl, String imageUrl, String sendTo, String sentFrom){
+        this.action =action;
+        this.title = title;
+        this.message = message;
+        this.type = type;
+        this.intentUrl = intentUrl;
+        this.imageUrl = imageUrl;
+        this.sendTo = sendTo;
+        this.sentFrom = sentFrom;
+        time = new Date().getTime();
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public String getAction() {
+        return action;
+    }
+
+    public void setAction(String action) {
+        this.action = action;
     }
 
     public String getTitle() {
@@ -35,11 +52,11 @@ public class Notification {
     }
 
     public String getImgageUrl() {
-        return imgageUrl;
+        return imageUrl;
     }
 
-    public void setImgageUrl(String imgageUrl) {
-        this.imgageUrl = imgageUrl;
+    public void setImgageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     public String getSendTo() {
@@ -50,11 +67,35 @@ public class Notification {
         this.sendTo = sendTo;
     }
 
-    public String getIntent() {
-        return intent;
+    public String getIntentUrl() {
+        return intentUrl;
     }
 
-    public void setIntent(String intent) {
-        this.intent = intent;
+    public void setIntentUrl(String intentUrl) {
+        this.intentUrl = intentUrl;
+    }
+
+    public String getSentFrom() {
+        return sentFrom;
+    }
+
+    public void setSentFrom(String sentFrom) {
+        this.sentFrom = sentFrom;
+    }
+
+    public long getTime() {
+        return time;
+    }
+
+    public void setTime(long time) {
+        this.time = time;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }

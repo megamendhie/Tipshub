@@ -5,8 +5,10 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -22,12 +24,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import models.Notification;
 import models.UserNetwork;
 
 public final class Calculations {
     private FirebaseFirestore database = FirebaseFirestore.getInstance();
     private String TAG = "Calculations";
     private Context context;
+    private long count = 0;
 
     public Calculations(Context context){
         this.context = context;
@@ -99,7 +103,7 @@ public final class Calculations {
         return (2*subscribers)+ subscribedTo + followers + (0.5* following);
     }
 
-    public void onLike(final String postId, final String userId, final String postOwnerId){
+    public void onLike(final String postId, final String userId, final String postOwnerId, final String subString){
         final DocumentReference postPath =  database.collection("posts").document(postId);
         final boolean[] like = {true};
         database.runTransaction(new Transaction.Function<Void>() {
@@ -135,6 +139,7 @@ public final class Calculations {
                         likes.remove(userId);
                     }
                     else{
+                        setCount(likesCount);
                         likesCount +=1;
                         likes.add(userId);
                     }
@@ -157,6 +162,7 @@ public final class Calculations {
                 Log.d(TAG, "Transaction success!");
                 if(like[0] && !userId.equals(postOwnerId)){
                     Log.i(TAG, "onSuccess: recommeded started" + like[0] +" "+ userId.equals(postOwnerId));
+                    sendPushNotification(true, userId, postOwnerId, postId, "liked", "post", subString);
                     recommend(userId, postOwnerId);
                 }
             }
@@ -172,8 +178,9 @@ public final class Calculations {
         //send notification
     }
 
-    public void onDislike(final String postId, final String userId){
+    public void onDislike(final String postId, final String userId, final String postOwnerId, final String subString){
         final DocumentReference postPath =  database.collection("posts").document(postId);
+        final boolean[] dislike = {true};
         database.runTransaction(new Transaction.Function<Void>() {
             @Override
             public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
@@ -192,6 +199,7 @@ public final class Calculations {
                 List<String> dislikes = (List) snapshot.get("dislikes");
                 Map<String, Object> upd = new HashMap<>();
                 if(likes.contains(userId)){
+                    dislike[0] = false;
                     likesCount -=1;
                     dislikesCount +=1;
                     likes.remove(userId);
@@ -199,10 +207,12 @@ public final class Calculations {
                 }
                 else{
                     if(dislikes.contains(userId)){
+                        dislike[0] = false;
                         dislikesCount -=1;
                         dislikes.remove(userId);
                     }
                     else{
+                        setCount(dislikesCount);
                         dislikesCount +=1;
                         dislikes.add(userId);
                     }
@@ -222,7 +232,11 @@ public final class Calculations {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "Transaction success!");
+                        Log.d(TAG, "Transaction success!");Log.d(TAG, "Transaction success!");
+                        if(dislike[0] && !userId.equals(postOwnerId)){
+                            Log.i(TAG, "onSuccess: recommeded started" + dislike[0] +" "+ userId.equals(postOwnerId));
+                            sendPushNotification(true, userId, postOwnerId, postId, "disliked", "comment", subString);
+                        }
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -235,7 +249,7 @@ public final class Calculations {
         //send notification
     }
 
-    public void onCommentLike(final DocumentReference commentRef, final String userId, final String postOwnerId){
+    public void onCommentLike(final DocumentReference commentRef, final String userId, final String postOwnerId, final String postId, final String subString){
         final boolean[] like = {true};
         database.runTransaction(new Transaction.Function<Void>() {
             @Override
@@ -269,6 +283,7 @@ public final class Calculations {
                         likes.remove(userId);
                     }
                     else{
+                        setCount(likesCount);
                         likesCount +=1;
                         likes.add(userId);
                     }
@@ -290,6 +305,7 @@ public final class Calculations {
                     public void onSuccess(Void aVoid) {
                         Log.d(TAG, "Transaction success!");
                         if(!userId.equals(postOwnerId) && like[0]){
+                            sendPushNotification(true, userId, postOwnerId, postId, "liked", "comment", subString);
                             recommend(userId, postOwnerId);
                         }
                     }
@@ -305,7 +321,8 @@ public final class Calculations {
         //send notification
     }
 
-    public void onCommentDislike(final DocumentReference commentRef, final String userId){
+    public void onCommentDislike(final DocumentReference commentRef, final String userId, final String postOwnerId, final String postId, final String subString){
+        final boolean[] dislike = {true};
         database.runTransaction(new Transaction.Function<Void>() {
             @Override
             public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
@@ -323,6 +340,7 @@ public final class Calculations {
                 List<String> dislikes = (List) snapshot.get("dislikes");
                 Map<String, Object> upd = new HashMap<>();
                 if(likes.contains(userId)){
+                    dislike[0] = false;
                     likesCount -=1;
                     dislikesCount +=1;
                     likes.remove(userId);
@@ -330,10 +348,12 @@ public final class Calculations {
                 }
                 else{
                     if(dislikes.contains(userId)){
+                        dislike[0] = false;
                         dislikesCount -=1;
                         dislikes.remove(userId);
                     }
                     else{
+                        setCount(dislikesCount);
                         dislikesCount +=1;
                         dislikes.add(userId);
                     }
@@ -354,6 +374,10 @@ public final class Calculations {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Log.d(TAG, "Transaction success!");
+                        if(!userId.equals(postOwnerId) && dislike[0]){
+                            sendPushNotification(true, userId, postOwnerId, postId, "liked", "comment", subString);
+                            recommend(userId, postOwnerId);
+                        }
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -444,17 +468,45 @@ public final class Calculations {
                 });
     }
 
-    public void sendPushNotification(boolean addToInbox){
-        Map<String, Object> payload = new HashMap<>();
-        payload.put("type", "like");
-        payload.put("title", "title");
-        payload.put("message", "usurper and 34 others like your post");
-        payload.put("imgageUrl", "odjf839");
-        payload.put("sendTo", "userId");
-        payload.put("intent", "open");
-        //send to notification tray
+    public void sendPushNotification(boolean addToInbox, final String myId, final String posterId, String intentUrl,
+                                     final String action, final String postType, final String message){
+        String title;
+        switch (getCount()){
+            case 0:
+            case 1:
+                title = String.format("%s %s your %s", UserNetwork.getProfile().getA2_username(), action, postType);
+                break;
+            default:
+                title = String.format("%s and %d others %s your %s", UserNetwork.getProfile().getA2_username(), getCount(), action, postType);
+                break;
+        }
+        final Notification notification = new Notification(action, title, message, postType, intentUrl, UserNetwork.getProfile().getB3_dpTmUrl(), posterId, myId);
+        database.collection("notifications").whereEqualTo("intentUrl", intentUrl)
+                .whereEqualTo("action", action).whereEqualTo("type", postType).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if(!task.getResult().isEmpty()){
+                    for(DocumentSnapshot snapshot: task.getResult().getDocuments()){
+                        snapshot.getReference().delete();
+                    }
+                }
+                database.collection("notifications").add(notification);
+            }
+        })
+        .addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.i(TAG, "onFailure: Failed right here");
+            }
+        });
         //if addToInbox is true, then send to user's inbox;
     }
 
+    public int getCount() {
+        return (int) count;
+    }
 
+    public void setCount(long count) {
+        this.count = count;
+    }
 }
