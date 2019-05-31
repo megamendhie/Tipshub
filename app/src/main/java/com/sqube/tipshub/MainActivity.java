@@ -157,7 +157,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                 .addSnapshotListener(MainActivity.this, new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-                if(documentSnapshot.exists()){
+                if(documentSnapshot!=null && documentSnapshot.exists()){
                     ProfileShort profile = documentSnapshot.toObject(ProfileShort.class);
                     txtName.setText(profile.getA0_firstName()+" "+profile.getA1_lastName());
                     txtUsername.setText(profile.getA2_username());
