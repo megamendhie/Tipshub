@@ -38,6 +38,7 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
     private Activity activity;
     private Context context;
     private String userId;
+    Calculations calculations;
     private StorageReference storageReference;
     private FirebaseFirestore database;
 
@@ -54,6 +55,7 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
         Log.i(TAG, "CommentAdapter: created");
         this.activity = activity;
         this.context = context;
+        calculations = new Calculations(context);
         this.userId = userID;
         this.database = FirebaseFirestore.getInstance();
         storageReference = FirebaseStorage.getInstance().getReference()
@@ -124,8 +126,8 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
             @Override
             public void onClick(View v) {
                 Log.i(TAG, "onClick: Key is " + postId);
-                Calculations calculations = new Calculations(context);
-                calculations.onCommentLike(commentRef, userId, model.getUserId());
+                String substring = model.getContent().substring(0, Math.min(model.getContent().length(), 50));
+                calculations.onCommentLike(commentRef, userId, model.getUserId(), postId, substring);
             }
         });
 
@@ -141,8 +143,8 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
             @Override
             public void onClick(View v) {
                 Log.i(TAG, "onClick: Key is " + postId);
-                Calculations calculations = new Calculations(context);
-                calculations.onCommentDislike(commentRef, userId);
+                String substring = model.getContent().substring(0, Math.min(model.getContent().length(), 50));
+                calculations.onCommentDislike(commentRef, userId, model.getUserId(), postId, substring);
             }
         });
         imgOverflow.setOnClickListener(new View.OnClickListener() {

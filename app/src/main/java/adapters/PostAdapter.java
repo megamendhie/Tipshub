@@ -221,7 +221,8 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
                         mLikesCount.setText(String.valueOf(model.getLikesCount()+1));
                     }
                 }
-                calculations.onLike(postId, userId, model.getUserId());
+                String substring = model.getContent().substring(0, Math.min(model.getContent().length(), 50));
+                calculations.onLike(postId, userId, model.getUserId(), substring);
             }
         });
 
@@ -244,7 +245,8 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
                         mDislikesCount.setText(String.valueOf(model.getDislikesCount()+1));
                     }
                 }
-                calculations.onDislike( postId, userId, model.getUserId());
+                String substring = model.getContent().substring(0, Math.min(model.getContent().length(), 50));
+                calculations.onDislike( postId, userId, model.getUserId(), substring);
             }
         });
         imgOverflow.setOnClickListener(new View.OnClickListener() {

@@ -242,7 +242,8 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
                         mLikesCount.setText(String.valueOf(model.getLikesCount()+1));
                     }
                 }
-                calculations.onLike(postId, userId, model.getUserId());
+                String substring = model.getContent().substring(0, Math.min(model.getContent().length(), 50));
+                calculations.onLike(postId, userId, model.getUserId(), substring);
             }
         });
 
@@ -265,7 +266,8 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
                         mDislikesCount.setText(String.valueOf(model.getDislikesCount()+1));
                     }
                 }
-                calculations.onDislike( postId, userId, model.getUserId());
+                String substring = model.getContent().substring(0, Math.min(model.getContent().length(), 50));
+                calculations.onDislike( postId, userId, model.getUserId(), substring);
             }
         });
         imgOverflow.setOnClickListener(new View.OnClickListener() {
