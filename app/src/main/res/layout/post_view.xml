@@ -261,7 +261,7 @@
                     android:layout_height="wrap_content"
                     android:clickable="true"
                     android:background="@drawable/img_like_bg"
-                    android:src="@drawable/ic_thumb_down_black_24dp"/>
+                    app:srcCompat="@drawable/ic_thumb_down_black_24dp"/>
                 <TextView
                     android:id="@+id/txtDislike"
                     android:layout_width="wrap_content"

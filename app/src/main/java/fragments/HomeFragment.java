@@ -33,7 +33,7 @@ public class HomeFragment extends Fragment{
     PostAdapter postAdapter;
     FloatingActionButton fabTip, fabNormal;
     FloatingActionMenu fabMenu;
-    public RecyclerView testList;
+    public RecyclerView homeFeed;
     Intent intent;
     public HomeFragment() {
         // Required empty public constructor
@@ -52,9 +52,9 @@ public class HomeFragment extends Fragment{
         // Inflate the layout for this fragment
         View rootView=inflater.inflate(R.layout.fragment_home, container, false);
         intent = new Intent(getActivity().getApplicationContext(), PostActivity.class);
-        testList = rootView.findViewById(R.id.testList);
-        testList.setLayoutManager(new LinearLayoutManager(getActivity()));
-        ((DefaultItemAnimator) testList.getItemAnimator()).setSupportsChangeAnimations(false);
+        homeFeed = rootView.findViewById(R.id.testList);
+        homeFeed.setLayoutManager(new LinearLayoutManager(getActivity()));
+        ((DefaultItemAnimator) homeFeed.getItemAnimator()).setSupportsChangeAnimations(false);
         database = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
@@ -86,7 +86,7 @@ public class HomeFragment extends Fragment{
         Log.i(TAG, "loadPost: ");
         query = database.collection("posts").orderBy("time", Query.Direction.DESCENDING);
         postAdapter = new PostAdapter(query, userId, getActivity(), getContext());
-        testList.setAdapter(postAdapter);
+        homeFeed.setAdapter(postAdapter);
         if(postAdapter!=null){
             Log.i(TAG, "loadPost: started listening");
             postAdapter.startListening();
