@@ -50,8 +50,6 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ListNewsViewHo
             holder.author.setText(news.get(KEY_AUTHOR));
             holder.title.setText(news.get(KEY_TITLE));
             holder.time.setText(news.get(KEY_PUBLISHEDAT));
-            holder.sdetails.setText(news.get(KEY_DESCRIPTION));
-
 
             if(news.get(KEY_URLTOIMAGE).toString().length() < 5)
             {
@@ -82,14 +80,13 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ListNewsViewHo
     class ListNewsViewHolder extends RecyclerView.ViewHolder {
         CardView crdContainer;
         ImageView galleryImage;
-        TextView author, title, sdetails, time;
+        TextView author, title, time;
         public ListNewsViewHolder(View itemView) {
             super(itemView);
             crdContainer = itemView.findViewById(R.id.crdContainer);
             galleryImage = itemView.findViewById(R.id.galleryImage);
             author = itemView.findViewById(R.id.author);
             title = itemView.findViewById(R.id.title);
-            sdetails = itemView.findViewById(R.id.sdetails);
             time = itemView.findViewById(R.id.time);
         }
     }
