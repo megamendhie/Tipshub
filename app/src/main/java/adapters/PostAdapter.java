@@ -244,7 +244,7 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
                         mDislikesCount.setText(String.valueOf(model.getDislikesCount()+1));
                     }
                 }
-                calculations.onDislike( postId, userId);
+                calculations.onDislike( postId, userId, model.getUserId());
             }
         });
         imgOverflow.setOnClickListener(new View.OnClickListener() {

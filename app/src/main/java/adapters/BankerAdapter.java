@@ -265,7 +265,7 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
                         mDislikesCount.setText(String.valueOf(model.getDislikesCount()+1));
                     }
                 }
-                calculations.onDislike( postId, userId);
+                calculations.onDislike( postId, userId, model.getUserId());
             }
         });
         imgOverflow.setOnClickListener(new View.OnClickListener() {
