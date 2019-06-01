@@ -126,7 +126,7 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
             @Override
             public void onClick(View v) {
                 Log.i(TAG, "onClick: Key is " + postId);
-                String substring = model.getContent().substring(0, Math.min(model.getContent().length(), 50));
+                String substring = model.getContent().substring(0, Math.min(model.getContent().length(), 90));
                 calculations.onCommentLike(commentRef, userId, model.getUserId(), postId, substring);
             }
         });
@@ -143,7 +143,7 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
             @Override
             public void onClick(View v) {
                 Log.i(TAG, "onClick: Key is " + postId);
-                String substring = model.getContent().substring(0, Math.min(model.getContent().length(), 50));
+                String substring = model.getContent().substring(0, Math.min(model.getContent().length(), 90));
                 calculations.onCommentDislike(commentRef, userId, model.getUserId(), postId, substring);
             }
         });

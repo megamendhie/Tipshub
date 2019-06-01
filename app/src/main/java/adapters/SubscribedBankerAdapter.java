@@ -139,7 +139,7 @@ public class SubscribedBankerAdapter extends FirestoreRecyclerAdapter<Post, Subs
             @Override
             public void onClick(View v) {
                 Log.i(TAG, "onClick: Key is " + postId);
-                String substring = model.getContent().substring(0, Math.min(model.getContent().length(), 50));
+                String substring = model.getContent().substring(0, Math.min(model.getContent().length(), 90));
                 calculations.onLike(postId, userId, model.getUserId(), substring);
             }
         });
@@ -148,7 +148,7 @@ public class SubscribedBankerAdapter extends FirestoreRecyclerAdapter<Post, Subs
             @Override
             public void onClick(View v) {
                 Log.i(TAG, "onClick: Key is " + postId);
-                String substring = model.getContent().substring(0, Math.min(model.getContent().length(), 50));
+                String substring = model.getContent().substring(0, Math.min(model.getContent().length(), 90));
                 calculations.onDislike( postId, userId, model.getUserId(), substring);
             }
         });

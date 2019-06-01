@@ -221,7 +221,7 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
                         mLikesCount.setText(String.valueOf(model.getLikesCount()+1));
                     }
                 }
-                String substring = model.getContent().substring(0, Math.min(model.getContent().length(), 50));
+                String substring = model.getContent().substring(0, Math.min(model.getContent().length(), 90));
                 calculations.onLike(postId, userId, model.getUserId(), substring);
             }
         });
@@ -245,7 +245,7 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
                         mDislikesCount.setText(String.valueOf(model.getDislikesCount()+1));
                     }
                 }
-                String substring = model.getContent().substring(0, Math.min(model.getContent().length(), 50));
+                String substring = model.getContent().substring(0, Math.min(model.getContent().length(), 90));
                 calculations.onDislike( postId, userId, model.getUserId(), substring);
             }
         });
