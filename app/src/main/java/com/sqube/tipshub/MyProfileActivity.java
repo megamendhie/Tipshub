@@ -30,6 +30,7 @@ import java.util.Map;
 import adapters.PerformanceAdapter;
 import de.hdodenhof.circleimageview.CircleImageView;
 import fragments.BankersFragment;
+import fragments.PostFragment;
 import fragments.ReviewFragment;
 import models.ProfileMedium;
 
