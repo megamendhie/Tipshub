@@ -44,7 +44,9 @@
             </intent-filter>
         </service>
 
-        <activity android:name=".LandingActivity" />
+        <activity
+            android:name=".LandingActivity"
+            android:theme="@style/AppTheme.NoActionBar"  />
 
         <service android:name="services.UserDataFetcher" />
 
