@@ -1,9 +1,13 @@
 package com.sqube.tipshub;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -23,11 +27,13 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -49,11 +55,15 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     EditText edtEmail, edtPassword;
     FirebaseFirestore database;
     FirebaseStorage storage;
+    FirebaseUser user;
     GoogleSignInClient mGoogleSignInClient;
     private FirebaseAuth mAuth;
     ProgressBar prgLogin;
-    private String userId, firstName, lastName, email, provider, profileUrl, profileUrlTm;
+    ProgressDialog progressDialog;
+    private String userId, firstName, lastName, email, password, provider, profileUrl, profileUrlTm;
     Uri profileUri, profileUriTm;
+    private SharedPreferences prefs;
+    private SharedPreferences.Editor editor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,12 +78,19 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         mAuth = FirebaseAuth.getInstance();
         database = FirebaseFirestore.getInstance();
         storage = FirebaseStorage.getInstance();
-
+        progressDialog = new ProgressDialog(this);
+        prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        editor = prefs.edit();
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build();
         mGoogleSignInClient = GoogleSignIn.getClient(LoginActivity.this, gso);
+
+        if(prefs.getString("PASSWORD", "X%p8kznAA1")!= "X%p8kznAA1"){
+            edtEmail.setText(prefs.getString("EMAIL","email@domain.com"));
+            edtPassword.setText(prefs.getString("PASSWORD", "X%p8kznAA1"));
+        }
     }
 
     @Override
@@ -98,6 +115,41 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private void signInWithGoogle() {
         Intent intent = mGoogleSignInClient.getSignInIntent();
         startActivityForResult(intent, RC_SIGN_IN);
+    }
+
+    private void signInWithEmail(){
+        email = edtEmail.getText().toString().trim();
+        password = edtPassword.getText().toString();
+        if(TextUtils.isEmpty(email)){
+            edtEmail.setError("Enter email");
+            return;
+        }
+        if(TextUtils.isEmpty(password)){
+            edtPassword.setError("Enter password");
+            return;
+        }
+        mAuth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        progressDialog.dismiss();
+                        if(task.isSuccessful()){
+                            editor.putString("PASSWORD", edtPassword.getText().toString().trim());
+                            editor.putString("EMAIL", edtEmail.getText().toString().trim());
+                            editor.apply();
+                            Snackbar.make(btnLogin, "Login successful", Snackbar.LENGTH_SHORT).show();
+                            user = mAuth.getCurrentUser();
+                            final String userID = user.getUid();
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                    Snackbar.make(btnLogin, "Login failed. " + e.getMessage(), Snackbar.LENGTH_LONG).show();
+            }
+        });
+
     }
 
     public void authWithGoogle(GoogleSignInAccount account){
@@ -193,27 +245,36 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         LayoutInflater inflater = getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.activity_signup2, null);
         builder.setView(dialogView);
-
         final AlertDialog dialog= builder.create();
         dialog.setCancelable(false);
         dialog.show();
+
+        //Initialize variables
+        final boolean[] numberValid = new boolean[1];
         final EditText edtUsername = dialog.findViewById(R.id.edtUsername);
-        final EditText edtPhone = dialog.findViewById(R.id.edtUsername);
+        final EditText edtPhone = dialog.findViewById(R.id.edtPhone);
         final RadioGroup rdbGroup = dialog.findViewById(R.id.rdbGroupGender);
         CircleImageView imgDp = dialog.findViewById(R.id.imgDp);
         final CountryCodePicker ccp = dialog.findViewById(R.id.ccp);
         final EditText editTextCarrierNumber= dialog.findViewById(R.id.editText_carrierNumber);
         ccp.registerCarrierNumberEditText(editTextCarrierNumber);
+        assert imgDp != null;
         Glide.with(this).load(profileUri).into(imgDp);
         Button btnSave = dialog.findViewById(R.id.btnSave);
 
+        ccp.setPhoneNumberValidityChangeListener(new CountryCodePicker.PhoneNumberValidityChangeListener() {
+            @Override
+            public void onValidityChanged(boolean isValidNumber) {
+                numberValid[0] =isValidNumber;
+            }
+        });
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String username = edtUsername.getText().toString().trim();
-                String phone = edtPhone.getText().toString().trim();
-                String gender ="";
+                String phone = ccp.getFullNumber();
                 String country = ccp.getSelectedCountryName();
+                String gender ="";
                 switch (rdbGroup.getCheckedRadioButtonId()) {
                     case R.id.rdbMale:
                         gender = "male";
@@ -223,26 +284,27 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                         break;
                 }
                 //verify fields meet requirement
+                if(TextUtils.isEmpty(username)){
+                    edtUsername.setError("Enter username");
+                    return;
+                }
+                if(username.length() < 2){
+                    edtUsername.setError("Username too short");
+                    return;
+                }
                 if(TextUtils.isEmpty(gender)){
                     Toast.makeText(LoginActivity.this, "Select gender", Toast.LENGTH_LONG).show();
                     return;
                 }
-                if(TextUtils.isEmpty(username)){
-                    Toast.makeText(LoginActivity.this, "Choose username", Toast.LENGTH_LONG).show();
+                if(TextUtils.isEmpty(phone)){
+                    edtPhone.setError("Enter phone number");
                     return;
                 }
-                if(username.length() < 2){
-                    Toast.makeText(LoginActivity.this, "Username is too short", Toast.LENGTH_LONG).show();
-                    return;
-                }
-                if(TextUtils.isEmpty(phone) || phone.length()<3){
-                    Toast.makeText(LoginActivity.this, "Enter phone number", Toast.LENGTH_LONG).show();
+                if(!numberValid[0]){
+                    edtPhone.setError("Invalid phone number");
                     return;
                 }
 
-                if(phone.charAt(0) == '0')
-                    phone = phone.substring(1);
-                phone = ccp.getSelectedCountryCode()+phone;
                 //Map new user datails, and ready to save to db
                 Map<String, String> url = new HashMap<>();
                 url.put("a2_username", username);
@@ -272,6 +334,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.btnLogin:
+                signInWithEmail();
                 break;
             case R.id.btnSignup:
                 startActivity(new Intent(LoginActivity.this, SignupActivity.class));
