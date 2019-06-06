@@ -23,7 +23,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.google.firebase:firebase-core:16.0.9'       //Analytics
     implementation 'com.google.firebase:firebase-auth:17.0.0'       //Authentication
-    implementation 'com.google.firebase:firebase-firestore:18.2.0'  //Cloud Firestore
+    implementation 'com.google.firebase:firebase-firestore:19.0.2'  //Cloud Firestore
     implementation 'com.google.firebase:firebase-storage:17.0.0'    //Storage
     implementation 'com.google.firebase:firebase-messaging:18.0.0'  //Messaging
     implementation 'com.google.firebase:firebase-database:17.0.0' //RT database
