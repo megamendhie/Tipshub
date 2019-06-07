@@ -40,8 +40,10 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.UploadTask;
 import com.hbb20.CountryCodePicker;
+import com.theartofdev.edmodo.cropper.CropImage;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -50,18 +52,20 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import models.Profile;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
-    Button btnLogin, btnSignup, gSignIn;
+    private Button btnLogin, btnSignup, gSignIn;
     private final static int RC_SIGN_IN = 123;
-    EditText edtEmail, edtPassword;
-    FirebaseFirestore database;
-    FirebaseStorage storage;
-    FirebaseUser user;
-    GoogleSignInClient mGoogleSignInClient;
+    private EditText edtEmail, edtPassword;
+    private CircleImageView imgDp;
+    private FirebaseFirestore database;
+    private FirebaseStorage storage;
+    private FirebaseUser user;
+    private GoogleSignInClient mGoogleSignInClient;
     private FirebaseAuth mAuth;
-    ProgressBar prgLogin;
-    ProgressDialog progressDialog;
+    private ProgressBar prgLogin;
+    private ProgressDialog progressDialog;
     private String userId, firstName, lastName, email, password, provider, profileUrl, profileUrlTm;
     Uri profileUri, profileUriTm;
+    private Uri filePath = null;
     private SharedPreferences prefs;
     private SharedPreferences.Editor editor;
 
@@ -109,6 +113,16 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 Log.i("LoginActivity", "onActivityResult: account not Retrieved");
             }
 
+        }
+        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+            CropImage.ActivityResult result = CropImage.getActivityResult(data);
+            if (resultCode == RESULT_OK) {
+                filePath = result.getUri();
+                uploadImage();
+                imgDp.setImageURI(filePath);
+            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
+                Exception error = result.getError();
+            }
         }
     }
 
@@ -197,40 +211,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         });
     }
 
-    public void uploadDp(){
-        storage.getReference().child("profile_image_thumbnails").child(userId)
-                .putFile(profileUriTm)
-                .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                        taskSnapshot.getMetadata().getReference().getDownloadUrl()
-                                .addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                    @Override
-                                    public void onSuccess(Uri uri) {
-                                        Map<String, String> url = new HashMap<>();
-                                        url.put("b3_dpTmUrl", uri.toString());
-                                        database.collection("profiles").document(userId).set(url);
-                                    }
-                                });
-                    }
-        });
-        storage.getReference().child("profile_images").child(userId)
-                .putFile(profileUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                taskSnapshot.getMetadata().getReference().getDownloadUrl()
-                        .addOnSuccessListener(new OnSuccessListener<Uri>() {
-                            @Override
-                            public void onSuccess(Uri uri) {
-                                Map<String, String> url = new HashMap<>();
-                                url.put("b2_dpUrl", uri.toString());
-                                database.collection("profiles").document(userId).set(url);
-                            }
-                        });
-            }
-        });
-    }
-
     public void completeProfile(){
         /*
         Build a dialogView for user to set profile image
@@ -254,7 +234,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         final EditText edtUsername = dialog.findViewById(R.id.edtUsername);
         final EditText edtPhone = dialog.findViewById(R.id.edtPhone);
         final RadioGroup rdbGroup = dialog.findViewById(R.id.rdbGroupGender);
-        CircleImageView imgDp = dialog.findViewById(R.id.imgDp);
+        imgDp = dialog.findViewById(R.id.imgDp); imgDp.setOnClickListener(this);
         final CountryCodePicker ccp = dialog.findViewById(R.id.ccp);
         final EditText editTextCarrierNumber= dialog.findViewById(R.id.editText_carrierNumber);
         ccp.registerCarrierNumberEditText(editTextCarrierNumber);
@@ -333,6 +313,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     @Override
     public void onClick(View v) {
         switch (v.getId()){
+            case R.id.imgDp:
+                grabImage();
+                break;
             case R.id.btnLogin:
                 signInWithEmail();
                 break;
@@ -354,4 +337,46 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         finish();
         startActivity(new Intent(LoginActivity.this, LandingActivity.class));
     }
+
+    public void grabImage(){
+        CropImage.activity()
+                .setFixAspectRatio(true)
+                .start(this);
+    }
+
+    public void uploadImage(){
+        progressDialog.setTitle("Uploading...");
+        progressDialog.show();
+        storage.getReference().child("profile_images").child(userId).putFile(filePath)
+                .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        taskSnapshot.getMetadata().getReference().getDownloadUrl()
+                                .addOnSuccessListener(uri -> {
+                                    String url = uri.toString();
+                                    database.collection("profiles").document(userId).update("b2_dpUrl", url);
+                                    progressDialog.dismiss();
+                                    Toast.makeText(LoginActivity.this, "Image uploaded", Toast.LENGTH_SHORT).show();
+                                    imgDp.setImageURI(filePath);
+                                });
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        progressDialog.dismiss();
+                        Toast.makeText(LoginActivity.this, "Failed "+e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                        double progress = (100.0 * taskSnapshot.getBytesTransferred() / taskSnapshot
+                                .getTotalByteCount());
+                        progressDialog.setMessage((int) progress + "%" + " completed" );
+                    }
+                })
+        ;
+    }
+
 }
