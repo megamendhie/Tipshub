@@ -18,6 +18,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -164,6 +165,9 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                     txtTips.setText(profile.getE0a_NOG()>1? profile.getE0a_NOG()+ " tips": profile.getE0a_NOG()+ " tip");
                     txtFollowers.setText(String.valueOf(profile.getC4_followers()));
                     txtFollowing.setText(String.valueOf(profile.getC5_following()));
+                    Glide.with(MainActivity.this)
+                            .load(profile.getB2_dpUrl())
+                            .into(imgDp);
                 }
             }
         });

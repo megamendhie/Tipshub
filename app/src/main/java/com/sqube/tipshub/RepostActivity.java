@@ -18,6 +18,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -28,6 +29,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.Transaction;
+import com.google.firebase.storage.FirebaseStorage;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -35,6 +37,7 @@ import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import models.Post;
+import services.GlideApp;
 import utils.Calculations;
 import utils.SpaceTokenizer;
 
@@ -47,6 +50,7 @@ public class RepostActivity extends AppCompatActivity implements View.OnClickLis
     private ImageView imgStatus;
     private CircleImageView imgDp, childDp;
     Post model;
+    private RequestOptions requestOptions = new RequestOptions();
 
     FirebaseFirestore database;
     FirebaseUser user;
@@ -78,11 +82,14 @@ public class RepostActivity extends AppCompatActivity implements View.OnClickLis
         btnClose = findViewById(R.id.btnClose); btnClose.setOnClickListener(this);
         prgBar = findViewById(R.id.prgLogin);
 
+        imgDp = findViewById(R.id.imgDp);
+        childDp = findViewById(R.id.childDp);
         edtPost = findViewById(R.id.edtPost);
         txtPost = findViewById(R.id.txtPost);
         imgStatus = findViewById(R.id.imgStatus);
         txtChildType = findViewById(R.id.txtChildType);
         txtChildUsername = findViewById(R.id.txtChildUsername);
+        requestOptions.placeholder(R.drawable.ic_person_outline_black_24dp);
         childLink = getIntent().getStringExtra("postId");
         postReference = database.collection("posts").document(childLink);
 
@@ -110,6 +117,11 @@ public class RepostActivity extends AppCompatActivity implements View.OnClickLis
         edtPost.setTokenizer(new SpaceTokenizer());
         edtPost.setThreshold(3);
 
+        //set Display picture
+        GlideApp.with(getApplicationContext())
+                .setDefaultRequestOptions(requestOptions)
+                .load(FirebaseStorage.getInstance().getReference().child("profile_images").child(userId))
+                .into(imgDp);
         loadPost();
     }
 
@@ -133,6 +145,12 @@ public class RepostActivity extends AppCompatActivity implements View.OnClickLis
 
         txtChildUsername.setText(model.getUsername());
         txtPost.setText(model.getContent());
+
+        //set Display picture
+        GlideApp.with(getApplicationContext())
+                .setDefaultRequestOptions(requestOptions)
+                .load(FirebaseStorage.getInstance().getReference().child("profile_images").child(model.getUserId()))
+                .into(childDp);
     }
 
     //listen to changes on child node. Update

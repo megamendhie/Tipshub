@@ -23,6 +23,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -37,6 +38,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.Transaction;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -44,8 +47,10 @@ import java.util.Map;
 import javax.annotation.Nullable;
 
 import adapters.CommentAdapter;
+import de.hdodenhof.circleimageview.CircleImageView;
 import models.Comment;
 import models.Post;
+import services.GlideApp;
 import utils.Calculations;
 import utils.Reusable;
 import utils.SpaceTokenizer;
@@ -56,6 +61,7 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
     DocumentReference postReference, childReference;
     LinearLayout lnrCode, lnrFullPost, lnrChildPost;
     TextView mpost, mUsername, mTime;
+    private RequestOptions requestOptions = new RequestOptions();
     Query query;
     Calculations calculations;
     String comment;
@@ -63,7 +69,8 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
     final String TAG = "FullPostActivity";
     Reusable reusable = new Reusable();
     TextView mLikes, mDislikes, mComment, mCode, mType;
-    ImageView imgOverflow, imgDp,imgLike, imgDislike, imgComment, imgShare, imgStatus, imgCode;
+    CircleImageView imgDp, imgMyDp;
+    ImageView imgOverflow, imgLike, imgDislike, imgComment, imgShare, imgStatus, imgCode;
     MultiAutoCompleteTextView edtComment;
     FloatingActionButton fabPost;
     ProgressBar prgPost;
@@ -75,6 +82,7 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
     String userId, username, postId, childLink;
     private String[] code = {"1xBet", "Bet9ja", "Nairabet", "SportyBet", "BlackBet", "Bet365"};
     private String[] type = {"3-5 odds", "6-10 odds", "11-50 odds", "50+ odds", "Draws", "Banker tip"};
+    private StorageReference storageReference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,6 +103,7 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
         edtComment = findViewById(R.id.edtComment); edtComment.addTextChangedListener(this);
 
         imgDp = findViewById(R.id.imgDp);
+        imgMyDp = findViewById(R.id.imgMyDp);
         imgLike = findViewById(R.id.imgLike); imgLike.setOnClickListener(this);
         imgDislike = findViewById(R.id.imgDislike); imgDislike.setOnClickListener(this);
         imgShare = findViewById(R.id.imgShare); imgShare.setOnClickListener(this);
@@ -107,9 +116,11 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
         lnrFullPost.setVisibility(View.GONE);
         lnrChildPost = findViewById(R.id.container_child_post);
         lnrChildPost.setVisibility(View.GONE);
+        requestOptions.placeholder(R.drawable.ic_person_outline_black_24dp);
 
         calculations = new Calculations(getApplicationContext());
         database = FirebaseFirestore.getInstance();
+        storageReference = FirebaseStorage.getInstance().getReference().child("profile_images");
         final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         userId = user.getUid().toString();
         username = user.getDisplayName();
@@ -124,6 +135,10 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
         edtComment.setAdapter(club_adapter);
         edtComment.setTokenizer(new SpaceTokenizer());
         edtComment.setThreshold(3);
+        GlideApp.with(getApplicationContext())
+                .setDefaultRequestOptions(requestOptions)
+                .load(storageReference.child(userId))
+                .into(imgMyDp);
         
         //loadPost();
         listener();
@@ -179,6 +194,10 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
                     mComment.setText(model.getCommentsCount()==0? "":String.valueOf(model.getCommentsCount()));
                     mLikes.setText(model.getLikesCount()==0? "":String.valueOf(model.getLikesCount()));
                     mDislikes.setText(model.getDislikesCount()==0? "":String.valueOf(model.getDislikesCount()));
+                    GlideApp.with(getApplicationContext())
+                            .setDefaultRequestOptions(requestOptions)
+                            .load(storageReference.child(model.getUserId()))
+                            .into(imgDp);
                     if(model.isHasChild()){
                         childLink = model.getChildLink();
                         displayChildContent();
@@ -200,6 +219,7 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
         final TextView childType = findViewById(R.id.txtChildType);
         final ImageView imgChildStatus = findViewById(R.id.imgChildStatus);
         final ImageView imgChildCode = findViewById(R.id.imgCode);
+        final CircleImageView imgChildDp = findViewById(R.id.childDp);
 
         childDisplayed = true;
         database.collection("posts").document(childLink).get()
@@ -232,7 +252,10 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
                 }
                 childUsername.setText(childModel.getUsername());
                 childPost.setText(childModel.getContent());
-
+                GlideApp.with(getApplicationContext())
+                        .setDefaultRequestOptions(requestOptions)
+                        .load(storageReference.child(childModel.getUserId()))
+                        .into(imgChildDp);
                 lnrChildPost.setVisibility(View.VISIBLE); //display child layout if child post exists
             }
         });

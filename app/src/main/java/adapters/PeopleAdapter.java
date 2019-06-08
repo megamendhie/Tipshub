@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.firestore.Query;
@@ -56,6 +57,9 @@ public class PeopleAdapter extends FirestoreRecyclerAdapter<ProfileShort, People
         holder.mUsername.setText(model.getA2_username());
         holder.mPost.setText(model.getE0a_NOG()+ " tips");
         holder.mAccuracy.setText(String.format("||  Accuracy: %.1f", (double) model.getE0c_WGP())+"%");
+        Glide.with(activity)
+                .load(model.getB2_dpUrl())
+                .into(holder.imgDp);
     }
 
     @Override

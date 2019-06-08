@@ -21,6 +21,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -41,6 +42,7 @@ import java.util.Date;
 import de.hdodenhof.circleimageview.CircleImageView;
 import models.Post;
 import models.UserNetwork;
+import services.GlideApp;
 import utils.Calculations;
 import utils.Reusable;
 
@@ -53,6 +55,7 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
     private Calculations calculations;
     private StorageReference storageReference;
     private FirebaseFirestore database;
+    private RequestOptions requestOptions = new RequestOptions();
     private String[] code = {"1xBet", "Bet9ja", "Nairabet", "SportyBet", "BlackBet", "Bet365"};
     private String[] type = {"3-5 odds", "6-10 odds", "11-50 odds", "50+ odds", "Draws", "Banker tip"};
 
@@ -73,8 +76,8 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
         this.userId = userID;
         this.calculations = new Calculations(context);
         this.database = FirebaseFirestore.getInstance();
-        storageReference = FirebaseStorage.getInstance().getReference()
-                .child("profile_images");
+        requestOptions.placeholder(R.drawable.ic_person_outline_black_24dp);
+        storageReference = FirebaseStorage.getInstance().getReference().child("profile_images");
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -139,6 +142,11 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
             holder.mSub.setText("Subscribe to "+ model.getUsername());
 
         }
+        GlideApp.with(context)
+                .setDefaultRequestOptions(requestOptions)
+                .load(storageReference.child(model.getUserId()))
+                .into(imgDp);
+
         //listen to dp click and open user profile
         imgDp.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -325,6 +333,12 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
                 imgChildStatus.setVisibility(documentSnapshot.toObject(Post.class).getStatus()==1? View.GONE: View.VISIBLE);
             }
         });
+
+
+        GlideApp.with(context)
+                .setDefaultRequestOptions(requestOptions)
+                .load(storageReference.child(model.getChildUserId()))
+                .into(childDp);
 
         //listen to dp click and open user profile
         childDp.setOnClickListener(new View.OnClickListener() {

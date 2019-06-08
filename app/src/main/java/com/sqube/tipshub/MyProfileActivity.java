@@ -16,6 +16,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -103,6 +104,12 @@ public class MyProfileActivity extends AppCompatActivity {
                 txtSubscriptions.setText(String.valueOf(profile.getC7_subscriptions()));
                 txtPost.setText(profile.getE0a_NOG() + " tips  • ");
                 txtAccuracy.setText(profile.getE0b_WG()+ " won");
+
+                //set Display picture
+                Glide.with(getApplicationContext())
+                        .load(profile.getB2_dpUrl())
+                        .into(imgDp);
+
                 if(profile.getE0a_NOG()>0){
                     for(int i=1; i<=6; i++){
                         Map<String, Object> row = getRow(i);

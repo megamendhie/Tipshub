@@ -22,6 +22,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -29,18 +30,22 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.storage.FirebaseStorage;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import de.hdodenhof.circleimageview.CircleImageView;
 import models.Post;
 import models.Profile;
+import services.GlideApp;
 import utils.SpaceTokenizer;
 
 public class PostActivity extends AppCompatActivity implements View.OnClickListener {
     private Button btnPost;
     private TextView btnClose, btnAdd, txtNormal;
+    private CircleImageView imgDp;
     private MultiAutoCompleteTextView edtPost;
     private ProgressBar prgBar;
     private Spinner spnType;
@@ -48,6 +53,7 @@ public class PostActivity extends AppCompatActivity implements View.OnClickListe
     FirebaseAuth auth;
     FirebaseUser user;
     CollectionReference postReference;
+    private RequestOptions requestOptions = new RequestOptions();
 
     private String username;
     private String userId;
@@ -75,12 +81,14 @@ public class PostActivity extends AppCompatActivity implements View.OnClickListe
         auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
         postReference = database.collection("posts");
+        requestOptions.placeholder(R.drawable.ic_person_outline_black_24dp);
         edtPost = findViewById(R.id.edtPost);
         txtNormal = findViewById(R.id.txtNormal);
         spnType = findViewById(R.id.spnPostType);
         btnPost = findViewById(R.id.btnPost); btnPost.setOnClickListener(this);
         btnAdd = findViewById(R.id.btnAddCode); btnAdd.setOnClickListener(this);
         btnClose = findViewById(R.id.btnClose); btnClose.setOnClickListener(this);
+        imgDp = findViewById(R.id.imgDp);
         prgBar = findViewById(R.id.prgLogin);
         username = user.getDisplayName();
         userId = user.getUid();
@@ -115,6 +123,11 @@ public class PostActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
+        //set Display picture
+        GlideApp.with(getApplicationContext())
+                .setDefaultRequestOptions(requestOptions)
+                .load(FirebaseStorage.getInstance().getReference().child("profile_images").child(userId))
+                .into(imgDp);
         edtPost.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {

@@ -19,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -38,6 +39,7 @@ import com.sqube.tipshub.SubscriptionActivity;
 import de.hdodenhof.circleimageview.CircleImageView;
 import models.Post;
 import models.UserNetwork;
+import services.GlideApp;
 import utils.Calculations;
 import utils.Reusable;
 
@@ -50,6 +52,7 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
     private StorageReference storageReference;
     Calculations calculations;
     final int NORMAL_POST=1, BANKER_POST = 0;
+    private RequestOptions requestOptions = new RequestOptions();
 
     private FirebaseFirestore database;
     private String[] code = {"1xBet", "Bet9ja", "Nairabet", "SportyBet", "BlackBet", "Bet365"};
@@ -71,8 +74,8 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
         this.userId = userID;
         this.calculations = new Calculations(context);
         this.database = FirebaseFirestore.getInstance();
-        storageReference = FirebaseStorage.getInstance().getReference()
-                .child("profile_images");
+        requestOptions.placeholder(R.drawable.ic_person_outline_black_24dp);
+        storageReference = FirebaseStorage.getInstance().getReference().child("profile_images");
     }
 
     @Override
@@ -133,6 +136,11 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
             mType.setVisibility(View.VISIBLE);
             mType.setText(type[model.getType()-1]);
         }
+
+        GlideApp.with(context)
+                .setDefaultRequestOptions(requestOptions)
+                .load(storageReference.child(model.getUserId()))
+                .into(imgDp);
         //listen to dp click and open user profile
         imgDp.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -304,6 +312,12 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
                 holder.imgChildStatus.setVisibility(documentSnapshot.toObject(Post.class).getStatus()==1? View.INVISIBLE: View.VISIBLE);
             }
         });
+
+
+        GlideApp.with(context)
+                .setDefaultRequestOptions(requestOptions)
+                .load(storageReference.child(model.getChildUserId()))
+                .into(childDp);
 
         //listen to dp click and open user profile
         childDp.setOnClickListener(new View.OnClickListener() {
