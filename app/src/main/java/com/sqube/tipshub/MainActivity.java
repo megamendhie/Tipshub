@@ -15,6 +15,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -36,7 +37,6 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
-import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
@@ -281,9 +281,11 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
         // To set the default values for the remote config parameters
         mFirebaseRemoteConfig.setDefaults(defaultMap);
+        /*
         // To enable the developer mode
         mFirebaseRemoteConfig.setConfigSettings(new FirebaseRemoteConfigSettings.Builder()
                 .setDeveloperModeEnabled(BuildConfig.DEBUG).build());
+       */
 
         Task<Void> fetchTask=mFirebaseRemoteConfig.fetch(BuildConfig.DEBUG?0: TimeUnit.HOURS.toSeconds(12));
 
@@ -299,7 +301,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                     String description = mFirebaseRemoteConfig.getString(FB_RC_KEY_DESCRIPTION);
                     int forceUpdateVersion = Integer.parseInt(mFirebaseRemoteConfig.getString(FB_RC_KEY_FORCE_UPDATE_VERSION));
                     int latestAppVersion = Integer.parseInt(mFirebaseRemoteConfig.getString(FB_RC_KEY_LATEST_VERSION));
-
+                    Log.i("Move", "onComplete: version code: "+ versionCode + "latest code: " + latestAppVersion);
                     if (latestAppVersion > versionCode){
                         if(forceUpdateVersion>versionCode)
                             visible = false;
