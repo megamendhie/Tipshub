@@ -85,7 +85,6 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     TextView txtName, txtUsername, txtTips, txtFollowing, txtFollowers;
     String userId;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -148,6 +147,11 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         actionBar.setTitle("Home");
         checkForUpdate();
         loadFragment();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         setHeader();
     }
 
