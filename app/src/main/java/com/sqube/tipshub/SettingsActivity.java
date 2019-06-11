@@ -1,13 +1,18 @@
 package com.sqube.tipshub;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,17 +23,23 @@ import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.UploadTask;
 import com.hbb20.CountryCodePicker;
 import com.theartofdev.edmodo.cropper.CropImage;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import models.Profile;
@@ -39,7 +50,7 @@ public class SettingsActivity extends AppCompatActivity {
     private CircleImageView imgDp;
     private EditText edtFirstName, edtLastName, edtUsername, edtEmail, edtBio, edtCarrierNumber, edtBankDetails;
     private CountryCodePicker ccp;
-    RadioGroup rdgGender, rdgSub;
+    RadioGroup rdbGender, rdbSub;
     RadioButton rdMale, rdFemale, rdSub0, rdSub1, rdSub2, rdSub3;
     Profile profile;
     private ProgressDialog progressDialog;
@@ -47,6 +58,7 @@ public class SettingsActivity extends AppCompatActivity {
     FirebaseUser user;
     String userId, username;
     private Uri filePath = null;
+    private boolean numberValid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,9 +82,10 @@ public class SettingsActivity extends AppCompatActivity {
         edtBio = findViewById(R.id.edtBio);
         edtBankDetails = findViewById(R.id.edtBankDetails);
         edtCarrierNumber= findViewById(R.id.editText_carrierNumber);
-        ccp = findViewById(R.id.ccp);
-        rdgGender = findViewById(R.id.rdbGroupGender);
-        rdgSub = findViewById(R.id.rdbGroupSub);
+        ccp = findViewById(R.id.ccp); ccp.registerCarrierNumberEditText(edtCarrierNumber);
+        ccp.setPhoneNumberValidityChangeListener(isValidNumber -> numberValid =isValidNumber);
+        rdbGender = findViewById(R.id.rdbGroupGender);
+        rdbSub = findViewById(R.id.rdbGroupSub);
         rdMale = findViewById(R.id.rdbMale);
         rdFemale = findViewById(R.id.rdbFemale);
         rdSub0 = findViewById(R.id.rdbSub0);
@@ -118,7 +131,7 @@ public class SettingsActivity extends AppCompatActivity {
                         rdSub2.toggle();
                         break;
                     case "3":
-                        rdSub1.toggle();
+                        rdSub3.toggle();
                         break;
                     default:
                         rdSub0.toggle();
@@ -138,8 +151,108 @@ public class SettingsActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        finish();
+        switch (item.getItemId()){
+            case R.id.nav_save:
+                save();
+                break;
+            default:
+                finish();
+                break;
+        }
         return true;
+    }
+
+    private void save() {
+        final FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        final String firstName = edtFirstName.getText().toString();
+        final String lastName = edtLastName.getText().toString();
+        final String username = edtUsername.getText().toString().trim();
+        final String bio = edtBio.getText().toString();
+        final String account = edtBankDetails.getText().toString();
+        final String phone = ccp.getFullNumber();
+        final String country = ccp.getSelectedCountryName();
+        int sub = 0;
+
+        switch (rdbSub.getCheckedRadioButtonId()) {
+            case R.id.rdbSub1:
+                sub = 1;
+                break;
+            case R.id.rdbSub2:
+                sub = 2;
+                break;
+            case R.id.rdbSub3:
+                sub = 3;
+                break;
+            default:
+                sub = 0;
+                break;
+        }
+
+        //verify fields meet requirement
+        if(TextUtils.isEmpty(firstName)){
+            edtFirstName.setError("Enter name");
+            return;
+        }
+        if(firstName.length() < 3){
+            edtFirstName.setError("Name too short");
+            return;
+        }
+        if(TextUtils.isEmpty(edtCarrierNumber.getText().toString())){
+            edtCarrierNumber.setError("Enter phone number");
+            return;
+        }
+        if(!numberValid){
+            edtCarrierNumber.setError("Invalid phone number");
+            return;
+        }
+
+        //Map new user datails, and ready to save to db
+        Map<String, Object> url = new HashMap<>();
+        url.put("a0_firstName",firstName);
+        url.put("a1_lastName",lastName);
+        url.put("a5_bio",bio);
+        url.put("b0_country", country);
+        url.put("b1_phone", phone);
+        url.put("a9_bank",account);
+        url.put("d0_subAmount", sub);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(SettingsActivity.this, R.style.Theme_AppCompat_Light_Dialog_Alert);
+        builder.setMessage("Save changes?")
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        //save username, phone number, and gender to database
+                        database.collection("profiles").document(userId).set(url, SetOptions.merge())
+                                .addOnCompleteListener(SettingsActivity.this,new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        /*
+                                        //set the new username to firebase auth user
+                                        UserProfileChangeRequest profileUpdate = new UserProfileChangeRequest.Builder()
+                                                .setDisplayName(username)
+                                                .build();
+                                        mAuth.getCurrentUser().updateProfile(profileUpdate);
+                                        */
+                                        Log.i("TAG", "onSuccess: saved");
+                                    }
+                                })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.i("TAG", "onFailure: ");
+                            }
+                        });
+                        Snackbar.make(edtBio, "Saved", Snackbar.LENGTH_SHORT).show();
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        //do nothing
+                    }
+                })
+                .show();
+
     }
 
 
