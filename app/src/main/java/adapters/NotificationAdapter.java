@@ -15,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -22,10 +23,13 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.sqube.tipshub.FullPostActivity;
+import com.sqube.tipshub.MemberProfileActivity;
+import com.sqube.tipshub.MyProfileActivity;
 import com.sqube.tipshub.R;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import models.Notification;
+import services.GlideApp;
 import utils.Calculations;
 import utils.Reusable;
 
@@ -36,12 +40,10 @@ public class NotificationAdapter extends FirestoreRecyclerAdapter<Notification, 
     private Context context;
     private String userId;
     private StorageReference storageReference;
+    private RequestOptions requestOptions = new RequestOptions();
     Calculations calculations;
-    final int NORMAL_POST=1, BANKER_POST = 0;
 
     private FirebaseFirestore database;
-    private String[] code = {"1xBet", "Bet9ja", "Nairabet", "SportyBet", "BlackBet", "Bet365"};
-    private String[] type = {"3-5 odds", "6-10 odds", "11-50 odds", "50+ odds", "Draws", "Banker tip"};
 
     public NotificationAdapter(Query query, String userID, Activity activity, Context context) {
         /*
@@ -59,8 +61,8 @@ public class NotificationAdapter extends FirestoreRecyclerAdapter<Notification, 
         this.userId = userID;
         this.calculations = new Calculations(context);
         this.database = FirebaseFirestore.getInstance();
-        storageReference = FirebaseStorage.getInstance().getReference()
-                .child("profile_images");
+        requestOptions.placeholder(R.drawable.ic_person_outline_black_24dp);
+        storageReference = FirebaseStorage.getInstance().getReference().child("profile_images");
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -81,15 +83,44 @@ public class NotificationAdapter extends FirestoreRecyclerAdapter<Notification, 
         mTitle.setText(model.getTitle());
         mMessage.setText(model.getMessage());
 
+        switch (model.getAction()) {
+            case "liked":
+                imgType.setImageResource(R.drawable.ic_thumb_up_color_24dp);
+                break;
+            case "disliked":
+                imgType.setImageResource(R.drawable.ic_thumb_down_color_24dp);
+                break;
+            case "subscribed":
+                imgType.setImageResource(R.drawable.ic_favorite_color_24dp);
+                break;
+        }
+
+        GlideApp.with(context)
+                .setDefaultRequestOptions(requestOptions)
+                .load(storageReference.child(model.getSentFrom()))
+                .into(imgDp);
+
         lnrContainer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Intent intent = null;
                 switch (model.getType()){
                     case "comment":
                     case "post":
-                        Intent intent = new Intent(context, FullPostActivity.class);
+                        intent = new Intent(context, FullPostActivity.class);
                         intent.putExtra("postId", intentUrl);
                         context.startActivity(intent);
+                        break;
+                    case "subscription":
+                        if(model.getSentFrom().equals(userId)){
+                            context.startActivity(new Intent(context, MyProfileActivity.class));
+                        }
+                        else{
+                            intent = new Intent(context, MemberProfileActivity.class);
+                            intent.putExtra("userId", model.getSentFrom());
+                            context.startActivity(intent);
+                        }
+                        break;
                 }
             }
         });
