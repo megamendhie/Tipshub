@@ -267,7 +267,7 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
         commentReference = database.collection("comments").document(postId)
                 .collection("comments");
         query = commentReference.orderBy("time", Query.Direction.DESCENDING);
-        commentAdapter = new CommentAdapter(query, userId, FullPostActivity.this, getApplicationContext());
+        commentAdapter = new CommentAdapter(postId, query, userId, FullPostActivity.this, getApplicationContext());
         commentsList.setAdapter(commentAdapter);
         if(commentAdapter!=null){
             commentAdapter.startListening();

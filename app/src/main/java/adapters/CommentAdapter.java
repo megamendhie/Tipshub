@@ -38,11 +38,12 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
     private Activity activity;
     private Context context;
     private String userId;
+    private String mainPostId;
     Calculations calculations;
     private StorageReference storageReference;
     private FirebaseFirestore database;
 
-    public CommentAdapter(Query query, String userID, Activity activity, Context context) {
+    public CommentAdapter(String mainPostId, Query query, String userID, Activity activity, Context context) {
         /*
         Configure recycler adapter options:
         query defines the request made to Firestore
@@ -57,6 +58,7 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
         this.context = context;
         calculations = new Calculations(context);
         this.userId = userID;
+        this.mainPostId = mainPostId;
         this.database = FirebaseFirestore.getInstance();
         storageReference = FirebaseStorage.getInstance().getReference()
                 .child("profile_images");
@@ -127,7 +129,7 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
             public void onClick(View v) {
                 Log.i(TAG, "onClick: Key is " + postId);
                 String substring = model.getContent().substring(0, Math.min(model.getContent().length(), 90));
-                calculations.onCommentLike(commentRef, userId, model.getUserId(), postId, substring);
+                calculations.onCommentLike(commentRef, userId, model.getUserId(), postId, mainPostId, substring);
             }
         });
 
@@ -144,7 +146,7 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
             public void onClick(View v) {
                 Log.i(TAG, "onClick: Key is " + postId);
                 String substring = model.getContent().substring(0, Math.min(model.getContent().length(), 90));
-                calculations.onCommentDislike(commentRef, userId, model.getUserId(), postId, substring);
+                calculations.onCommentDislike(commentRef, userId, model.getUserId(), postId, mainPostId, substring);
             }
         });
         imgOverflow.setOnClickListener(new View.OnClickListener() {

@@ -249,7 +249,7 @@ public final class Calculations {
         //send notification
     }
 
-    public void onCommentLike(final DocumentReference commentRef, final String userId, final String postOwnerId, final String postId, final String subString){
+    public void onCommentLike(final DocumentReference commentRef, final String userId, final String postOwnerId, final String postId, final String mainPostId, final String subString){
         final boolean[] like = {true};
         database.runTransaction(new Transaction.Function<Void>() {
             @Override
@@ -305,7 +305,7 @@ public final class Calculations {
                     public void onSuccess(Void aVoid) {
                         Log.d(TAG, "Transaction success!");
                         if(!userId.equals(postOwnerId) && like[0]){
-                            sendPushNotification(true, userId, postOwnerId, postId, "liked", "comment", subString);
+                            sendPushNotification(true, userId, postOwnerId, mainPostId, "liked", "comment", subString);
                             recommend(userId, postOwnerId);
                         }
                     }
@@ -321,7 +321,7 @@ public final class Calculations {
         //send notification
     }
 
-    public void onCommentDislike(final DocumentReference commentRef, final String userId, final String postOwnerId, final String postId, final String subString){
+    public void onCommentDislike(final DocumentReference commentRef, final String userId, final String postOwnerId, final String postId, final String mainPostId, final String subString){
         final boolean[] dislike = {true};
         database.runTransaction(new Transaction.Function<Void>() {
             @Override
@@ -375,7 +375,7 @@ public final class Calculations {
                     public void onSuccess(Void aVoid) {
                         Log.d(TAG, "Transaction success!");
                         if(!userId.equals(postOwnerId) && dislike[0]){
-                            sendPushNotification(true, userId, postOwnerId, postId, "liked", "comment", subString);
+                            sendPushNotification(true, userId, postOwnerId, mainPostId, "liked", "comment", subString);
                             recommend(userId, postOwnerId);
                         }
                     }
