@@ -79,7 +79,6 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     private DrawerLayout mDrawerLayout;
     NavigationView navigationView;
     View header;
-    Button btnLogout;
 
     private CircleImageView imgDp;
     TextView txtName, txtUsername, txtTips, txtFollowing, txtFollowers;
@@ -113,8 +112,6 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         txtTips = header.findViewById(R.id.txtTips);
         txtFollowing = header.findViewById(R.id.txtFollowing);
         txtFollowers = header.findViewById(R.id.txtFollowers);
-
-        btnLogout = header.findViewById(R.id.btnLogout); btnLogout.setOnClickListener(this);
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
@@ -244,6 +241,12 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
             case R.id.nav_settings:
                 startActivity(new Intent(MainActivity.this, SettingsActivity.class));
                 break;
+            case R.id.nav_logout:
+                if(auth.getCurrentUser()!=null)
+                    Logout();
+                else
+                    Toast.makeText(MainActivity.this, "No user logged in", Toast.LENGTH_LONG).show();
+                break;
             case R.id.nav_account:
                 break;
         }
@@ -253,12 +256,6 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     @Override
     public void onClick(View v) {
         switch (v.getId()){
-            case R.id.btnLogout:
-                if(auth.getCurrentUser()!=null)
-                    Logout();
-                else
-                    Toast.makeText(MainActivity.this, "No user logged in", Toast.LENGTH_LONG).show();
-                break;
             case R.id.imgDp:
                 startActivity(new Intent(MainActivity.this, MyProfileActivity.class));
                 break;

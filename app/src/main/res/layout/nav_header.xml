@@ -22,13 +22,6 @@
             app:civ_border_width="2dp"
             app:civ_border_color="@color/bg_off_green" />
 
-        <Button
-            android:id="@+id/btnLogout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:text="Logout"/>
-
 
     </RelativeLayout>
 
