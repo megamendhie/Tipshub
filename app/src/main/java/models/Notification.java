@@ -27,6 +27,7 @@ public class Notification {
         time = new Date().getTime();
     }
 
+
     public String getAction() {
         return action;
     }
