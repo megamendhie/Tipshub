@@ -248,6 +248,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                     Toast.makeText(MainActivity.this, "No user logged in", Toast.LENGTH_LONG).show();
                 break;
             case R.id.nav_account:
+                startActivity(new Intent(MainActivity.this, AccountActivity.class));
                 break;
         }
         return false;

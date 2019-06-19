@@ -88,12 +88,8 @@ public class MyProfileActivity extends AppCompatActivity {
         userId = user.getUid();
         username = user.getDisplayName();
         database = FirebaseFirestore.getInstance();
-        setupViewPager(viewPager); //set up view pager with fragments
-    }
 
-    @Override
-    protected void onResume() {
-        super.onResume();database.collection("profiles").document(userId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+        database.collection("profiles").document(userId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 if(!documentSnapshot.exists())
@@ -125,7 +121,7 @@ public class MyProfileActivity extends AppCompatActivity {
                 }
             }
         });
-
+        setupViewPager(viewPager); //set up view pager with fragments
     }
 
     private  Map<String, Object> getRow(int i) {

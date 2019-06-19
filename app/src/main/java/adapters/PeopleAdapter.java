@@ -3,6 +3,7 @@ package adapters;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -19,6 +20,8 @@ import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.sqube.tipshub.MemberProfileActivity;
+import com.sqube.tipshub.MyProfileActivity;
 import com.sqube.tipshub.R;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -60,6 +63,20 @@ public class PeopleAdapter extends FirestoreRecyclerAdapter<ProfileShort, People
         Glide.with(activity)
                 .load(model.getB2_dpUrl())
                 .into(holder.imgDp);
+        holder.lnrContainer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String id = getSnapshots().getSnapshot(position).getId();
+                if(id.equals(userId)){
+                    context.startActivity(new Intent(context, MyProfileActivity.class));
+                }
+                else{
+                    Intent intent = new Intent(context, MemberProfileActivity.class);
+                    intent.putExtra("userId", id);
+                    context.startActivity(intent);
+                }
+            }
+        });
     }
 
     @Override
