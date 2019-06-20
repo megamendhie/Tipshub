@@ -11,65 +11,73 @@
         android:layout_height="wrap_content">
         <TableRow
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:weightSum="14">
+
             <TextView
                 android:id="@+id/txtPosition"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:layout_height="22dp"
                 android:layout_gravity="center_vertical"
-                android:text="1"/>
+                android:layout_weight="1"
+                android:text="0"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/imgDp"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:layout_marginStart="5dp"
+                android:layout_marginStart="3dp"
                 android:src="@drawable/sample_dp"/>
             <TextView
                 android:id="@+id/txtUsername"
-                android:layout_width="wrap_content"
+                android:layout_weight="3"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="5dp"
+                android:layout_marginStart="3dp"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                 android:layout_gravity="center_vertical"
                 android:text="Username"/>
 
             <TextView
                 android:id="@+id/txtStarDate"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="5dp"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                 android:layout_gravity="center_vertical"
-                android:text="04/07/2019"/>
+                android:layout_marginStart="3dp"
+                android:layout_weight="2.5"
+                android:text="04 Aug"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
             <TextView
                 android:id="@+id/txtEndDate"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="5dp"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                 android:layout_gravity="center_vertical"
-                android:text="18/07/2019"/>
+                android:layout_marginStart="3dp"
+                android:layout_weight="2.5"
+                android:text="23 Sep"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
             <TextView
                 android:id="@+id/txtAmount"
-                android:layout_width="wrap_content"
+                android:layout_weight="2"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="5dp"
+                android:layout_marginStart="3dp"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                 android:layout_gravity="center_vertical"
                 android:text="N3000"/>
 
             <TextView
                 android:id="@+id/txtStatus"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="5dp"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                 android:layout_gravity="center_vertical"
-                android:text="Paid"/>
+                android:layout_marginStart="3dp"
+                android:layout_weight="2.5"
+                android:text="Pending"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
         </TableRow>
     </TableLayout>
 </LinearLayout>
