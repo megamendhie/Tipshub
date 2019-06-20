@@ -78,7 +78,6 @@ public class BankerFragment extends Fragment {
             }
         });
         long stopTime = new Date().getTime() - (48*60*60*1000);
-        //query = database.collection("posts").orderBy("time", Query.Direction.DESCENDING).whereEqualTo("type", 0);
         //loadSub();
         loadLatest();
         loadWinning();

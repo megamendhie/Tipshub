@@ -67,7 +67,7 @@ public class SubscriptionAdapter extends FirestoreRecyclerAdapter<Subscription, 
         holder.mPosition.setText(String.valueOf(position+1));
         GlideApp.with(context)
                 .setDefaultRequestOptions(requestOptions)
-                .load(storageReference.child(model.getSubTo()))
+                .load(storageReference.child(model.getSubToId()))
                 .into(holder.imgDp);
 
         holder.imgDp.setOnClickListener(new View.OnClickListener() {
