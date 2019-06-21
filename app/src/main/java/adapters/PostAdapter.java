@@ -28,6 +28,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.sqube.tipshub.FlagActivity;
 import com.sqube.tipshub.FullPostActivity;
 import com.sqube.tipshub.LoginActivity;
 import com.sqube.tipshub.MemberProfileActivity;
@@ -380,6 +381,14 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
                 intent.putExtra("userId", model.getUserId());
                 context.startActivity(intent);
                 dialog.cancel();
+            }
+        });
+
+        btnDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(btnDelete.getText().toString().toLowerCase().equals("flag"))
+                    activity.startActivity(new Intent(activity, FlagActivity.class));
             }
         });
 

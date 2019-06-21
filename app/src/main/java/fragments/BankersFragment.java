@@ -62,7 +62,8 @@ public class BankersFragment extends Fragment {
 
     private void loadPost() {
         Log.i(TAG, "loadPost: ");
-        query = database.collection("posts").orderBy("time", Query.Direction.DESCENDING).whereEqualTo("userId", userId);
+        query = database.collection("posts").orderBy("time", Query.Direction.DESCENDING)
+                .whereEqualTo("userId", userId).whereEqualTo("type", 6);
         postAdapter = new BankerAdapter(query, myId, getActivity(), getContext());
         recyclerView.setAdapter(postAdapter);
         if(postAdapter!=null){

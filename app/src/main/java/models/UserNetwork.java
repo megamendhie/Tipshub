@@ -2,42 +2,44 @@ package models;
 
 import com.google.firebase.firestore.DocumentSnapshot;
 
+import java.util.ArrayList;
+
 public final class UserNetwork {
-    private static DocumentSnapshot followers;
-    private static DocumentSnapshot following;
-    private static DocumentSnapshot subscibers;
-    private static DocumentSnapshot subscibed;
+    private static ArrayList<String> followers;
+    private static ArrayList<String> following;
+    private static ArrayList<String> subscibers;
+    private static ArrayList<String> subscibed;
     private static DocumentSnapshot profile;
 
-    public static DocumentSnapshot getFollowers() {
+    public static ArrayList<String> getFollowers() {
         return followers;
     }
 
-    public static void setFollowers(DocumentSnapshot mFollowers) {
+    public static void setFollowers(ArrayList<String> mFollowers) {
         followers = followers;
     }
 
-    public static DocumentSnapshot getFollowing() {
+    public static ArrayList<String> getFollowing() {
         return following;
     }
 
-    public static void setFollowing(DocumentSnapshot mFollowing) {
+    public static void setFollowing(ArrayList<String> mFollowing) {
         following = mFollowing;
     }
 
-    public static DocumentSnapshot getSubscibers() {
+    public static ArrayList<String> getSubscibers() {
         return subscibers;
     }
 
-    public static void setSubscibers(DocumentSnapshot subscibers) {
-        UserNetwork.subscibers = subscibers;
+    public static void setSubscibers(ArrayList<String> mSubscibers) {
+        subscibers = mSubscibers;
     }
 
-    public static DocumentSnapshot getSubscibed() {
+    public static ArrayList<String> getSubscibed() {
         return subscibed;
     }
 
-    public static void setSubscibed(DocumentSnapshot mSubscibed) {
+    public static void setSubscibed(ArrayList<String> mSubscibed) {
         subscibed = mSubscibed;
     }
 

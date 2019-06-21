@@ -10,6 +10,8 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 
+import java.util.ArrayList;
+
 import javax.annotation.Nullable;
 
 import models.UserNetwork;
@@ -40,6 +42,8 @@ public class UserDataFetcher extends IntentService {
             return;
         }
         userID = auth.getCurrentUser().getUid();
+
+        //Set user profile
         database.collection("profiles").document(userID).addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
@@ -47,32 +51,51 @@ public class UserDataFetcher extends IntentService {
                 UserNetwork.setProfile(documentSnapshot);
             }
         });
+
+        //set user followers
         database.collection("followers").document(userID).addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
                 Log.i(TAG, "onEvent: followers");
-                UserNetwork.setFollowers(documentSnapshot);
+                assert documentSnapshot != null;
+                if(documentSnapshot.exists() && documentSnapshot.contains("list")){
+                    UserNetwork.setFollowers(documentSnapshot.get("list", ArrayList.class));
+                }
             }
         });
+
+        //set user followings
         database.collection("followings").document(userID).addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-                Log.i(TAG, "onEvent: followings");
-                UserNetwork.setFollowing(documentSnapshot);
+                assert documentSnapshot != null;
+                if(documentSnapshot.exists() && documentSnapshot.contains("list")){
+                    UserNetwork.setFollowing(documentSnapshot.get("list", ArrayList.class));
+                }
             }
         });
+
+        //set user subscribers
         database.collection("subscribers").document(userID).addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
                 Log.i(TAG, "onEvent: subscribers");
-                UserNetwork.setSubscibers(documentSnapshot);
+                assert documentSnapshot != null;
+                if(documentSnapshot.exists() && documentSnapshot.contains("list")){
+                    UserNetwork.setSubscibers(documentSnapshot.get("list", ArrayList.class));
+                }
             }
         });
+
+        //set user subsrciptions
         database.collection("subscribed_to").document(userID).addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
                 Log.i(TAG, "onEvent: subscribed_to");
-                UserNetwork.setSubscibed(documentSnapshot);
+                assert documentSnapshot != null;
+                if(documentSnapshot.exists() && documentSnapshot.contains("list")){
+                    UserNetwork.setSubscibed(documentSnapshot.get("list", ArrayList.class));
+                }
             }
         });
     }
