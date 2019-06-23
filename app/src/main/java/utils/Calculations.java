@@ -9,6 +9,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -491,6 +493,10 @@ public final class Calculations {
                     }
                 }
                 database.collection("notifications").add(notification);
+                FirebaseDatabase db = FirebaseDatabase.getInstance();
+                DatabaseReference dbReference = db.getReference();
+                dbReference.child("notifications").push().setValue(notification);
+
             }
         })
         .addOnFailureListener(new OnFailureListener() {
