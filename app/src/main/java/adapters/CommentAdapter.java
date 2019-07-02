@@ -16,6 +16,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.firestore.DocumentReference;
@@ -30,6 +31,7 @@ import com.sqube.tipshub.R;
 import de.hdodenhof.circleimageview.CircleImageView;
 import models.Comment;
 import models.UserNetwork;
+import services.GlideApp;
 import utils.Calculations;
 import utils.Reusable;
 
@@ -40,6 +42,7 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
     private String userId;
     private String mainPostId;
     Calculations calculations;
+    private RequestOptions requestOptions = new RequestOptions();
     private StorageReference storageReference;
     private FirebaseFirestore database;
 
@@ -62,6 +65,7 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
         this.database = FirebaseFirestore.getInstance();
         storageReference = FirebaseStorage.getInstance().getReference()
                 .child("profile_images");
+        requestOptions.placeholder(R.drawable.ic_person_outline_black_24dp);
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -93,6 +97,11 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
 
         mLikesCount.setText(model.getLikesCount()==0? "":String.valueOf(model.getLikesCount()));
         mDislikesCount.setText(model.getDislikesCount()==0? "":String.valueOf(model.getDislikesCount()));
+
+        GlideApp.with(context)
+                .setDefaultRequestOptions(requestOptions)
+                .load(storageReference.child(model.getUserId()))
+                .into(imgDp);
 
         //listen to dp click and open user profile
         imgDp.setOnClickListener(new View.OnClickListener() {
