@@ -5,10 +5,10 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import java.util.ArrayList;
 
 public final class UserNetwork {
-    private static ArrayList<String> followers;
-    private static ArrayList<String> following;
-    private static ArrayList<String> subscribers;
-    private static ArrayList<String> subscribed;
+    private static ArrayList<String> followers = new ArrayList<String>();
+    private static ArrayList<String> following = new ArrayList<String>();
+    private static ArrayList<String> subscribers = new ArrayList<String>();
+    private static ArrayList<String> subscribed = new ArrayList<String>();
     private static DocumentSnapshot profile;
 
     public static ArrayList<String> getFollowers() {
