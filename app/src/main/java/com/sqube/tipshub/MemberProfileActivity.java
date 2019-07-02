@@ -114,7 +114,6 @@ public class MemberProfileActivity extends AppCompatActivity {
         });
         setupViewPager(viewPager); //set up view pager with fragments
 
-
     }
 
     private  Map<String, Object> getRow(int i) {

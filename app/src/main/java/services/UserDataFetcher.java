@@ -59,7 +59,7 @@ public class UserDataFetcher extends IntentService {
                 Log.i(TAG, "onEvent: followers");
                 assert documentSnapshot != null;
                 if(documentSnapshot.exists() && documentSnapshot.contains("list")){
-                    UserNetwork.setFollowers(documentSnapshot.get("list", ArrayList.class));
+                    UserNetwork.setFollowers((ArrayList<String>) documentSnapshot.get("list"));
                 }
             }
         });
@@ -70,7 +70,7 @@ public class UserDataFetcher extends IntentService {
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
                 assert documentSnapshot != null;
                 if(documentSnapshot.exists() && documentSnapshot.contains("list")){
-                    UserNetwork.setFollowing(documentSnapshot.get("list", ArrayList.class));
+                    UserNetwork.setFollowing((ArrayList<String>) documentSnapshot.get("list"));
                 }
             }
         });
@@ -82,7 +82,7 @@ public class UserDataFetcher extends IntentService {
                 Log.i(TAG, "onEvent: subscribers");
                 assert documentSnapshot != null;
                 if(documentSnapshot.exists() && documentSnapshot.contains("list")){
-                    UserNetwork.setSubscibers(documentSnapshot.get("list", ArrayList.class));
+                    UserNetwork.setSubscribers((ArrayList<String>) documentSnapshot.get("list"));
                 }
             }
         });
@@ -94,7 +94,7 @@ public class UserDataFetcher extends IntentService {
                 Log.i(TAG, "onEvent: subscribed_to");
                 assert documentSnapshot != null;
                 if(documentSnapshot.exists() && documentSnapshot.contains("list")){
-                    UserNetwork.setSubscibed(documentSnapshot.get("list", ArrayList.class));
+                    UserNetwork.setSubscribed((ArrayList<String>) documentSnapshot.get("list"));
                 }
             }
         });

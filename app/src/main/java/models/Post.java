@@ -1,11 +1,14 @@
 package models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class Post implements Serializable{
+public class Post implements Parcelable {
     private String username;
     private String userId;
     private String content;
@@ -91,6 +94,50 @@ public class Post implements Serializable{
 
         this.hasChild = false;
     }
+
+    protected Post(Parcel in) {
+        username = in.readString();
+        userId = in.readString();
+        content = in.readString();
+        imgUrl1 = in.readString();
+        imgUrl2 = in.readString();
+        status = in.readInt();
+        type = in.readInt();
+        time = in.readLong();
+        likes = in.createStringArrayList();
+        likesCount = in.readLong();
+        dislikes = in.createStringArrayList();
+        dislikesCount = in.readLong();
+        repostCount = in.readLong();
+        commentsCount = in.readLong();
+        relevance = in.readLong();
+        timeRelevance = in.readLong();
+        reportCount = in.readLong();
+        recommendedBookie = in.readInt();
+        bookingCode = in.readString();
+        hasChild = in.readByte() != 0;
+        childLink = in.readString();
+        childUsername = in.readString();
+        childUserId = in.readString();
+        childContent = in.readString();
+        childImgUrl1 = in.readString();
+        childImgUrl2 = in.readString();
+        childBookingCode = in.readString();
+        childBookie = in.readInt();
+        childType = in.readInt();
+    }
+
+    public static final Creator<Post> CREATOR = new Creator<Post>() {
+        @Override
+        public Post createFromParcel(Parcel in) {
+            return new Post(in);
+        }
+
+        @Override
+        public Post[] newArray(int size) {
+            return new Post[size];
+        }
+    };
 
     public String getUsername() {
         return username;
@@ -322,5 +369,43 @@ public class Post implements Serializable{
 
     public void setChildType(int childType) {
         this.childType = childType;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(username);
+        dest.writeString(userId);
+        dest.writeString(content);
+        dest.writeString(imgUrl1);
+        dest.writeString(imgUrl2);
+        dest.writeInt(status);
+        dest.writeInt(type);
+        dest.writeLong(time);
+        dest.writeStringList(likes);
+        dest.writeLong(likesCount);
+        dest.writeStringList(dislikes);
+        dest.writeLong(dislikesCount);
+        dest.writeLong(repostCount);
+        dest.writeLong(commentsCount);
+        dest.writeLong(relevance);
+        dest.writeLong(timeRelevance);
+        dest.writeLong(reportCount);
+        dest.writeInt(recommendedBookie);
+        dest.writeString(bookingCode);
+        dest.writeByte((byte) (hasChild ? 1 : 0));
+        dest.writeString(childLink);
+        dest.writeString(childUsername);
+        dest.writeString(childUserId);
+        dest.writeString(childContent);
+        dest.writeString(childImgUrl1);
+        dest.writeString(childImgUrl2);
+        dest.writeString(childBookingCode);
+        dest.writeInt(childBookie);
+        dest.writeInt(childType);
     }
 }

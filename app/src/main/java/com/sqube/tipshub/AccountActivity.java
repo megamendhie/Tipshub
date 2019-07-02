@@ -66,16 +66,17 @@ public class AccountActivity extends AppCompatActivity {
         querySubscribers.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
-                if(queryDocumentSnapshots.isEmpty())
+                if(subscriberAdapter.getItemCount()==0)
                     txtDisplay1.setVisibility(View.VISIBLE);
                 else
                     txtDisplay1.setVisibility(View.GONE);
             }
         });
+
         querySubscriptions.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
-                if(queryDocumentSnapshots.isEmpty())
+                if(subscriptionAdapter.getItemCount()==0)
                     txtDisplay2.setVisibility(View.VISIBLE);
                 else
                     txtDisplay2.setVisibility(View.GONE);

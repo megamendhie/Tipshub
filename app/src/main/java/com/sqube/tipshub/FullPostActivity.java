@@ -122,7 +122,7 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
         database = FirebaseFirestore.getInstance();
         storageReference = FirebaseStorage.getInstance().getReference().child("profile_images");
         final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        userId = user.getUid().toString();
+        userId = user.getUid();
         username = user.getDisplayName();
 
         commentsList = findViewById(R.id.listComments);

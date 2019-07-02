@@ -10,10 +10,6 @@
             android:id="@+id/nav_account"
             android:icon="@drawable/ic_account_wallet_black_24dp"
             android:title="Account" />
-        <item
-            android:id="@+id/nav_ads"
-            android:icon="@drawable/ic_message_black_24dp"
-            android:title="Post Ads" />
 
         <item
             android:id="@+id/nav_switch"

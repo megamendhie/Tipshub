@@ -14,11 +14,11 @@
             android:id="@+id/txtHeading1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/bg_off_green"
             android:text="Your Subscribers"
             android:textAlignment="center"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            android:textSize="18sp"
+            android:background="@color/colorPrimaryLight"
+            android:textSize="20sp"
             android:textStyle="bold"/>
 
         <LinearLayout
@@ -104,11 +104,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:background="@color/bg_off_green"
             android:text="Your Subsriptions "
             android:textAlignment="center"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            android:textSize="18sp"
+            android:background="@color/colorPrimaryLight"
+            android:textSize="20sp"
             android:textStyle="bold"/>
         <LinearLayout
             android:layout_width="match_parent"

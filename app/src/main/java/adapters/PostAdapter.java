@@ -187,7 +187,6 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
             public void onClick(View v) {
                 Intent intent = new Intent(context, RepostActivity.class);
                 intent.putExtra("postId", postId);
-                intent.putExtra("model", model);
                 context.startActivity(intent);
             }
         });
@@ -197,7 +196,6 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
             public void onClick(View v) {
                 Intent intent = new Intent(context, FullPostActivity.class);
                 intent.putExtra("postId", postId);
-                intent.putExtra("model", model);
                 context.startActivity(intent);
             }
         });
@@ -206,7 +204,6 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
             public void onClick(View v) {
                 Intent intent = new Intent(context, FullPostActivity.class);
                 intent.putExtra("postId", postId);
-                intent.putExtra("model", model);
                 context.startActivity(intent);
             }
         });
@@ -372,7 +369,7 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
         btnFollow = dialog.findViewById(R.id.btnFollow);
         btnSubscribe = dialog.findViewById(R.id.btnSubscribe);
 
-        if(UserNetwork.getSubscibed()==null||UserNetwork.getSubscibed().contains(model.getUserId()))
+        if(UserNetwork.getSubscribed()==null||UserNetwork.getSubscribed().contains(model.getUserId()))
             btnSubscribe.setVisibility(View.GONE);
         btnSubscribe.setOnClickListener(new View.OnClickListener() {
             @Override

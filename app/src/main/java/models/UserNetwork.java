@@ -7,8 +7,8 @@ import java.util.ArrayList;
 public final class UserNetwork {
     private static ArrayList<String> followers;
     private static ArrayList<String> following;
-    private static ArrayList<String> subscibers;
-    private static ArrayList<String> subscibed;
+    private static ArrayList<String> subscribers;
+    private static ArrayList<String> subscribed;
     private static DocumentSnapshot profile;
 
     public static ArrayList<String> getFollowers() {
@@ -27,20 +27,20 @@ public final class UserNetwork {
         following = mFollowing;
     }
 
-    public static ArrayList<String> getSubscibers() {
-        return subscibers;
+    public static ArrayList<String> getSubscribers() {
+        return subscribers;
     }
 
-    public static void setSubscibers(ArrayList<String> mSubscibers) {
-        subscibers = mSubscibers;
+    public static void setSubscribers(ArrayList<String> mSubscibers) {
+        subscribers = mSubscibers;
     }
 
-    public static ArrayList<String> getSubscibed() {
-        return subscibed;
+    public static ArrayList<String> getSubscribed() {
+        return subscribed;
     }
 
-    public static void setSubscibed(ArrayList<String> mSubscibed) {
-        subscibed = mSubscibed;
+    public static void setSubscribed(ArrayList<String> mSubscibed) {
+        subscribed = mSubscibed;
     }
 
     public static ProfileMedium getProfile() {

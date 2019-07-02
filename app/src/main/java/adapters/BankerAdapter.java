@@ -130,7 +130,7 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
         }
         if(model.getUserId().equals(userId))
             makeVisible = true;
-        else if(UserNetwork.getFollowing()!=null && UserNetwork.getSubscibed().contains(this.userId))
+        else if(UserNetwork.getSubscribed()!=null && UserNetwork.getSubscribed().contains(this.userId))
             makeVisible = true;
         if(model.getStatus()==2 || (new Date().getTime() - model.getTime()) >(16*60*60*1000))
             makePublic = true;
@@ -198,7 +198,6 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
                 }
                 Intent intent = new Intent(context, RepostActivity.class);
                 intent.putExtra("postId", postId);
-                intent.putExtra("model", model);
                 context.startActivity(intent);
             }
         });
@@ -212,7 +211,6 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
                 }
                 Intent intent = new Intent(context, FullPostActivity.class);
                 intent.putExtra("postId", postId);
-                intent.putExtra("model", model);
                 context.startActivity(intent);
             }
         });
@@ -226,7 +224,6 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
                 }
                 Intent intent = new Intent(context, FullPostActivity.class);
                 intent.putExtra("postId", postId);
-                intent.putExtra("model", model);
                 context.startActivity(intent);
             }
         });
