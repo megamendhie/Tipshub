@@ -111,6 +111,7 @@ public class NotificationAdapter extends FirestoreRecyclerAdapter<Notification, 
                         intent.putExtra("postId", intentUrl);
                         context.startActivity(intent);
                         break;
+                    case "following":
                     case "subscription":
                         if(model.getSentFrom().equals(userId)){
                             context.startActivity(new Intent(context, MyProfileActivity.class));

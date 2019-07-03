@@ -143,7 +143,6 @@ public class SubscribedBankerAdapter extends FirestoreRecyclerAdapter<Post, Subs
                 calculations.onLike(postId, userId, model.getUserId(), substring);
             }
         });
-
         imgDislikes.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

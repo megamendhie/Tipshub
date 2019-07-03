@@ -12,13 +12,8 @@ import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QuerySnapshot;
-
-import javax.annotation.Nullable;
 
 import adapters.SubscriberAdapter;
 import adapters.SubscriptionAdapter;
@@ -62,29 +57,8 @@ public class AccountActivity extends AppCompatActivity {
 
         SubscriberAdapter subscriberAdapter = new SubscriberAdapter(querySubscribers, userId, AccountActivity.this, getApplicationContext());
         SubscriptionAdapter subscriptionAdapter = new SubscriptionAdapter(querySubscriptions, userId, AccountActivity.this, getApplicationContext());
-
-        querySubscribers.addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
-                if(subscriberAdapter.getItemCount()==0)
-                    txtDisplay1.setVisibility(View.VISIBLE);
-                else
-                    txtDisplay1.setVisibility(View.GONE);
-            }
-        });
-
-        querySubscriptions.addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
-                if(subscriptionAdapter.getItemCount()==0)
-                    txtDisplay2.setVisibility(View.VISIBLE);
-                else
-                    txtDisplay2.setVisibility(View.GONE);
-            }
-        });
         listSubscribers.setAdapter(subscriberAdapter);
         listSubscriptions.setAdapter(subscriptionAdapter);
-
         if(subscriberAdapter!=null){
             Log.i(TAG, "subscriberAdapter: started listening");
             subscriberAdapter.startListening();
@@ -93,5 +67,17 @@ public class AccountActivity extends AppCompatActivity {
             Log.i(TAG, "subscriptionAdapter: started listening");
             subscriptionAdapter.startListening();
         }
+
+        if(listSubscribers.getChildCount()==0)
+            txtDisplay1.setVisibility(View.VISIBLE);
+        else
+            txtDisplay1.setVisibility(View.GONE);
+
+        if(listSubscriptions.getChildCount()==0)
+            txtDisplay2.setVisibility(View.VISIBLE);
+        else
+            txtDisplay2.setVisibility(View.GONE);
+
+
     }
 }

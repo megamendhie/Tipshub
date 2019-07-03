@@ -108,7 +108,9 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         imgDp = header.findViewById(R.id.imgProfilePic);
         imgDp.setOnClickListener(this);
         txtName = header.findViewById(R.id.txtName);
+        txtName.setOnClickListener(this);
         txtUsername = header.findViewById(R.id.txtUsername);
+        txtUsername.setOnClickListener(this);
         txtTips = header.findViewById(R.id.txtTips);
         txtFollowing = header.findViewById(R.id.txtFollowing);
         txtFollowers = header.findViewById(R.id.txtFollowers);
@@ -195,8 +197,10 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        /*
         if(mDrawerLayout.isDrawerOpen(GravityCompat.START))
             mDrawerLayout.closeDrawer(GravityCompat.START);
+        */
         int id = item.getItemId();
         switch (id){
             case R.id.nav_home:
@@ -257,10 +261,11 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     @Override
     public void onClick(View v) {
         switch (v.getId()){
-            case R.id.imgDp:
+            case R.id.imgProfilePic:
+            case R.id.txtName:
+            case R.id.txtUsername:
                 startActivity(new Intent(MainActivity.this, MyProfileActivity.class));
                 break;
-
         }
     }
 
@@ -316,7 +321,6 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
             }
         });
     }
-
 
     private void updateAlert(String title, String description, boolean visible){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);

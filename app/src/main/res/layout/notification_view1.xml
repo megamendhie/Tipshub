@@ -18,8 +18,7 @@
             android:id="@+id/imgType"
             android:layout_width="28dp"
             android:layout_height="28dp"
-            android:layout_marginTop="5dp"
-            app:srcCompat="@drawable/ic_favorite_black_24dp"/>
+            android:layout_marginTop="5dp"/>
 
         <LinearLayout
             android:orientation="vertical"
@@ -34,8 +33,7 @@
                 <de.hdodenhof.circleimageview.CircleImageView
                     android:id="@+id/imgDp"
                     android:layout_width="38dp"
-                    android:layout_height="38dp"
-                    android:src="@drawable/sample_dp"/>
+                    android:layout_height="38dp"/>
 
                 <View
                     android:layout_width="0dp"
@@ -49,8 +47,7 @@
                     android:layout_marginEnd="5dp"
                     android:textSize="16sp"
                     android:maxLines="2"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                    android:text="2/3/2019 3pm"/>
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
                 <ImageView
                     android:id="@+id/imgOverflow"
                     android:layout_width="wrap_content"
@@ -69,16 +66,14 @@
                 android:layout_height="wrap_content"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                android:text="Mega liked your post"/>
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
             <TextView
                 android:id="@+id/txtMessage"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textSize="16sp"
                 android:maxLines="2"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                android:text="I have seen a lot of beautiful things I want to "/>
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
 
 
         </LinearLayout>

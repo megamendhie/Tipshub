@@ -51,6 +51,8 @@ public class SubscriberAdapter extends FirestoreRecyclerAdapter<Subscription, Su
         this.database = FirebaseFirestore.getInstance();
         requestOptions.placeholder(R.drawable.ic_person_outline_black_24dp);
         storageReference = FirebaseStorage.getInstance().getReference().child("profile_images");
+        int i = getItemCount();
+        Log.i(TAG, "SubscriberAdapter: i =" + i);
     }
 
     @SuppressLint("ClickableViewAccessibility")

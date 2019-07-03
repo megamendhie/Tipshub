@@ -524,14 +524,40 @@ public final class Calculations {
         //if addToInbox is true, then send to user's inbox;
     }
 
-
     private void sendNotification(String myId, String userId){
         //sends notification to tipster
-        String title = UserNetwork.getProfile().getB2_dpUrl() + " followed you";
+        String title = UserNetwork.getProfile().getA2_username() + " followed you";
         String message = "view profile";
         Notification notification = new Notification("followed", title, message, "following",
                 myId, UserNetwork.getProfile().getB2_dpUrl(), userId, myId);
-        database.collection("notifications").add(notification);
+        database.collection("notifications").whereEqualTo("sendTo", userId)
+           .whereEqualTo("type", "following").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if(task.getResult() !=null && !task.getResult().isEmpty()){
+                    if(task.getResult().getDocuments().size() > 4){
+                        int c = 0;
+                        for(DocumentSnapshot snapshot: task.getResult().getDocuments()){
+                            c++;
+                            if(c<5)
+                                continue;
+                            snapshot.getReference().delete();
+                        }
+                    }
+                }
+                database.collection("notifications").add(notification);
+                FirebaseDatabase db = FirebaseDatabase.getInstance();
+                DatabaseReference dbReference = db.getReference();
+                dbReference.child("notifications").push().setValue(notification);
+
+            }
+        })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.i(TAG, "onFailure: Failed right here");
+                    }
+                });
     }
 
     public int getCount() {
@@ -610,6 +636,7 @@ public final class Calculations {
                             }
                         });
                         updateMember();
+                        sendNotification(myId, yourId);
                     }
                     private void updateMember() {
                         final DocumentReference postPath =  database.collection("profiles").document(yourId);

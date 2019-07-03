@@ -127,7 +127,7 @@ public class RepostActivity extends AppCompatActivity implements View.OnClickLis
 
 
     private void loadPost() {
-        model = (Post) getIntent().getSerializableExtra("model");
+        model = (Post) getIntent().getParcelableExtra("model");
         if(model==null){
             return;
         }
