@@ -57,7 +57,8 @@ public class UserDataFetcher extends IntentService {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
                 Log.i(TAG, "onEvent: followers");
-                assert documentSnapshot != null;
+                if(documentSnapshot==null)
+                    return;
                 if(documentSnapshot.exists() && documentSnapshot.contains("list")){
                     UserNetwork.setFollowers((ArrayList<String>) documentSnapshot.get("list"));
                 }
@@ -68,7 +69,8 @@ public class UserDataFetcher extends IntentService {
         database.collection("followings").document(userID).addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-                assert documentSnapshot != null;
+                if(documentSnapshot==null)
+                    return;
                 if(documentSnapshot.exists() && documentSnapshot.contains("list")){
                     UserNetwork.setFollowing((ArrayList<String>) documentSnapshot.get("list"));
                 }
@@ -80,7 +82,8 @@ public class UserDataFetcher extends IntentService {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
                 Log.i(TAG, "onEvent: subscribers");
-                assert documentSnapshot != null;
+                if(documentSnapshot==null)
+                    return;
                 if(documentSnapshot.exists() && documentSnapshot.contains("list")){
                     UserNetwork.setSubscribers((ArrayList<String>) documentSnapshot.get("list"));
                 }
@@ -92,7 +95,8 @@ public class UserDataFetcher extends IntentService {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
                 Log.i(TAG, "onEvent: subscribed_to");
-                assert documentSnapshot != null;
+                if(documentSnapshot==null)
+                    return;
                 if(documentSnapshot.exists() && documentSnapshot.contains("list")){
                     UserNetwork.setSubscribed((ArrayList<String>) documentSnapshot.get("list"));
                 }
