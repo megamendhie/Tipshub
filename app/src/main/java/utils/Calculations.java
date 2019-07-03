@@ -2,7 +2,10 @@ package utils;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -14,6 +17,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
@@ -21,6 +25,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.Transaction;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -176,8 +181,6 @@ public final class Calculations {
                         Toast.makeText(context, "Connection failed", Toast.LENGTH_SHORT).show();
                     }
                 });
-
-        //send notification
     }
 
     public void onDislike(final String postId, final String userId, final String postOwnerId, final String subString){
@@ -392,7 +395,7 @@ public final class Calculations {
         //send notification
     }
 
-    public void increaseSubcriptions(String myId){
+    public void increaseSubcriptions(String myId, String yourId){
         final DocumentReference postPath =  database.collection("profile").document(myId);
         database.runTransaction(new Transaction.Function<Void>() {
             @Override
@@ -411,6 +414,9 @@ public final class Calculations {
                 double score = getUserRelevance(followers, following, subscribers, subscriptions);
                 Map<String, Object> upd = new HashMap<>();
                 upd.put("c2_score", score);
+                upd.put("c4_followers", followers);
+                upd.put("c5_following", following);
+                upd.put("c6_subscribers", subscribers);
                 upd.put("c7_subscriptions", subscriptions);
                 transaction.update(postPath, upd);
                 return null;
@@ -419,7 +425,9 @@ public final class Calculations {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "Transaction success!");
+                        //Add person's id to user's subscription list
+                        database.collection("subscribed_to").document(myId)
+                                .update("list", FieldValue.arrayUnion(yourId));
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -431,7 +439,7 @@ public final class Calculations {
                 });
     }
 
-    public void increaseSubcribers(String yourId){
+    public void increaseSubcribers(String myId, String yourId){
         final DocumentReference postPath =  database.collection("profile").document(yourId);
         database.runTransaction(new Transaction.Function<Void>() {
             @Override
@@ -450,7 +458,10 @@ public final class Calculations {
                 double score = getUserRelevance(followers, following, subscribers, subscriptions);
                 Map<String, Object> upd = new HashMap<>();
                 upd.put("c2_score", score);
+                upd.put("c4_followers", followers);
+                upd.put("c5_following", following);
                 upd.put("c6_subscribers", subscribers);
+                upd.put("c7_subscriptions", subscriptions);
                 transaction.update(postPath, upd);
                 return null;
             }
@@ -458,6 +469,11 @@ public final class Calculations {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "Transaction success!");
+
+                        //Add user to subscribed person's list
+                        database.collection("subscribers").document(yourId)
+                                .update("list", FieldValue.arrayUnion(myId));
                         Log.d(TAG, "Transaction success!");
                     }
                 })
@@ -470,8 +486,8 @@ public final class Calculations {
                 });
     }
 
-    public void sendPushNotification(boolean addToInbox, final String myId, final String posterId, String intentUrl,
-                                     final String action, final String postType, final String message){
+    private void sendPushNotification(boolean addToInbox, final String myId, final String posterId, String intentUrl,
+                                      final String action, final String postType, final String message){
         String title;
         switch (getCount()){
             case 0:
@@ -508,6 +524,16 @@ public final class Calculations {
         //if addToInbox is true, then send to user's inbox;
     }
 
+
+    private void sendNotification(String myId, String userId){
+        //sends notification to tipster
+        String title = UserNetwork.getProfile().getB2_dpUrl() + " followed you";
+        String message = "view profile";
+        Notification notification = new Notification("followed", title, message, "following",
+                myId, UserNetwork.getProfile().getB2_dpUrl(), userId, myId);
+        database.collection("notifications").add(notification);
+    }
+
     public int getCount() {
         return (int) count;
     }
@@ -516,8 +542,111 @@ public final class Calculations {
         this.count = count;
     }
 
-    public void followMember(String myId, String yourId){
-        final DocumentReference postPath =  database.collection("profile").document(myId);
+    public void followMember(View v, String myId, String yourId){
+        final DocumentReference postPath = database.collection("profiles").document(myId);
+        database.runTransaction(new Transaction.Function<Void>() {
+            @Override
+            public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
+                DocumentSnapshot snapshot = transaction.get(postPath);
+                //Check if post exist first
+                if(!snapshot.exists()){
+                    Log.i(TAG, "apply: snapshot is empty");
+                    return null;
+                }
+
+                //retrieve likes, likesCount, dislikes, dislikesCount, and repostCount from snapshot
+                long followers = snapshot.getLong("c4_followers");
+                long following = snapshot.getLong("c5_following") + 1;
+                long subscribers = snapshot.getLong("c6_subscribers");
+                long subscriptions = snapshot.getLong("c7_subscriptions");
+                double score = getUserRelevance(followers, following, subscribers, subscriptions);
+                Map<String, Object> upd = new HashMap<>();
+                upd.put("c2_score", score);
+                upd.put("c5_following", following);
+                transaction.update(postPath, upd);
+                return null;
+            }
+        })
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "Transaction success!");
+                        Snackbar.make(v, "Followed", Snackbar.LENGTH_SHORT).show();
+
+                        //Add the person's id to user's following list
+                        database.collection("followings").document(myId).get()
+                                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                DocumentSnapshot dS = task.getResult();
+                                if(dS==null||!dS.exists()){
+                                    ArrayList<String> list = new ArrayList<>();
+                                    list.add(yourId);
+                                    Map<String, Object> upd = new HashMap<>();
+                                    upd.put("list", list);
+                                    database.collection("followings").document(myId).set(upd);
+                                }
+                                else
+                                    database.collection("followings").document(myId)
+                                            .update("list", FieldValue.arrayUnion(yourId));
+                            }
+                        });
+
+                        //Add user to person's follower list
+                        database.collection("followers").document(yourId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                DocumentSnapshot dS = task.getResult();
+                                if(dS==null||!dS.exists()){
+                                    ArrayList<String> list = new ArrayList<>();
+                                    list.add(myId);
+                                    Map<String, Object> upd = new HashMap<>();
+                                    upd.put("list", list);
+                                    database.collection("followers").document(yourId).set(upd);
+                                }
+                                else
+                                    database.collection("followers").document(yourId)
+                                            .update("list", FieldValue.arrayUnion(myId));
+                            }
+                        });
+                        updateMember();
+                    }
+                    private void updateMember() {
+                        final DocumentReference postPath =  database.collection("profiles").document(yourId);
+                        database.runTransaction(new Transaction.Function<Void>() {
+                            @Override
+                            public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
+                                DocumentSnapshot snapshot = transaction.get(postPath);
+                                //Check if post exist first
+                                if(!snapshot.exists()){
+                                    return null;
+                                }
+                                //retrieve likes, likesCount, dislikes, dislikesCount, and repostCount from snapshot
+                                long followers = snapshot.getLong("c4_followers") + 1;
+                                long following = snapshot.getLong("c5_following");
+                                long subscribers = snapshot.getLong("c6_subscribers");
+                                long subscriptions = snapshot.getLong("c7_subscriptions");
+                                double score = getUserRelevance(followers, following, subscribers, subscriptions);
+                                Map<String, Object> upd = new HashMap<>();
+                                upd.put("c2_score", score);
+                                upd.put("c4_followers", followers);
+                                transaction.update(postPath, upd);
+                                return null;
+                            }
+                        });
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Transaction failure.", e);
+                        Toast.makeText(context, "Connection failed", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    public void unfollowMember(ImageView v, String myId, String yourId){
+        final DocumentReference postPath =  database.collection("profiles").document(myId);
         database.runTransaction(new Transaction.Function<Void>() {
             @Override
             public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
@@ -529,7 +658,7 @@ public final class Calculations {
 
                 //retrieve likes, likesCount, dislikes, dislikesCount, and repostCount from snapshot
                 long followers = snapshot.getLong("c4_followers");
-                long following = snapshot.getLong("c5_following") + 1;
+                long following = snapshot.getLong("c5_following") - 1;
                 long subscribers = snapshot.getLong("c6_subscribers");
                 long subscriptions = snapshot.getLong("c7_subscriptions");
                 double score = getUserRelevance(followers, following, subscribers, subscriptions);
@@ -544,13 +673,20 @@ public final class Calculations {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Log.d(TAG, "Transaction success!");
+                        Snackbar.make(v, "Unfollowed", Snackbar.LENGTH_SHORT).show();
+
+                        //Add followed id to current user's following list
                         database.collection("followings").document(myId)
-                                .update("list", UserNetwork.getFollowing().add(yourId));
+                                .update("list", FieldValue.arrayRemove(yourId));
+
+                        //Add current user to followed person's list
+                        database.collection("followers").document(yourId)
+                                .update("list", FieldValue.arrayRemove(myId));
                         updateMember();
                     }
 
                     private void updateMember() {
-                        final DocumentReference postPath =  database.collection("profile").document(yourId);
+                        final DocumentReference postPath =  database.collection("profiles").document(yourId);
                         database.runTransaction(new Transaction.Function<Void>() {
                             @Override
                             public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
@@ -559,16 +695,15 @@ public final class Calculations {
                                 if(!snapshot.exists()){
                                     return null;
                                 }
-
                                 //retrieve likes, likesCount, dislikes, dislikesCount, and repostCount from snapshot
-                                long followers = snapshot.getLong("c4_followers");
-                                long following = snapshot.getLong("c5_following") + 1;
+                                long followers = snapshot.getLong("c4_followers")-1;
+                                long following = snapshot.getLong("c5_following");
                                 long subscribers = snapshot.getLong("c6_subscribers");
                                 long subscriptions = snapshot.getLong("c7_subscriptions");
                                 double score = getUserRelevance(followers, following, subscribers, subscriptions);
                                 Map<String, Object> upd = new HashMap<>();
                                 upd.put("c2_score", score);
-                                upd.put("c5_following", subscriptions);
+                                upd.put("c4_followers", subscriptions);
                                 transaction.update(postPath, upd);
                                 return null;
                             }

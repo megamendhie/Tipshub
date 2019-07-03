@@ -198,6 +198,7 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
                 }
                 Intent intent = new Intent(context, RepostActivity.class);
                 intent.putExtra("postId", postId);
+                intent.putExtra("model", model);
                 context.startActivity(intent);
             }
         });
@@ -367,7 +368,7 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
         });
     }
 
-    private void displayOverflow(final Post model, String userId, final String postId, int status, int type, ImageView imgOverflow,
+    private void displayOverflow(final Post model, String userID, final String postId, int status, int type, ImageView imgOverflow,
                                  final boolean makePublic, final boolean makeVisible) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         LayoutInflater inflater = activity.getLayoutInflater();
@@ -393,13 +394,22 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
         if(UserNetwork.getFollowing()==null)
             btnFollow.setVisibility(View.GONE);
         else
-            btnFollow.setText(UserNetwork.getFollowing().contains(this.userId)? "UNFOLLOW": "FOLLOW");
+            btnFollow.setText(UserNetwork.getFollowing().contains(userID)? "UNFOLLOW": "FOLLOW");
         btnShare.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 reusable.shareTips(activity, model.getUsername(), model.getContent());
                 dialog.cancel();
             }
+        });
+        btnFollow.setOnClickListener(v -> {
+            if(btnFollow.getText().equals("FOLLOW")){
+                calculations.followMember(imgOverflow, userId, userID);
+            }
+            else{
+                calculations.unfollowMember(imgOverflow, userId, userID);
+            }
+            dialog.cancel();
         });
     }
 

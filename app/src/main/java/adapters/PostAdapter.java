@@ -187,6 +187,7 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
             public void onClick(View v) {
                 Intent intent = new Intent(context, RepostActivity.class);
                 intent.putExtra("postId", postId);
+                intent.putExtra("model", model);
                 context.startActivity(intent);
             }
         });
@@ -350,11 +351,11 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
     /*
         Displays overflow containing options like follow, subscribe, disagree, etc.
      */
-    private void displayOverflow(final Post model, String userId, final String postId, int status, int type, ImageView imgOverflow) {
+    private void displayOverflow(final Post model, String userID, final String postId, int status, int type, ImageView imgOverflow) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         LayoutInflater inflater = activity.getLayoutInflater();
         View dialogView;
-        if(userId.equals(this.userId))
+        if(userID.equals(this.userId))
             dialogView = inflater.inflate(R.layout.dialog_mine, null);
         else
             dialogView = inflater.inflate(R.layout.dialog_member, null);
@@ -369,13 +370,13 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
         btnFollow = dialog.findViewById(R.id.btnFollow);
         btnSubscribe = dialog.findViewById(R.id.btnSubscribe);
 
-        if(UserNetwork.getSubscribed()==null||UserNetwork.getSubscribed().contains(model.getUserId()))
+        if(UserNetwork.getSubscribed()==null||UserNetwork.getSubscribed().contains(userID))
             btnSubscribe.setVisibility(View.GONE);
         btnSubscribe.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context, SubscriptionActivity.class);
-                intent.putExtra("userId", model.getUserId());
+                intent.putExtra("userId", userID);
                 context.startActivity(intent);
                 dialog.cancel();
             }
@@ -392,13 +393,22 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
         if(UserNetwork.getFollowing()==null)
             btnFollow.setVisibility(View.GONE);
         else
-            btnFollow.setText(UserNetwork.getFollowing().contains(this.userId)? "UNFOLLOW": "FOLLOW");
+            btnFollow.setText(UserNetwork.getFollowing().contains(userID)? "UNFOLLOW": "FOLLOW");
         btnShare.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 reusable.shareTips(activity, model.getUsername(), model.getContent());
                 dialog.cancel();
             }
+        });
+        btnFollow.setOnClickListener(v -> {
+            if(btnFollow.getText().equals("FOLLOW")){
+                calculations.followMember(imgOverflow, userId, userID);
+            }
+            else{
+                calculations.unfollowMember(imgOverflow, userId, userID);
+            }
+            dialog.cancel();
         });
     }
 
