@@ -94,6 +94,18 @@ public final class Calculations {
         }
     }
 
+    public void unrecommend(final String myId, final String yourId){
+        database.collection("recommended").document(myId)
+                .collection("rec").document(yourId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if(task.getResult()!=null && task.getResult().exists()){
+                    task.getResult().getReference().delete();
+                }
+            }
+        });
+    }
+
     public double getPostRelevance(long like, long dislike, long repost){
         return (1+like + repost +(like*repost))/(1+dislike);
     }
@@ -637,6 +649,7 @@ public final class Calculations {
                         });
                         updateMember();
                         sendNotification(myId, yourId);
+                        unrecommend(myId, yourId);
                     }
                     private void updateMember() {
                         final DocumentReference postPath =  database.collection("profiles").document(yourId);

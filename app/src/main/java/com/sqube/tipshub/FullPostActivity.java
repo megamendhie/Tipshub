@@ -151,7 +151,11 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
         postReference.addSnapshotListener(FullPostActivity.this, new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-                if(documentSnapshot.exists()){
+                if(documentSnapshot==null||!documentSnapshot.exists()){
+                    Toast.makeText(FullPostActivity.this, "Content doesn't exist", Toast.LENGTH_LONG).show();
+                    finish();
+                }
+                else{
                     lnrFullPost.setVisibility(View.VISIBLE);
                     prgPost.setVisibility(View.GONE);
                     //retrieve post from database
@@ -343,34 +347,33 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void postComment() {
-        comment = edtComment.getText().toString();
-        if(TextUtils.isEmpty(comment)){
-            Toast.makeText(FullPostActivity.this, "Comment is empty", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        else{
-            commentReference.add(new Comment(username, userId, comment))
-                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                @Override
-                public void onSuccess(DocumentReference documentReference) {
-                    Snackbar.make(edtComment, "Comment added", Snackbar.LENGTH_SHORT).show();
-                    comment= "";
-                    edtComment.setText("");
-                    increaseCommentCount();
-                    if(!userId.equals(model.getUserId())){
-                        calculations.recommend(userId, model.getUserId());
+        commentReference.add(new Comment(username, userId, comment, false))
+                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                    @Override
+                    public void onSuccess(DocumentReference documentReference) {
+                        Snackbar.make(edtComment, "Comment added", Snackbar.LENGTH_SHORT).show();
+                        comment= "";
+                        edtComment.setText("");
+                        increaseCommentCount();
+                        if(!userId.equals(model.getUserId())){
+                            calculations.recommend(userId, model.getUserId());
+                        }
                     }
-                }
-            });
-        }
+                });
     }
 
     public void increaseCommentCount(){
+        comment = edtComment.getText().toString();
+        if(TextUtils.isEmpty(comment)){
+            edtComment.setError("Type your comment");
+            return;
+        }
         database.runTransaction(new Transaction.Function<Void>() {
             @Override
             public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
                 Log.i(TAG, "apply: likes entered");
                 DocumentSnapshot snapshot = transaction.get(postReference);
+
                 //check if post still exists
                 if(!snapshot.exists()){
                     Log.i(TAG, "apply: like doesn't exist");
@@ -390,6 +393,7 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
                     @Override
                     public void onSuccess(Void aVoid) {
                         Log.d(TAG, "Transaction success!");
+                        postComment();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -399,8 +403,6 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
                         Toast.makeText(FullPostActivity.this, "Connection failed", Toast.LENGTH_SHORT).show();
                     }
                 });
-
-        //send notification
     }
 
     @Override
