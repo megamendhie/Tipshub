@@ -10,4 +10,7 @@
     <color name="greyBackground">#CEE0EC</color>
     <color name="bg_off_green">#d3edfc</color>
     <color name="currencyGreen">#035829</color>
+    <color name="color_oxblood">#F80051</color>
+    <color name="comment_bg">#eff5fa</color>
+    <color name="comment_flagged">#FCD6E2</color>
 </resources>

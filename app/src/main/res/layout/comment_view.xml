@@ -13,7 +13,7 @@
     <LinearLayout
         android:id="@+id/container_post"
         android:orientation="vertical"
-        android:background="#eff5fa"
+        android:background="@color/comment_bg"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="@dimen/vertical_padding">
@@ -54,7 +54,7 @@
                 android:layout_height="wrap_content"
                 android:contentDescription="more_options"
                 android:tint="@android:color/darker_gray"
-                android:src="@drawable/ic_more_vert_black_24dp"/>
+                app:srcCompat="@drawable/ic_more_vert_black_24dp"/>
         </LinearLayout>
 
         <TextView
@@ -84,7 +84,7 @@
                     android:id="@+id/imgLike"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/ic_thumb_up_black_24dp"/>
+                    app:srcCompat="@drawable/ic_thumb_up_black_24dp"/>
                 <TextView
                     android:id="@+id/txtLike"
                     android:layout_width="wrap_content"
@@ -102,7 +102,7 @@
                     android:id="@+id/imgDislike"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/ic_thumb_down_black_24dp"/>
+                    app:srcCompat="@drawable/ic_thumb_down_black_24dp"/>
                 <TextView
                     android:id="@+id/txtDislike"
                     android:layout_width="wrap_content"
@@ -128,7 +128,7 @@
                     android:id="@+id/imgShare"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/ic_share_black_24dp"/>
+                    app:srcCompat="@drawable/ic_share_black_24dp"/>
             </LinearLayout>
 
         </LinearLayout>
