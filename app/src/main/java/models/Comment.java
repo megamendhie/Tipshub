@@ -18,15 +18,17 @@ public class Comment {
     private long relevance;
     private long timeRelevance;
     private long reportCount;
+    private boolean flag = false;
 
 
     public Comment(){}
 
-    public Comment(String username, String userId, String content){
+    public Comment(String username, String userId, String content, boolean flag){
         this.username = username;
         this.userId = userId;
         this.content = content;
         this.time = new Date().getTime();
+        this.flag = flag;
 
         this.likesCount = 0;
         this.dislikesCount = 0;
@@ -137,5 +139,13 @@ public class Comment {
 
     public void setTimeRelevance(long timeRelevance) {
         this.timeRelevance = timeRelevance;
+    }
+
+    public boolean isFlag() {
+        return flag;
+    }
+
+    public void setFlag(boolean flag) {
+        this.flag = flag;
     }
 }
