@@ -26,6 +26,7 @@ import com.sqube.tipshub.R;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import models.ProfileShort;
+import utils.Calculations;
 
 public class PeopleAdapter extends FirestoreRecyclerAdapter<ProfileShort, PeopleAdapter.PostHolder>{
     private final String TAG = "PplAdaper";
@@ -75,6 +76,15 @@ public class PeopleAdapter extends FirestoreRecyclerAdapter<ProfileShort, People
                     intent.putExtra("userId", id);
                     context.startActivity(intent);
                 }
+            }
+        });
+
+        holder.btnFollow.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Calculations calculations= new Calculations(context);
+                String id = getSnapshots().getSnapshot(position).getId();
+                calculations.followMember(holder.btnFollow, userId, id);
             }
         });
     }

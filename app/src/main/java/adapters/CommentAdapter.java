@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.request.RequestOptions;
@@ -27,6 +28,7 @@ import com.google.firebase.storage.StorageReference;
 import com.sqube.tipshub.MemberProfileActivity;
 import com.sqube.tipshub.MyProfileActivity;
 import com.sqube.tipshub.R;
+import com.sqube.tipshub.SubscriptionActivity;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import models.Comment;
@@ -84,6 +86,12 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
         final ImageView imgOverflow = holder.imgOverflow;
         final String postId = getSnapshots().getSnapshot(position).getId();
         final DocumentReference commentRef = getSnapshots().getSnapshot(position).getReference();
+
+        if(model.isFlag())
+            holder.lnrContainer.setBackgroundColor(context.getResources().getColor(R.color.comment_flagged));
+        else
+            holder.lnrContainer.setBackgroundColor(context.getResources().getColor(R.color.comment_bg));
+
 
         //set username and comment content
         mUsername.setText(model.getUsername());
@@ -161,16 +169,17 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
         imgOverflow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                displayOverflow(model.getUserId());
+                displayOverflow(model, model.getUserId(), postId, holder.imgOverflow);
             }
         });
     }
 
-    private void displayOverflow(String userId) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+    private void displayOverflow(Comment model, String commentUserId, String postId, ImageView imgOverflow) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         LayoutInflater inflater = activity.getLayoutInflater();
         View dialogView;
-        if(userId.equals(this.userId))
+        Reusable reusable = new Reusable();
+        if(commentUserId.equals(this.userId))
             dialogView = inflater.inflate(R.layout.dialog_mine, null);
         else
             dialogView = inflater.inflate(R.layout.dialog_member, null);
@@ -178,15 +187,46 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
         final AlertDialog dialog= builder.create();
         dialog.show();
 
-        Button btnSubmit, btnDelete, btnFollow, btnSubscribe, btnObject;
-        btnSubmit = dialog.findViewById(R.id.btnSubmit);
+        Button btnSubmit, btnDelete, btnFollow, btnSubscribe, btnShare;
+        btnSubmit = dialog.findViewById(R.id.btnSubmit); btnSubmit.setVisibility(View.GONE);
         btnDelete = dialog.findViewById(R.id.btnDelete);
+        if(!commentUserId.equals(this.userId))
+            btnDelete.setVisibility(View.GONE);
         btnFollow = dialog.findViewById(R.id.btnFollow);
+        btnShare = dialog.findViewById(R.id.btnShare);
         btnSubscribe = dialog.findViewById(R.id.btnSubscribe);
         if(UserNetwork.getFollowing()==null)
             btnFollow.setVisibility(View.GONE);
         else
-            btnFollow.setText(UserNetwork.getFollowing().contains(this.userId)? "UNFOLLOW": "FOLLOW");
+            btnFollow.setText(UserNetwork.getFollowing().contains(commentUserId)? "UNFOLLOW": "FOLLOW");
+
+
+        btnShare.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                reusable.shareTips(activity, model.getUsername(), model.getContent());
+                dialog.cancel();
+            }
+        });
+        btnFollow.setOnClickListener(v -> {
+            if(btnFollow.getText().equals("FOLLOW")){
+                calculations.followMember(imgOverflow, userId, commentUserId);
+            }
+            else{
+                calculations.unfollowMember(imgOverflow, userId, commentUserId);
+            }
+            dialog.cancel();
+        });
+
+        btnSubscribe.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, SubscriptionActivity.class);
+                intent.putExtra("userId", commentUserId);
+                context.startActivity(intent);
+                dialog.cancel();
+            }
+        });
     }
 
     @Override
@@ -197,6 +237,7 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
 
     public class CommentHolder extends RecyclerView.ViewHolder {
         CircleImageView imgDp;
+        LinearLayout lnrContainer;
         TextView mComment;
         TextView mUsername;
         TextView mTime;
@@ -205,6 +246,7 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
         ImageView imgLikes, imgDislike, imgShare;
         public CommentHolder(View itemView) {
             super(itemView);
+            lnrContainer = itemView.findViewById(R.id.container_post);
             imgDp = itemView.findViewById(R.id.imgDp);
             mComment = itemView.findViewById(R.id.txtPost);
             mUsername = itemView.findViewById(R.id.txtUsername);
