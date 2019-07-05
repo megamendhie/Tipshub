@@ -1,7 +1,9 @@
 package utils;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
 import android.text.format.DateFormat;
 import android.widget.TextView;
 
@@ -58,7 +60,7 @@ public final class Reusable {
         return Signature;
     }
 
-    public void shareTips(Activity activity, String username, String post){
+    public static void shareTips(Activity activity, String username, String post){
         String output = "@"+username+"'s post on Tipshub:\n\n"+ post + "\n\nApp link: http://bit.ly/SecuredTips" ;
 
         Intent share = new Intent(Intent.ACTION_SEND);share.setType("text/plain");
@@ -78,6 +80,11 @@ public final class Reusable {
                 Intent.FLAG_ACTIVITY_NEW_DOCUMENT |
                 Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
         activity.startActivity(Intent.createChooser(share, "Share via:"));
+    }
+
+    public  static  boolean getNetworkAvailability(Context context){
+        return ((ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE))
+                .getActiveNetworkInfo().isConnected();
     }
 
 }
