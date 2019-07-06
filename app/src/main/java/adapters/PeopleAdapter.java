@@ -25,10 +25,11 @@ import java.util.ArrayList;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import models.ProfileShort;
+import models.UserNetwork;
 import utils.Calculations;
 import utils.Reusable;
 
-public class PeopleRecAdapter extends RecyclerView.Adapter<PeopleRecAdapter.PostHolder> {
+public class PeopleAdapter extends RecyclerView.Adapter<PeopleAdapter.PostHolder> {
     private final String TAG = "PplAdaper";
     private Activity activity;
     private Context context;
@@ -36,9 +37,9 @@ public class PeopleRecAdapter extends RecyclerView.Adapter<PeopleRecAdapter.Post
     private ArrayList<String> list;
     private FirebaseFirestore database;
 
-    public PeopleRecAdapter(){}
+    public PeopleAdapter(){}
 
-    public PeopleRecAdapter(Activity activity, Context context, String userId,  ArrayList<String> list){
+    public PeopleAdapter(Activity activity, Context context, String userId, ArrayList<String> list){
         this.activity =activity;
         this.context = context;
         this.userId = userId;
@@ -49,7 +50,7 @@ public class PeopleRecAdapter extends RecyclerView.Adapter<PeopleRecAdapter.Post
     @NonNull
     @Override
     public PostHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.user_view, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.user_view_land, parent, false);
         return new PostHolder(view);
     }
 
@@ -59,16 +60,18 @@ public class PeopleRecAdapter extends RecyclerView.Adapter<PeopleRecAdapter.Post
         database.collection("profiles").document(ref).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if(task.getResult()==null){
+                if(task.getResult()==null || !task.getResult().exists()){
                     list.remove(i);
-                    PeopleRecAdapter.this.notifyDataSetChanged();
+                    PeopleAdapter.this.notifyDataSetChanged();
                     return;
                 }
                 ProfileShort model = task.getResult().toObject(ProfileShort.class);
-                holder.mBio.setText(model.getA5_bio());
                 holder.mUsername.setText(model.getA2_username());
                 holder.mPost.setText(model.getE0a_NOG()+ " tips");
                 holder.mAccuracy.setText(String.format("||  Accuracy: %.1f", (double) model.getE0c_WGP())+"%");
+                holder.btnFollow.setText(UserNetwork.getFollowing().contains(ref)? "FOLLOWING": "FOLLOW");
+                if(ref.equals(userId))
+                    holder.btnFollow.setVisibility(View.GONE);
                 Glide.with(activity)
                         .load(model.getB2_dpUrl())
                         .into(holder.imgDp);
@@ -92,15 +95,12 @@ public class PeopleRecAdapter extends RecyclerView.Adapter<PeopleRecAdapter.Post
                         Calculations calculations= new Calculations(context);
                         calculations.followMember(holder.btnFollow, userId, ref);
                         if(Reusable.getNetworkAvailability(activity)) {
-                            holder.btnFollow.setText("FOLLOWED");
-                            holder.btnFollow.setEnabled(false);
+                            holder.btnFollow.setText("FOLLOWING");
                         }
                     }
                 });
             }
         });
-
-
     }
 
     @Override
@@ -111,7 +111,7 @@ public class PeopleRecAdapter extends RecyclerView.Adapter<PeopleRecAdapter.Post
     public class PostHolder extends RecyclerView.ViewHolder {
         CircleImageView imgDp;
         LinearLayout lnrContainer;
-        TextView mUsername, mPost, mAccuracy, mBio;
+        TextView mUsername, mPost, mAccuracy;
         Button btnFollow;
         public PostHolder(View itemView) {
             super(itemView);
@@ -120,7 +120,6 @@ public class PeopleRecAdapter extends RecyclerView.Adapter<PeopleRecAdapter.Post
             mUsername = itemView.findViewById(R.id.txtUsername);
             mPost = itemView.findViewById(R.id.txtPost);
             mAccuracy = itemView.findViewById(R.id.txtAccuracy);
-            mBio = itemView.findViewById(R.id.txtBio);
             btnFollow = itemView.findViewById(R.id.btnFollow);
         }
     }

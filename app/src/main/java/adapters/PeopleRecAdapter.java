@@ -26,27 +26,27 @@ import java.util.ArrayList;
 import de.hdodenhof.circleimageview.CircleImageView;
 import models.ProfileShort;
 import utils.Calculations;
+import utils.Reusable;
 
 public class PeopleRecAdapter extends RecyclerView.Adapter<PeopleRecAdapter.PostHolder> {
     private final String TAG = "PplAdaper";
     private Activity activity;
     private Context context;
     private String userId;
-    private boolean removeFromList;
     private ArrayList<String> list;
-    FirebaseFirestore database;
+    private FirebaseFirestore database;
 
     public PeopleRecAdapter(){}
 
-    public PeopleRecAdapter(Activity activity, Context context, String userId, boolean removeFromList,  ArrayList<String> list){
+    public PeopleRecAdapter(Activity activity, Context context, String userId,  ArrayList<String> list){
         this.activity =activity;
         this.context = context;
         this.userId = userId;
-        this.removeFromList = removeFromList;
         this.list = list;
         database = FirebaseFirestore.getInstance();
     }
 
+    @NonNull
     @Override
     public PostHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.user_view, parent, false);
@@ -91,10 +91,8 @@ public class PeopleRecAdapter extends RecyclerView.Adapter<PeopleRecAdapter.Post
                     public void onClick(View v) {
                         Calculations calculations= new Calculations(context);
                         calculations.followMember(holder.btnFollow, userId, ref);
-                        if(removeFromList){
-                            list.remove(i);
-                            PeopleRecAdapter.this.notifyDataSetChanged();
-
+                        if(Reusable.getNetworkAvailability(activity)) {
+                            holder.btnFollow.setText("FOLLOWING");
                         }
                     }
                 });
