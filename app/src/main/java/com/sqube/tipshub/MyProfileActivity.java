@@ -35,7 +35,7 @@ import fragments.PostFragment;
 import fragments.ReviewFragment;
 import models.ProfileMedium;
 
-public class MyProfileActivity extends AppCompatActivity {
+public class MyProfileActivity extends AppCompatActivity implements View.OnClickListener {
     private ActionBar actionBar;
     private ViewPager viewPager;
     private TabLayout tabLayout;
@@ -69,10 +69,10 @@ public class MyProfileActivity extends AppCompatActivity {
         txtBio = findViewById(R.id.txtBio);
         txtPost = findViewById(R.id.txtPost);
         txtAccuracy = findViewById(R.id.txtAccuracy);
-        txtFollowers = findViewById(R.id.txtFollowers);
-        txtFollowing = findViewById(R.id.txtFollowing);
-        txtSubscribers = findViewById(R.id.txtSubscribers);
-        txtSubscriptions = findViewById(R.id.txtSubscribing);
+        txtFollowers = findViewById(R.id.txtFollowers); txtFollowers.setOnClickListener(this);
+        txtFollowing = findViewById(R.id.txtFollowing); txtFollowing.setOnClickListener(this);
+        txtSubscribers = findViewById(R.id.txtSubscribers); txtSubscribers.setOnClickListener(this);
+        txtSubscriptions = findViewById(R.id.txtSubscribing); txtSubscriptions.setOnClickListener(this);
         recyclerView = findViewById(R.id.performanceList);
         LinearLayoutManager lm = new LinearLayoutManager(getApplicationContext());
         Button btnEdit = findViewById(R.id.btnEdit);
@@ -223,6 +223,36 @@ public class MyProfileActivity extends AppCompatActivity {
         public CharSequence getPageTitle(int position) {
             return mFragmentTitleList.get(position);
         }
+    }
+
+    @Override
+    public void onClick(View v) {
+        Intent intent = new Intent(this, FollowerListActivity.class);
+        intent.putExtra("personId", userId);
+        switch (v.getId()){
+            case R.id.txtFollowers:
+                if(Integer.valueOf(txtFollowers.getText().toString())<1)
+                    return;
+                intent.putExtra("search_type", "followers");
+                break;
+            case R.id.txtFollowing:
+                if(Integer.valueOf(txtFollowing.getText().toString())<1)
+                    return;
+                intent.putExtra("search_type", "followings");
+                break;
+            case R.id.txtSubscribers:
+                if(Integer.valueOf(txtSubscribers.getText().toString())<1)
+                    return;
+                intent.putExtra("search_type", "subscribers");
+                break;
+            case R.id.txtSubscribing:
+                if(Integer.valueOf(txtSubscriptions.getText().toString())<1)
+                    return;
+                intent.putExtra("search_type", "subscribed_to");
+                break;
+        }
+        startActivity(intent);
+
     }
 
     @Override

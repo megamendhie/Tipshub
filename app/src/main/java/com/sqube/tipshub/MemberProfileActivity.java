@@ -1,5 +1,6 @@
 package com.sqube.tipshub;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -11,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -32,7 +34,7 @@ import fragments.PostFragment;
 import fragments.ReviewFragment;
 import models.ProfileMedium;
 
-public class MemberProfileActivity extends AppCompatActivity {
+public class MemberProfileActivity extends AppCompatActivity implements View.OnClickListener {
     private ActionBar actionBar;
     private ViewPager viewPager;
     private TabLayout tabLayout;
@@ -66,10 +68,10 @@ public class MemberProfileActivity extends AppCompatActivity {
         txtBio = findViewById(R.id.txtBio);
         txtPost = findViewById(R.id.txtPost);
         txtAccuracy = findViewById(R.id.txtAccuracy);
-        txtFollowers = findViewById(R.id.txtFollowers);
-        txtFollowing = findViewById(R.id.txtFollowing);
-        txtSubscribers = findViewById(R.id.txtSubscribers);
-        txtSubscriptions = findViewById(R.id.txtSubscribing);
+        txtFollowers = findViewById(R.id.txtFollowers); txtFollowers.setOnClickListener(this);
+        txtFollowing = findViewById(R.id.txtFollowing); txtFollowing.setOnClickListener(this);
+        txtSubscribers = findViewById(R.id.txtSubscribers); txtSubscribers.setOnClickListener(this);
+        txtSubscriptions = findViewById(R.id.txtSubscribing); txtSubscriptions.setOnClickListener(this);
         recyclerView = findViewById(R.id.performanceList);
         LinearLayoutManager lm = new LinearLayoutManager(getApplicationContext());
         adapter = new PerformanceAdapter(this, performanceList);
@@ -186,6 +188,36 @@ public class MemberProfileActivity extends AppCompatActivity {
         adapter.addFragment(bankerFragment, "Bankers");
         adapter.addFragment(reviewFragment, "Review");
         viewPager.setAdapter(adapter);
+    }
+
+    @Override
+    public void onClick(View v) {
+        Intent intent = new Intent(this, FollowerListActivity.class);
+        intent.putExtra("personId", userId);
+        switch (v.getId()){
+            case R.id.txtFollowers:
+                if(Integer.valueOf(txtFollowers.getText().toString())<1)
+                    return;
+                intent.putExtra("search_type", "followers");
+                break;
+            case R.id.txtFollowing:
+                if(Integer.valueOf(txtFollowing.getText().toString())<1)
+                    return;
+                intent.putExtra("search_type", "followings");
+                break;
+            case R.id.txtSubscribers:
+                if(Integer.valueOf(txtSubscribers.getText().toString())<1)
+                    return;
+                intent.putExtra("search_type", "subscribers");
+                break;
+            case R.id.txtSubscribing:
+                if(Integer.valueOf(txtSubscriptions.getText().toString())<1)
+                    return;
+                intent.putExtra("search_type", "subscribed_to");
+                break;
+        }
+        startActivity(intent);
+
     }
 
     public class ViewPagerAdapter extends FragmentPagerAdapter {

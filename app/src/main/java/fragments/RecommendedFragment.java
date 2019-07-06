@@ -13,17 +13,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.github.clans.fab.FloatingActionButton;
-import com.github.clans.fab.FloatingActionMenu;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.sqube.tipshub.R;
@@ -36,15 +32,13 @@ import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import javax.annotation.Nullable;
-
 import adapters.NewsAdapter;
-import adapters.PeopleAdapter;
 import adapters.PeopleRecAdapter;
 import adapters.PostAdapter;
 import models.UserNetwork;
@@ -54,17 +48,11 @@ import utils.Reusable;
 
 public class RecommendedFragment extends Fragment {
     private FirebaseFirestore database;
-    private Query query;
-    private FirebaseAuth auth;
-    private FirebaseUser user;
     String userId;
     PostAdapter postAdapter;
-    FloatingActionButton fapTip, fabNormal;
-    FloatingActionMenu fabMenu;
     RecyclerView peopleList, trendingList, newsList;
     private final String TAG = "RecFragment";
     NewsAdapter adapter;
-    boolean queryProfiles, queryRecommended;
 
     public final String myAPI_Key = "417444c0502047d69c1c2a9dcc1672cd";
     public final String KEY_AUTHOR = "author";
@@ -74,8 +62,6 @@ public class RecommendedFragment extends Fragment {
     public final String KEY_URLTOIMAGE = "urlToImage";
     public final String KEY_PUBLISHEDAT = "publishedAt";
     ArrayList<HashMap<String, String>> dataList = new ArrayList<HashMap<String, String>>();
-    final PeopleRecAdapter[] peopleRecAdapter = new PeopleRecAdapter[1];
-    final PeopleAdapter[] peopleAdapter = new PeopleAdapter[1];
 
     public RecommendedFragment() {
         // Required empty public constructor
@@ -101,8 +87,8 @@ public class RecommendedFragment extends Fragment {
         newsList.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         database = FirebaseFirestore.getInstance();
-        auth = FirebaseAuth.getInstance();
-        user = auth.getCurrentUser();
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        FirebaseUser user = auth.getCurrentUser();
         userId = user.getUid();
 
         loadPeople();
@@ -112,44 +98,33 @@ public class RecommendedFragment extends Fragment {
     }
 
     private void loadPeople() {
-        peopleRecAdapter[0] = null;
-        peopleAdapter[0] = null;
         CollectionReference recReference = database.collection("recommended").document(userId)
         .collection("rec");
 
-        recReference.orderBy("count", Query.Direction.DESCENDING).limit(10).addSnapshotListener(new EventListener<QuerySnapshot>() {
+        recReference.orderBy("count", Query.Direction.DESCENDING).limit(10).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
-            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
-                if(queryProfiles)
-                    return;
-                if(queryDocumentSnapshots==null)
-                    loadPeopleSelected();
-                if(queryDocumentSnapshots.size() > 0){
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.getResult() == null || task.getResult().isEmpty())
+                    loadPeopleFromProfile();
+                if (task.getResult().getDocuments().size() > 0) {
                     ArrayList<String> list = new ArrayList<>();
-                    for (DocumentSnapshot snapshot: queryDocumentSnapshots.getDocuments()){
+                    for (DocumentSnapshot snapshot : task.getResult().getDocuments()) {
                         list.add(snapshot.getId());
                     }
-                    if(!queryRecommended){
-                        queryRecommended = true;
-                        peopleRecAdapter[0] = new PeopleRecAdapter(getActivity(), getContext(), userId, false, list);
-                        peopleList.setAdapter(peopleRecAdapter[0]);
-                    }
-                    else
-                        peopleRecAdapter[0].notifyDataSetChanged();
-                }
-                else
-                    loadPeopleSelected();
+                    Collections.shuffle(list);
+                    peopleList.setAdapter(new PeopleRecAdapter(getActivity(), getContext(), userId, list));
+                } else
+                    loadPeopleFromProfile();
             }
         });
     }
 
-    private void loadPeopleSelected(){
+    private void loadPeopleFromProfile(){
         database.collection("profiles").orderBy("c2_score",
                 Query.Direction.DESCENDING).limit(30).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if(task.getResult()!=null && !task.getResult().isEmpty()){
-                    queryProfiles = true;
                     ArrayList<String> list = new ArrayList<>();
                     int c=0;
                     for (DocumentSnapshot snapshot: task.getResult().getDocuments()){
@@ -161,8 +136,8 @@ public class RecommendedFragment extends Fragment {
                         list.add(ref);
                         c++;
                     }
-                    peopleRecAdapter[0] = new PeopleRecAdapter(getActivity(), getContext(), userId, true, list);
-                    peopleList.setAdapter(peopleRecAdapter[0]);
+                    Collections.shuffle(list);
+                    peopleList.setAdapter( new PeopleRecAdapter(getActivity(), getContext(), userId, list));
                 }
             }
         });
@@ -172,7 +147,7 @@ public class RecommendedFragment extends Fragment {
     private void loadPost() {
         long stopTime = new Date().getTime() - (48*60*60*1000);
         Log.i(TAG, "loadPost: ");
-        query = database.collection("posts").orderBy("timeRelevance", Query.Direction.DESCENDING).limit(10);
+        Query query = database.collection("posts").orderBy("timeRelevance", Query.Direction.DESCENDING).limit(10);
         postAdapter = new PostAdapter(query, userId, getActivity(), getContext());
         trendingList.setAdapter(postAdapter);
         if(postAdapter!=null){
