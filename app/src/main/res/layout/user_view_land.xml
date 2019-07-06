@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cardView"
+    android:elevation="10dp"
+    android:layout_margin="4dp"
+    android:layout_width="250dp"
+    android:layout_height="220dp">
+
+    <FrameLayout
+        android:layout_gravity="center"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:background="@color/greyBackground"/>
+
+        <LinearLayout
+            android:id="@+id/lnrContainer"
+            android:layout_gravity="center"
+            android:orientation="vertical"
+            android:padding="5dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/imgDp"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    app:civ_border_width="2dp"
+                    app:civ_border_color="@color/bg_off_green"
+                    app:srcCompat="@drawable/ic_beta_small" />
+                <Button
+                    android:id="@+id/btnFollow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Follow"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginTop="32dp"
+                    android:layout_marginEnd="5dp"/>
+
+            </RelativeLayout>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp">
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/symbol_at"/>
+
+                <TextView
+                    android:id="@+id/txtUsername"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:textStyle="bold"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                    android:layout_marginStart="3dp"
+                    android:text="username"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp">
+                <ImageView
+                    android:id="@+id/imgPointIcon"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:layout_marginTop="2dp"
+                    app:srcCompat="@android:drawable/btn_star_big_on" />
+
+                <TextView
+                    android:id="@+id/txtPost"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                    android:layout_marginStart="3dp"
+                    android:text="32 tips"/>
+
+
+                <TextView
+                    android:id="@+id/txtAccuracy"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                    android:layout_marginStart="5dp"
+                    android:text="||  Accuracy: 87%"/>
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/txtBio"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginTop="3dp"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:text="We trust in God's power to sustain everybody and everything"/>
+
+        </LinearLayout>
+    </FrameLayout>
+</android.support.v7.widget.CardView>

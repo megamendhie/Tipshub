@@ -1,12 +1,10 @@
 package adapters;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,84 +13,99 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
-import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-import com.google.firebase.firestore.Query;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.sqube.tipshub.MemberProfileActivity;
 import com.sqube.tipshub.MyProfileActivity;
 import com.sqube.tipshub.R;
 
+import java.util.ArrayList;
+
 import de.hdodenhof.circleimageview.CircleImageView;
 import models.ProfileShort;
 import utils.Calculations;
+import utils.Reusable;
 
-public class PeopleAdapter extends FirestoreRecyclerAdapter<ProfileShort, PeopleAdapter.PostHolder>{
+public class PeopleRecAdapter extends RecyclerView.Adapter<PeopleRecAdapter.PostHolder> {
     private final String TAG = "PplAdaper";
     private Activity activity;
     private Context context;
     private String userId;
-    private StorageReference storageReference;
+    private ArrayList<String> list;
+    private FirebaseFirestore database;
 
-    public PeopleAdapter(Query query, String userID, Activity activity, Context context) {
-        /*
-        Configure recycler adapter options:
-        query defines the request made to Firestore
-        Post.class instructs the adapter to convert each DocumentSnapshot to a Post object
-        */
-        super(new FirestoreRecyclerOptions.Builder<ProfileShort>()
-                .setQuery(query, ProfileShort.class)
-                .build());
+    public PeopleRecAdapter(){}
 
-        Log.i(TAG, "PostAdapter: created");
-        this.activity = activity;
+    public PeopleRecAdapter(Activity activity, Context context, String userId,  ArrayList<String> list){
+        this.activity =activity;
         this.context = context;
-        this.userId = userID;
-        storageReference = FirebaseStorage.getInstance().getReference()
-                .child("profile_images");
+        this.userId = userId;
+        this.list = list;
+        database = FirebaseFirestore.getInstance();
     }
 
-    @SuppressLint("ClickableViewAccessibility")
-    @Override
-    protected void onBindViewHolder(@NonNull PostHolder holder, final int position, @NonNull final ProfileShort model) {
-        Log.i(TAG, "onBindViewHolder: executed");
-        holder.mBio.setText(model.getA5_bio());
-        holder.mUsername.setText(model.getA2_username());
-        holder.mPost.setText(model.getE0a_NOG()+ " tips");
-        holder.mAccuracy.setText(String.format("||  Accuracy: %.1f", (double) model.getE0c_WGP())+"%");
-        Glide.with(activity)
-                .load(model.getB2_dpUrl())
-                .into(holder.imgDp);
-        holder.lnrContainer.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String id = getSnapshots().getSnapshot(position).getId();
-                if(id.equals(userId)){
-                    context.startActivity(new Intent(context, MyProfileActivity.class));
-                }
-                else{
-                    Intent intent = new Intent(context, MemberProfileActivity.class);
-                    intent.putExtra("userId", id);
-                    context.startActivity(intent);
-                }
-            }
-        });
-
-        holder.btnFollow.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Calculations calculations= new Calculations(context);
-                String id = getSnapshots().getSnapshot(position).getId();
-                calculations.followMember(holder.btnFollow, userId, id);
-            }
-        });
-    }
-
+    @NonNull
     @Override
     public PostHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.user_view, parent, false);
         return new PostHolder(view);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull PostHolder holder, int i) {
+        String ref = list.get(i);
+        database.collection("profiles").document(ref).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if(task.getResult()==null){
+                    list.remove(i);
+                    PeopleRecAdapter.this.notifyDataSetChanged();
+                    return;
+                }
+                ProfileShort model = task.getResult().toObject(ProfileShort.class);
+                holder.mBio.setText(model.getA5_bio());
+                holder.mUsername.setText(model.getA2_username());
+                holder.mPost.setText(model.getE0a_NOG()+ " tips");
+                holder.mAccuracy.setText(String.format("||  Accuracy: %.1f", (double) model.getE0c_WGP())+"%");
+                Glide.with(activity)
+                        .load(model.getB2_dpUrl())
+                        .into(holder.imgDp);
+                holder.lnrContainer.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if(ref.equals(userId)){
+                            context.startActivity(new Intent(context, MyProfileActivity.class));
+                        }
+                        else{
+                            Intent intent = new Intent(context, MemberProfileActivity.class);
+                            intent.putExtra("userId", ref);
+                            context.startActivity(intent);
+                        }
+                    }
+                });
+
+                holder.btnFollow.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Calculations calculations= new Calculations(context);
+                        calculations.followMember(holder.btnFollow, userId, ref);
+                        if(Reusable.getNetworkAvailability(activity)) {
+                            holder.btnFollow.setText("FOLLOWED");
+                            holder.btnFollow.setEnabled(false);
+                        }
+                    }
+                });
+            }
+        });
+
+
+    }
+
+    @Override
+    public int getItemCount() {
+        return list.size();
     }
 
     public class PostHolder extends RecyclerView.ViewHolder {
