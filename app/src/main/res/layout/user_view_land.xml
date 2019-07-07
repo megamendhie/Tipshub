@@ -5,15 +5,14 @@
     android:id="@+id/cardView"
     android:elevation="10dp"
     android:layout_margin="4dp"
-    android:paddingBottom="4dp"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
     <LinearLayout
         android:id="@+id/lnrContainer"
         android:layout_gravity="center"
         android:orientation="vertical"
-        android:background="@color/bg_off_green"
-        android:padding="5dp"
+        android:background="@color/comment_bg"
+        android:padding="3dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -23,11 +22,10 @@
 
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/imgDp"
-                android:layout_width="85dp"
-                android:layout_height="85dp"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
                 app:civ_border_width="2dp"
-                app:civ_border_color="@color/bg_off_green"
-                app:srcCompat="@drawable/ic_beta_small" />
+                app:civ_border_color="@color/bg_off_green" />
             <Button
                 android:id="@+id/btnFollow"
                 android:layout_width="wrap_content"
@@ -45,12 +43,13 @@
             <ImageView
                 android:layout_width="16dp"
                 android:layout_height="16dp"
+                android:layout_gravity="center_vertical"
                 android:src="@drawable/symbol_at"/>
 
             <TextView
                 android:id="@+id/txtUsername"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:gravity="center"
                 android:textStyle="bold"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1"

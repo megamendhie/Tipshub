@@ -13,12 +13,11 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -38,10 +37,10 @@ public class MemberProfileActivity extends AppCompatActivity implements View.OnC
     private ActionBar actionBar;
     private ViewPager viewPager;
     private TabLayout tabLayout;
-    private FirebaseUser user;
-    private String userId, username, myId, myUsername;
+    private String userId;
     private FirebaseFirestore database;
     private CircleImageView imgDp;
+    private LinearLayout[] lnrLayout = new LinearLayout[4];
     ProfileMedium profile;
     private RecyclerView recyclerView;
     PerformanceAdapter adapter;
@@ -68,19 +67,21 @@ public class MemberProfileActivity extends AppCompatActivity implements View.OnC
         txtBio = findViewById(R.id.txtBio);
         txtPost = findViewById(R.id.txtPost);
         txtAccuracy = findViewById(R.id.txtAccuracy);
-        txtFollowers = findViewById(R.id.txtFollowers); txtFollowers.setOnClickListener(this);
-        txtFollowing = findViewById(R.id.txtFollowing); txtFollowing.setOnClickListener(this);
-        txtSubscribers = findViewById(R.id.txtSubscribers); txtSubscribers.setOnClickListener(this);
-        txtSubscriptions = findViewById(R.id.txtSubscribing); txtSubscriptions.setOnClickListener(this);
+        txtFollowers = findViewById(R.id.txtFollowers);
+        txtFollowing = findViewById(R.id.txtFollowing);
+        txtSubscribers = findViewById(R.id.txtSubscribers);
+        txtSubscriptions = findViewById(R.id.txtSubscription);
+        lnrLayout[0] = findViewById(R.id.lnrFollowing);
+        lnrLayout[1] = findViewById(R.id.lnrFollowers);
+        lnrLayout[2] = findViewById(R.id.lnrSubscribers);
+        lnrLayout[3] = findViewById(R.id.lnrSubscription);
+        for(LinearLayout l: lnrLayout)
+            l.setOnClickListener(this);
         recyclerView = findViewById(R.id.performanceList);
         LinearLayoutManager lm = new LinearLayoutManager(getApplicationContext());
         adapter = new PerformanceAdapter(this, performanceList);
         recyclerView.setLayoutManager(lm);
-        user = FirebaseAuth.getInstance().getCurrentUser();
-        myId = user.getUid();
-        myUsername = user.getDisplayName();
         userId = getIntent().getStringExtra("userId");
-        username = getIntent().getStringExtra("username");
         database = FirebaseFirestore.getInstance();
         database.collection("profiles").document(userId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
@@ -195,22 +196,22 @@ public class MemberProfileActivity extends AppCompatActivity implements View.OnC
         Intent intent = new Intent(this, FollowerListActivity.class);
         intent.putExtra("personId", userId);
         switch (v.getId()){
-            case R.id.txtFollowers:
+            case R.id.lnrFollowers:
                 if(Integer.valueOf(txtFollowers.getText().toString())<1)
                     return;
                 intent.putExtra("search_type", "followers");
                 break;
-            case R.id.txtFollowing:
+            case R.id.lnrFollowing:
                 if(Integer.valueOf(txtFollowing.getText().toString())<1)
                     return;
                 intent.putExtra("search_type", "followings");
                 break;
-            case R.id.txtSubscribers:
+            case R.id.lnrSubscribers:
                 if(Integer.valueOf(txtSubscribers.getText().toString())<1)
                     return;
                 intent.putExtra("search_type", "subscribers");
                 break;
-            case R.id.txtSubscribing:
+            case R.id.lnrSubscription:
                 if(Integer.valueOf(txtSubscriptions.getText().toString())<1)
                     return;
                 intent.putExtra("search_type", "subscribed_to");

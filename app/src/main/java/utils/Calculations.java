@@ -704,7 +704,7 @@ public final class Calculations {
                 double score = getUserRelevance(followers, following, subscribers, subscriptions);
                 Map<String, Object> upd = new HashMap<>();
                 upd.put("c2_score", score);
-                upd.put("c5_following", subscriptions);
+                upd.put("c5_following", following);
                 transaction.update(postPath, upd);
                 return null;
             }

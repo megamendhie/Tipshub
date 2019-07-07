@@ -158,7 +158,7 @@ public class RecommendedFragment extends Fragment {
 
     public void loadNews(){
         DownloadNews newsTask = new DownloadNews();
-        if(!Reusable.getNetworkAvailability(getContext()))
+        if(!Reusable.getNetworkAvailability(getActivity()))
             Toast.makeText(getContext(), "No Internet Connection", Toast.LENGTH_LONG).show();
         newsTask.execute();
     }

@@ -14,6 +14,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -43,6 +44,7 @@ public class MyProfileActivity extends AppCompatActivity implements View.OnClick
     private String userId, username;
     private FirebaseFirestore database;
     private CircleImageView imgDp;
+    private LinearLayout[] lnrLayout = new LinearLayout[4];
     ProfileMedium profile;
     private RecyclerView recyclerView;
     PerformanceAdapter adapter;
@@ -69,10 +71,16 @@ public class MyProfileActivity extends AppCompatActivity implements View.OnClick
         txtBio = findViewById(R.id.txtBio);
         txtPost = findViewById(R.id.txtPost);
         txtAccuracy = findViewById(R.id.txtAccuracy);
-        txtFollowers = findViewById(R.id.txtFollowers); txtFollowers.setOnClickListener(this);
-        txtFollowing = findViewById(R.id.txtFollowing); txtFollowing.setOnClickListener(this);
-        txtSubscribers = findViewById(R.id.txtSubscribers); txtSubscribers.setOnClickListener(this);
-        txtSubscriptions = findViewById(R.id.txtSubscribing); txtSubscriptions.setOnClickListener(this);
+        txtFollowers = findViewById(R.id.txtFollowers);
+        txtFollowing = findViewById(R.id.txtFollowing);
+        txtSubscribers = findViewById(R.id.txtSubscribers);
+        txtSubscriptions = findViewById(R.id.txtSubscription);
+        lnrLayout[0] = findViewById(R.id.lnrFollowing);
+        lnrLayout[1] = findViewById(R.id.lnrFollowers);
+        lnrLayout[2] = findViewById(R.id.lnrSubscribers);
+        lnrLayout[3] = findViewById(R.id.lnrSubscription);
+        for(LinearLayout l: lnrLayout)
+            l.setOnClickListener(this);
         recyclerView = findViewById(R.id.performanceList);
         LinearLayoutManager lm = new LinearLayoutManager(getApplicationContext());
         Button btnEdit = findViewById(R.id.btnEdit);
@@ -82,45 +90,11 @@ public class MyProfileActivity extends AppCompatActivity implements View.OnClick
              startActivity(new Intent(MyProfileActivity.this, SettingsActivity.class));
             }
         });
-        adapter = new PerformanceAdapter(this, performanceList);
         recyclerView.setLayoutManager(lm);
         user = FirebaseAuth.getInstance().getCurrentUser();
         userId = user.getUid();
         username = user.getDisplayName();
         database = FirebaseFirestore.getInstance();
-
-        database.collection("profiles").document(userId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                if(!documentSnapshot.exists())
-                    return;
-                profile = documentSnapshot.toObject(ProfileMedium.class);
-                txtName.setText(profile.getA0_firstName()+" "+ profile.getA1_lastName());
-                txtUsername.setText("@"+profile.getA2_username());
-                actionBar.setTitle(profile.getA0_firstName()+" "+ profile.getA1_lastName());
-                txtBio.setText(profile.getA5_bio());
-                txtFollowers.setText(String.valueOf(profile.getC4_followers()));
-                txtFollowing.setText(String.valueOf(profile.getC5_following()));
-                txtSubscribers.setText(String.valueOf(profile.getC6_subscribers()));
-                txtSubscriptions.setText(String.valueOf(profile.getC7_subscriptions()));
-                txtPost.setText(profile.getE0a_NOG() + " tips  • ");
-                txtAccuracy.setText(profile.getE0b_WG()+ " won");
-
-                //set Display picture
-                Glide.with(getApplicationContext())
-                        .load(profile.getB2_dpUrl())
-                        .into(imgDp);
-
-                if(profile.getE0a_NOG()>0){
-                    for(int i=1; i<=6; i++){
-                        Map<String, Object> row = getRow(i);
-                        if(!row.isEmpty())
-                            performanceList.add(row);
-                    }
-                    recyclerView.setAdapter(adapter);
-                }
-            }
-        });
         setupViewPager(viewPager); //set up view pager with fragments
     }
 
@@ -226,26 +200,67 @@ public class MyProfileActivity extends AppCompatActivity implements View.OnClick
     }
 
     @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        database.collection("profiles").document(userId).get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                if(!documentSnapshot.exists())
+                    return;
+                profile = documentSnapshot.toObject(ProfileMedium.class);
+                txtName.setText(profile.getA0_firstName()+" "+ profile.getA1_lastName());
+                txtUsername.setText("@"+profile.getA2_username());
+                actionBar.setTitle(profile.getA0_firstName()+" "+ profile.getA1_lastName());
+                txtBio.setText(profile.getA5_bio());
+                txtFollowers.setText(String.valueOf(profile.getC4_followers()));
+                txtFollowing.setText(String.valueOf(profile.getC5_following()));
+                txtSubscribers.setText(String.valueOf(profile.getC6_subscribers()));
+                txtSubscriptions.setText(String.valueOf(profile.getC7_subscriptions()));
+                txtPost.setText(profile.getE0a_NOG() + " tips  • ");
+                txtAccuracy.setText(profile.getE0b_WG()+ " won");
+
+                //set Display picture
+                Glide.with(getApplicationContext())
+                        .load(profile.getB2_dpUrl())
+                        .into(imgDp);
+
+                if(!performanceList.isEmpty())
+                    return;
+                if(profile.getE0a_NOG()>0){
+                    for(int i=1; i<=6; i++){
+                        Map<String, Object> row = getRow(i);
+                        if(!row.isEmpty())
+                            performanceList.add(row);
+                    }
+                    recyclerView.setAdapter(new PerformanceAdapter(MyProfileActivity.this, performanceList));
+                }
+            }
+        });
+
+    }
+
+    @Override
     public void onClick(View v) {
         Intent intent = new Intent(this, FollowerListActivity.class);
         intent.putExtra("personId", userId);
         switch (v.getId()){
-            case R.id.txtFollowers:
+            case R.id.lnrFollowers:
                 if(Integer.valueOf(txtFollowers.getText().toString())<1)
                     return;
                 intent.putExtra("search_type", "followers");
                 break;
-            case R.id.txtFollowing:
+            case R.id.lnrFollowing:
                 if(Integer.valueOf(txtFollowing.getText().toString())<1)
                     return;
                 intent.putExtra("search_type", "followings");
                 break;
-            case R.id.txtSubscribers:
+            case R.id.lnrSubscribers:
                 if(Integer.valueOf(txtSubscribers.getText().toString())<1)
                     return;
                 intent.putExtra("search_type", "subscribers");
                 break;
-            case R.id.txtSubscribing:
+            case R.id.lnrSubscription:
                 if(Integer.valueOf(txtSubscriptions.getText().toString())<1)
                     return;
                 intent.putExtra("search_type", "subscribed_to");

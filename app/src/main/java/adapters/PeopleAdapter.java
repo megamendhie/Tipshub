@@ -93,9 +93,19 @@ public class PeopleAdapter extends RecyclerView.Adapter<PeopleAdapter.PostHolder
                     @Override
                     public void onClick(View v) {
                         Calculations calculations= new Calculations(context);
-                        calculations.followMember(holder.btnFollow, userId, ref);
-                        if(Reusable.getNetworkAvailability(activity)) {
-                            holder.btnFollow.setText("FOLLOWING");
+                        switch (holder.btnFollow.getText().toString().toLowerCase()){
+                            case "follow":
+                                calculations.followMember(holder.imgDp, userId, ref);
+                                if(Reusable.getNetworkAvailability(activity)) {
+                                    holder.btnFollow.setText("FOLLOWING");
+                                }
+                                break;
+                            case "following":
+                                calculations.unfollowMember(holder.imgDp, userId, ref);
+                                if(Reusable.getNetworkAvailability(activity)) {
+                                    holder.btnFollow.setText("FOLLOW");
+                                }
+                                break;
                         }
                     }
                 });

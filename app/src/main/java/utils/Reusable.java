@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.text.format.DateFormat;
 import android.widget.TextView;
 
@@ -83,8 +84,12 @@ public final class Reusable {
     }
 
     public  static  boolean getNetworkAvailability(Context context){
-        return ((ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE))
-                .getActiveNetworkInfo().isConnected();
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+        if(networkInfo!=null && networkInfo.isConnected())
+            return true;
+        else
+            return false;
     }
 
 }
