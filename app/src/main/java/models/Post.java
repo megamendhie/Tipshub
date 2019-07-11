@@ -2,13 +2,13 @@ package models;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class Post implements Parcelable {
+public class Post implements Parcelable, Comparable {
     private String username;
     private String userId;
     private String content;
@@ -407,5 +407,17 @@ public class Post implements Parcelable {
         dest.writeString(childBookingCode);
         dest.writeInt(childBookie);
         dest.writeInt(childType);
+    }
+
+
+    @Override
+    public int compareTo(@NonNull Object o) {
+        Post post = (Post) o;
+        if(time==post.getTime())
+            return 0;
+        else if (time>post.getTime())
+            return -1;
+        else
+            return 1;
     }
 }
