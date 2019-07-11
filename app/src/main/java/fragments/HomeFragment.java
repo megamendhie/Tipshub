@@ -14,14 +14,26 @@ import android.view.ViewGroup;
 
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.sqube.tipshub.PostActivity;
 import com.sqube.tipshub.R;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import adapters.FilteredPostAdapter;
 import adapters.PostAdapter;
+import models.Post;
+import models.SnapId;
 
 public class HomeFragment extends Fragment{
     private FirebaseFirestore database;
@@ -78,7 +90,7 @@ public class HomeFragment extends Fragment{
                 startActivity(intent);
             }
         });
-        loadPost();
+        loadMerged();
         return rootView;
     }
 
@@ -93,4 +105,40 @@ public class HomeFragment extends Fragment{
         }
     }
 
+    private void loadMerged(){
+        String[] userIds = {"9netjQqxyATkN6SbHmaDAYDhzT43", "c3cMX8YsnCUOSATLznuolZBmI0x1"};
+        int count = userIds.length;
+
+        Query[] queries = new Query[count];
+        Task[] tasks = new Task[count];
+
+        for(int i = 0; i < userIds.length; i++){
+            queries[i] = database.collection("posts").orderBy("time", Query.Direction.DESCENDING)
+                    .whereEqualTo("userId", userIds[i]).limit(3);
+            tasks[i] = queries[i].get();
+        }
+
+        Tasks.whenAllSuccess(tasks).addOnSuccessListener(new OnSuccessListener<List<Object>>() {
+            @Override
+            public void onSuccess(List<Object> list) {
+                ArrayList<Post> posts = new ArrayList<>();
+                ArrayList<SnapId> snapIds= new ArrayList<>();
+                for(Object object: list){
+                    QuerySnapshot querySnapshot = (QuerySnapshot) object;
+                    if(querySnapshot !=null || !querySnapshot.isEmpty()){
+                        for(DocumentSnapshot snapshot: querySnapshot.getDocuments()){
+                            Post post = snapshot.toObject(Post.class);
+                            posts.add(post);
+                            snapIds.add(new SnapId(snapshot.getId(), post.getTime()));
+                        }
+                    }
+                }
+                Collections.sort(posts);
+                Collections.sort(snapIds);
+                homeFeed.setAdapter(new FilteredPostAdapter(userId, getActivity(), getContext(), posts, snapIds));
+            }
+        });
+
+
+    }
 }
