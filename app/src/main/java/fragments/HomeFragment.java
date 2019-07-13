@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.facebook.shimmer.ShimmerFrameLayout;
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -41,6 +42,7 @@ public class HomeFragment extends Fragment{
     private FirebaseAuth auth;
     private FirebaseUser user;
     private final String TAG = "HomeFrag";
+    private ShimmerFrameLayout shimmerLayout;
     String userId;
     PostAdapter postAdapter;
     FloatingActionButton fabTip, fabNormal;
@@ -65,6 +67,7 @@ public class HomeFragment extends Fragment{
         View rootView=inflater.inflate(R.layout.fragment_home, container, false);
         intent = new Intent(getActivity().getApplicationContext(), PostActivity.class);
         homeFeed = rootView.findViewById(R.id.testList);
+        shimmerLayout = rootView.findViewById(R.id.shimmer);
         homeFeed.setLayoutManager(new LinearLayoutManager(getActivity()));
         ((DefaultItemAnimator) homeFeed.getItemAnimator()).setSupportsChangeAnimations(false);
         database = FirebaseFirestore.getInstance();
@@ -74,6 +77,7 @@ public class HomeFragment extends Fragment{
         fabMenu = rootView.findViewById(R.id.fabMenu);
         fabNormal = rootView.findViewById(R.id.fabNormal);
         fabTip = rootView.findViewById(R.id.fabPost);
+        shimmerLayout.startShimmer();
         fabTip.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -102,6 +106,7 @@ public class HomeFragment extends Fragment{
         if(postAdapter!=null){
             Log.i(TAG, "loadPost: started listening");
             postAdapter.startListening();
+            shimmerLayout.stopShimmer();
         }
     }
 
@@ -136,6 +141,7 @@ public class HomeFragment extends Fragment{
                 Collections.sort(posts);
                 Collections.sort(snapIds);
                 homeFeed.setAdapter(new FilteredPostAdapter(userId, getActivity(), getContext(), posts, snapIds));
+                shimmerLayout.stopShimmer();
             }
         });
 
