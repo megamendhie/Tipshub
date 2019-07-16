@@ -13,23 +13,33 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
@@ -50,9 +60,12 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
     private FirebaseFirestore database;
     private FirebaseStorage storage;
     private ProgressDialog progressDialog;
+    private ProgressBar prgLogin;
     private SharedPreferences prefs;
     private FirebaseUser user;
     private CircleImageView imgDp;
+    private final static int RC_SIGN_IN = 123;
+    private GoogleSignInClient mGoogleSignInClient;
     private Uri filePath = null;
     SharedPreferences.Editor editor;
     EditText edtFirstName, edtLastName, edtEmail, edtConfirmEmail, edtPassword;
@@ -65,8 +78,11 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setTitle("");
+            actionBar.setTitle("Sign Up");
         }
+        Button gSignIn = findViewById(R.id.gSignIn);
+        gSignIn.setOnClickListener(this);
+        prgLogin = findViewById(R.id.prgLogin);
         btnSignup = findViewById(R.id.btnSignup); btnSignup.setOnClickListener(this);
         edtFirstName = findViewById(R.id.edtFirstName);
         edtLastName = findViewById(R.id.edtLastName);
@@ -80,6 +96,11 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
         database = FirebaseFirestore.getInstance();
         storage = FirebaseStorage.getInstance();
         progressDialog = new ProgressDialog(this);
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+        mGoogleSignInClient = GoogleSignIn.getClient(SignupActivity.this, gso);
     }
 
     @Override
@@ -91,7 +112,22 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
             case R.id.btnSignup:
                 registerUser();
                 break;
+            case R.id.gSignIn:
+                edtPassword.setEnabled(false);
+                edtEmail.setEnabled(false);
+                edtFirstName.setEnabled(false);
+                edtLastName.setEnabled(false);
+                edtPassword.setEnabled(false);
+                edtConfirmEmail.setEnabled(false);
+                prgLogin.setVisibility(View.VISIBLE);
+                signInWithGoogle();
+                break;
         }
+    }
+
+    private void signInWithGoogle() {
+        Intent intent = mGoogleSignInClient.getSignInIntent();
+        startActivityForResult(intent, RC_SIGN_IN);
     }
 
     @Override
@@ -145,6 +181,24 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode==RC_SIGN_IN ){
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            try {
+                GoogleSignInAccount account = task.getResult(ApiException.class);
+                authWithGoogle(account);
+                Log.i("LoginActivity", "onActivityResult: account Retrieved successfully");
+            } catch (ApiException e) {
+                prgLogin.setVisibility(View.GONE);
+                edtPassword.setEnabled(true);
+                edtEmail.setEnabled(true);
+                edtFirstName.setEnabled(true);
+                edtLastName.setEnabled(true);
+                edtPassword.setEnabled(true);
+                edtConfirmEmail.setEnabled(true);
+                Log.i("LoginActivity", "onActivityResult: account not Retrieved");
+            }
+
+        }
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
             if (resultCode == RESULT_OK) {
@@ -155,6 +209,51 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
                 Exception error = result.getError();
             }
         }
+    }
+
+    public void authWithGoogle(GoogleSignInAccount account){
+        final AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
+        mAuth.signInWithCredential(credential).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                if(task.isSuccessful()){
+                    userId = mAuth.getCurrentUser().getUid();
+                    Log.i("onComplete", "onAuthWithGoogle: login successful");
+                    Log.i("onComplete", "onAuthWithGoogle: provider: " + mAuth.getCurrentUser().getProviderId());
+                    Log.i("onComplete", "photoUrl: " + mAuth.getCurrentUser().getPhotoUrl().toString());
+                    database.collection("profiles").document(userId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            Log.i("onComplete", "get() successful " + task.getResult().toString());
+                            if(task.isSuccessful()){
+                                if(!task.getResult().exists()){
+                                    final String displayName = mAuth.getCurrentUser().getDisplayName();
+                                    String[] names = displayName.split(" ");
+                                    firstName = names[0];
+                                    lastName = names[1];
+                                    email = mAuth.getCurrentUser().getEmail();
+                                    provider = "google.com";
+                                    database.collection("profiles").document(userId)
+                                            .set(new Profile(firstName, lastName, email, provider ));
+                                    completeProfile();
+                                }
+                                else{
+                                    finish();
+                                    startActivity(new Intent(SignupActivity.this, MainActivity.class));
+                                }
+                            }
+                        }
+                    });
+                }
+                else{
+                    edtPassword.setEnabled(true);
+                    edtEmail.setEnabled(true);
+                    prgLogin.setVisibility(View.GONE);
+                    Log.i("onComplete", "onAuthWithGoogle: login unsuccessful" + task.getException().getMessage());
+                }
+
+            }
+        });
     }
 
     private void registerUser(){

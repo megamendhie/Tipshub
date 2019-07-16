@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -52,7 +53,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import models.Profile;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
-    private Button btnLogin, btnSignup, gSignIn;
+    private Button btnLogin;
     private final static int RC_SIGN_IN = 123;
     private EditText edtEmail, edtPassword;
     private CircleImageView imgDp;
@@ -73,9 +74,15 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setTitle("Login");
+        }
         btnLogin = findViewById(R.id.btnLogin); btnLogin.setOnClickListener(this);
-        btnSignup = findViewById(R.id.btnSignup); btnSignup.setOnClickListener(this);
-        gSignIn = findViewById(R.id.gSignIn); gSignIn.setOnClickListener(this);
+        Button btnSignup = findViewById(R.id.btnSignup);
+        btnSignup.setOnClickListener(this);
+        Button gSignIn = findViewById(R.id.gSignIn);
+        gSignIn.setOnClickListener(this);
         edtEmail = findViewById(R.id.edtEmail);
         edtPassword = findViewById(R.id.edtPassword);
         prgLogin = findViewById(R.id.prgLogin);
@@ -163,7 +170,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     Snackbar.make(btnLogin, "Login failed. " + e.getMessage(), Snackbar.LENGTH_LONG).show();
             }
         });
-
     }
 
     public void authWithGoogle(GoogleSignInAccount account){
