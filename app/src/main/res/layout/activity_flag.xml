@@ -22,10 +22,10 @@
         android:id="@+id/txtDisplay"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="#C62828"
+        android:textColor="#AA1616"
         android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-        android:textStyle="bold"
-        android:text="YOU CAN FLAG THIS POST IF IT IS OFFENSIVE OR FALSE.\n\nYOUR COMMENT WILL APPEAR AS A WARNING TO OTHERS AND WILL ALSO HELP US TO TAKE ACTION."/>
+        android:textStyle="bold|italic"
+        android:text="YOU CAN FLAG THIS POST IF IT IS OFFENSIVE OR FALSE.\n\nYOUR COMMENT WILL APPEAR IN THE COMMENT SECTION AS A WARNING TO OTHERS AND WILL ALSO HELP US TAKE ACTION."/>
 
     <MultiAutoCompleteTextView
         android:id="@+id/edtPost"
@@ -61,11 +61,11 @@
 
 
         <Button
+            style="@style/CustomButton"
             android:id="@+id/btnPost"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
-            style="@style/CustomButton"
             android:text="Submit"/>
     </LinearLayout>
 
