@@ -52,7 +52,7 @@ public class SubscriptionAdapter extends FirestoreRecyclerAdapter<Subscription, 
         this.context = context;
         this.userId = userID;
         this.database = FirebaseFirestore.getInstance();
-        requestOptions.placeholder(R.drawable.ic_person_outline_black_24dp);
+        requestOptions.placeholder(R.drawable.dummy);
         storageReference = FirebaseStorage.getInstance().getReference().child("profile_images");
         int i = getItemCount();
         Log.i(TAG, "SubscriptionAdapter: i =" + i);

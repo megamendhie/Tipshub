@@ -106,7 +106,7 @@ public class RecommendedFragment extends Fragment {
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.getResult() == null || task.getResult().isEmpty())
                     loadPeopleFromProfile();
-                if (task.getResult().getDocuments().size() > 0) {
+                if (task.getResult().getDocuments().size() > 6) {
                     ArrayList<String> list = new ArrayList<>();
                     for (DocumentSnapshot snapshot : task.getResult().getDocuments()) {
                         list.add(snapshot.getId());

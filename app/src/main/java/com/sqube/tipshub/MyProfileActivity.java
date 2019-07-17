@@ -18,6 +18,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -42,6 +43,7 @@ public class MyProfileActivity extends AppCompatActivity implements View.OnClick
     private TabLayout tabLayout;
     private FirebaseUser user;
     private String userId, username;
+    private RequestOptions requestOptions = new RequestOptions();
     private FirebaseFirestore database;
     private CircleImageView imgDp;
     private LinearLayout[] lnrLayout = new LinearLayout[4];
@@ -95,6 +97,7 @@ public class MyProfileActivity extends AppCompatActivity implements View.OnClick
         userId = user.getUid();
         username = user.getDisplayName();
         database = FirebaseFirestore.getInstance();
+        requestOptions.placeholder(R.drawable.dummy);
         setupViewPager(viewPager); //set up view pager with fragments
     }
 
@@ -222,6 +225,7 @@ public class MyProfileActivity extends AppCompatActivity implements View.OnClick
 
                 //set Display picture
                 Glide.with(getApplicationContext())
+                        .setDefaultRequestOptions(requestOptions)
                         .load(profile.getB2_dpUrl())
                         .into(imgDp);
 

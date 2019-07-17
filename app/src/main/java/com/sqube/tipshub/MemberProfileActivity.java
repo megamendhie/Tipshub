@@ -17,6 +17,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -38,6 +39,7 @@ public class MemberProfileActivity extends AppCompatActivity implements View.OnC
     private ViewPager viewPager;
     private TabLayout tabLayout;
     private String userId;
+    private RequestOptions requestOptions = new RequestOptions();
     private FirebaseFirestore database;
     private CircleImageView imgDp;
     private LinearLayout[] lnrLayout = new LinearLayout[4];
@@ -83,7 +85,9 @@ public class MemberProfileActivity extends AppCompatActivity implements View.OnC
         recyclerView.setLayoutManager(lm);
         userId = getIntent().getStringExtra("userId");
         database = FirebaseFirestore.getInstance();
-        database.collection("profiles").document(userId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+        requestOptions.placeholder(R.drawable.dummy);
+        database.collection("profiles").document(userId).get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 if(!documentSnapshot.exists())
@@ -102,6 +106,7 @@ public class MemberProfileActivity extends AppCompatActivity implements View.OnC
 
                 //set Display picture
                 Glide.with(getApplicationContext())
+                        .setDefaultRequestOptions(requestOptions)
                         .load(profile.getB2_dpUrl())
                         .into(imgDp);
 

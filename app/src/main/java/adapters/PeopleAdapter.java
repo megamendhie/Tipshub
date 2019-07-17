@@ -12,11 +12,13 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.sqube.tipshub.MemberProfileActivity;
 import com.sqube.tipshub.MyProfileActivity;
 import com.sqube.tipshub.R;
@@ -26,6 +28,7 @@ import java.util.ArrayList;
 import de.hdodenhof.circleimageview.CircleImageView;
 import models.ProfileShort;
 import models.UserNetwork;
+import services.GlideApp;
 import utils.Calculations;
 import utils.Reusable;
 
@@ -36,6 +39,8 @@ public class PeopleAdapter extends RecyclerView.Adapter<PeopleAdapter.PostHolder
     private String userId;
     private ArrayList<String> list;
     private FirebaseFirestore database;
+    private StorageReference storageReference;
+    private RequestOptions requestOptions = new RequestOptions();
 
     public PeopleAdapter(){}
 
@@ -45,6 +50,8 @@ public class PeopleAdapter extends RecyclerView.Adapter<PeopleAdapter.PostHolder
         this.userId = userId;
         this.list = list;
         database = FirebaseFirestore.getInstance();
+        requestOptions.placeholder(R.drawable.dummy);
+        storageReference = FirebaseStorage.getInstance().getReference().child("profile_images");
     }
 
     @NonNull
@@ -72,8 +79,11 @@ public class PeopleAdapter extends RecyclerView.Adapter<PeopleAdapter.PostHolder
                 holder.btnFollow.setText(UserNetwork.getFollowing().contains(ref)? "FOLLOWING": "FOLLOW");
                 if(ref.equals(userId))
                     holder.btnFollow.setVisibility(View.GONE);
-                Glide.with(activity)
-                        .load(model.getB2_dpUrl())
+
+                //load image
+                GlideApp.with(activity)
+                        .setDefaultRequestOptions(requestOptions)
+                        .load(storageReference.child(ref))
                         .into(holder.imgDp);
                 holder.lnrContainer.setOnClickListener(new View.OnClickListener() {
                     @Override
