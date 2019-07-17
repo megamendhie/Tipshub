@@ -65,12 +65,15 @@
                                     android:layout_marginBottom="8dp"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Follow"/>
+                                    android:background="@drawable/btn_bg"
+                                    android:text="@string/txt_follow"/>
                                 <Button
                                     android:id="@+id/btnSubscribe"
                                     android:layout_marginBottom="8dp"
+                                    android:layout_marginStart="5dp"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
+                                    android:background="@drawable/btn_bg"
                                     android:text="Subscribe"/>
 
                             </LinearLayout>
