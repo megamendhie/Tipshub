@@ -14,4 +14,5 @@
     <color name="color_oxblood">#F80051</color>
     <color name="comment_bg">#eff5fa</color>
     <color name="comment_flagged">#FCD6E2</color>
+    <color name="fragment_bg">#EEEEEE</color>
 </resources>
