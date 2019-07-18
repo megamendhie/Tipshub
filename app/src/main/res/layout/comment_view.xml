@@ -25,8 +25,7 @@
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/imgDp"
                 android:layout_width="45dp"
-                android:layout_height="45dp"
-                android:src="@drawable/sample_dp"/>
+                android:layout_height="45dp"/>
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"

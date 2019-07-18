@@ -27,8 +27,7 @@
             android:layout_marginTop="@dimen/vertical_padding"
             app:civ_border_width="2dp"
             app:civ_border_color="@color/bg_off_green"
-            android:layout_gravity="center_horizontal"
-            android:src="@drawable/sample_dp"/>
+            android:layout_gravity="center_horizontal"/>
 
         <LinearLayout
             android:layout_width="wrap_content"

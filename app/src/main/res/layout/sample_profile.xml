@@ -52,8 +52,7 @@
                                 <de.hdodenhof.circleimageview.CircleImageView
                                     android:layout_width="100dp"
                                     android:layout_height="100dp"
-                                    android:layout_marginTop="20dp"
-                                    android:src="@drawable/sample_dp"/>
+                                    android:layout_marginTop="20dp"/>
                                 <View
                                     android:layout_width="0dp"
                                     android:layout_height="1dp"

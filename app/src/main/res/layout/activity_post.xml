@@ -31,8 +31,7 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:scaleType="centerCrop"
-            android:contentDescription="@string/user_display_picture"
-            android:src="@drawable/sample_dp"/>
+            android:contentDescription="@string/user_display_picture"/>
 
         <View
             android:layout_width="0dp"
