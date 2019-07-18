@@ -53,6 +53,7 @@ import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import models.Profile;
+import utils.Reusable;
 
 public class SignupActivity extends AppCompatActivity implements View.OnClickListener {
     private Button btnSignup;
@@ -69,7 +70,7 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
     private Uri filePath = null;
     SharedPreferences.Editor editor;
     EditText edtFirstName, edtLastName, edtEmail, edtConfirmEmail, edtPassword;
-    private String userId, firstName, lastName, email, confirmEmail, password, provider, profileUrl, profileUrlTm;
+    private String userId, firstName, lastName, email, confirmEmail, password, provider;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -217,24 +218,24 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if(task.isSuccessful()){
-                    userId = mAuth.getCurrentUser().getUid();
-                    Log.i("onComplete", "onAuthWithGoogle: login successful");
-                    Log.i("onComplete", "onAuthWithGoogle: provider: " + mAuth.getCurrentUser().getProviderId());
-                    Log.i("onComplete", "photoUrl: " + mAuth.getCurrentUser().getPhotoUrl().toString());
-                    database.collection("profiles").document(userId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    user = mAuth.getCurrentUser();
+                    userId = user.getUid();
+                    database.collection("profiles").document(userId).get()
+                            .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                             Log.i("onComplete", "get() successful " + task.getResult().toString());
                             if(task.isSuccessful()){
                                 if(!task.getResult().exists()){
-                                    final String displayName = mAuth.getCurrentUser().getDisplayName();
+                                    final String displayName = user.getDisplayName();
                                     String[] names = displayName.split(" ");
                                     firstName = names[0];
                                     lastName = names[1];
-                                    email = mAuth.getCurrentUser().getEmail();
+                                    email = user.getEmail();
                                     provider = "google.com";
                                     database.collection("profiles").document(userId)
                                             .set(new Profile(firstName, lastName, email, provider ));
+                                    Reusable.grabImage(user.getPhotoUrl().toString());
                                     completeProfile();
                                 }
                                 else{
@@ -249,9 +250,15 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
                     edtPassword.setEnabled(true);
                     edtEmail.setEnabled(true);
                     prgLogin.setVisibility(View.GONE);
-                    Log.i("onComplete", "onAuthWithGoogle: login unsuccessful" + task.getException().getMessage());
                 }
 
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                edtPassword.setEnabled(true);
+                edtEmail.setEnabled(true);
+                prgLogin.setVisibility(View.GONE);
             }
         });
     }
@@ -341,9 +348,12 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
         imgDp = dialog.findViewById(R.id.imgDp); imgDp.setOnClickListener(this);
         final CountryCodePicker ccp = dialog.findViewById(R.id.ccp);
         ccp.registerCarrierNumberEditText(edtPhone);
-        Glide.with(this).load(R.drawable.sample_dp).into(imgDp);
-        Button btnSave = dialog.findViewById(R.id.btnSave);
+        if(user.getPhotoUrl()==null)
+            Glide.with(this).load(R.drawable.dummy).into(imgDp);
+        else
+            Glide.with(this).load(user.getPhotoUrl()).into(imgDp);
 
+        Button btnSave = dialog.findViewById(R.id.btnSave);
         ccp.setPhoneNumberValidityChangeListener(isValidNumber -> numberValid[0] =isValidNumber);
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -393,7 +403,7 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
                 UserProfileChangeRequest profileUpdate = new UserProfileChangeRequest.Builder()
                         .setDisplayName(username)
                         .build();
-                mAuth.getCurrentUser().updateProfile(profileUpdate);
+                user.updateProfile(profileUpdate);
 
                 //save username, phone number, and gender to database
                 database.collection("profiles").document(userId).set(url, SetOptions.merge());

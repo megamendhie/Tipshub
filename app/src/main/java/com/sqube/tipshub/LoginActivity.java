@@ -51,6 +51,7 @@ import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import models.Profile;
+import utils.Reusable;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
     private Button btnLogin;
@@ -64,8 +65,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private FirebaseAuth mAuth;
     private ProgressBar prgLogin;
     private ProgressDialog progressDialog;
-    private String userId, firstName, lastName, email, password, provider, profileUrl, profileUrlTm;
-    Uri profileUri, profileUriTm;
+    private String userId, firstName, lastName, email, password, provider;
     private Uri filePath = null;
     private SharedPreferences prefs;
     private SharedPreferences.Editor editor;
@@ -101,6 +101,27 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         if(prefs.getString("PASSWORD", "X%p8kznAA1")!= "X%p8kznAA1"){
             edtEmail.setText(prefs.getString("EMAIL","email@domain.com"));
             edtPassword.setText(prefs.getString("PASSWORD", "X%p8kznAA1"));
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.imgDp:
+                grabImage();
+                break;
+            case R.id.btnLogin:
+                signInWithEmail();
+                break;
+            case R.id.btnSignup:
+                startActivity(new Intent(LoginActivity.this, SignupActivity.class));
+                break;
+            case R.id.gSignIn:
+                edtPassword.setEnabled(false);
+                edtEmail.setEnabled(false);
+                prgLogin.setVisibility(View.VISIBLE);
+                signInWithGoogle();
+                break;
         }
     }
 
@@ -160,7 +181,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                             editor.apply();
                             Snackbar.make(btnLogin, "Login successful", Snackbar.LENGTH_SHORT).show();
                             user = mAuth.getCurrentUser();
-                            final String userID = user.getUid();
                         }
                     }
                 })
@@ -174,28 +194,29 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     public void authWithGoogle(GoogleSignInAccount account){
         final AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
-        mAuth.signInWithCredential(credential).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+        mAuth.signInWithCredential(credential)
+                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if(task.isSuccessful()){
-                    userId = mAuth.getCurrentUser().getUid();
-                    Log.i("onComplete", "onAuthWithGoogle: login successful");
-                    Log.i("onComplete", "onAuthWithGoogle: provider: " + mAuth.getCurrentUser().getProviderId());
-                    Log.i("onComplete", "photoUrl: " + mAuth.getCurrentUser().getPhotoUrl().toString());
-                    database.collection("profiles").document(userId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    user = mAuth.getCurrentUser();
+                    userId = user.getUid();
+
+                    database.collection("profiles").document(userId).get()
+                            .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                 @Override
                                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                    Log.i("onComplete", "get() successful " + task.getResult().toString());
                                     if(task.isSuccessful()){
-                                        if(!task.getResult().exists()){
-                                            final String displayName = mAuth.getCurrentUser().getDisplayName();
+                                        if(task.getResult()==null || !task.getResult().exists()){
+                                            String displayName = user.getDisplayName();
                                             String[] names = displayName.split(" ");
                                             firstName = names[0];
                                             lastName = names[1];
-                                            email = mAuth.getCurrentUser().getEmail();
+                                            email = user.getEmail();
                                             provider = "google.com";
                                             database.collection("profiles").document(userId)
                                                     .set(new Profile(firstName, lastName, email, provider ));
+                                            Reusable.grabImage(user.getPhotoUrl().toString());
                                             completeProfile();
                                         }
                                         else{
@@ -214,6 +235,13 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 }
 
             }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                edtPassword.setEnabled(true);
+                edtEmail.setEnabled(true);
+                prgLogin.setVisibility(View.GONE);
+            }
         });
     }
 
@@ -221,12 +249,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         /*
         Build a dialogView for user to set profile image
          */
-        if(mAuth.getCurrentUser().getPhotoUrl()!=null){
-            profileUriTm = mAuth.getCurrentUser().getPhotoUrl();
-            profileUrlTm = profileUriTm.toString();
-            profileUrl = profileUrlTm.replace("s96-c/photo.jpg", "s400-c/photo.jpg");
-            profileUri = Uri.parse(profileUrl);
-        }
         AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
         LayoutInflater inflater = getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.activity_signup2, null);
@@ -245,7 +267,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         final EditText editTextCarrierNumber= dialog.findViewById(R.id.editText_carrierNumber);
         ccp.registerCarrierNumberEditText(editTextCarrierNumber);
         assert imgDp != null;
-        Glide.with(this).load(profileUri).into(imgDp);
+        Glide.with(this).load(user.getPhotoUrl()).into(imgDp);
         Button btnSave = dialog.findViewById(R.id.btnSave);
 
         ccp.setPhoneNumberValidityChangeListener(new CountryCodePicker.PhoneNumberValidityChangeListener() {
@@ -297,8 +319,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 url.put("a4_gender", gender);
                 url.put("b0_country", country);
                 url.put("b1_phone", phone);
-                url.put("b2_dpUrl", profileUrl);
-                url.put("b3_dpTmUrl", profileUrlTm);
 
                 //set the new username to firebase auth user
                 UserProfileChangeRequest profileUpdate = new UserProfileChangeRequest.Builder()
@@ -314,27 +334,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             }
         });
         //uploadDp();
-    }
-
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()){
-            case R.id.imgDp:
-                grabImage();
-                break;
-            case R.id.btnLogin:
-                signInWithEmail();
-                break;
-            case R.id.btnSignup:
-                startActivity(new Intent(LoginActivity.this, SignupActivity.class));
-                break;
-            case R.id.gSignIn:
-                edtPassword.setEnabled(false);
-                edtEmail.setEnabled(false);
-                prgLogin.setVisibility(View.VISIBLE);
-                signInWithGoogle();
-                break;
-        }
     }
 
     @Override

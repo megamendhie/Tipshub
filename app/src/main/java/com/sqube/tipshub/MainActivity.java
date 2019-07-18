@@ -140,7 +140,6 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         startService(serviceIntent);
         database = FirebaseFirestore.getInstance();
         mFirebaseRemoteConfig = FirebaseRemoteConfig.getInstance();
-        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
         user = auth.getCurrentUser();
         userId = user.getUid();
         actionBar.setTitle("Home");

@@ -3,11 +3,28 @@ package utils;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.UploadTask;
+
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Date;
 
 public final class Reusable {
@@ -92,4 +109,79 @@ public final class Reusable {
             return false;
     }
 
+    public static void grabImage(String photoUrl){
+        ImageDownloader getBitmapfromUrl = new ImageDownloader();
+        getBitmapfromUrl.execute(photoUrl);
+    }
+
+    private static void uploadImage(Bitmap bitmap){
+        if(bitmap==null){
+            Log.i("Reusable", "onClick: bitmap is null");
+            return;
+        }
+        //convert Bitmap to output stream
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 90, baos);
+        byte[] data = baos.toByteArray();
+
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        String userId= auth.getCurrentUser().getUid();
+
+        //upload image as bytes to Firebase Storage
+        storage.getReference().child("profile_images").child(userId).putBytes(data)
+                .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        storage.getReference().child("profile_images").child(userId).getDownloadUrl()
+                                .addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                    @Override
+                                    public void onSuccess(Uri uri) {
+                                        //update user database with dp_url
+                                        FirebaseFirestore database = FirebaseFirestore.getInstance();
+                                        database.collection("profiles").document(userId)
+                                                .update("b2_dpUrl", uri.toString());
+
+                                    }
+                                });
+                        bitmap.recycle();
+                        Log.i("Reusable", "onSuccess: ");
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                bitmap.recycle();
+                Log.i("Reusable", "onFailure: ");
+            }
+        });
+    }
+
+    static class ImageDownloader extends AsyncTask<String, Void, Bitmap> {
+        @Override
+        protected void onPostExecute(Bitmap bitmap) {
+            uploadImage(bitmap);
+        }
+
+        @Override
+        protected Bitmap doInBackground(String... imageUrl) {
+            //link to image
+            String link = imageUrl[0].replace("s96-c/photo.jpg", "s400-c/photo.jpg");
+
+            //open Http connection to image and retrieve image
+            try {
+                URL url = new URL(link);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setDoInput(true);
+                connection.connect();
+                InputStream input = connection.getInputStream();
+
+                //convert image to bitmap
+                return BitmapFactory.decodeStream(input);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+    }
 }

@@ -49,6 +49,7 @@ public class HomeFragment extends Fragment{
     FloatingActionMenu fabMenu;
     public RecyclerView homeFeed;
     Intent intent;
+
     public HomeFragment() {
         // Required empty public constructor
     }
