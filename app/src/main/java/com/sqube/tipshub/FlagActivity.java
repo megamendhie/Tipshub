@@ -5,9 +5,11 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.MultiAutoCompleteTextView;
@@ -52,6 +54,12 @@ public class FlagActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_flag);
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setTitle("");
+            actionBar.setHomeAsUpIndicator(R.drawable.ic_close_black_24dp);
+        }
         edtComment = findViewById(R.id.edtPost);
         btnPost = findViewById(R.id.btnPost); btnPost.setOnClickListener(this);
         btnClose = findViewById(R.id.btnClose); btnClose.setOnClickListener(this);
@@ -77,6 +85,12 @@ public class FlagActivity extends AppCompatActivity implements View.OnClickListe
                 popUp();
                 break;
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        finish();
+        return true;
     }
 
     private void reportPost() {

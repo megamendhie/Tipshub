@@ -61,7 +61,7 @@ public class NotificationAdapter extends FirestoreRecyclerAdapter<Notification, 
         this.userId = userID;
         this.calculations = new Calculations(context);
         this.database = FirebaseFirestore.getInstance();
-        requestOptions.placeholder(R.drawable.ic_person_outline_black_24dp);
+        requestOptions.placeholder(R.drawable.dummy);
         storageReference = FirebaseStorage.getInstance().getReference().child("profile_images");
     }
 
