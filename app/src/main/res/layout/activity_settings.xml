@@ -240,7 +240,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
-                    android:text="What's your subscription charge? (2 weeks)"/>
+                    android:text="@string/txt_sub_title"/>
 
                 <RadioGroup
                     android:id="@+id/rdbGroupSub"
