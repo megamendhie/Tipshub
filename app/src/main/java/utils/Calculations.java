@@ -32,6 +32,8 @@ import java.util.List;
 import java.util.Map;
 
 import models.Notification;
+import models.ProfileMedium;
+import models.Subscription;
 import models.UserNetwork;
 
 public final class Calculations {
@@ -408,13 +410,15 @@ public final class Calculations {
     }
 
     public void increaseSubcriptions(String myId, String yourId){
-        final DocumentReference postPath =  database.collection("profile").document(myId);
+        Log.i(TAG, "increaseSubcriptions: " + myId + " " + yourId );
+        final DocumentReference postPath =  database.collection("profiles").document(myId);
         database.runTransaction(new Transaction.Function<Void>() {
             @Override
             public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
                 DocumentSnapshot snapshot = transaction.get(postPath);
                 //Check if post exist first
                 if(!snapshot.exists()){
+                    Log.i(TAG, "apply: snapshot is empty");
                     return null;
                 }
 
@@ -438,8 +442,24 @@ public final class Calculations {
                     @Override
                     public void onSuccess(Void aVoid) {
                         //Add person's id to user's subscription list
-                        database.collection("subscribed_to").document(myId)
-                                .update("list", FieldValue.arrayUnion(yourId));
+                        database.collection("subscribed_to").document(myId).get()
+                                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                DocumentSnapshot dS = task.getResult();
+                                if(dS==null||!dS.exists()){
+                                    ArrayList<String> list = new ArrayList<>();
+                                    list.add(yourId);
+                                    Map<String, Object> upd = new HashMap<>();
+                                    upd.put("list", list);
+                                    database.collection("subscribed_to").document(yourId).set(upd);
+                                }
+                                else
+                                    database.collection("subscribed_to").document(myId)
+                                            .update("list", FieldValue.arrayUnion(yourId));
+
+                            }
+                        });
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -451,14 +471,15 @@ public final class Calculations {
                 });
     }
 
-    public void increaseSubcribers(String myId, String yourId){
-        final DocumentReference postPath =  database.collection("profile").document(yourId);
+    public void increaseSubcribers(String myId, String yourId, Subscription sub){
+        final DocumentReference postPath =  database.collection("profiles").document(yourId);
         database.runTransaction(new Transaction.Function<Void>() {
             @Override
             public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
                 DocumentSnapshot snapshot = transaction.get(postPath);
                 //Check if post exist first
                 if(!snapshot.exists()){
+                    Log.i(TAG, "apply: snapshot is empty");
                     return null;
                 }
 
@@ -484,8 +505,26 @@ public final class Calculations {
                         Log.d(TAG, "Transaction success!");
 
                         //Add user to subscribed person's list
-                        database.collection("subscribers").document(yourId)
-                                .update("list", FieldValue.arrayUnion(myId));
+                        database.collection("subscribers").document(yourId).get()
+                                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                        DocumentSnapshot dS = task.getResult();
+                                        if(dS==null||!dS.exists()){
+                                            ArrayList<String> list = new ArrayList<>();
+                                            list.add(myId);
+                                            Map<String, Object> upd = new HashMap<>();
+                                            upd.put("list", list);
+                                            database.collection("subscribers").document(myId).set(upd);
+                                        }
+                                        else
+                                            database.collection("subscribers").document(myId)
+                                                    .update("list", FieldValue.arrayUnion(yourId));
+
+                                        //adds sub to subscription table
+                                        database.collection("subscriptions").add(sub);
+                                    }
+                                });
                         Log.d(TAG, "Transaction success!");
                     }
                 })
@@ -758,4 +797,55 @@ public final class Calculations {
                     }
                 });
     }
+
+    public void onDeletePost(ImageView view, String postId, String userId, boolean wonStatus, int type){
+        final DocumentReference postPath =  database.collection("profiles").document(userId);
+        database.runTransaction(new Transaction.Function<Void>() {
+            @Override
+            public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
+                DocumentSnapshot snapshot = transaction.get(postPath);
+                //Check if post exist first
+                if(!snapshot.exists()){
+                    Log.i(TAG, "apply: snapshot is empty");
+                    return null;
+                }
+                final ProfileMedium profile = snapshot.toObject(ProfileMedium.class);
+                Map<String, Object> updates = new HashMap<>();
+
+                //Retrieve general stats
+                final long totalPostCount = profile.getE0a_NOG() -1;
+                long wonGamesCount = profile.getE0b_WG();
+                wonGamesCount = wonStatus? wonGamesCount - 1: wonGamesCount;
+                final long wonGamesPercentage = totalPostCount>0? ((wonGamesCount*100)/totalPostCount) : 0;
+
+                //retrieve stat for that game type
+                long[] stats = Reusable.getStats(profile, type, wonStatus);
+
+                updates.put("e0a_NOG", totalPostCount);
+                updates.put("e0b_WG", wonGamesCount);
+                updates.put("e0c_WGP", wonGamesPercentage);
+                updates.put("e"+type + "a_NOG", stats[0]);
+                updates.put("e"+type + "b_WG", stats[1]);
+                updates.put("e"+type + "c_WGP", stats[2]);
+
+                transaction.update(postPath, updates);
+                return null;
+            }
+        }).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                database.collection("posts").document(postId).delete();
+                Snackbar.make(view, "Deleted", Snackbar.LENGTH_SHORT).show();
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Snackbar.make(view, "Somthing went wrong", Snackbar.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    /*
+    public void onDeleteComment(TextView view, String commentId, String userId){}
+    */
 }

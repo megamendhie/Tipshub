@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateFormat;
@@ -46,13 +47,12 @@ import utils.Reusable;
 
 public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.PostHolder>{
     private final String TAG = "PostAdaper";
-    Reusable reusable = new Reusable();
     private Activity activity;
     private Context context;
     private String userId;
     private StorageReference storageReference;
-    Calculations calculations;
-    final int NORMAL_POST=1, BANKER_POST = 0;
+    private Calculations calculations;
+    private final int NORMAL_POST=1, BANKER_POST = 0;
     private RequestOptions requestOptions = new RequestOptions();
 
     private FirebaseFirestore database;
@@ -289,6 +289,8 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
+                if(!documentSnapshot.exists())
+                    return;
                 holder.imgChildStatus.setVisibility(documentSnapshot.toObject(Post.class).getStatus()==1? View.INVISIBLE: View.VISIBLE);
             }
         });
@@ -372,6 +374,15 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
                     context.startActivity(intent);
                     dialog.cancel();
                 }
+                else{
+                    if(model.getType()>0)
+                        calculations.onDeletePost(imgOverflow, postId, userId,status==2, type);
+                    else {
+                        database.collection("posts").document(postId).delete();
+                        Snackbar.make(imgOverflow, "Deleted", Snackbar.LENGTH_SHORT).show();
+                    }
+                }
+                dialog.cancel();
             }
         });
 
@@ -382,7 +393,7 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
         btnShare.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                reusable.shareTips(activity, model.getUsername(), model.getContent());
+                Reusable.shareTips(activity, model.getUsername(), model.getContent());
                 dialog.cancel();
             }
         });
