@@ -43,7 +43,6 @@
                         android:id="@+id/txtUsername"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="megamendhie"
                         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                         android:textStyle="bold"/>
 
@@ -51,8 +50,7 @@
                     <TextView
                         android:id="@+id/txtTime"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="5min ago"/>
+                        android:layout_height="wrap_content"/>
 
                     <TextView
                         android:id="@+id/txtPostType"
@@ -62,8 +60,7 @@
                         android:textStyle="bold"
                         android:background="@drawable/tip_type_bg"
                         android:paddingStart="1.5dp"
-                        android:paddingEnd="2dp"
-                        android:text="3-5 odds"/>
+                        android:paddingEnd="2dp"/>
                 </LinearLayout>
 
 
@@ -75,7 +72,7 @@
                     android:layout_marginEnd="6dp"
                     android:layout_marginTop="2dp"
                     android:tint="#25b153"
-                    android:src="@drawable/ic_check_circle_green_24dp"/>
+                    app:srcCompat="@drawable/ic_check_circle_green_24dp"/>
 
                 <ImageView
                     android:id="@+id/imgOverflow"
@@ -85,7 +82,7 @@
                     android:background="@drawable/img_like_bg"
                     android:contentDescription="more_options"
                     android:tint="@android:color/darker_gray"
-                    android:src="@drawable/ic_more_vert_black_24dp"/>
+                    app:srcCompat="@drawable/ic_more_vert_black_24dp"/>
             </LinearLayout>
 
             <TextView
@@ -94,9 +91,7 @@
                 android:layout_height="wrap_content"
                 android:textSize="16sp"
                 android:layout_marginTop="10dp"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                android:text="I have seen a lot of beautiful things I want to share later.
-         /n bu not now I have seen a lot of beautiful things I want to share later. /n bu not now"/>
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
 
             <LinearLayout
                 android:id="@+id/lnrCode"
@@ -154,7 +149,6 @@
                             android:id="@+id/txtChildUsername"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="megamendhie"
                             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                             android:textStyle="bold"/>
 
@@ -178,7 +172,7 @@
                         android:layout_marginEnd="6dp"
                         android:layout_marginTop="2dp"
                         android:tint="#25b153"
-                        android:src="@drawable/ic_check_circle_green_24dp"/>
+                        app:srcCompat="@drawable/ic_check_circle_green_24dp"/>
 
                 </LinearLayout>
                 <TextView
@@ -204,6 +198,7 @@
                         android:id="@+id/imgChildCode"
                         android:layout_width="14dp"
                         android:layout_height="14dp"
+                        android:visibility="gone"
                         android:layout_gravity="center_vertical"
                         android:src="@drawable/hashtag"
                         android:tint="@color/colorPrimaryDark"/>
@@ -212,8 +207,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="#0e0e0e"
-                        android:textStyle="bold"
-                        android:text="okooji ee"/>
+                        android:textStyle="bold"/>
                 </LinearLayout>
             </LinearLayout>
 
@@ -240,7 +234,7 @@
                         android:layout_height="wrap_content"
                         android:clickable="true"
                         android:background="@drawable/img_like_bg"
-                        android:src="@drawable/ic_thumb_up_black_24dp"/>
+                        app:srcCompat="@drawable/ic_thumb_up_black_24dp"/>
                     <TextView
                         android:id="@+id/txtLike"
                         android:layout_width="wrap_content"
@@ -261,7 +255,7 @@
                         android:layout_height="wrap_content"
                         android:clickable="true"
                         android:background="@drawable/img_like_bg"
-                        android:src="@drawable/ic_thumb_down_black_24dp"/>
+                        app:srcCompat="@drawable/ic_thumb_down_black_24dp"/>
                     <TextView
                         android:id="@+id/txtDislike"
                         android:layout_width="wrap_content"
@@ -282,7 +276,7 @@
                         android:layout_height="wrap_content"
                         android:clickable="true"
                         android:background="@drawable/img_like_bg"
-                        android:src="@drawable/ic_comment_black_24dp"/>
+                        app:srcCompat="@drawable/ic_comment_black_24dp"/>
                     <TextView
                         android:id="@+id/txtComment"
                         android:layout_width="wrap_content"
@@ -303,7 +297,7 @@
                         android:layout_height="wrap_content"
                         android:clickable="true"
                         android:background="@drawable/img_like_bg"
-                        android:src="@drawable/ic_share_black_24dp"/>
+                        app:srcCompat="@drawable/ic_share_black_24dp"/>
                 </LinearLayout>
 
             </LinearLayout>
@@ -366,6 +360,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="14.5"
                 android:maxLines="8"
+                android:inputType="textCapSentences|textNoSuggestions|textMultiLine"
                 android:hint="Post a comment"/>
             <android.support.design.widget.FloatingActionButton
                 android:id="@+id/fabPost"
@@ -373,7 +368,7 @@
                 android:layout_height="wrap_content"
                 app:fabCustomSize="40dp"
                 android:layout_marginStart="2dp"
-                android:src="@drawable/ic_send_black_24dp"/>
+                app:srcCompat="@drawable/ic_send_black_24dp"/>
         </LinearLayout>
     </android.support.v7.widget.CardView>
 
