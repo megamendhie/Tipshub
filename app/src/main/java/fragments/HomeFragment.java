@@ -2,7 +2,9 @@ package fragments;
 
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -35,6 +37,7 @@ import adapters.FilteredPostAdapter;
 import adapters.PostAdapter;
 import models.Post;
 import models.SnapId;
+import models.UserNetwork;
 
 public class HomeFragment extends Fragment{
     private FirebaseFirestore database;
@@ -43,6 +46,8 @@ public class HomeFragment extends Fragment{
     private FirebaseUser user;
     private final String TAG = "HomeFrag";
     private ShimmerFrameLayout shimmerLayout;
+    private SharedPreferences prefs;
+    boolean fromEverybody = true;
     String userId;
     PostAdapter postAdapter;
     FloatingActionButton fabTip, fabNormal;
@@ -78,6 +83,7 @@ public class HomeFragment extends Fragment{
         fabMenu = rootView.findViewById(R.id.fabMenu);
         fabNormal = rootView.findViewById(R.id.fabNormal);
         fabTip = rootView.findViewById(R.id.fabPost);
+        prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
         shimmerLayout.startShimmer();
         fabTip.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -95,7 +101,14 @@ public class HomeFragment extends Fragment{
                 startActivity(intent);
             }
         });
-        loadMerged();
+
+        //confirm if user reading posts from everybody
+        fromEverybody = prefs.getBoolean("fromEverybody", true);
+        if(fromEverybody)
+            loadPost();
+        else
+            loadMerged();
+
         return rootView;
     }
 
@@ -108,19 +121,27 @@ public class HomeFragment extends Fragment{
             Log.i(TAG, "loadPost: started listening");
             postAdapter.startListening();
             shimmerLayout.stopShimmer();
+            shimmerLayout.setVisibility(View.GONE);
         }
     }
 
     private void loadMerged(){
-        String[] userIds = {"9netjQqxyATkN6SbHmaDAYDhzT43", "c3cMX8YsnCUOSATLznuolZBmI0x1"};
-        int count = userIds.length;
+        if(postAdapter!=null)
+            postAdapter.stopListening();
+        ArrayList<String> userIds = UserNetwork.getFollowing(); //{"9netjQqxyATkN6SbHmaDAYDhzT43", "c3cMX8YsnCUOSATLznuolZBmI0x1"};
 
+        //check if following list has data
+        if(userIds == null)
+            return;
+        int count = userIds.size();
+
+        //create task and query for each followed id
         Query[] queries = new Query[count];
         Task[] tasks = new Task[count];
 
-        for(int i = 0; i < userIds.length; i++){
+        for(int i = 0; i < count; i++){
             queries[i] = database.collection("posts").orderBy("time", Query.Direction.DESCENDING)
-                    .whereEqualTo("userId", userIds[i]).limit(3);
+                    .whereEqualTo("userId", userIds.get(i)).limit(3);
             tasks[i] = queries[i].get();
         }
 
@@ -143,6 +164,7 @@ public class HomeFragment extends Fragment{
                 Collections.sort(snapIds);
                 homeFeed.setAdapter(new FilteredPostAdapter(userId, getActivity(), getContext(), posts, snapIds));
                 shimmerLayout.stopShimmer();
+                shimmerLayout.setVisibility(View.GONE);
             }
         });
 
