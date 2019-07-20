@@ -62,7 +62,6 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
     private FirebaseStorage storage;
     private ProgressDialog progressDialog;
     private ProgressBar prgLogin;
-    private SharedPreferences prefs;
     private FirebaseUser user;
     private CircleImageView imgDp;
     private final static int RC_SIGN_IN = 123;
@@ -91,7 +90,7 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
         edtConfirmEmail = findViewById(R.id.edtEmailAgain);
         edtPassword = findViewById(R.id.edtPassword);
 
-        prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         editor = prefs.edit();
         mAuth = FirebaseAuth.getInstance();
         database = FirebaseFirestore.getInstance();
