@@ -24,14 +24,9 @@
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".Main2Activity"
-            android:label="@string/title_activity_main2"
-            android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".LoginActivity" />
         <activity android:name=".SignupActivity" />
         <activity android:name=".MyProfileActivity" />
@@ -39,7 +34,9 @@
         <activity android:name=".PostActivity" />
         <activity android:name=".RepostActivity" />
         <activity android:name=".SubscriptionActivity" />
-        <activity android:name=".FullPostActivity" />
+        <activity
+            android:name=".FullPostActivity"
+            android:windowSoftInputMode="stateHidden" />
         <activity
             android:name=".LandingActivity"
             android:theme="@style/AppTheme.NoActionBar" />
