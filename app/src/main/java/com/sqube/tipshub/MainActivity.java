@@ -3,8 +3,10 @@ package com.sqube.tipshub;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.NavigationView;
@@ -15,6 +17,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SwitchCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -31,7 +34,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -58,6 +60,8 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     private FirebaseRemoteConfig mFirebaseRemoteConfig;
     private FirebaseUser user;
     private Intent serviceIntent;
+    SharedPreferences prefs;
+    SharedPreferences.Editor editor;
 
     final int versionCode = BuildConfig.VERSION_CODE;
     final String FB_RC_KEY_TITLE = "update_title";
@@ -77,9 +81,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     FragmentTransaction fragmentTransaction;
 
     private DrawerLayout mDrawerLayout;
-    NavigationView navigationView;
-    View header;
-
+    private SwitchCompat aSwitch;
     private CircleImageView imgDp;
     TextView txtName, txtUsername, txtTips, txtFollowing, txtFollowers;
     String userId;
@@ -99,11 +101,25 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         btmNav = findViewById(R.id.bottom_navigation);
         btmNav.setOnNavigationItemSelectedListener(this);
 
+        //initialize Preference
+        prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        editor = prefs.edit();
+
         //initialize DrawerLayout and NavigationView
         mDrawerLayout = findViewById(R.id.drawer_layout);
-        navigationView = findViewById(R.id.nav_view);
+        NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-        header = navigationView.getHeaderView(0);
+        View header = navigationView.getHeaderView(0);
+
+        /*
+        aSwitch = (SwitchCompat) navigationView.getMenu().findItem(R.id.nav_switch).getActionView();
+
+        //confirm if user reading posts from everybody
+        if(prefs.getBoolean("fromEverybody", true))
+            aSwitch.setChecked(true);
+        else
+            aSwitch.setChecked(false);
+        */
 
         imgDp = header.findViewById(R.id.imgProfilePic);
         imgDp.setOnClickListener(this);
@@ -136,6 +152,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                 }
             }
         });
+
         serviceIntent = new Intent(this, UserDataFetcher.class);
         startService(serviceIntent);
         database = FirebaseFirestore.getInstance();
@@ -145,6 +162,19 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         actionBar.setTitle("Home");
         checkForUpdate();
         loadFragment();
+
+        /*
+        aSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked)
+                    editor.putBoolean("fromEverybody", true);
+                else
+                    editor.putBoolean("fromEverybody", false);
+                editor.apply();
+            }
+        });
+        */
     }
 
     @Override

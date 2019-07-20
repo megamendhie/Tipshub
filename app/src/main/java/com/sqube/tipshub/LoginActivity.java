@@ -181,6 +181,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                             editor.apply();
                             Snackbar.make(btnLogin, "Login successful", Snackbar.LENGTH_SHORT).show();
                             user = mAuth.getCurrentUser();
+                            finish();
+                            startActivity(new Intent(LoginActivity.this, MainActivity.class));
                         }
                     }
                 })
