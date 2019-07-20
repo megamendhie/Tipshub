@@ -230,8 +230,18 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if(!task.getResult().exists())
+                if(!task.getResult().exists()){
+                    childPost.setText("This content has been deleted");
+                    imgChildDp.setVisibility(View.GONE);
+                    childUsername.setVisibility(View.GONE);
+                    childType.setVisibility(View.GONE);
+                    imgChildStatus.setVisibility(View.GONE);
+                    imgChildCode.setVisibility(View.GONE);
+                    childCode.setVisibility(View.GONE);
+                    lnrChildPost.setBackgroundResource(R.color.placeholder_bg);
+                    lnrChildPost.setVisibility(View.VISIBLE); //display child layout if child post exists
                     return;
+                }
                 Post childModel = task.getResult().toObject(Post.class); //retrieve child post
 
                 //bind post to views
