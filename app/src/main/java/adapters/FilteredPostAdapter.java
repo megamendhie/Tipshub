@@ -202,6 +202,8 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<FilteredPostAdapte
                 if(btnDelete.getText().toString().toLowerCase().equals("flag")){
                     Intent intent = new Intent(context, FlagActivity.class);
                     intent.putExtra("postId", postId);
+                    intent.putExtra("reportedUsername", model.getUsername());
+                    intent.putExtra("reportedUserId", userID);
                     context.startActivity(intent);
                     dialog.cancel();
                 }

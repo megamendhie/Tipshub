@@ -30,6 +30,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.sqube.tipshub.FlagActivity;
 import com.sqube.tipshub.FullPostActivity;
 import com.sqube.tipshub.LoginActivity;
 import com.sqube.tipshub.MemberProfileActivity;
@@ -395,6 +396,31 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
             btnFollow.setVisibility(View.GONE);
         else
             btnFollow.setText(UserNetwork.getFollowing().contains(userID)? "UNFOLLOW": "FOLLOW");
+
+
+        btnDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(btnDelete.getText().toString().toLowerCase().equals("flag")){
+                    Intent intent = new Intent(context, FlagActivity.class);
+                    intent.putExtra("postId", postId);
+                    intent.putExtra("reportedUsername", model.getUsername());
+                    intent.putExtra("reportedUserId", userID);
+                    context.startActivity(intent);
+                    dialog.cancel();
+                }
+                else{
+                    if(model.getType()>0)
+                        calculations.onDeletePost(imgOverflow, postId, userId,status==2, type);
+                    else {
+                        database.collection("posts").document(postId).delete();
+                        Snackbar.make(imgOverflow, "Deleted", Snackbar.LENGTH_SHORT).show();
+                    }
+                }
+                dialog.cancel();
+            }
+        });
+
         btnShare.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -371,6 +371,8 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
                 if(btnDelete.getText().toString().toLowerCase().equals("flag")){
                     Intent intent = new Intent(context, FlagActivity.class);
                     intent.putExtra("postId", postId);
+                    intent.putExtra("reportedUsername", model.getUsername());
+                    intent.putExtra("reportedUserId", userID);
                     context.startActivity(intent);
                     dialog.cancel();
                 }
@@ -390,6 +392,7 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
             btnFollow.setVisibility(View.GONE);
         else
             btnFollow.setText(UserNetwork.getFollowing().contains(userID)? "UNFOLLOW": "FOLLOW");
+
         btnShare.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -397,6 +400,7 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
                 dialog.cancel();
             }
         });
+
         btnFollow.setOnClickListener(v -> {
             if(btnFollow.getText().equals("FOLLOW")){
                 calculations.followMember(imgOverflow, userId, userID);
