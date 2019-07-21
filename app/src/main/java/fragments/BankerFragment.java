@@ -1,4 +1,7 @@
 package fragments;
+/*
+    This class is attached to MainActivity
+ */
 
 
 import android.content.Intent;
