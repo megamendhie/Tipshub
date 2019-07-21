@@ -8,9 +8,10 @@ public class Comment {
     private String username;
     private String userId;
     private String content;
-    private String imgUrl1="";
-    private String imgUrl2="";
+    private String commentOn;
     private long time;
+    private int mediaCount;
+    private List<String> media = new ArrayList<>();
     private List<String> likes = new ArrayList<>();
     private long likesCount;
     private List<String> dislikes = new ArrayList<>();
@@ -23,13 +24,15 @@ public class Comment {
 
     public Comment(){}
 
-    public Comment(String username, String userId, String content, boolean flag){
+    public Comment(String username, String userId, String content, String commentOn, boolean flag){
         this.username = username;
         this.userId = userId;
         this.content = content;
+        this.commentOn = commentOn;
         this.time = new Date().getTime();
         this.flag = flag;
 
+        this.mediaCount = 0;
         this.likesCount = 0;
         this.dislikesCount = 0;
         this.relevance = 0;
@@ -59,22 +62,6 @@ public class Comment {
 
     public void setContent(String content) {
         this.content = content;
-    }
-
-    public String getImgUrl1() {
-        return imgUrl1;
-    }
-
-    public void setImgUrl1(String imgUrl1) {
-        this.imgUrl1 = imgUrl1;
-    }
-
-    public String getImgUrl2() {
-        return imgUrl2;
-    }
-
-    public void setImgUrl2(String imgUrl2) {
-        this.imgUrl2 = imgUrl2;
     }
 
     public long getTime() {
@@ -147,5 +134,29 @@ public class Comment {
 
     public void setFlag(boolean flag) {
         this.flag = flag;
+    }
+
+    public int getMediaCount() {
+        return mediaCount;
+    }
+
+    public void setMediaCount(int mediaCount) {
+        this.mediaCount = mediaCount;
+    }
+
+    public List<String> getMedia() {
+        return media;
+    }
+
+    public void setMedia(List<String> media) {
+        this.media = media;
+    }
+
+    public String getCommentOn() {
+        return commentOn;
+    }
+
+    public void setCommentOn(String commentOn) {
+        this.commentOn = commentOn;
     }
 }
