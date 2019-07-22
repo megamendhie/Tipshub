@@ -268,7 +268,8 @@ public final class Calculations {
         //send notification
     }
 
-    public void onCommentLike(final DocumentReference commentRef, final String userId, final String postOwnerId, final String postId, final String mainPostId, final String subString){
+    public void onCommentLike(final String userId, final String postOwnerId, final String postId, final String mainPostId, final String subString){
+        final DocumentReference commentRef =  database.collection("comments").document(postId);
         final boolean[] like = {true};
         database.runTransaction(new Transaction.Function<Void>() {
             @Override
@@ -340,7 +341,8 @@ public final class Calculations {
         //send notification
     }
 
-    public void onCommentDislike(final DocumentReference commentRef, final String userId, final String postOwnerId, final String postId, final String mainPostId, final String subString){
+    public void onCommentDislike(final String userId, final String postOwnerId, final String postId, final String mainPostId, final String subString){
+        final DocumentReference commentRef =  database.collection("comments").document(postId);
         final boolean[] dislike = {true};
         database.runTransaction(new Transaction.Function<Void>() {
             @Override
@@ -452,12 +454,11 @@ public final class Calculations {
                                     list.add(yourId);
                                     Map<String, Object> upd = new HashMap<>();
                                     upd.put("list", list);
-                                    database.collection("subscribed_to").document(yourId).set(upd);
+                                    database.collection("subscribed_to").document(myId).set(upd);
                                 }
                                 else
                                     database.collection("subscribed_to").document(myId)
                                             .update("list", FieldValue.arrayUnion(yourId));
-
                             }
                         });
                     }
@@ -515,14 +516,25 @@ public final class Calculations {
                                             list.add(myId);
                                             Map<String, Object> upd = new HashMap<>();
                                             upd.put("list", list);
-                                            database.collection("subscribers").document(myId).set(upd);
+                                            database.collection("subscribers").document(yourId).set(upd)
+                                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                @Override
+                                                public void onSuccess(Void aVoid) {
+                                                    //adds sub to subscription table
+                                                    database.collection("subscriptions").add(sub);
+                                                }
+                                            });
                                         }
                                         else
-                                            database.collection("subscribers").document(myId)
-                                                    .update("list", FieldValue.arrayUnion(yourId));
-
-                                        //adds sub to subscription table
-                                        database.collection("subscriptions").add(sub);
+                                            database.collection("subscribers").document(yourId)
+                                                    .update("list", FieldValue.arrayUnion(myId))
+                                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                        @Override
+                                                        public void onSuccess(Void aVoid) {
+                                                            //adds sub to subscription table
+                                                            database.collection("subscriptions").add(sub);
+                                                        }
+                                                    });
                                     }
                                 });
                         Log.d(TAG, "Transaction success!");
@@ -819,7 +831,7 @@ public final class Calculations {
                 final long wonGamesPercentage = totalPostCount>0? ((wonGamesCount*100)/totalPostCount) : 0;
 
                 //retrieve stat for that game type
-                long[] stats = Reusable.getStats(profile, type, wonStatus);
+                long[] stats = Reusable.getStatsForDelete(profile, type, wonStatus);
 
                 updates.put("e0a_NOG", totalPostCount);
                 updates.put("e0b_WG", wonGamesCount);

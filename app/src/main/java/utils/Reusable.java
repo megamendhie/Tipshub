@@ -158,7 +158,7 @@ public final class Reusable {
         });
     }
 
-    public static long[] getStats(ProfileMedium profile, int type, boolean won){
+    public static long[] getStatsForDelete(ProfileMedium profile, int type, boolean won){
         long tPost = 0;
         long wGames = 0;
         switch (type){
@@ -191,6 +191,41 @@ public final class Reusable {
         wGames = won? wGames - 1: wGames;
         final long wPercentage = tPost>0? ((wGames*100)/tPost) : 0;
         return new long[]{tPost, wGames, wPercentage};
+    }
+
+
+    public static long[] getStatsForPost(ProfileMedium profile, int type){
+        long tPost = 0;
+        long wGames = 0;
+        switch (type){
+            case 1:
+                tPost = profile.getE1a_NOG();
+                wGames = profile.getE1b_WG();
+                break;
+            case 2:
+                tPost = profile.getE2a_NOG();
+                wGames = profile.getE2b_WG();
+                break;
+            case 3:
+                tPost = profile.getE3a_NOG();
+                wGames = profile.getE3b_WG();
+                break;
+            case 4:
+                tPost = profile.getE4a_NOG();
+                wGames = profile.getE4b_WG();
+                break;
+            case 5:
+                tPost = profile.getE5a_NOG();
+                wGames = profile.getE5b_WG();
+                break;
+            case 6:
+                tPost = profile.getE6a_NOG();
+                wGames = profile.getE6b_WG();
+                break;
+        }
+        tPost += 1;
+        final long wPercentage = tPost>0? ((wGames*100)/tPost) : 0;
+        return new long[]{tPost, wPercentage};
     }
 
     static class ImageDownloader extends AsyncTask<String, Void, Bitmap> {
