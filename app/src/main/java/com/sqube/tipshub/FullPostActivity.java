@@ -190,10 +190,10 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
 
                     //display likes, dislikes, and comments
                     imgLike.setColorFilter(model.getLikes().contains(userId)?
-                            getResources().getColor(R.color.colorPrimary): getResources().getColor(R.color.likeGrey));
+                            getResources().getColor(R.color.likeGold): getResources().getColor(R.color.likeGrey));
 
                     imgDislike.setColorFilter(model.getDislikes().contains(userId)?
-                            getResources().getColor(R.color.colorPrimary): getResources().getColor(R.color.likeGrey));
+                            getResources().getColor(R.color.likeGold): getResources().getColor(R.color.likeGrey));
 
                     mComment.setText(model.getCommentsCount()==0? "":String.valueOf(model.getCommentsCount()));
                     mLikes.setText(model.getLikesCount()==0? "":String.valueOf(model.getLikesCount()));
@@ -278,9 +278,8 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
 
     private void loadComment() {
         //loads comment into commentList
-        commentReference = database.collection("comments").document(postId)
-                .collection("comments");
-        query = commentReference.orderBy("time", Query.Direction.DESCENDING);
+        commentReference = database.collection("comments");
+        query = commentReference.whereEqualTo("commentOn", postId).orderBy("time", Query.Direction.DESCENDING);
         commentAdapter = new CommentAdapter(postId, query, userId, FullPostActivity.this, getApplicationContext());
         commentsList.setAdapter(commentAdapter);
         if(commentAdapter!=null){
@@ -312,7 +311,7 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
                 reusable.shareTips(FullPostActivity.this, model.getUsername(), model.getContent());
                 break;
             case R.id.fabPost:
-                postComment();
+                increaseCommentCount();
                 break;
         }
     }
@@ -320,7 +319,7 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
     private void onLike(){
         model.getDislikes().contains(userId);
         if(model.getDislikes().contains(userId)){
-            imgLike.setColorFilter(getResources().getColor(R.color.colorPrimary));
+            imgLike.setColorFilter(getResources().getColor(R.color.likeGold));
             imgDislike.setColorFilter(getResources().getColor(R.color.likeGrey));
             mLikes.setText(String.valueOf(model.getLikesCount()+1));
             mDislikes.setText(model.getDislikesCount()-1>0? String.valueOf(model.getDislikesCount()-1):"");
@@ -331,7 +330,7 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
                 mLikes.setText(model.getLikesCount()-1>0?String.valueOf(model.getLikesCount()-1):"");
             }
             else{
-                imgLike.setColorFilter(getResources().getColor(R.color.colorPrimary));
+                imgLike.setColorFilter(getResources().getColor(R.color.likeGold));
                 mLikes.setText(String.valueOf(model.getLikesCount()+1));
             }
         }
@@ -340,7 +339,7 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
     private void onDislike(){
         if(model.getLikes().contains(userId)){
             imgLike.setColorFilter(getResources().getColor(R.color.likeGrey));
-            imgDislike.setColorFilter(getResources().getColor(R.color.colorPrimary));
+            imgDislike.setColorFilter(getResources().getColor(R.color.likeGold));
             mLikes.setText(model.getLikesCount()-1>0? String.valueOf(model.getLikesCount()-1):"");
             mDislikes.setText(String.valueOf(model.getDislikesCount()+1));
         }
@@ -350,21 +349,20 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
                 mDislikes.setText(model.getDislikesCount()-1>0? String.valueOf(model.getDislikesCount()-1): "");
             }
             else{
-                imgDislike.setColorFilter(getResources().getColor(R.color.colorPrimary));
+                imgDislike.setColorFilter(getResources().getColor(R.color.likeGold));
                 mDislikes.setText(String.valueOf(model.getDislikesCount()+1));
             }
         }
     }
 
     private void postComment() {
-        commentReference.add(new Comment(username, userId, comment, false))
+        commentReference.add(new Comment(username, userId, comment, postId, false))
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                     @Override
                     public void onSuccess(DocumentReference documentReference) {
-                        Snackbar.make(edtComment, "Comment added", Snackbar.LENGTH_SHORT).show();
                         comment= "";
                         edtComment.setText("");
-                        increaseCommentCount();
+                        Snackbar.make(edtComment, "Comment added", Snackbar.LENGTH_SHORT).show();
                         if(!userId.equals(model.getUserId())){
                             calculations.recommend(userId, model.getUserId());
                         }
@@ -373,6 +371,7 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
     }
 
     public void increaseCommentCount(){
+        fabPost.setEnabled(false);
         comment = edtComment.getText().toString();
         if(TextUtils.isEmpty(comment)){
             edtComment.setError("Type your comment");
@@ -404,11 +403,13 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
                     public void onSuccess(Void aVoid) {
                         Log.d(TAG, "Transaction success!");
                         postComment();
+                        fabPost.setEnabled(true);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
+                        fabPost.setEnabled(true);
                         Log.w(TAG, "Transaction failure.", e);
                         Toast.makeText(FullPostActivity.this, "Connection failed", Toast.LENGTH_SHORT).show();
                     }

@@ -20,7 +20,6 @@ import android.widget.TextView;
 import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.storage.FirebaseStorage;
@@ -85,7 +84,6 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
         final ImageView imgShare = holder.imgShare;
         final ImageView imgOverflow = holder.imgOverflow;
         final String postId = getSnapshots().getSnapshot(position).getId();
-        final DocumentReference commentRef = getSnapshots().getSnapshot(position).getReference();
 
         if(model.isFlag())
             holder.lnrContainer.setBackgroundColor(context.getResources().getColor(R.color.comment_flagged));
@@ -98,10 +96,10 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
         mComment.setText(model.getContent());
         mTime.setText(DateFormat.format("dd MMM  (h:mm a)", model.getTime()));
         imgLikes.setColorFilter(model.getLikes().contains(userId)?
-                context.getResources().getColor(R.color.colorPrimary): context.getResources().getColor(R.color.likeGrey));
+                context.getResources().getColor(R.color.likeGold): context.getResources().getColor(R.color.likeGrey));
 
         imgDislikes.setColorFilter(model.getDislikes().contains(userId)?
-                context.getResources().getColor(R.color.colorPrimary): context.getResources().getColor(R.color.likeGrey));
+                context.getResources().getColor(R.color.likeGold): context.getResources().getColor(R.color.likeGrey));
 
         mLikesCount.setText(model.getLikesCount()==0? "":String.valueOf(model.getLikesCount()));
         mDislikesCount.setText(model.getDislikesCount()==0? "":String.valueOf(model.getDislikesCount()));
@@ -145,8 +143,24 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
             @Override
             public void onClick(View v) {
                 Log.i(TAG, "onClick: Key is " + postId);
+                if(model.getDislikes().contains(userId)){
+                    holder.imgLikes.setColorFilter(context.getResources().getColor(R.color.likeGold));
+                    holder.imgDislike.setColorFilter(context.getResources().getColor(R.color.likeGrey));
+                    holder.mLikes.setText(String.valueOf(model.getLikesCount()+1));
+                    holder.mDislikes.setText(model.getDislikesCount()-1>0? String.valueOf(model.getDislikesCount()-1):"");
+                }
+                else{
+                    if(model.getLikes().contains(userId)){
+                        holder.imgLikes.setColorFilter(context.getResources().getColor(R.color.likeGrey));
+                        holder.mLikes.setText(model.getLikesCount()-1>0?String.valueOf(model.getLikesCount()-1):"");
+                    }
+                    else{
+                        holder.imgLikes.setColorFilter(context.getResources().getColor(R.color.likeGold));
+                        holder.mLikes.setText(String.valueOf(model.getLikesCount()+1));
+                    }
+                }
                 String substring = model.getContent().substring(0, Math.min(model.getContent().length(), 90));
-                calculations.onCommentLike(commentRef, userId, model.getUserId(), postId, mainPostId, substring);
+                calculations.onCommentLike(userId, model.getUserId(), postId, mainPostId, substring);
             }
         });
 
@@ -162,8 +176,25 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
             @Override
             public void onClick(View v) {
                 Log.i(TAG, "onClick: Key is " + postId);
+
+                if(model.getLikes().contains(userId)){
+                    holder.imgLikes.setColorFilter(context.getResources().getColor(R.color.likeGrey));
+                    holder.imgDislike.setColorFilter(context.getResources().getColor(R.color.likeGold));
+                    holder.mLikes.setText(model.getLikesCount()-1>0? String.valueOf(model.getLikesCount()-1):"");
+                    holder.mDislikes.setText(String.valueOf(model.getDislikesCount()+1));
+                }
+                else{
+                    if(model.getDislikes().contains(userId)){
+                        holder.imgDislike.setColorFilter(context.getResources().getColor(R.color.likeGrey));
+                        holder.mDislikes.setText(model.getDislikesCount()-1>0? String.valueOf(model.getDislikesCount()-1): "");
+                    }
+                    else{
+                        holder.imgDislike.setColorFilter(context.getResources().getColor(R.color.likeGold));
+                        holder.mDislikes.setText(String.valueOf(model.getDislikesCount()+1));
+                    }
+                }
                 String substring = model.getContent().substring(0, Math.min(model.getContent().length(), 90));
-                calculations.onCommentDislike(commentRef, userId, model.getUserId(), postId, mainPostId, substring);
+                calculations.onCommentDislike(userId, model.getUserId(), postId, mainPostId, substring);
             }
         });
         imgOverflow.setOnClickListener(new View.OnClickListener() {

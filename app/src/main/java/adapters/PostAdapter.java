@@ -154,10 +154,10 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
         holder.mpost.setText(model.getContent());
         holder.mTime.setText(DateFormat.format("dd MMM  (h:mm a)", model.getTime()));
         holder.imgLikes.setColorFilter(model.getLikes().contains(userId)?
-                context.getResources().getColor(R.color.colorPrimary): context.getResources().getColor(R.color.likeGrey));
+                context.getResources().getColor(R.color.likeGold): context.getResources().getColor(R.color.likeGrey));
 
         holder.imgDislike.setColorFilter(model.getDislikes().contains(userId)?
-                context.getResources().getColor(R.color.colorPrimary): context.getResources().getColor(R.color.likeGrey));
+                context.getResources().getColor(R.color.likeGold): context.getResources().getColor(R.color.likeGrey));
 
         holder.mComment.setText(model.getCommentsCount()==0? "":String.valueOf(model.getCommentsCount()));
         holder.mLikes.setText(model.getLikesCount()==0? "":String.valueOf(model.getLikesCount()));
@@ -192,9 +192,8 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
         holder.imgLikes.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                model.getDislikes().contains(userId);
                 if(model.getDislikes().contains(userId)){
-                    holder.imgLikes.setColorFilter(context.getResources().getColor(R.color.colorPrimary));
+                    holder.imgLikes.setColorFilter(context.getResources().getColor(R.color.likeGold));
                     holder.imgDislike.setColorFilter(context.getResources().getColor(R.color.likeGrey));
                     holder.mLikes.setText(String.valueOf(model.getLikesCount()+1));
                     holder.mDislikes.setText(model.getDislikesCount()-1>0? String.valueOf(model.getDislikesCount()-1):"");
@@ -205,7 +204,7 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
                         holder.mLikes.setText(model.getLikesCount()-1>0?String.valueOf(model.getLikesCount()-1):"");
                     }
                     else{
-                        holder.imgLikes.setColorFilter(context.getResources().getColor(R.color.colorPrimary));
+                        holder.imgLikes.setColorFilter(context.getResources().getColor(R.color.likeGold));
                         holder.mLikes.setText(String.valueOf(model.getLikesCount()+1));
                     }
                 }
@@ -219,7 +218,7 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
             public void onClick(View v) {
                 if(model.getLikes().contains(userId)){
                     holder.imgLikes.setColorFilter(context.getResources().getColor(R.color.likeGrey));
-                    holder.imgDislike.setColorFilter(context.getResources().getColor(R.color.colorPrimary));
+                    holder.imgDislike.setColorFilter(context.getResources().getColor(R.color.likeGold));
                     holder.mLikes.setText(model.getLikesCount()-1>0? String.valueOf(model.getLikesCount()-1):"");
                     holder.mDislikes.setText(String.valueOf(model.getDislikesCount()+1));
                 }
@@ -229,7 +228,7 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
                         holder.mDislikes.setText(model.getDislikesCount()-1>0? String.valueOf(model.getDislikesCount()-1): "");
                     }
                     else{
-                        holder.imgDislike.setColorFilter(context.getResources().getColor(R.color.colorPrimary));
+                        holder.imgDislike.setColorFilter(context.getResources().getColor(R.color.likeGold));
                         holder.mDislikes.setText(String.valueOf(model.getDislikesCount()+1));
                     }
                 }

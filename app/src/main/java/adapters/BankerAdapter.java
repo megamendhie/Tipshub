@@ -179,10 +179,10 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
         mpost.setText(model.getContent());
         mTime.setText(DateFormat.format("dd MMM  (h:mm a)", model.getTime()));
         imgLikes.setColorFilter(model.getLikes().contains(userId)?
-                context.getResources().getColor(R.color.colorPrimary): context.getResources().getColor(R.color.likeGrey));
+                context.getResources().getColor(R.color.likeGold): context.getResources().getColor(R.color.likeGrey));
 
         imgDislikes.setColorFilter(model.getDislikes().contains(userId)?
-                context.getResources().getColor(R.color.colorPrimary): context.getResources().getColor(R.color.likeGrey));
+                context.getResources().getColor(R.color.likeGold): context.getResources().getColor(R.color.likeGrey));
 
         mComment.setText(model.getCommentsCount()==0? "":String.valueOf(model.getCommentsCount()));
         mLikesCount.setText(model.getLikesCount()==0? "":String.valueOf(model.getLikesCount()));
@@ -234,7 +234,7 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
             public void onClick(View v) {
                 model.getDislikes().contains(userId);
                 if(model.getDislikes().contains(userId)){
-                    imgLikes.setColorFilter(context.getResources().getColor(R.color.colorPrimary));
+                    imgLikes.setColorFilter(context.getResources().getColor(R.color.likeGold));
                     imgDislikes.setColorFilter(context.getResources().getColor(R.color.likeGrey));
                     mLikesCount.setText(String.valueOf(model.getLikesCount()+1));
                     mDislikesCount.setText(model.getDislikesCount()-1>0? String.valueOf(model.getDislikesCount()-1):"");
@@ -245,7 +245,7 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
                         mLikesCount.setText(model.getLikesCount()-1>0?String.valueOf(model.getLikesCount()-1):"");
                     }
                     else{
-                        imgLikes.setColorFilter(context.getResources().getColor(R.color.colorPrimary));
+                        imgLikes.setColorFilter(context.getResources().getColor(R.color.likeGold));
                         mLikesCount.setText(String.valueOf(model.getLikesCount()+1));
                     }
                 }
@@ -259,7 +259,7 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
             public void onClick(View v) {
                 if(model.getLikes().contains(userId)){
                     imgLikes.setColorFilter(context.getResources().getColor(R.color.likeGrey));
-                    imgDislikes.setColorFilter(context.getResources().getColor(R.color.colorPrimary));
+                    imgDislikes.setColorFilter(context.getResources().getColor(R.color.likeGold));
                     mLikesCount.setText(model.getLikesCount()-1>0? String.valueOf(model.getLikesCount()-1):"");
                     mDislikesCount.setText(String.valueOf(model.getDislikesCount()+1));
                 }
@@ -269,7 +269,7 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
                         mDislikesCount.setText(model.getDislikesCount()-1>0? String.valueOf(model.getDislikesCount()-1): "");
                     }
                     else{
-                        imgDislikes.setColorFilter(context.getResources().getColor(R.color.colorPrimary));
+                        imgDislikes.setColorFilter(context.getResources().getColor(R.color.likeGold));
                         mDislikesCount.setText(String.valueOf(model.getDislikesCount()+1));
                     }
                 }
