@@ -13,6 +13,7 @@ import com.sqube.tipshub.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class PerformanceAdapter extends RecyclerView.Adapter<PerformanceAdapter.ListNewsViewHolder>{
@@ -42,11 +43,12 @@ public class PerformanceAdapter extends RecyclerView.Adapter<PerformanceAdapter.
         row = performanceList.get(position);
         try{
             holder.txtType.setText(getType((int)row.get("type")));
-            holder.txtNOG.setText(row.get("NOG") + " tips");
+            holder.txtNOG.setText((long)row.get("NOG")>1 ? row.get("NOG") + " tips" : row.get("NOG") + " tip");
             holder.txtWG.setText(row.get("WG")+ " won");
-            holder.txtWGP.setText(row.get("WGP")+ "%");
+            long i = (long) row.get("WGP");
+            holder.txtWGP.setText(String.format(Locale.getDefault(),"%.1f%%", (double) i));
         }catch(Exception e) {
-            Log.i("PerformanceAdapter", "onBindViewHolder: ");
+            e.getStackTrace();
         }
 
     }
