@@ -22,8 +22,7 @@
                 android:id="@+id/galleryImage"
                 android:layout_width="match_parent"
                 android:layout_height="160dp"
-                android:scaleType="matrix"
-                android:src="@mipmap/ic_launcher_round"/>
+                android:scaleType="matrix"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -41,8 +40,7 @@
                     android:layout_marginBottom="5dp"
                     android:maxLines="3"
                     android:scrollHorizontally="true"
-                    android:ellipsize="end"
-                    android:text="This is news title"/>
+                    android:ellipsize="end"/>
 
                 <View
                     android:layout_width="match_parent"
