@@ -26,7 +26,7 @@ import java.util.Random;
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private final String ADMIN_CHANNEL_ID ="admin_channel";
-    private static final String SUBSCRIBE_TO = "userABC";
+    private static final String SUBSCRIBE_TO = "tipshub_admin";
     private static final String TAG = "FbMessagingService";
 
 
