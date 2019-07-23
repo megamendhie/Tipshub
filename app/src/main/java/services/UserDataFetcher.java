@@ -11,6 +11,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.ArrayList;
 
@@ -26,6 +27,8 @@ public class UserDataFetcher extends IntentService {
     private SharedPreferences prefs;
     SharedPreferences.Editor editor;
     private String TAG = "UserDataFetcher";
+    private FirebaseMessaging FCM;
+
     public UserDataFetcher() {
         super("UserDataFetcher");
     }
@@ -43,6 +46,7 @@ public class UserDataFetcher extends IntentService {
         auth = FirebaseAuth.getInstance();
         prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         editor = prefs.edit();
+        FCM = FirebaseMessaging.getInstance();
         Log.i(TAG, "onCreate: ");
         if(auth.getCurrentUser()==null){
             onDestroy();
@@ -63,6 +67,7 @@ public class UserDataFetcher extends IntentService {
                 boolean isVerified = documentSnapshot.toObject(ProfileMedium.class).isC0_verified();
                 editor.putBoolean("isVerified", isVerified);
                 editor.apply();
+                FCM.subscribeToTopic(userID);
             }
         });
 
@@ -114,6 +119,14 @@ public class UserDataFetcher extends IntentService {
                 if(documentSnapshot.exists() && documentSnapshot.contains("list")){
                     UserNetwork.setSubscribed((ArrayList<String>) documentSnapshot.get("list"));
                 }
+
+                //subscribe for notification from people you have subscribed to
+                if(((ArrayList<String>) documentSnapshot.get("list"))==null || (((ArrayList<String>) documentSnapshot.get("list")).isEmpty()))
+                    return;
+                for(String s: ((ArrayList<String>) documentSnapshot.get("list"))){
+                    FCM.subscribeToTopic("sub_"+s);
+                }
+
             }
         });
     }
