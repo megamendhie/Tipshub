@@ -327,10 +327,10 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<FilteredPostAdapte
         holder.mpost.setText(model.getContent());
         holder.mTime.setText(DateFormat.format("dd MMM  (h:mm a)", model.getTime()));
         holder.imgLikes.setColorFilter(model.getLikes().contains(userId)?
-                context.getResources().getColor(R.color.colorPrimary): context.getResources().getColor(R.color.likeGrey));
+                context.getResources().getColor(R.color.likeGold): context.getResources().getColor(R.color.likeGrey));
 
         holder.imgDislike.setColorFilter(model.getDislikes().contains(userId)?
-                context.getResources().getColor(R.color.colorPrimary): context.getResources().getColor(R.color.likeGrey));
+                context.getResources().getColor(R.color.likeGold): context.getResources().getColor(R.color.likeGrey));
 
         holder.mComment.setText(model.getCommentsCount()==0? "":String.valueOf(model.getCommentsCount()));
         holder.mLikes.setText(model.getLikesCount()==0? "":String.valueOf(model.getLikesCount()));
