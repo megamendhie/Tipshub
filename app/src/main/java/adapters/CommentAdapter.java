@@ -6,6 +6,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateFormat;
 import android.util.Log;
@@ -20,8 +21,14 @@ import android.widget.TextView;
 import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.Transaction;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.sqube.tipshub.MemberProfileActivity;
@@ -29,8 +36,12 @@ import com.sqube.tipshub.MyProfileActivity;
 import com.sqube.tipshub.R;
 import com.sqube.tipshub.SubscriptionActivity;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import de.hdodenhof.circleimageview.CircleImageView;
 import models.Comment;
+import models.Post;
 import models.UserNetwork;
 import services.GlideApp;
 import utils.Calculations;
@@ -42,7 +53,7 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
     private Context context;
     private String userId;
     private String mainPostId;
-    Calculations calculations;
+    private Calculations calculations;
     private RequestOptions requestOptions = new RequestOptions();
     private StorageReference storageReference;
     private FirebaseFirestore database;
@@ -66,7 +77,7 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
         this.database = FirebaseFirestore.getInstance();
         storageReference = FirebaseStorage.getInstance().getReference()
                 .child("profile_images");
-        requestOptions.placeholder(R.drawable.ic_person_outline_black_24dp);
+        requestOptions.placeholder(R.drawable.dummy);
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -256,6 +267,56 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
                 intent.putExtra("userId", commentUserId);
                 context.startActivity(intent);
                 dialog.cancel();
+            }
+        });
+
+
+        btnDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                deleteComment(postId, imgOverflow);
+            }
+        });
+    }
+
+    private void deleteComment(String postId, View imgOverflow){
+        final DocumentReference postPath =  database.collection("posts").document(mainPostId);
+        database.runTransaction(new Transaction.Function<Void>() {
+            @Override
+            public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
+                DocumentSnapshot snapshot = transaction.get(postPath);
+                //Check if post exist first
+                if(!snapshot.exists()){
+                    Log.i(TAG, "apply: snapshot is empty");
+                    return null;
+                }
+
+                Map<String, Object> updates = new HashMap<>();
+                final long commentCount = snapshot.toObject(Post.class).getCommentsCount() -1; //Retrieve commentCount stat
+                updates.put("commentsCount", Math.max(0,commentCount));
+                transaction.update(postPath, updates);
+                return null;
+            }
+        }).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                database.collection("comments").document(postId).delete()
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Snackbar.make(imgOverflow, "Comment deleted", Snackbar.LENGTH_SHORT).show();
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Snackbar.make(imgOverflow, "Something went wrong", Snackbar.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Snackbar.make(imgOverflow, "Something went wrong", Snackbar.LENGTH_SHORT).show();
             }
         });
     }
