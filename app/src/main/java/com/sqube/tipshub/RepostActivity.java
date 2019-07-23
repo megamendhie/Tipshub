@@ -1,7 +1,8 @@
 package com.sqube.tipshub;
 
-import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -62,6 +63,7 @@ public class RepostActivity extends AppCompatActivity implements View.OnClickLis
 
     boolean postExist=false;
     private String[] type = {"3-5 odds", "6-10 odds", "11-50 odds", "50+ odds", "Draws", "Banker tip"};
+    private SharedPreferences prefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +75,7 @@ public class RepostActivity extends AppCompatActivity implements View.OnClickLis
             actionBar.setTitle("Post");
             actionBar.setHomeAsUpIndicator(R.drawable.ic_close_black_24dp);
         }
+        prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         database = FirebaseFirestore.getInstance();
         user = FirebaseAuth.getInstance().getCurrentUser();
         userId = user.getUid();
@@ -218,10 +221,13 @@ public class RepostActivity extends AppCompatActivity implements View.OnClickLis
                     @Override
                     public void onSuccess(Void aVoid) {
                         Log.d("RepostActivity", "Transaction success!");
+                        //get user verification status from SharePreference
+                        boolean isVerified = prefs.getBoolean("isVerified", false);
+
                         //Repost the content
-                        Post post = new Post(username, userId, content, 1, 0, childLink, model.getUsername(),
-                                model.getUserId(), model.getContent(), model.getType(), model.getImgUrl1(), model.getImgUrl2(),
-                                model.getBookingCode(), model.getRecommendedBookie());
+                        Post post = new Post(username, userId, content, isVerified,1, 0, childLink, model.getUsername(),
+                                model.getUserId(), model.getContent(), model.isVerifiedUser(), model.getType(), model.getImgUrl1(),
+                                model.getImgUrl2(), model.getBookingCode(), model.getRecommendedBookie());
                         database.collection("posts").add(post);
 
                         //add to recommended user
@@ -280,7 +286,6 @@ public class RepostActivity extends AppCompatActivity implements View.OnClickLis
                 post();
                 break;
             case R.id.btnClose:
-                startActivity(new Intent(this, LoginActivity.class));
                 finish();
                 break;
         }

@@ -17,6 +17,8 @@ public class Post implements Parcelable, Comparable {
     private int status;
     private int type;
     private long time;
+    private int mediaCount;
+    private List<String> media = new ArrayList<>();
     private List<String> likes = new ArrayList<>();
     private long likesCount;
     private List<String> dislikes = new ArrayList<>();
@@ -30,6 +32,8 @@ public class Post implements Parcelable, Comparable {
     private String bookingCode;
 
     private boolean hasChild;
+    private boolean verifiedUser;
+    private boolean childVerifiedUser;
     private String childLink;
     private String childUsername;
     private String childUserId;
@@ -43,16 +47,18 @@ public class Post implements Parcelable, Comparable {
 
     public Post(){}
 
-    public Post(String username, String userId, String content, int status, int type,
-                String childLink, String childUsername, String childUserId, String childContent, int childType,
+    public Post(String username, String userId, String content, boolean verifiedUser, int status, int type,
+                String childLink, String childUsername, String childUserId, String childContent, boolean childVerifiedUser, int childType,
                 String childImgUrl1, String childImgUrl2, String childBookingCode, int childBookie){
         this.username = username;
         this.userId = userId;
         this.content = content;
+        this.verifiedUser = verifiedUser;
         this.status = status;
         this.time = new Date().getTime();
         this.type = type;
 
+        this.mediaCount = 0;
         this.likesCount = 0;
         this.dislikesCount = 0;
         this.repostCount = 0;
@@ -62,6 +68,7 @@ public class Post implements Parcelable, Comparable {
         this.reportCount = 0;
 
         this.hasChild = true;
+        this.childVerifiedUser = childVerifiedUser;
         this.childLink = childLink;
         this.childUsername = childUsername;
         this.childUserId = childUserId;
@@ -73,14 +80,16 @@ public class Post implements Parcelable, Comparable {
         this.childBookie= childBookie;
     }
 
-    public Post(String username, String userId, String content, int status, int type, String bookingCode, int recommendedBookie){
+    public Post(String username, String userId, String content, boolean verifiedUser, int status, int type, String bookingCode, int recommendedBookie){
         this.username = username;
         this.userId = userId;
         this.content = content;
+        this.verifiedUser = verifiedUser;
         this.status = status;
         this.time = new Date().getTime();
         this.type = type;
 
+        this.mediaCount = 0;
         this.likesCount = 0;
         this.dislikesCount = 0;
         this.repostCount = 0;
@@ -104,6 +113,8 @@ public class Post implements Parcelable, Comparable {
         status = in.readInt();
         type = in.readInt();
         time = in.readLong();
+        mediaCount = in.readInt();
+        media = in.createStringArrayList();
         likes = in.createStringArrayList();
         likesCount = in.readLong();
         dislikes = in.createStringArrayList();
@@ -115,7 +126,9 @@ public class Post implements Parcelable, Comparable {
         reportCount = in.readLong();
         recommendedBookie = in.readInt();
         bookingCode = in.readString();
+        verifiedUser = in.readByte() != 0;
         hasChild = in.readByte() != 0;
+        childVerifiedUser = in.readByte() != 0;
         childLink = in.readString();
         childUsername = in.readString();
         childUserId = in.readString();
@@ -161,6 +174,14 @@ public class Post implements Parcelable, Comparable {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public boolean isVerifiedUser() {
+        return verifiedUser;
+    }
+
+    public void setVerifiedUser(boolean verifiedUser) {
+        this.verifiedUser = verifiedUser;
     }
 
     public String getImgUrl1() {
@@ -257,6 +278,14 @@ public class Post implements Parcelable, Comparable {
 
     public void setHasChild(boolean hasChild) {
         this.hasChild = hasChild;
+    }
+
+    public boolean isChildVerifiedUser() {
+        return childVerifiedUser;
+    }
+
+    public void setChildVerifiedUser(boolean childVerifiedUser) {
+        this.childVerifiedUser = childVerifiedUser;
     }
 
     public String getChildLink() {
@@ -371,6 +400,22 @@ public class Post implements Parcelable, Comparable {
         this.childType = childType;
     }
 
+    public int getMediaCount() {
+        return mediaCount;
+    }
+
+    public void setMediaCount(int mediaCount) {
+        this.mediaCount = mediaCount;
+    }
+
+    public List<String> getMedia() {
+        return media;
+    }
+
+    public void setMedia(List<String> media) {
+        this.media = media;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -386,6 +431,8 @@ public class Post implements Parcelable, Comparable {
         dest.writeInt(status);
         dest.writeInt(type);
         dest.writeLong(time);
+        dest.writeInt(mediaCount);
+        dest.writeStringList(media);
         dest.writeStringList(likes);
         dest.writeLong(likesCount);
         dest.writeStringList(dislikes);
@@ -397,7 +444,9 @@ public class Post implements Parcelable, Comparable {
         dest.writeLong(reportCount);
         dest.writeInt(recommendedBookie);
         dest.writeString(bookingCode);
+        dest.writeByte((byte) (verifiedUser ? 1 : 0));
         dest.writeByte((byte) (hasChild ? 1 : 0));
+        dest.writeByte((byte) (childVerifiedUser ? 1 : 0));
         dest.writeString(childLink);
         dest.writeString(childUsername);
         dest.writeString(childUserId);
@@ -408,7 +457,6 @@ public class Post implements Parcelable, Comparable {
         dest.writeInt(childBookie);
         dest.writeInt(childType);
     }
-
 
     @Override
     public int compareTo(@NonNull Object o) {

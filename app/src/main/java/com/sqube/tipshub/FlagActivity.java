@@ -2,7 +2,9 @@ package com.sqube.tipshub;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
@@ -17,6 +19,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -33,19 +36,19 @@ import java.util.Map;
 
 import models.Comment;
 import models.Report;
-import utils.Calculations;
 
 public class FlagActivity extends AppCompatActivity implements View.OnClickListener {
     private Button btnPost;
     private TextView btnClose;
     private MultiAutoCompleteTextView edtComment;
     private String comment;
-    private String postId;
+    private String postId, reportedUsername, reportedUserId;
     private String TAG = "FlagActivity";
     private ProgressBar progressBar;
+    private SharedPreferences prefs;
     FirebaseFirestore database;
     DocumentReference postReference;
-    Calculations calculations;
+    private RequestOptions requestOptions = new RequestOptions();
 
     String userId, username, postContent;
 
@@ -60,9 +63,12 @@ public class FlagActivity extends AppCompatActivity implements View.OnClickListe
             actionBar.setTitle("");
             actionBar.setHomeAsUpIndicator(R.drawable.ic_close_black_24dp);
         }
+        prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         edtComment = findViewById(R.id.edtPost);
-        btnPost = findViewById(R.id.btnPost); btnPost.setOnClickListener(this);
-        btnClose = findViewById(R.id.btnClose); btnClose.setOnClickListener(this);
+        btnPost = findViewById(R.id.btnPost);
+        btnPost.setOnClickListener(this);
+        btnClose = findViewById(R.id.btnClose);
+        btnClose.setOnClickListener(this);
         progressBar = findViewById(R.id.prgLogin);
 
         postId = getIntent().getStringExtra("postId");
@@ -71,13 +77,17 @@ public class FlagActivity extends AppCompatActivity implements View.OnClickListe
         final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         userId = user.getUid();
         username = user.getDisplayName();
+
+        //get from intent reported post, username, and userId
         postId = getIntent().getStringExtra("postId");
+        reportedUsername = getIntent().getStringExtra("reportedUsername");
+        reportedUserId = getIntent().getStringExtra("reportedUserId");
         postReference = database.collection("posts").document(postId);
     }
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()){
+        switch (v.getId()) {
             case R.id.btnPost:
                 increaseCommentCount();
                 break;
@@ -95,21 +105,23 @@ public class FlagActivity extends AppCompatActivity implements View.OnClickListe
 
     private void reportPost() {
         comment = edtComment.getText().toString().trim();
-        if(TextUtils.isEmpty(comment) || comment.length() < 3){
+        if (TextUtils.isEmpty(comment) || comment.length() < 3) {
             edtComment.setError("Type your reason");
             return;
         }
         CollectionReference commentReference = database.collection("comments").document(postId)
-                        .collection("comments");
+                .collection("comments");
         CollectionReference reportReference = database.collection("report");
 
-        commentReference.add(new Comment(username, userId, comment, true))
+        //get user verification status from SharePreference
+        boolean isVerified = prefs.getBoolean("isVerified", false);
+        commentReference.add(new Comment(username, userId, comment, postId, true, isVerified))
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                     @Override
                     public void onSuccess(DocumentReference documentReference) {
-                        reportReference.add(new Report(username, userId, comment, postId));
+                        reportReference.add(new Report(username, userId, comment, postId, reportedUsername, reportedUserId));
                         progressBar.setVisibility(View.GONE);
-                        comment= "";
+                        comment = "";
                         edtComment.setText("");
                         Snackbar.make(edtComment, "Comment added", Snackbar.LENGTH_SHORT).show();
                         finish();
@@ -117,9 +129,9 @@ public class FlagActivity extends AppCompatActivity implements View.OnClickListe
                 });
     }
 
-    public void increaseCommentCount(){
+    public void increaseCommentCount() {
         comment = edtComment.getText().toString();
-        if(TextUtils.isEmpty(comment)){
+        if (TextUtils.isEmpty(comment)) {
             edtComment.setError("Type your comment");
             return;
         }
@@ -131,7 +143,7 @@ public class FlagActivity extends AppCompatActivity implements View.OnClickListe
                 DocumentSnapshot snapshot = transaction.get(postReference);
 
                 //check if post still exists
-                if(!snapshot.exists()){
+                if (!snapshot.exists()) {
                     Log.i(TAG, "apply: like doesn't exist");
                     return null;
                 }
@@ -164,7 +176,7 @@ public class FlagActivity extends AppCompatActivity implements View.OnClickListe
                 });
     }
 
-    private void popUp(){
+    private void popUp() {
         AlertDialog.Builder builder = new AlertDialog.Builder(FlagActivity.this, R.style.Theme_AppCompat_Light_Dialog_Alert);
         builder.setMessage("Save this comment?")
                 .setPositiveButton("Save", new DialogInterface.OnClickListener() {

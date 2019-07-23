@@ -1,6 +1,8 @@
 package com.sqube.tipshub;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -58,14 +60,15 @@ import utils.SpaceTokenizer;
 public class FullPostActivity extends AppCompatActivity implements View.OnClickListener, TextWatcher {
     private FirebaseFirestore database;
     CollectionReference commentReference;
-    DocumentReference postReference, childReference;
+    DocumentReference postReference;
     LinearLayout lnrCode, lnrFullPost, lnrChildPost;
     TextView mpost, mUsername, mTime;
     private RequestOptions requestOptions = new RequestOptions();
-    Query query;
+    private Query query;
     Calculations calculations;
-    String comment;
+    private String comment;
     boolean childDisplayed;
+    private SharedPreferences prefs;
     final String TAG = "FullPostActivity";
     Reusable reusable = new Reusable();
     TextView mLikes, mDislikes, mComment, mCode, mType;
@@ -91,6 +94,7 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
         actionBar =getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setTitle("Post");
+        prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         mpost = findViewById(R.id.txtPost);
         mUsername = findViewById(R.id.txtUsername);
         mTime = findViewById(R.id.txtTime);
@@ -356,7 +360,8 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void postComment() {
-        commentReference.add(new Comment(username, userId, comment, postId, false))
+        boolean isVerified = prefs.getBoolean("isVerified", false);
+        commentReference.add(new Comment(username, userId, comment, postId, false, isVerified))
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                     @Override
                     public void onSuccess(DocumentReference documentReference) {
