@@ -1,7 +1,9 @@
 package com.sqube.tipshub;
 
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -38,8 +40,9 @@ import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import models.Post;
-import models.Profile;
+import models.ProfileMedium;
 import services.GlideApp;
+import utils.Reusable;
 import utils.SpaceTokenizer;
 
 public class PostActivity extends AppCompatActivity implements View.OnClickListener {
@@ -49,6 +52,7 @@ public class PostActivity extends AppCompatActivity implements View.OnClickListe
     private MultiAutoCompleteTextView edtPost;
     private ProgressBar prgBar;
     private Spinner spnType;
+    private SharedPreferences prefs;
     FirebaseFirestore database;
     FirebaseAuth auth;
     FirebaseUser user;
@@ -77,6 +81,7 @@ public class PostActivity extends AppCompatActivity implements View.OnClickListe
             actionBar.setTitle("Post");
             actionBar.setHomeAsUpIndicator(R.drawable.ic_close_black_24dp);
         }
+        prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         database = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
@@ -226,21 +231,33 @@ public class PostActivity extends AppCompatActivity implements View.OnClickListe
 
     public void post(){
         prgBar.setVisibility(View.VISIBLE);
-        postReference.add(new Post(username, userId, content, 1, type, code, codeIndex));
+
+        //get user verification status from SharePreference
+        boolean isVerified = prefs.getBoolean("isVerified", false);
+        postReference.add(new Post(username, userId, content, isVerified, 1, type, code, codeIndex));
+
         database.collection("profiles").document(userId)
                 .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 if(documentSnapshot.exists()){
-                    final Profile myProfile = documentSnapshot.toObject(Profile.class);
-                    final long lastPostTime = new Date().getTime();
-                    final long postCount = myProfile.getE0a_NOG();
-                    final long wonGamesCount = myProfile.getE0b_WG();
-                    long wonGamesPercentage = (wonGamesCount*100)/(1+postCount);
                     Map<String, Object> updates = new HashMap<>();
-                    updates.put("c8_lsPostTime", lastPostTime);
-                    updates.put("e0a_NOG", (postCount+1));
-                    updates.put("e0c_WGP", wonGamesPercentage);
+                    updates.put("c8_lsPostTime", new Date().getTime());
+
+                    if(type>0){
+                        final ProfileMedium myProfile = documentSnapshot.toObject(ProfileMedium.class);
+                        final long totalPostCount = myProfile.getE0a_NOG() + 1;
+                        final long wonGamesCount = myProfile.getE0b_WG();
+                        final long wonGamesPercentage = totalPostCount>0? ((wonGamesCount*100)/totalPostCount) : 0;
+
+                        //retrieve stat for the posted game type
+                        long[] stats = Reusable.getStatsForPost(myProfile, type);
+
+                        updates.put("e0a_NOG", totalPostCount);
+                        updates.put("e0c_WGP", wonGamesPercentage);
+                        updates.put("e"+type + "a_NOG", stats[0]);
+                        updates.put("e"+type + "c_WGP", stats[1]);
+                    }
                     database.collection("profiles").document(userId).set(updates, SetOptions.merge());
                     prgBar.setVisibility(View.GONE);
                     Toast.makeText(getApplicationContext(), "Posted", Toast.LENGTH_LONG).show();
