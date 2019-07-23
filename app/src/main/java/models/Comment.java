@@ -15,20 +15,22 @@ public class Comment {
     private List<String> likes = new ArrayList<>();
     private long likesCount;
     private List<String> dislikes = new ArrayList<>();
-    private long dislikesCount;;
+    private long dislikesCount;
     private long relevance;
     private long timeRelevance;
     private long reportCount;
+    private boolean verifiedUser;
     private boolean flag = false;
 
 
     public Comment(){}
 
-    public Comment(String username, String userId, String content, String commentOn, boolean flag){
+    public Comment(String username, String userId, String content, String commentOn, boolean flag, boolean verifiedUser){
         this.username = username;
         this.userId = userId;
         this.content = content;
         this.commentOn = commentOn;
+        this.verifiedUser = verifiedUser;
         this.time = new Date().getTime();
         this.flag = flag;
 
@@ -158,5 +160,13 @@ public class Comment {
 
     public void setCommentOn(String commentOn) {
         this.commentOn = commentOn;
+    }
+
+    public boolean isVerifiedUser() {
+        return verifiedUser;
+    }
+
+    public void setVerifiedUser(boolean verifiedUser) {
+        this.verifiedUser = verifiedUser;
     }
 }
