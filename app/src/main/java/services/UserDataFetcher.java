@@ -2,6 +2,8 @@ package services;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -14,12 +16,15 @@ import java.util.ArrayList;
 
 import javax.annotation.Nullable;
 
+import models.ProfileMedium;
 import models.UserNetwork;
 
 public class UserDataFetcher extends IntentService {
     FirebaseFirestore database;
     FirebaseAuth auth;
     String userID;
+    private SharedPreferences prefs;
+    SharedPreferences.Editor editor;
     private String TAG = "UserDataFetcher";
     public UserDataFetcher() {
         super("UserDataFetcher");
@@ -36,6 +41,8 @@ public class UserDataFetcher extends IntentService {
 
         database = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
+        prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        editor = prefs.edit();
         Log.i(TAG, "onCreate: ");
         if(auth.getCurrentUser()==null){
             onDestroy();
@@ -49,6 +56,13 @@ public class UserDataFetcher extends IntentService {
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
                 Log.i(TAG, "onEvent: profile");
                 UserNetwork.setProfile(documentSnapshot);
+                if(documentSnapshot==null || !documentSnapshot.exists())
+                    return;
+
+                //set user verification status to SharePreference
+                boolean isVerified = documentSnapshot.toObject(ProfileMedium.class).isC0_verified();
+                editor.putBoolean("isVerified", isVerified);
+                editor.apply();
             }
         });
 
