@@ -64,6 +64,7 @@ public class RepostActivity extends AppCompatActivity implements View.OnClickLis
     boolean postExist=false;
     private String[] type = {"3-5 odds", "6-10 odds", "11-50 odds", "50+ odds", "Draws", "Banker tip"};
     private SharedPreferences prefs;
+    private Calculations calculations;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -156,29 +157,6 @@ public class RepostActivity extends AppCompatActivity implements View.OnClickLis
                 .into(childDp);
     }
 
-    //listen to changes on child node. Update
-    private void listener() {
-        postReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                model = documentSnapshot.toObject(Post.class);
-                if(model==null){
-                    return;
-                }
-                imgStatus.setVisibility(model.getStatus()==1? View.GONE: View.VISIBLE);
-                if(model.getType()==0){
-                    txtChildType.setVisibility(View.GONE);
-                }
-                else{
-                    txtChildType.setVisibility(View.VISIBLE);
-                    txtChildType.setText(type[model.getType()-1]);
-                }
-                txtChildUsername.setText(model.getUsername());
-                txtPost.setText(model.getContent());
-            }
-        });
-    }
-
     public void post(){
         content = edtPost.getText().toString();
         if(content.length()<3){
@@ -187,7 +165,7 @@ public class RepostActivity extends AppCompatActivity implements View.OnClickLis
         }
         prgBar.setVisibility(View.VISIBLE);
         final DocumentReference postPath =  database.collection("posts").document(childLink);
-        final Calculations calculations= new Calculations(getApplicationContext());
+        calculations = new Calculations(getApplicationContext());
 
         database.runTransaction(new Transaction.Function<Void>() {
             @Override
@@ -235,7 +213,7 @@ public class RepostActivity extends AppCompatActivity implements View.OnClickLis
                             calculations.recommend(userId, model.getUserId());
                         }
                         setLastPostTime();
-
+                        sendNotification();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -245,8 +223,6 @@ public class RepostActivity extends AppCompatActivity implements View.OnClickLis
                         Toast.makeText(getApplicationContext(), "Connection failed", Toast.LENGTH_SHORT).show();
                     }
                 });
-
-       //send notification
     }
 
     public void setLastPostTime(){
@@ -292,6 +268,10 @@ public class RepostActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     private void sendNotification() {
-
+        if(userId.equals(model.getUserId()))
+            return;
+        String substring = content.substring(0, Math.min(content.length(), 90));
+        calculations.setCount(model.getRepostCount());
+        calculations.sendPushNotification(true, userId, model.getUserId(), childLink, "reposted", "post", substring);
     }
 }
