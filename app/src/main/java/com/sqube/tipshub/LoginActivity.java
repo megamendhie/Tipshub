@@ -189,7 +189,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 .addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                    Snackbar.make(btnLogin, "Login failed. " + e.getMessage(), Snackbar.LENGTH_LONG).show();
+                if(mAuth.getCurrentUser()!=null)
+                    mAuth.signOut();
+                Snackbar.make(btnLogin, "Login failed. " + e.getMessage(), Snackbar.LENGTH_LONG).show();
             }
         });
     }
@@ -233,7 +235,11 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     edtPassword.setEnabled(true);
                     edtEmail.setEnabled(true);
                     prgLogin.setVisibility(View.GONE);
-                    Log.i("onComplete", "onAuthWithGoogle: login unsuccessful" + task.getException().getMessage());
+                    final String message = "Login unsuccessful. " + task.getException().getMessage();
+                    mAuth.signOut();
+                    mGoogleSignInClient.signOut();
+                    Snackbar.make(btnLogin, message, Snackbar.LENGTH_LONG).show();
+                    Log.i("onComplete", message);
                 }
 
             }
