@@ -12,6 +12,7 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 
@@ -59,15 +60,16 @@ public class UserDataFetcher extends IntentService {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
                 Log.i(TAG, "onEvent: profile");
-                UserNetwork.setProfile(documentSnapshot);
                 if(documentSnapshot==null || !documentSnapshot.exists())
                     return;
 
-                //set user verification status to SharePreference
-                boolean isVerified = documentSnapshot.toObject(ProfileMedium.class).isC0_verified();
-                editor.putBoolean("isVerified", isVerified);
+                FCM.subscribeToTopic(userID); //subscribe user to corresponding channel with userId
+
+                //set user profile to SharePreference
+                Gson gson = new Gson();
+                String json = gson.toJson(documentSnapshot.toObject(ProfileMedium.class));
+                editor.putString("profile", json);
                 editor.apply();
-                FCM.subscribeToTopic(userID);
             }
         });
 
@@ -92,19 +94,6 @@ public class UserDataFetcher extends IntentService {
                     return;
                 if(documentSnapshot.exists() && documentSnapshot.contains("list")){
                     UserNetwork.setFollowing((ArrayList<String>) documentSnapshot.get("list"));
-                }
-            }
-        });
-
-        //set user subscribers
-        database.collection("subscribers").document(userID).addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-                Log.i(TAG, "onEvent: subscribers");
-                if(documentSnapshot==null)
-                    return;
-                if(documentSnapshot.exists() && documentSnapshot.contains("list")){
-                    UserNetwork.setSubscribers((ArrayList<String>) documentSnapshot.get("list"));
                 }
             }
         });

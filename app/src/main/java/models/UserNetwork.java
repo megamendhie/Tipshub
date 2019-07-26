@@ -1,15 +1,11 @@
 package models;
 
-import com.google.firebase.firestore.DocumentSnapshot;
-
 import java.util.ArrayList;
 
 public final class UserNetwork {
     private static ArrayList<String> followers = new ArrayList<String>();
-    private static ArrayList<String> following = new ArrayList<String>();
-    private static ArrayList<String> subscribers = new ArrayList<String>();
-    private static ArrayList<String> subscribed = new ArrayList<String>();
-    private static DocumentSnapshot profile;
+    private static ArrayList<String> following;
+    private static ArrayList<String> subscribed;
 
     public static ArrayList<String> getFollowers() {
         return followers;
@@ -27,27 +23,11 @@ public final class UserNetwork {
         following = mFollowing;
     }
 
-    public static ArrayList<String> getSubscribers() {
-        return subscribers;
-    }
-
-    public static void setSubscribers(ArrayList<String> mSubscibers) {
-        subscribers = mSubscibers;
-    }
-
     public static ArrayList<String> getSubscribed() {
         return subscribed;
     }
 
     public static void setSubscribed(ArrayList<String> mSubscibed) {
         subscribed = mSubscibed;
-    }
-
-    public static ProfileMedium getProfile() {
-        return profile.toObject(ProfileMedium.class);
-    }
-
-    public static void setProfile(DocumentSnapshot profile) {
-        UserNetwork.profile = profile;
     }
 }
