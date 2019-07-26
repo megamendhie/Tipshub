@@ -15,7 +15,7 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/textView2"
+                android:id="@+id/txtNotice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="32dp"
@@ -43,7 +43,7 @@
                     android:textSize="18sp"
                     android:layout_marginStart="3dp"
                     android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                    android:text="People you subscribed"/>
+                    android:text="People you subscribed to"/>
             </android.support.v7.widget.CardView>
 
             <android.support.v7.widget.RecyclerView
@@ -100,6 +100,7 @@
                     android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:text="Recent Winners"/>
             </android.support.v7.widget.CardView>
+
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/winningsList"
                 android:layout_width="match_parent"
