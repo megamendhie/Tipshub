@@ -32,6 +32,8 @@ public class ProfileMedium {
     private long c8_lsPostTime;
     private long c9_todayPostCount;
 
+    private String d1_referralCode = "";
+
     //values for overall No Of Games, Won Games, and Won Games Percentage
     private long e0a_NOG;
     private long e0b_WG;
@@ -435,5 +437,9 @@ public class ProfileMedium {
 
     public void setE6c_WGP(long e6c_WGP) {
         this.e6c_WGP = e6c_WGP;
+    }
+
+    public String getD1_referralCode() {
+        return d1_referralCode;
     }
 }

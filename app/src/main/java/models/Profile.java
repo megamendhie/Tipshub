@@ -40,6 +40,7 @@ public class Profile {
 
     //subs
     private int d0_subAmount;
+    private String d1_referralCode = "";
 
     //values for overall No Of Games, Won Games, and Won Games Percentage
     private long e0a_NOG;
@@ -514,5 +515,9 @@ public class Profile {
 
     public void setD0_subAmount(int d0_subAmount) {
         this.d0_subAmount = d0_subAmount;
+    }
+
+    public String getD1_referralCode() {
+        return d1_referralCode;
     }
 }
