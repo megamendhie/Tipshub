@@ -125,7 +125,6 @@ public class NotificationAdapter extends FirestoreRecyclerAdapter<Notification, 
                 }
             }
         });
-
     }
 
     @Override

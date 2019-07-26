@@ -237,11 +237,13 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
         btnFollow = dialog.findViewById(R.id.btnFollow);
         btnShare = dialog.findViewById(R.id.btnShare);
         btnSubscribe = dialog.findViewById(R.id.btnSubscribe);
+        btnSubscribe.setVisibility(UserNetwork.getSubscribed()==null||!UserNetwork.getSubscribed().contains(userId)?
+                View.VISIBLE: View.GONE);
+
         if(UserNetwork.getFollowing()==null)
             btnFollow.setVisibility(View.GONE);
         else
             btnFollow.setText(UserNetwork.getFollowing().contains(commentUserId)? "UNFOLLOW": "FOLLOW");
-
 
         btnShare.setOnClickListener(new View.OnClickListener() {
             @Override

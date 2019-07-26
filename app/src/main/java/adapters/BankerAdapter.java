@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -32,7 +31,6 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.sqube.tipshub.FlagActivity;
 import com.sqube.tipshub.FullPostActivity;
-import com.sqube.tipshub.LoginActivity;
 import com.sqube.tipshub.MemberProfileActivity;
 import com.sqube.tipshub.MyProfileActivity;
 import com.sqube.tipshub.R;
@@ -133,7 +131,7 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
             makeVisible = true;
         else if(UserNetwork.getSubscribed()!=null && UserNetwork.getSubscribed().contains(this.userId))
             makeVisible = true;
-        if(model.getStatus()==2 || (new Date().getTime() - model.getTime()) >(16*60*60*1000))
+        if(model.getStatus()==2 || (new Date().getTime() - model.getTime()) >(14*60*60*1000))
             makePublic = true;
         if(makeVisible|| makePublic){
             holder.lnrSub.setVisibility(View.GONE);
@@ -193,8 +191,8 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
         imgRepost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!finalMakeVisible) {
-                    Snackbar.make(mComment, "No access to post", Snackbar.LENGTH_SHORT).show();
+                if(!finalMakePublic) {
+                    Snackbar.make(mComment, "You can't repost yet", Snackbar.LENGTH_SHORT).show();
                     return;
                 }
                 Intent intent = new Intent(context, RepostActivity.class);
@@ -203,12 +201,13 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
                 context.startActivity(intent);
             }
         });
+
         lnrContainer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //display full post with comments if visibility or public is set true
                 if(!finalMakePublic && !finalMakeVisible) {
-                    Snackbar.make(mComment, "No access to post", Snackbar.LENGTH_SHORT).show();
+                    Snackbar.make(mComment, "Access denied", Snackbar.LENGTH_SHORT).show();
                     return;
                 }
                 Intent intent = new Intent(context, FullPostActivity.class);
@@ -216,12 +215,13 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
                 context.startActivity(intent);
             }
         });
+
         imgComment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //display full post with comments if visibility or public is set true
                 if(!finalMakePublic && !finalMakeVisible) {
-                    Snackbar.make(mComment, "No access to post", Snackbar.LENGTH_SHORT).show();
+                    Snackbar.make(mComment, "Access denied", Snackbar.LENGTH_SHORT).show();
                     return;
                 }
                 Intent intent = new Intent(context, FullPostActivity.class);
@@ -229,6 +229,7 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
                 context.startActivity(intent);
             }
         });
+
         imgLikes.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -277,12 +278,14 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
                 calculations.onDislike( postId, userId, model.getUserId(), substring);
             }
         });
+
         imgOverflow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                displayOverflow(model, model.getUserId(), postId, model.getStatus(), model.getType(), imgOverflow, finalMakePublic, finalMakeVisible);
+                displayOverflow(model, model.getUserId(), postId, model.getStatus(), model.getType(), imgOverflow, finalMakePublic);
             }
         });
+
         lnrCode.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -370,7 +373,7 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
     }
 
     private void displayOverflow(final Post model, String userID, final String postId, int status, int type, ImageView imgOverflow,
-                                 final boolean makePublic, final boolean makeVisible) {
+                                 final boolean makePublic) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         LayoutInflater inflater = activity.getLayoutInflater();
         View dialogView;
@@ -382,12 +385,14 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
         final AlertDialog dialog= builder.create();
         dialog.show();
 
-        Button btnSubmit, btnDelete, btnShare, btnFollow, btnSubscribe, btnObject;
+        Button btnSubmit, btnDelete, btnShare, btnFollow, btnSubscribe;
         btnSubmit = dialog.findViewById(R.id.btnSubmit);
         btnDelete = dialog.findViewById(R.id.btnDelete);
         btnShare = dialog.findViewById(R.id.btnShare);
         btnFollow = dialog.findViewById(R.id.btnFollow);
         btnSubscribe = dialog.findViewById(R.id.btnSubscribe);
+        btnSubscribe.setVisibility(UserNetwork.getSubscribed()==null||!UserNetwork.getSubscribed().contains(userId)?
+                View.VISIBLE: View.GONE);
         if(!makePublic){
             btnShare.setVisibility(View.GONE);
         }
@@ -437,24 +442,6 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
             }
             dialog.cancel();
         });
-    }
-
-    private void popUp(){
-        AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.Theme_AppCompat_Light_Dialog_Alert);
-        builder.setMessage("You must login first")
-                .setPositiveButton("Login", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        context.startActivity(new Intent(context, LoginActivity.class));
-                    }
-                })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        //do nothing
-                    }
-                })
-                .show();
     }
 
     @Override

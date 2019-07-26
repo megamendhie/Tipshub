@@ -34,8 +34,10 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -242,10 +244,17 @@ public class PostActivity extends AppCompatActivity implements View.OnClickListe
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 if(documentSnapshot.exists()){
                     Map<String, Object> updates = new HashMap<>();
-                    updates.put("c8_lsPostTime", new Date().getTime());
-
                     if(type>0){
                         final ProfileMedium myProfile = documentSnapshot.toObject(ProfileMedium.class);
+                        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH);
+                        String currentDate = sdf.format(new Date().getTime());
+                        String lastPostDate = sdf.format(myProfile.getC8_lsPostTime());
+                        long todayPostCount = myProfile.getC9_todayPostCount();
+
+                        if(lastPostDate.equals(currentDate))
+                            todayPostCount++;
+                        else
+                            todayPostCount =1;
                         final long totalPostCount = myProfile.getE0a_NOG() + 1;
                         final long wonGamesCount = myProfile.getE0b_WG();
                         final long wonGamesPercentage = totalPostCount>0? ((wonGamesCount*100)/totalPostCount) : 0;
@@ -253,6 +262,8 @@ public class PostActivity extends AppCompatActivity implements View.OnClickListe
                         //retrieve stat for the posted game type
                         long[] stats = Reusable.getStatsForPost(myProfile, type);
 
+                        updates.put("c8_lsPostTime", new Date().getTime());
+                        updates.put("c9_todayPostCount", todayPostCount);
                         updates.put("e0a_NOG", totalPostCount);
                         updates.put("e0c_WGP", wonGamesPercentage);
                         updates.put("e"+type + "a_NOG", stats[0]);

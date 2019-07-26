@@ -1,5 +1,6 @@
 package com.sqube.tipshub;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -64,7 +65,6 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
     LinearLayout lnrCode, lnrFullPost, lnrChildPost;
     TextView mpost, mUsername, mTime;
     private RequestOptions requestOptions = new RequestOptions();
-    private Query query;
     Calculations calculations;
     private String comment;
     boolean childDisplayed;
@@ -72,7 +72,7 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
     final String TAG = "FullPostActivity";
     Reusable reusable = new Reusable();
     TextView mLikes, mDislikes, mComment, mCode, mType;
-    CircleImageView imgDp, imgMyDp;
+    CircleImageView imgDp, imgMyDp, imgChildDp;
     ImageView imgOverflow, imgLike, imgDislike, imgComment, imgShare, imgStatus, imgCode;
     MultiAutoCompleteTextView edtComment;
     FloatingActionButton fabPost;
@@ -96,7 +96,7 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
         actionBar.setTitle("Post");
         prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         mpost = findViewById(R.id.txtPost);
-        mUsername = findViewById(R.id.txtUsername);
+        mUsername = findViewById(R.id.txtUsername); mUsername.setOnClickListener(this);
         mTime = findViewById(R.id.txtTime);
         mLikes = findViewById(R.id.txtLike);
         mDislikes = findViewById(R.id.txtDislike);
@@ -106,7 +106,7 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
         fabPost = findViewById(R.id.fabPost); fabPost.setOnClickListener(this);
         edtComment = findViewById(R.id.edtComment); edtComment.addTextChangedListener(this);
 
-        imgDp = findViewById(R.id.imgDp);
+        imgDp = findViewById(R.id.imgDp); imgDp.setOnClickListener(this);
         imgMyDp = findViewById(R.id.imgMyDp);
         imgLike = findViewById(R.id.imgLike); imgLike.setOnClickListener(this);
         imgDislike = findViewById(R.id.imgDislike); imgDislike.setOnClickListener(this);
@@ -227,7 +227,7 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
         final TextView childType = findViewById(R.id.txtChildType);
         final ImageView imgChildStatus = findViewById(R.id.imgChildStatus);
         final ImageView imgChildCode = findViewById(R.id.imgCode);
-        final CircleImageView imgChildDp = findViewById(R.id.childDp);
+        imgChildDp = findViewById(R.id.childDp); imgChildDp.setOnClickListener(this);
 
         childDisplayed = true;
         database.collection("posts").document(childLink).get()
@@ -275,6 +275,7 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
                         .load(storageReference.child(childModel.getUserId()))
                         .into(imgChildDp);
                 lnrChildPost.setVisibility(View.VISIBLE); //display child layout if child post exists
+                lnrChildPost.setOnClickListener(FullPostActivity.this);
             }
         });
 
@@ -283,7 +284,7 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
     private void loadComment() {
         //loads comment into commentList
         commentReference = database.collection("comments");
-        query = commentReference.whereEqualTo("commentOn", postId).orderBy("time", Query.Direction.DESCENDING);
+        Query query = commentReference.whereEqualTo("commentOn", postId).orderBy("time", Query.Direction.DESCENDING);
         commentAdapter = new CommentAdapter(postId, query, userId, FullPostActivity.this, getApplicationContext());
         commentsList.setAdapter(commentAdapter);
         if(commentAdapter!=null){
@@ -301,6 +302,31 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
     public void onClick(View v) {
         String substring;
         switch (v.getId()){
+            case R.id.txtUsername:
+            case R.id.imgDp:
+                if(model.getUserId().equals(userId)){
+                    startActivity(new Intent(this, MyProfileActivity.class));
+                }
+                else{
+                    Intent intent = new Intent(this, MemberProfileActivity.class);
+                    intent.putExtra("userId", model.getUserId());
+                    startActivity(intent);
+                }
+            case R.id.childDp:
+                if(model.getChildUserId().equals(userId)){
+                    startActivity(new Intent(this, MyProfileActivity.class));
+                }
+                else{
+                    Intent intent = new Intent(this, MemberProfileActivity.class);
+                    intent.putExtra("userId", model.getChildUserId());
+                    startActivity(intent);
+                }
+                break;
+            case R.id.container_child_post:
+                Intent intent = new Intent(getApplicationContext(), FullPostActivity.class);
+                intent.putExtra("postId", childLink);
+                startActivity(intent);
+                break;
             case R.id.imgLike:
                 onLike();
                  substring = model.getContent().substring(0, Math.min(model.getContent().length(), 90));
@@ -318,6 +344,12 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
                 increaseCommentCount();
                 break;
         }
+    }
+
+    private void sendNotification(String content) {
+        String substring = content.substring(0, Math.min(content.length(), 90));
+        calculations.setCount(model.getRepostCount());
+        calculations.sendPushNotification(true, userId, model.getUserId(), childLink, "commented on", "post", substring);
     }
 
     private void onLike(){
@@ -365,11 +397,13 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                     @Override
                     public void onSuccess(DocumentReference documentReference) {
+                        final String content = comment;
                         comment= "";
                         edtComment.setText("");
                         Snackbar.make(edtComment, "Comment added", Snackbar.LENGTH_SHORT).show();
                         if(!userId.equals(model.getUserId())){
                             calculations.recommend(userId, model.getUserId());
+                            sendNotification(content);
                         }
                     }
                 });

@@ -3,7 +3,6 @@ package adapters;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
@@ -26,7 +25,6 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.sqube.tipshub.FlagActivity;
 import com.sqube.tipshub.FullPostActivity;
-import com.sqube.tipshub.LoginActivity;
 import com.sqube.tipshub.MemberProfileActivity;
 import com.sqube.tipshub.MyProfileActivity;
 import com.sqube.tipshub.R;
@@ -122,6 +120,8 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<FilteredPostAdapte
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
+                if(!documentSnapshot.exists())
+                    return;
                 holder.imgChildStatus.setVisibility(documentSnapshot.toObject(Post.class).getStatus()==1? View.INVISIBLE: View.VISIBLE);
             }
         });
@@ -232,24 +232,6 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<FilteredPostAdapte
         });
     }
 
-    private void popUp(){
-        AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.Theme_AppCompat_Light_Dialog_Alert);
-        builder.setMessage("You must login first")
-                .setPositiveButton("Login", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        context.startActivity(new Intent(context, LoginActivity.class));
-                    }
-                })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        //do nothing
-                    }
-                })
-                .show();
-    }
-
     @Override
     public PostHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = null;
@@ -310,6 +292,7 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<FilteredPostAdapte
                 }
             }
         });
+
         //listen to username click and open user profile
         holder.mUsername.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -324,6 +307,7 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<FilteredPostAdapte
                 }
             }
         });
+
         holder.mpost.setText(model.getContent());
         holder.mTime.setText(DateFormat.format("dd MMM  (h:mm a)", model.getTime()));
         holder.imgLikes.setColorFilter(model.getLikes().contains(userId)?
@@ -333,7 +317,9 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<FilteredPostAdapte
                 context.getResources().getColor(R.color.likeGold): context.getResources().getColor(R.color.likeGrey));
 
         holder.mComment.setText(model.getCommentsCount()==0? "":String.valueOf(model.getCommentsCount()));
+
         holder.mLikes.setText(model.getLikesCount()==0? "":String.valueOf(model.getLikesCount()));
+
         holder.mDislikes.setText(model.getDislikesCount()==0? "":String.valueOf(model.getDislikesCount()));
 
         holder.imgRepost.setOnClickListener(new View.OnClickListener() {
@@ -354,6 +340,7 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<FilteredPostAdapte
                 context.startActivity(intent);
             }
         });
+
         holder.imgComment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -362,6 +349,7 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<FilteredPostAdapte
                 context.startActivity(intent);
             }
         });
+
         holder.imgLikes.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -429,12 +417,14 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<FilteredPostAdapte
                 calculations.onDislike( postId, userId, model.getUserId(), substring);
             }
         });
+
         holder.imgOverflow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 displayOverflow(model, model.getUserId(), postId, model.getStatus(), model.getType(), holder.imgOverflow);
             }
         });
+
         holder.lnrCode.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -445,7 +435,6 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<FilteredPostAdapte
         if(model.isHasChild()){
             displayChildContent(model, holder);
         }
-
     }
 
     public class PostHolder extends RecyclerView.ViewHolder {

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -68,7 +69,7 @@ public class PeopleRecAdapter extends RecyclerView.Adapter<PeopleRecAdapter.Post
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if(task.getResult()==null){
+                if(task.getResult()==null || !task.getResult().exists()){
                     list.remove(i);
                     PeopleRecAdapter.this.notifyDataSetChanged();
                     return;
@@ -78,7 +79,7 @@ public class PeopleRecAdapter extends RecyclerView.Adapter<PeopleRecAdapter.Post
                 holder.mUsername.setText(model.getA2_username());
                 holder.mPost.setText(model.getE0a_NOG()+ " tips");
                 holder.mAccuracy.setText(String.format("||  Accuracy: %.1f", (double) model.getE0c_WGP())+"%");
-                holder.btnFollow.setText(UserNetwork.getFollowing().contains(ref)? "FOLLOWING": "FOLLOW");
+                holder.btnFollow.setText(UserNetwork.getFollowing()==null||!UserNetwork.getFollowing().contains(ref)? "FOLLOW": "FOLLOWING");
 
                 //load image
                 GlideApp.with(activity)
@@ -102,6 +103,10 @@ public class PeopleRecAdapter extends RecyclerView.Adapter<PeopleRecAdapter.Post
                 holder.btnFollow.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        if(UserNetwork.getFollowing()==null){
+                            Snackbar.make(holder.btnFollow, "Can't follow this person now", Snackbar.LENGTH_SHORT).show();
+                            return;
+                        }
                         Calculations calculations= new Calculations(context);
                         switch (holder.btnFollow.getText().toString().toLowerCase()){
                             case "follow":
