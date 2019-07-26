@@ -1,14 +1,18 @@
 package fragments;
 
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +21,7 @@ import android.view.ViewGroup;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
@@ -26,16 +31,19 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.gson.Gson;
 import com.sqube.tipshub.PostActivity;
 import com.sqube.tipshub.R;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import adapters.FilteredPostAdapter;
 import adapters.PostAdapter;
 import models.Post;
+import models.ProfileMedium;
 import models.SnapId;
 import models.UserNetwork;
 
@@ -46,9 +54,12 @@ public class HomeFragment extends Fragment{
     private FirebaseUser user;
     private final String TAG = "HomeFrag";
     private ShimmerFrameLayout shimmerLayout;
+    private Gson gson = new Gson();
+    private String json;
+    private ProfileMedium myProfile;
     private SharedPreferences prefs;
     boolean fromEverybody = true;
-    String userId;
+    String userId, username;
     PostAdapter postAdapter;
     FloatingActionButton fabTip, fabNormal;
     FloatingActionMenu fabMenu;
@@ -58,7 +69,6 @@ public class HomeFragment extends Fragment{
     public HomeFragment() {
         // Required empty public constructor
     }
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -80,6 +90,7 @@ public class HomeFragment extends Fragment{
         auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
         userId = user.getUid();
+        username = user.getDisplayName();
         fabMenu = rootView.findViewById(R.id.fabMenu);
         fabNormal = rootView.findViewById(R.id.fabNormal);
         fabTip = rootView.findViewById(R.id.fabPost);
@@ -89,10 +100,15 @@ public class HomeFragment extends Fragment{
             @Override
             public void onClick(View v) {
                 fabMenu.close(false);
+                if(hasReachedMax()){
+                    popUp();
+                    return;
+                }
                 intent.putExtra("type", "tip");
                 startActivity(intent);
             }
         });
+
         fabNormal.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -102,7 +118,7 @@ public class HomeFragment extends Fragment{
             }
         });
 
-        //confirm if user reading posts from everybody
+        //confirm if user is seeing everybody's post
         fromEverybody = prefs.getBoolean("fromEverybody", true);
         if(fromEverybody)
             loadPost();
@@ -110,6 +126,38 @@ public class HomeFragment extends Fragment{
             loadMerged();
 
         return rootView;
+    }
+
+    private void popUp(){
+        String message = "<p><span style=\"color: #F80051; font-size: 16px;\"><strong>Tips limit reached</strong></span></p>\n" +
+                "<p>Take it easy, "+username+". You have reached your tips limit for today.</p>\n" +
+                "<p>To prevent spam, each person can post tips only 5 times in a day.\n"+
+                "But there is no limit to normal post. Enjoy!</p>";
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.Theme_AppCompat_Light_Dialog_Alert);
+        builder.setMessage(Html.fromHtml(message))
+                .setNegativeButton("Okay", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        //do nothing
+                    }
+                })
+                .show();
+    }
+
+    //method checks if user has reached max post for the day
+    private boolean hasReachedMax(){
+        json = prefs.getString("profile", "");
+        myProfile = (json.equals(""))? null: gson.fromJson(json, ProfileMedium.class);
+        if(myProfile==null)
+            return true;
+
+        Date currentDate = new Date();
+        Date lastPostDate = new Date(myProfile.getC8_lsPostTime());
+        if(currentDate.after(lastPostDate))
+            return false;
+        if(myProfile.getC9_todayPostCount() >= 5)
+            return true;
+        return false;
     }
 
     private void loadPost() {
@@ -128,11 +176,29 @@ public class HomeFragment extends Fragment{
     private void loadMerged(){
         if(postAdapter!=null)
             postAdapter.stopListening();
-        ArrayList<String> userIds = UserNetwork.getFollowing(); //{"9netjQqxyATkN6SbHmaDAYDhzT43", "c3cMX8YsnCUOSATLznuolZBmI0x1"};
+        if(UserNetwork.getFollowing()==null){
+            database.collection("followers").document(userId).get()
+                    .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if(task.getResult()==null|| !task.getResult().contains("list"))
+                        loadList(null);
+                    else
+                        loadList((ArrayList<String>) task.getResult().get("list"));
+                }
+            });
+        }
+        else
+            loadList(UserNetwork.getFollowing());
+    }
 
+    private void loadList(ArrayList<String> ids){
+        ArrayList<String> userIds = new ArrayList<>();
+        userIds.add(userId);
         //check if following list has data
-        if(userIds == null)
-            return;
+        if(ids != null && !ids.isEmpty()){
+            userIds.addAll(ids);
+        }
         int count = userIds.size();
 
         //create task and query for each followed id
@@ -141,7 +207,7 @@ public class HomeFragment extends Fragment{
 
         for(int i = 0; i < count; i++){
             queries[i] = database.collection("posts").orderBy("time", Query.Direction.DESCENDING)
-                    .whereEqualTo("userId", userIds.get(i)).limit(3);
+                    .whereEqualTo("userId", userIds.get(i)).limit(10);
             tasks[i] = queries[i].get();
         }
 
@@ -167,7 +233,5 @@ public class HomeFragment extends Fragment{
                 shimmerLayout.setVisibility(View.GONE);
             }
         });
-
-
     }
 }
