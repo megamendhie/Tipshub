@@ -19,6 +19,13 @@
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:text="Complete your profile"/>
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/color_oxblood"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:text="@string/txt_notice_dp"/>
+
     <FrameLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
