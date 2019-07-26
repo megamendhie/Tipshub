@@ -25,7 +25,6 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.Transaction;
@@ -45,6 +44,7 @@ import models.Post;
 import models.UserNetwork;
 import services.GlideApp;
 import utils.Calculations;
+import utils.FirebaseUtil;
 import utils.Reusable;
 
 public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAdapter.CommentHolder>{
@@ -56,7 +56,6 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
     private Calculations calculations;
     private RequestOptions requestOptions = new RequestOptions();
     private StorageReference storageReference;
-    private FirebaseFirestore database;
 
     public CommentAdapter(String mainPostId, Query query, String userID, Activity activity, Context context) {
         /*
@@ -74,7 +73,6 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
         calculations = new Calculations(context);
         this.userId = userID;
         this.mainPostId = mainPostId;
-        this.database = FirebaseFirestore.getInstance();
         storageReference = FirebaseStorage.getInstance().getReference()
                 .child("profile_images");
         requestOptions.placeholder(R.drawable.dummy);
@@ -282,8 +280,8 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
     }
 
     private void deleteComment(String postId, View imgOverflow){
-        final DocumentReference postPath =  database.collection("posts").document(mainPostId);
-        database.runTransaction(new Transaction.Function<Void>() {
+        final DocumentReference postPath =  FirebaseUtil.getFirebaseFirestore().collection("posts").document(mainPostId);
+        FirebaseUtil.getFirebaseFirestore().runTransaction(new Transaction.Function<Void>() {
             @Override
             public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
                 DocumentSnapshot snapshot = transaction.get(postPath);
@@ -302,7 +300,7 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
         }).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                database.collection("comments").document(postId).delete()
+                FirebaseUtil.getFirebaseFirestore().collection("comments").document(postId).delete()
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {

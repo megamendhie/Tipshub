@@ -22,12 +22,10 @@ import android.widget.Toast;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Transaction;
 
@@ -36,6 +34,7 @@ import java.util.Map;
 
 import models.Comment;
 import models.Report;
+import utils.FirebaseUtil;
 
 public class FlagActivity extends AppCompatActivity implements View.OnClickListener {
     private Button btnPost;
@@ -46,12 +45,10 @@ public class FlagActivity extends AppCompatActivity implements View.OnClickListe
     private String TAG = "FlagActivity";
     private ProgressBar progressBar;
     private SharedPreferences prefs;
-    FirebaseFirestore database;
     DocumentReference postReference;
     private RequestOptions requestOptions = new RequestOptions();
 
     String userId, username, postContent;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,11 +67,9 @@ public class FlagActivity extends AppCompatActivity implements View.OnClickListe
         btnClose = findViewById(R.id.btnClose);
         btnClose.setOnClickListener(this);
         progressBar = findViewById(R.id.prgLogin);
-
         postId = getIntent().getStringExtra("postId");
-        database = FirebaseFirestore.getInstance();
 
-        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        final FirebaseUser user = FirebaseUtil.getFirebaseAuthentication().getCurrentUser();
         userId = user.getUid();
         username = user.getDisplayName();
 
@@ -82,7 +77,7 @@ public class FlagActivity extends AppCompatActivity implements View.OnClickListe
         postId = getIntent().getStringExtra("postId");
         reportedUsername = getIntent().getStringExtra("reportedUsername");
         reportedUserId = getIntent().getStringExtra("reportedUserId");
-        postReference = database.collection("posts").document(postId);
+        postReference = FirebaseUtil.getFirebaseFirestore().collection("posts").document(postId);
     }
 
     @Override
@@ -109,9 +104,9 @@ public class FlagActivity extends AppCompatActivity implements View.OnClickListe
             edtComment.setError("Type your reason");
             return;
         }
-        CollectionReference commentReference = database.collection("comments").document(postId)
+        CollectionReference commentReference = FirebaseUtil.getFirebaseFirestore().collection("comments").document(postId)
                 .collection("comments");
-        CollectionReference reportReference = database.collection("report");
+        CollectionReference reportReference = FirebaseUtil.getFirebaseFirestore().collection("report");
 
         //get user verification status from SharePreference
         boolean isVerified = prefs.getBoolean("isVerified", false);
@@ -136,7 +131,7 @@ public class FlagActivity extends AppCompatActivity implements View.OnClickListe
             return;
         }
         progressBar.setVisibility(View.VISIBLE);
-        database.runTransaction(new Transaction.Function<Void>() {
+        FirebaseUtil.getFirebaseFirestore().runTransaction(new Transaction.Function<Void>() {
             @Override
             public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
                 Log.i(TAG, "apply: likes entered");

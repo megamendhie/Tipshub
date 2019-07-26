@@ -10,12 +10,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
-
 import java.util.ArrayList;
 
 import adapters.PeopleAdapter;
+import utils.FirebaseUtil;
 
 public class FollowerListActivity extends AppCompatActivity {
     private RecyclerView peopleList;
@@ -38,12 +36,9 @@ public class FollowerListActivity extends AppCompatActivity {
         txtNote = findViewById(R.id.txtNote);
         peopleList = findViewById(R.id.peopleList);
         peopleList.setLayoutManager(new LinearLayoutManager(FollowerListActivity.this));
+        userId = FirebaseUtil.getFirebaseAuthentication().getCurrentUser().getUid();
 
-        FirebaseFirestore database = FirebaseFirestore.getInstance();
-        FirebaseAuth auth = FirebaseAuth.getInstance();
-        userId = auth.getCurrentUser().getUid();
-
-        database.collection(searchType).document(personId).get()
+        FirebaseUtil.getFirebaseFirestore().collection(searchType).document(personId).get()
                 .addOnCompleteListener(task -> {
                     if(task.getResult()==null || !task.getResult().exists()){
                         txtNote.setVisibility(View.VISIBLE);

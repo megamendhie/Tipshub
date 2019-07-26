@@ -1,7 +1,6 @@
 package adapters;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
@@ -14,7 +13,6 @@ import android.view.ViewGroup;
 import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -26,15 +24,13 @@ import services.GlideApp;
 
 public class SubscriberAdapter extends FirestoreRecyclerAdapter<Subscription, SubscriptionAdapter.PostHolder>{
     private final String TAG = "PostAdaper";
-    private Activity activity;
     private Context context;
     private String userId;
     private StorageReference storageReference;
     private RequestOptions requestOptions = new RequestOptions();
-    private FirebaseFirestore database;
     private String[] status = {"", "PENDING", "PAID"};
 
-    public SubscriberAdapter(Query query, String userID, Activity activity, Context context) {
+    public SubscriberAdapter(Query query, String userID, Context context) {
         /*
         Configure recycler adapter options:
         query defines the request made to Firestore
@@ -45,10 +41,8 @@ public class SubscriberAdapter extends FirestoreRecyclerAdapter<Subscription, Su
                 .build());
 
         Log.i(TAG, "PostAdapter: created");
-        this.activity = activity;
         this.context = context;
         this.userId = userID;
-        this.database = FirebaseFirestore.getInstance();
         requestOptions.placeholder(R.drawable.dummy);
         storageReference = FirebaseStorage.getInstance().getReference().child("profile_images");
         int i = getItemCount();

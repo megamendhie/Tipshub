@@ -35,14 +35,11 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
-import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.UploadTask;
 import com.hbb20.CountryCodePicker;
@@ -53,13 +50,10 @@ import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import models.Profile;
+import utils.FirebaseUtil;
 import utils.Reusable;
 
 public class SignupActivity extends AppCompatActivity implements View.OnClickListener {
-    private Button btnSignup;
-    private FirebaseAuth mAuth;
-    private FirebaseFirestore database;
-    private FirebaseStorage storage;
     private ProgressDialog progressDialog;
     private ProgressBar prgLogin;
     private FirebaseUser user;
@@ -83,7 +77,8 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
         Button gSignIn = findViewById(R.id.gSignIn);
         gSignIn.setOnClickListener(this);
         prgLogin = findViewById(R.id.prgLogin);
-        btnSignup = findViewById(R.id.btnSignup); btnSignup.setOnClickListener(this);
+        Button btnSignup = findViewById(R.id.btnSignup);
+        btnSignup.setOnClickListener(this);
         edtFirstName = findViewById(R.id.edtFirstName);
         edtLastName = findViewById(R.id.edtLastName);
         edtEmail = findViewById(R.id.edtEmail);
@@ -92,9 +87,6 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         editor = prefs.edit();
-        mAuth = FirebaseAuth.getInstance();
-        database = FirebaseFirestore.getInstance();
-        storage = FirebaseStorage.getInstance();
         progressDialog = new ProgressDialog(this);
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
@@ -146,14 +138,14 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
         progressDialog.setTitle("Uploading...");
         progressDialog.show();
 
-        storage.getReference().child("profile_images").child(userId).putFile(filePath)
+        FirebaseUtil.getFirebaseStorage().getReference().child("profile_images").child(userId).putFile(filePath)
                 .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                         taskSnapshot.getMetadata().getReference().getDownloadUrl()
                                 .addOnSuccessListener(uri -> {
                                     String url = uri.toString();
-                                    database.collection("profiles").document(userId).update("b2_dpUrl", url);
+                                    FirebaseUtil.getFirebaseFirestore().collection("profiles").document(userId).update("b2_dpUrl", url);
                                     progressDialog.dismiss();
                                     Toast.makeText(SignupActivity.this, "Image uploaded", Toast.LENGTH_SHORT).show();
                                     imgDp.setImageURI(filePath);
@@ -213,13 +205,13 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
 
     public void authWithGoogle(GoogleSignInAccount account){
         final AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
-        mAuth.signInWithCredential(credential).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+        FirebaseUtil.getFirebaseAuthentication().signInWithCredential(credential).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if(task.isSuccessful()){
-                    user = mAuth.getCurrentUser();
+                    user = FirebaseUtil.getFirebaseAuthentication().getCurrentUser();
                     userId = user.getUid();
-                    database.collection("profiles").document(userId).get()
+                    FirebaseUtil.getFirebaseFirestore().collection("profiles").document(userId).get()
                             .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -232,7 +224,7 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
                                     lastName = names[1];
                                     email = user.getEmail();
                                     provider = "google.com";
-                                    database.collection("profiles").document(userId)
+                                    FirebaseUtil.getFirebaseFirestore().collection("profiles").document(userId)
                                             .set(new Profile(firstName, lastName, email, provider ));
                                     Reusable.grabImage(user.getPhotoUrl().toString());
                                     completeProfile();
@@ -300,7 +292,7 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
         progressDialog.setMessage("Registering...");
         progressDialog.show();
 
-        mAuth.createUserWithEmailAndPassword(email, password)
+        FirebaseUtil.getFirebaseAuthentication().createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
@@ -311,10 +303,10 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
                             editor.apply();
                             Snackbar.make(edtEmail, "Registration successful.", Snackbar.LENGTH_SHORT).show();
                             Toast.makeText(getApplicationContext(), "", Toast.LENGTH_SHORT).show();
-                            user = mAuth.getCurrentUser();
+                            user = FirebaseUtil.getFirebaseAuthentication().getCurrentUser();
                             userId = user.getUid();
                             provider = "email";
-                            database.collection("profiles").document(userId)
+                            FirebaseUtil.getFirebaseFirestore().collection("profiles").document(userId)
                                     .set(new Profile(firstName, lastName, email, provider ));
                             completeProfile();
                         }
@@ -405,7 +397,7 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
                 user.updateProfile(profileUpdate);
 
                 //save username, phone number, and gender to database
-                database.collection("profiles").document(userId).set(url, SetOptions.merge());
+                FirebaseUtil.getFirebaseFirestore().collection("profiles").document(userId).set(url, SetOptions.merge());
                 dialog.cancel();
                 finish();
                 startActivity(new Intent(SignupActivity.this, MainActivity.class));

@@ -26,7 +26,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.Transaction;
@@ -40,6 +39,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import models.Post;
 import services.GlideApp;
 import utils.Calculations;
+import utils.FirebaseUtil;
 import utils.SpaceTokenizer;
 
 public class RepostActivity extends AppCompatActivity implements View.OnClickListener {
@@ -49,11 +49,10 @@ public class RepostActivity extends AppCompatActivity implements View.OnClickLis
     private ProgressBar prgBar;
     private TextView txtPost, txtChildUsername, txtChildType;
     private ImageView imgStatus;
-    private CircleImageView imgDp, childDp;
+    private CircleImageView childDp;
     Post model;
     private RequestOptions requestOptions = new RequestOptions();
 
-    FirebaseFirestore database;
     FirebaseUser user;
     DocumentReference postReference;
     private String username;
@@ -77,7 +76,6 @@ public class RepostActivity extends AppCompatActivity implements View.OnClickLis
             actionBar.setHomeAsUpIndicator(R.drawable.ic_close_black_24dp);
         }
         prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        database = FirebaseFirestore.getInstance();
         user = FirebaseAuth.getInstance().getCurrentUser();
         userId = user.getUid();
         username = user.getDisplayName();
@@ -86,7 +84,7 @@ public class RepostActivity extends AppCompatActivity implements View.OnClickLis
         btnClose = findViewById(R.id.btnClose); btnClose.setOnClickListener(this);
         prgBar = findViewById(R.id.prgLogin);
 
-        imgDp = findViewById(R.id.imgDp);
+        CircleImageView imgDp = findViewById(R.id.imgDp);
         childDp = findViewById(R.id.childDp);
         edtPost = findViewById(R.id.edtPost);
         txtPost = findViewById(R.id.txtPost);
@@ -95,7 +93,7 @@ public class RepostActivity extends AppCompatActivity implements View.OnClickLis
         txtChildUsername = findViewById(R.id.txtChildUsername);
         requestOptions.placeholder(R.drawable.ic_person_outline_black_24dp);
         childLink = getIntent().getStringExtra("postId");
-        postReference = database.collection("posts").document(childLink);
+        postReference = FirebaseUtil.getFirebaseFirestore().collection("posts").document(childLink);
 
         edtPost.addTextChangedListener(new TextWatcher() {
             @Override
@@ -128,7 +126,6 @@ public class RepostActivity extends AppCompatActivity implements View.OnClickLis
                 .into(imgDp);
         loadPost();
     }
-
 
     private void loadPost() {
         model = (Post) getIntent().getParcelableExtra("model");
@@ -164,10 +161,10 @@ public class RepostActivity extends AppCompatActivity implements View.OnClickLis
             return;
         }
         prgBar.setVisibility(View.VISIBLE);
-        final DocumentReference postPath =  database.collection("posts").document(childLink);
+        final DocumentReference postPath =  FirebaseUtil.getFirebaseFirestore().collection("posts").document(childLink);
         calculations = new Calculations(getApplicationContext());
 
-        database.runTransaction(new Transaction.Function<Void>() {
+        FirebaseUtil.getFirebaseFirestore().runTransaction(new Transaction.Function<Void>() {
             @Override
             public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
                 Log.i("RepostActivity", "apply: likes entered");
@@ -206,7 +203,7 @@ public class RepostActivity extends AppCompatActivity implements View.OnClickLis
                         Post post = new Post(username, userId, content, isVerified,1, 0, childLink, model.getUsername(),
                                 model.getUserId(), model.getContent(), model.isVerifiedUser(), model.getType(), model.getImgUrl1(),
                                 model.getImgUrl2(), model.getBookingCode(), model.getRecommendedBookie());
-                        database.collection("posts").add(post);
+                        FirebaseUtil.getFirebaseFirestore().collection("posts").add(post);
 
                         //add to recommended user
                         if(!userId.equals(model.getUserId())){
@@ -226,7 +223,7 @@ public class RepostActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     public void setLastPostTime(){
-        database.collection("profiles").document(userId)
+        FirebaseUtil.getFirebaseFirestore().collection("profiles").document(userId)
                 .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
@@ -235,7 +232,7 @@ public class RepostActivity extends AppCompatActivity implements View.OnClickLis
                     long lastPostTime = new Date().getTime();
                     Map<String, Object> updates = new HashMap<>();
                     updates.put("c8_lsPostTime", lastPostTime);
-                    database.collection("profiles").document(userId).set(updates, SetOptions.merge());
+                    FirebaseUtil.getFirebaseFirestore().collection("profiles").document(userId).set(updates, SetOptions.merge());
                     prgBar.setVisibility(View.GONE);
                     Toast.makeText(getApplicationContext(), "Posted", Toast.LENGTH_LONG).show();
                     finish();

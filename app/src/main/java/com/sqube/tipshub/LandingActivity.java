@@ -40,7 +40,7 @@ public class LandingActivity extends AppCompatActivity {
         TabLayout indicator = findViewById(R.id.indicator);
 
         //Adds the writeups to each side
-        bodyList.add("Share the joy. Share the prediction.\nShare the gist");
+        bodyList.add("Share your predictions and opinions with others");
         bodyList.add("Follow people you like.\nSubscribe for their banker tips");
         bodyList.add("Don't go searching.\nAll the sports news is here");
 

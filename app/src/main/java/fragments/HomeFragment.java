@@ -25,10 +25,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.gson.Gson;
@@ -46,17 +44,11 @@ import models.Post;
 import models.ProfileMedium;
 import models.SnapId;
 import models.UserNetwork;
+import utils.FirebaseUtil;
 
 public class HomeFragment extends Fragment{
-    private FirebaseFirestore database;
-    private Query query;
-    private FirebaseAuth auth;
-    private FirebaseUser user;
-    private final String TAG = "HomeFrag";
     private ShimmerFrameLayout shimmerLayout;
     private Gson gson = new Gson();
-    private String json;
-    private ProfileMedium myProfile;
     private SharedPreferences prefs;
     boolean fromEverybody = true;
     String userId, username;
@@ -86,9 +78,7 @@ public class HomeFragment extends Fragment{
         shimmerLayout = rootView.findViewById(R.id.shimmer);
         homeFeed.setLayoutManager(new LinearLayoutManager(getActivity()));
         ((DefaultItemAnimator) homeFeed.getItemAnimator()).setSupportsChangeAnimations(false);
-        database = FirebaseFirestore.getInstance();
-        auth = FirebaseAuth.getInstance();
-        user = auth.getCurrentUser();
+        FirebaseUser user = FirebaseUtil.getFirebaseAuthentication().getCurrentUser();
         userId = user.getUid();
         username = user.getDisplayName();
         fabMenu = rootView.findViewById(R.id.fabMenu);
@@ -146,23 +136,22 @@ public class HomeFragment extends Fragment{
 
     //method checks if user has reached max post for the day
     private boolean hasReachedMax(){
-        json = prefs.getString("profile", "");
-        myProfile = (json.equals(""))? null: gson.fromJson(json, ProfileMedium.class);
-        if(myProfile==null)
+        String json = prefs.getString("profile", "");
+        ProfileMedium myProfile = (json.equals("")) ? null : gson.fromJson(json, ProfileMedium.class);
+        if(myProfile ==null)
             return true;
 
         Date currentDate = new Date();
         Date lastPostDate = new Date(myProfile.getC8_lsPostTime());
         if(currentDate.after(lastPostDate))
             return false;
-        if(myProfile.getC9_todayPostCount() >= 5)
-            return true;
-        return false;
+        return myProfile.getC9_todayPostCount() >= 5;
     }
 
     private void loadPost() {
+        String TAG = "HomeFrag";
         Log.i(TAG, "loadPost: ");
-        query = database.collection("posts").orderBy("time", Query.Direction.DESCENDING);
+        Query query = FirebaseUtil.getFirebaseFirestore().collection("posts").orderBy("time", Query.Direction.DESCENDING);
         postAdapter = new PostAdapter(query, userId, getActivity(), getContext());
         homeFeed.setAdapter(postAdapter);
         if(postAdapter!=null){
@@ -177,7 +166,7 @@ public class HomeFragment extends Fragment{
         if(postAdapter!=null)
             postAdapter.stopListening();
         if(UserNetwork.getFollowing()==null){
-            database.collection("followers").document(userId).get()
+            FirebaseUtil.getFirebaseFirestore().collection("followers").document(userId).get()
                     .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -206,7 +195,7 @@ public class HomeFragment extends Fragment{
         Task[] tasks = new Task[count];
 
         for(int i = 0; i < count; i++){
-            queries[i] = database.collection("posts").orderBy("time", Query.Direction.DESCENDING)
+            queries[i] = FirebaseUtil.getFirebaseFirestore().collection("posts").orderBy("time", Query.Direction.DESCENDING)
                     .whereEqualTo("userId", userIds.get(i)).limit(10);
             tasks[i] = queries[i].get();
         }

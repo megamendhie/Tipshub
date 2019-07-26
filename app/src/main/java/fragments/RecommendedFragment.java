@@ -15,11 +15,9 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.sqube.tipshub.R;
@@ -43,16 +41,14 @@ import adapters.PeopleRecAdapter;
 import adapters.PostAdapter;
 import models.UserNetwork;
 import utils.CacheHelper;
+import utils.FirebaseUtil;
 import utils.NewsFunction;
 import utils.Reusable;
 
 public class RecommendedFragment extends Fragment {
-    private FirebaseFirestore database;
-    String userId;
-    PostAdapter postAdapter;
-    RecyclerView peopleList, trendingList, newsList;
+    private String userId;
+    private RecyclerView peopleList, trendingList, newsList;
     private final String TAG = "RecFragment";
-    NewsAdapter adapter;
 
     public final String myAPI_Key = "417444c0502047d69c1c2a9dcc1672cd";
     public final String KEY_AUTHOR = "author";
@@ -86,9 +82,7 @@ public class RecommendedFragment extends Fragment {
         newsList = rootView.findViewById(R.id.newsList);
         newsList.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        database = FirebaseFirestore.getInstance();
-        FirebaseAuth auth = FirebaseAuth.getInstance();
-        FirebaseUser user = auth.getCurrentUser();
+        FirebaseUser user = FirebaseUtil.getFirebaseAuthentication().getCurrentUser();
         userId = user.getUid();
 
         loadPeople();
@@ -98,7 +92,7 @@ public class RecommendedFragment extends Fragment {
     }
 
     private void loadPeople() {
-        CollectionReference recReference = database.collection("recommended").document(userId)
+        CollectionReference recReference = FirebaseUtil.getFirebaseFirestore().collection("recommended").document(userId)
         .collection("rec");
 
         recReference.orderBy("count", Query.Direction.DESCENDING).limit(10).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -120,7 +114,7 @@ public class RecommendedFragment extends Fragment {
     }
 
     private void loadPeopleFromProfile(){
-        database.collection("profiles").orderBy("c2_score",
+        FirebaseUtil.getFirebaseFirestore().collection("profiles").orderBy("c2_score",
                 Query.Direction.DESCENDING).limit(30).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -145,12 +139,11 @@ public class RecommendedFragment extends Fragment {
     }
 
     private void loadPost() {
-        long stopTime = new Date().getTime() - (48*60*60*1000);
         Log.i(TAG, "loadPost: ");
-        Query query = database.collection("posts").orderBy("timeRelevance", Query.Direction.DESCENDING).limit(10);
-        postAdapter = new PostAdapter(query, userId, getActivity(), getContext());
+        Query query = FirebaseUtil.getFirebaseFirestore().collection("posts").orderBy("timeRelevance", Query.Direction.DESCENDING).limit(10);
+        PostAdapter postAdapter = new PostAdapter(query, userId, getActivity(), getContext());
         trendingList.setAdapter(postAdapter);
-        if(postAdapter!=null){
+        if(postAdapter !=null){
             Log.i(TAG, "loadPost: started listening");
             postAdapter.startListening();
         }
@@ -225,7 +218,7 @@ public class RecommendedFragment extends Fragment {
                     Toast.makeText(getContext(), "Unexpected error", Toast.LENGTH_SHORT).show();
                 }
 
-                adapter = new NewsAdapter(getActivity(), dataList);
+                NewsAdapter adapter = new NewsAdapter(getActivity(), dataList);
                 newsList.setLayoutManager(new LinearLayoutManager(getContext()));
                 newsList.setAdapter(adapter);
 

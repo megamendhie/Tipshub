@@ -30,7 +30,6 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
@@ -43,10 +42,9 @@ import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import models.Profile;
+import utils.FirebaseUtil;
 
 public class SettingsActivity extends AppCompatActivity {
-    private ActionBar actionBar;
-    private ImageView imgCover;
     private CircleImageView imgDp;
     private EditText edtFirstName, edtLastName, edtUsername, edtEmail, edtBio, edtCarrierNumber, edtBankDetails;
     private CountryCodePicker ccp;
@@ -54,7 +52,6 @@ public class SettingsActivity extends AppCompatActivity {
     RadioButton rdMale, rdFemale, rdSub0, rdSub1, rdSub2, rdSub3;
     Profile profile;
     private ProgressDialog progressDialog;
-    FirebaseFirestore database;
     FirebaseUser user;
     String userId, username;
     private Uri filePath = null;
@@ -64,11 +61,11 @@ public class SettingsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
-        actionBar = getSupportActionBar();
+        ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
-        imgCover = findViewById(R.id.imgCover);
+        ImageView imgCover = findViewById(R.id.imgCover);
         imgDp = findViewById(R.id.imgDp); imgDp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -96,8 +93,8 @@ public class SettingsActivity extends AppCompatActivity {
         user = FirebaseAuth.getInstance().getCurrentUser();
         userId = user.getUid();
         username = user.getDisplayName();
-        database = FirebaseFirestore.getInstance();
-        database.collection("profiles").document(userId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+
+        FirebaseUtil.getFirebaseFirestore().collection("profiles").document(userId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 if(!documentSnapshot.exists())
@@ -139,8 +136,6 @@ public class SettingsActivity extends AppCompatActivity {
                 }
             }
         });
-
-
     }
 
     @Override
@@ -151,22 +146,17 @@ public class SettingsActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
-            case R.id.nav_save:
-                save();
-                break;
-            default:
-                finish();
-                break;
+        if (item.getItemId() == R.id.nav_save) {
+            save();
+        } else {
+            finish();
         }
         return true;
     }
 
     private void save() {
-        final FirebaseAuth mAuth = FirebaseAuth.getInstance();
         final String firstName = edtFirstName.getText().toString();
         final String lastName = edtLastName.getText().toString();
-        final String username = edtUsername.getText().toString().trim();
         final String bio = edtBio.getText().toString();
         final String account = edtBankDetails.getText().toString();
         final String phone = ccp.getFullNumber();
@@ -222,7 +212,7 @@ public class SettingsActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         //save username, phone number, and gender to database
-                        database.collection("profiles").document(userId).set(url, SetOptions.merge())
+                        FirebaseUtil.getFirebaseFirestore().collection("profiles").document(userId).set(url, SetOptions.merge())
                                 .addOnCompleteListener(SettingsActivity.this,new OnCompleteListener<Void>() {
                                     @Override
                                     public void onComplete(@NonNull Task<Void> task) {
@@ -252,7 +242,6 @@ public class SettingsActivity extends AppCompatActivity {
                     }
                 })
                 .show();
-
     }
 
 
@@ -290,7 +279,7 @@ public class SettingsActivity extends AppCompatActivity {
                         taskSnapshot.getMetadata().getReference().getDownloadUrl()
                                 .addOnSuccessListener(uri -> {
                                     String url = uri.toString();
-                                    database.collection("profiles").document(userId).update("b2_dpUrl", url);
+                                    FirebaseUtil.getFirebaseFirestore().collection("profiles").document(userId).update("b2_dpUrl", url);
                                     progressDialog.dismiss();
                                     Toast.makeText(SettingsActivity.this, "Image uploaded", Toast.LENGTH_SHORT).show();
                                     imgDp.setImageURI(filePath);

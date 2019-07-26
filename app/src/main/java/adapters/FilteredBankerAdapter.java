@@ -19,7 +19,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.request.RequestOptions;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.sqube.tipshub.FlagActivity;
@@ -39,6 +38,7 @@ import models.SnapId;
 import models.UserNetwork;
 import services.GlideApp;
 import utils.Calculations;
+import utils.FirebaseUtil;
 import utils.Reusable;
 
 public class FilteredBankerAdapter extends RecyclerView.Adapter<FilteredBankerAdapter.PostHolder> {
@@ -53,7 +53,6 @@ public class FilteredBankerAdapter extends RecyclerView.Adapter<FilteredBankerAd
     ArrayList<Post> postList;
     private ArrayList<SnapId> snapIds;
 
-    private FirebaseFirestore database;
     private String[] code = {"1xBet", "Bet9ja", "Nairabet", "SportyBet", "BlackBet", "Bet365"};
     private String[] type = {"3-5 odds", "6-10 odds", "11-50 odds", "50+ odds", "Draws", "Banker tip"};
 
@@ -65,7 +64,6 @@ public class FilteredBankerAdapter extends RecyclerView.Adapter<FilteredBankerAd
         this.postList = postList;
         this.snapIds = snapIds;
         this.calculations = new Calculations(context);
-        this.database = FirebaseFirestore.getInstance();
         requestOptions.placeholder(R.drawable.ic_person_outline_black_24dp);
         storageReference = FirebaseStorage.getInstance().getReference().child("profile_images");
     }
@@ -123,7 +121,7 @@ public class FilteredBankerAdapter extends RecyclerView.Adapter<FilteredBankerAd
                     if(model.getType()>0)
                         calculations.onDeletePost(imgOverflow, postId, userId,status==2, type);
                     else {
-                        database.collection("posts").document(postId).delete();
+                        FirebaseUtil.getFirebaseFirestore().collection("posts").document(postId).delete();
                         Snackbar.make(imgOverflow, "Deleted", Snackbar.LENGTH_SHORT).show();
                     }
                 }

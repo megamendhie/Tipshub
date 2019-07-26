@@ -26,11 +26,9 @@ import android.widget.Toast;
 
 import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
 
@@ -44,19 +42,15 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import models.Post;
 import models.ProfileMedium;
 import services.GlideApp;
+import utils.FirebaseUtil;
 import utils.Reusable;
 import utils.SpaceTokenizer;
 
 public class PostActivity extends AppCompatActivity implements View.OnClickListener {
-    private Button btnPost;
-    private TextView btnClose, btnAdd, txtNormal;
-    private CircleImageView imgDp;
+    private TextView btnAdd;
     private MultiAutoCompleteTextView edtPost;
     private ProgressBar prgBar;
-    private Spinner spnType;
     private SharedPreferences prefs;
-    FirebaseFirestore database;
-    FirebaseAuth auth;
     FirebaseUser user;
     CollectionReference postReference;
     private RequestOptions requestOptions = new RequestOptions();
@@ -84,21 +78,22 @@ public class PostActivity extends AppCompatActivity implements View.OnClickListe
             actionBar.setHomeAsUpIndicator(R.drawable.ic_close_black_24dp);
         }
         prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        database = FirebaseFirestore.getInstance();
-        auth = FirebaseAuth.getInstance();
-        user = auth.getCurrentUser();
-        postReference = database.collection("posts");
+        user = FirebaseUtil.getFirebaseAuthentication().getCurrentUser();
+        postReference = FirebaseUtil.getFirebaseFirestore().collection("posts");
         requestOptions.placeholder(R.drawable.ic_person_outline_black_24dp);
         edtPost = findViewById(R.id.edtPost);
-        txtNormal = findViewById(R.id.txtNormal);
-        spnType = findViewById(R.id.spnPostType);
-        btnPost = findViewById(R.id.btnPost); btnPost.setOnClickListener(this);
+        TextView txtNormal = findViewById(R.id.txtNormal);
+        Spinner spnType = findViewById(R.id.spnPostType);
+        Button btnPost = findViewById(R.id.btnPost);
+        btnPost.setOnClickListener(this);
         btnAdd = findViewById(R.id.btnAddCode); btnAdd.setOnClickListener(this);
-        btnClose = findViewById(R.id.btnClose); btnClose.setOnClickListener(this);
-        imgDp = findViewById(R.id.imgDp);
+        TextView btnClose = findViewById(R.id.btnClose);
+        btnClose.setOnClickListener(this);
+        CircleImageView imgDp = findViewById(R.id.imgDp);
         prgBar = findViewById(R.id.prgLogin);
         username = user.getDisplayName();
         userId = user.getUid();
+
         if(getIntent().getStringExtra("type").equals("tip")){
             spnType.setVisibility(View.VISIBLE);
             btnAdd.setVisibility(View.VISIBLE);
@@ -238,7 +233,7 @@ public class PostActivity extends AppCompatActivity implements View.OnClickListe
         boolean isVerified = prefs.getBoolean("isVerified", false);
         postReference.add(new Post(username, userId, content, isVerified, 1, type, code, codeIndex));
 
-        database.collection("profiles").document(userId)
+        FirebaseUtil.getFirebaseFirestore().collection("profiles").document(userId)
                 .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
@@ -269,7 +264,7 @@ public class PostActivity extends AppCompatActivity implements View.OnClickListe
                         updates.put("e"+type + "a_NOG", stats[0]);
                         updates.put("e"+type + "c_WGP", stats[1]);
                     }
-                    database.collection("profiles").document(userId).set(updates, SetOptions.merge());
+                    FirebaseUtil.getFirebaseFirestore().collection("profiles").document(userId).set(updates, SetOptions.merge());
                     prgBar.setVisibility(View.GONE);
                     Toast.makeText(getApplicationContext(), "Posted", Toast.LENGTH_LONG).show();
                     finish();

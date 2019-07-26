@@ -23,6 +23,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,8 +37,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 
 import java.util.HashMap;
@@ -52,11 +53,10 @@ import fragments.NotificationFragment;
 import fragments.RecommendedFragment;
 import models.ProfileShort;
 import services.UserDataFetcher;
+import utils.FirebaseUtil;
 
 public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener, View.OnClickListener, NavigationView.OnNavigationItemSelectedListener {
     GoogleSignInClient mGoogleSignInClient;
-    private FirebaseAuth auth;
-    private FirebaseFirestore database;
     private FirebaseRemoteConfig mFirebaseRemoteConfig;
     private FirebaseUser user;
     private Intent serviceIntent;
@@ -111,15 +111,15 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         navigationView.setNavigationItemSelectedListener(this);
         View header = navigationView.getHeaderView(0);
 
-        /*
-        aSwitch = (SwitchCompat) navigationView.getMenu().findItem(R.id.nav_switch).getActionView();
+        MenuItem switchMenuItem = navigationView.getMenu().findItem(R.id.nav_switch);
+        View actionView = switchMenuItem.getActionView();
+        aSwitch = actionView.findViewById(R.id.drawer_switch);
 
         //confirm if user reading posts from everybody
         if(prefs.getBoolean("fromEverybody", true))
             aSwitch.setChecked(true);
         else
             aSwitch.setChecked(false);
-        */
 
         imgDp = header.findViewById(R.id.imgProfilePic);
         imgDp.setOnClickListener(this);
@@ -135,16 +135,15 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                 .requestEmail()
                 .build();
         mGoogleSignInClient = GoogleSignIn.getClient(MainActivity.this, gso);
-        auth = FirebaseAuth.getInstance();
-        if(auth.getCurrentUser()==null){
+        if(FirebaseUtil.getFirebaseAuthentication().getCurrentUser()==null){
             startActivity(new Intent(MainActivity.this, LandingActivity.class));
             finish();
             return;
         }
-        auth.addAuthStateListener(new FirebaseAuth.AuthStateListener() {
+        FirebaseUtil.getFirebaseAuthentication().addAuthStateListener(new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                if(auth.getCurrentUser()==null){
+                if(FirebaseUtil.getFirebaseAuthentication().getCurrentUser()==null){
                     stopService(serviceIntent);
                     startActivity(new Intent(MainActivity.this, LoginActivity.class));
                     finish();
@@ -155,15 +154,13 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
         serviceIntent = new Intent(this, UserDataFetcher.class);
         startService(serviceIntent);
-        database = FirebaseFirestore.getInstance();
         mFirebaseRemoteConfig = FirebaseRemoteConfig.getInstance();
-        user = auth.getCurrentUser();
+        user = FirebaseUtil.getFirebaseAuthentication().getCurrentUser();
         userId = user.getUid();
         actionBar.setTitle("Home");
         checkForUpdate();
         loadFragment();
 
-        /*
         aSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -172,9 +169,9 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                 else
                     editor.putBoolean("fromEverybody", false);
                 editor.apply();
+                fragmentManager.beginTransaction().detach(fragmentH).attach(fragmentH).commit();
             }
         });
-        */
     }
 
     @Override
@@ -205,7 +202,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     }
 
     public void setHeader(){
-        database.collection("profiles").document(userId)
+        FirebaseUtil.getFirebaseFirestore().collection("profiles").document(userId)
                 .addSnapshotListener(MainActivity.this, new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
@@ -275,7 +272,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                 startActivity(new Intent(MainActivity.this, SettingsActivity.class));
                 break;
             case R.id.nav_logout:
-                if(auth.getCurrentUser()!=null)
+                if(FirebaseUtil.getFirebaseAuthentication().getCurrentUser()!=null)
                     Logout();
                 else
                     Toast.makeText(MainActivity.this, "No user logged in", Toast.LENGTH_LONG).show();
@@ -299,12 +296,14 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     }
 
     public void Logout(){
+        FirebaseMessaging FCM = FirebaseMessaging.getInstance();
+        FCM.unsubscribeFromTopic(userId); //unsubscribe user from corresponding channel with userId
         if(user.getProviderData().get(1).getProviderId().equals("google.com")){
-            auth.signOut();
+            FirebaseUtil.getFirebaseAuthentication().signOut();
             mGoogleSignInClient.signOut();
         }
         else{
-            auth.signOut();
+            FirebaseUtil.getFirebaseAuthentication().signOut();
         }
     }
 

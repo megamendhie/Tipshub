@@ -25,9 +25,7 @@ import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
-import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.sqube.tipshub.FlagActivity;
 import com.sqube.tipshub.FullPostActivity;
@@ -43,6 +41,7 @@ import models.Post;
 import models.UserNetwork;
 import services.GlideApp;
 import utils.Calculations;
+import utils.FirebaseUtil;
 import utils.Reusable;
 
 public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.PostHolder>{
@@ -53,11 +52,9 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
     private String userId;
     private Calculations calculations;
     private StorageReference storageReference;
-    private FirebaseFirestore database;
     private RequestOptions requestOptions = new RequestOptions();
     private String[] code = {"1xBet", "Bet9ja", "Nairabet", "SportyBet", "BlackBet", "Bet365"};
     private String[] type = {"3-5 odds", "6-10 odds", "11-50 odds", "50+ odds", "Draws", "Banker tip"};
-
 
     public BankerAdapter(Query query, String userID, Activity activity, Context context) {
         /*
@@ -74,9 +71,8 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
         this.context = context;
         this.userId = userID;
         this.calculations = new Calculations(context);
-        this.database = FirebaseFirestore.getInstance();
         requestOptions.placeholder(R.drawable.ic_person_outline_black_24dp);
-        storageReference = FirebaseStorage.getInstance().getReference().child("profile_images");
+        storageReference = FirebaseUtil.getFirebaseStorage().getReference().child("profile_images");
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -328,7 +324,7 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
 
         childUsername.setText(model.getChildUsername());
         childPost.setText(model.getChildContent());
-        database.collection("posts").document(model.getChildLink()).get()
+        FirebaseUtil.getFirebaseFirestore().collection("posts").document(model.getChildLink()).get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
@@ -418,7 +414,7 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
                     if(model.getType()>0)
                         calculations.onDeletePost(imgOverflow, postId, userId,status==2, type);
                     else {
-                        database.collection("posts").document(postId).delete();
+                        FirebaseUtil.getFirebaseFirestore().collection("posts").document(postId).delete();
                         Snackbar.make(imgOverflow, "Deleted", Snackbar.LENGTH_SHORT).show();
                     }
                 }

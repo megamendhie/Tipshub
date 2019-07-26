@@ -33,14 +33,11 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
-import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.UploadTask;
 import com.hbb20.CountryCodePicker;
@@ -51,6 +48,7 @@ import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import models.Profile;
+import utils.FirebaseUtil;
 import utils.Reusable;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
@@ -58,11 +56,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private final static int RC_SIGN_IN = 123;
     private EditText edtEmail, edtPassword;
     private CircleImageView imgDp;
-    private FirebaseFirestore database;
-    private FirebaseStorage storage;
     private FirebaseUser user;
     private GoogleSignInClient mGoogleSignInClient;
-    private FirebaseAuth mAuth;
     private ProgressBar prgLogin;
     private ProgressDialog progressDialog;
     private String userId, firstName, lastName, email, password, provider;
@@ -86,9 +81,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         edtEmail = findViewById(R.id.edtEmail);
         edtPassword = findViewById(R.id.edtPassword);
         prgLogin = findViewById(R.id.prgLogin);
-        mAuth = FirebaseAuth.getInstance();
-        database = FirebaseFirestore.getInstance();
-        storage = FirebaseStorage.getInstance();
         progressDialog = new ProgressDialog(this);
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
         editor = prefs.edit();
@@ -170,7 +162,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             edtPassword.setError("Enter password");
             return;
         }
-        mAuth.signInWithEmailAndPassword(email, password)
+        FirebaseUtil.getFirebaseAuthentication().signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
@@ -180,7 +172,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                             editor.putString("EMAIL", edtEmail.getText().toString().trim());
                             editor.apply();
                             Snackbar.make(btnLogin, "Login successful", Snackbar.LENGTH_SHORT).show();
-                            user = mAuth.getCurrentUser();
+                            user = FirebaseUtil.getFirebaseAuthentication().getCurrentUser();
                             finish();
                             startActivity(new Intent(LoginActivity.this, MainActivity.class));
                         }
@@ -189,8 +181,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 .addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                if(mAuth.getCurrentUser()!=null)
-                    mAuth.signOut();
+                if(FirebaseUtil.getFirebaseAuthentication().getCurrentUser()!=null)
+                    FirebaseUtil.getFirebaseAuthentication().signOut();
                 Snackbar.make(btnLogin, "Login failed. " + e.getMessage(), Snackbar.LENGTH_LONG).show();
             }
         });
@@ -198,15 +190,15 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     public void authWithGoogle(GoogleSignInAccount account){
         final AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
-        mAuth.signInWithCredential(credential)
+        FirebaseUtil.getFirebaseAuthentication().signInWithCredential(credential)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if(task.isSuccessful()){
-                    user = mAuth.getCurrentUser();
+                    user = FirebaseUtil.getFirebaseAuthentication().getCurrentUser();
                     userId = user.getUid();
 
-                    database.collection("profiles").document(userId).get()
+                    FirebaseUtil.getFirebaseFirestore().collection("profiles").document(userId).get()
                             .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                 @Override
                                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -218,7 +210,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                                             lastName = names[1];
                                             email = user.getEmail();
                                             provider = "google.com";
-                                            database.collection("profiles").document(userId)
+                                            FirebaseUtil.getFirebaseFirestore().collection("profiles").document(userId)
                                                     .set(new Profile(firstName, lastName, email, provider ));
                                             Reusable.grabImage(user.getPhotoUrl().toString());
                                             completeProfile();
@@ -236,7 +228,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     edtEmail.setEnabled(true);
                     prgLogin.setVisibility(View.GONE);
                     final String message = "Login unsuccessful. " + task.getException().getMessage();
-                    mAuth.signOut();
+                    FirebaseUtil.getFirebaseAuthentication().signOut();
                     mGoogleSignInClient.signOut();
                     Snackbar.make(btnLogin, message, Snackbar.LENGTH_LONG).show();
                     Log.i("onComplete", message);
@@ -314,10 +306,12 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 }
                 if(TextUtils.isEmpty(phone)){
                     edtPhone.setError("Enter phone number");
+                    Toast.makeText(getApplicationContext(), "Enter phone number", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 if(!numberValid[0]){
                     edtPhone.setError("Invalid phone number");
+                    Toast.makeText(getApplicationContext(), "Enter phone number", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -332,10 +326,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 UserProfileChangeRequest profileUpdate = new UserProfileChangeRequest.Builder()
                         .setDisplayName(username)
                         .build();
-                mAuth.getCurrentUser().updateProfile(profileUpdate);
+                FirebaseUtil.getFirebaseAuthentication().getCurrentUser().updateProfile(profileUpdate);
 
                 //save username, phone number, and gender to database
-                database.collection("profiles").document(userId).set(url, SetOptions.merge());
+                FirebaseUtil.getFirebaseFirestore().collection("profiles").document(userId).set(url, SetOptions.merge());
                 dialog.cancel();
                 finish();
                 startActivity(new Intent(LoginActivity.this, MainActivity.class));
@@ -360,14 +354,14 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     public void uploadImage(){
         progressDialog.setTitle("Uploading...");
         progressDialog.show();
-        storage.getReference().child("profile_images").child(userId).putFile(filePath)
+        FirebaseUtil.getFirebaseStorage().getReference().child("profile_images").child(userId).putFile(filePath)
                 .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                         taskSnapshot.getMetadata().getReference().getDownloadUrl()
                                 .addOnSuccessListener(uri -> {
                                     String url = uri.toString();
-                                    database.collection("profiles").document(userId).update("b2_dpUrl", url);
+                                    FirebaseUtil.getFirebaseFirestore().collection("profiles").document(userId).update("b2_dpUrl", url);
                                     progressDialog.dismiss();
                                     Toast.makeText(LoginActivity.this, "Image uploaded", Toast.LENGTH_SHORT).show();
                                     imgDp.setImageURI(filePath);

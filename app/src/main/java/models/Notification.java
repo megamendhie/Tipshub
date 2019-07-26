@@ -3,10 +3,11 @@ package models;
 import java.util.Date;
 
 public class Notification {
-    private String action;
-    private String title;
-    private String message;
-    private String type;
+    private String channel; //FCM channel
+    private String action; //action that triggered the notification
+    private String title;  //title of notification
+    private String message; //notification body
+    private String type;  //
     private String intentUrl;
     private String imageUrl;
     private String sendTo;

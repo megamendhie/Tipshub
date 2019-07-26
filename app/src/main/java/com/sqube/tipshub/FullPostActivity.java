@@ -31,13 +31,11 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.Transaction;
@@ -55,22 +53,21 @@ import models.Comment;
 import models.Post;
 import services.GlideApp;
 import utils.Calculations;
+import utils.FirebaseUtil;
 import utils.Reusable;
 import utils.SpaceTokenizer;
 
 public class FullPostActivity extends AppCompatActivity implements View.OnClickListener, TextWatcher {
-    private FirebaseFirestore database;
-    CollectionReference commentReference;
-    DocumentReference postReference;
-    LinearLayout lnrCode, lnrFullPost, lnrChildPost;
-    TextView mpost, mUsername, mTime;
+    private CollectionReference commentReference;
+    private DocumentReference postReference;
+    private LinearLayout lnrCode, lnrFullPost, lnrChildPost;
+    private TextView mpost, mUsername, mTime;
     private RequestOptions requestOptions = new RequestOptions();
     Calculations calculations;
     private String comment;
     boolean childDisplayed;
     private SharedPreferences prefs;
     final String TAG = "FullPostActivity";
-    Reusable reusable = new Reusable();
     TextView mLikes, mDislikes, mComment, mCode, mType;
     CircleImageView imgDp, imgMyDp, imgChildDp;
     ImageView imgOverflow, imgLike, imgDislike, imgComment, imgShare, imgStatus, imgCode;
@@ -123,16 +120,15 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
         requestOptions.placeholder(R.drawable.ic_person_outline_black_24dp);
 
         calculations = new Calculations(getApplicationContext());
-        database = FirebaseFirestore.getInstance();
         storageReference = FirebaseStorage.getInstance().getReference().child("profile_images");
-        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        final FirebaseUser user = FirebaseUtil.getFirebaseAuthentication().getCurrentUser();
         userId = user.getUid();
         username = user.getDisplayName();
 
         commentsList = findViewById(R.id.listComments);
         commentsList.setLayoutManager(new LinearLayoutManager(this));
         postId = getIntent().getStringExtra("postId");
-        postReference = database.collection("posts").document(postId);
+        postReference = FirebaseUtil.getFirebaseFirestore().collection("posts").document(postId);
 
         String[] clubs = getResources().getStringArray(R.array.club_arrays);
         ArrayAdapter<String> club_adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, clubs);
@@ -143,8 +139,7 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
                 .setDefaultRequestOptions(requestOptions)
                 .load(storageReference.child(userId))
                 .into(imgMyDp);
-        
-        //loadPost();
+
         listener();
         loadComment();
 
@@ -230,7 +225,7 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
         imgChildDp = findViewById(R.id.childDp); imgChildDp.setOnClickListener(this);
 
         childDisplayed = true;
-        database.collection("posts").document(childLink).get()
+        FirebaseUtil.getFirebaseFirestore().collection("posts").document(childLink).get()
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -283,7 +278,7 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
 
     private void loadComment() {
         //loads comment into commentList
-        commentReference = database.collection("comments");
+        commentReference = FirebaseUtil.getFirebaseFirestore().collection("comments");
         Query query = commentReference.whereEqualTo("commentOn", postId).orderBy("time", Query.Direction.DESCENDING);
         commentAdapter = new CommentAdapter(postId, query, userId, FullPostActivity.this, getApplicationContext());
         commentsList.setAdapter(commentAdapter);
@@ -338,7 +333,7 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
                 calculations.onDislike( postId, userId, model.getUserId(), substring);
                 break;
             case R.id.imgShare:
-                reusable.shareTips(FullPostActivity.this, model.getUsername(), model.getContent());
+                Reusable.shareTips(FullPostActivity.this, model.getUsername(), model.getContent());
                 break;
             case R.id.fabPost:
                 increaseCommentCount();
@@ -416,7 +411,8 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
             edtComment.setError("Type your comment");
             return;
         }
-        database.runTransaction(new Transaction.Function<Void>() {
+
+        FirebaseUtil.getFirebaseFirestore().runTransaction(new Transaction.Function<Void>() {
             @Override
             public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
                 Log.i(TAG, "apply: likes entered");

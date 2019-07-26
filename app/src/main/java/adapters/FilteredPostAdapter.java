@@ -20,7 +20,6 @@ import android.widget.TextView;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.sqube.tipshub.FlagActivity;
@@ -40,6 +39,7 @@ import models.SnapId;
 import models.UserNetwork;
 import services.GlideApp;
 import utils.Calculations;
+import utils.FirebaseUtil;
 import utils.Reusable;
 
 public class FilteredPostAdapter extends RecyclerView.Adapter<FilteredPostAdapter.PostHolder> {
@@ -54,8 +54,6 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<FilteredPostAdapte
     private RequestOptions requestOptions = new RequestOptions();
     ArrayList<Post> postList;
     private ArrayList<SnapId> snapIds;
-
-    private FirebaseFirestore database;
     private String[] code = {"1xBet", "Bet9ja", "Nairabet", "SportyBet", "BlackBet", "Bet365"};
     private String[] type = {"3-5 odds", "6-10 odds", "11-50 odds", "50+ odds", "Draws", "Banker tip"};
 
@@ -67,7 +65,6 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<FilteredPostAdapte
         this.postList = postList;
         this.snapIds = snapIds;
         this.calculations = new Calculations(context);
-        this.database = FirebaseFirestore.getInstance();
         requestOptions.placeholder(R.drawable.ic_person_outline_black_24dp);
         storageReference = FirebaseStorage.getInstance().getReference().child("profile_images");
     }
@@ -116,7 +113,7 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<FilteredPostAdapte
 
         childUsername.setText(model.getChildUsername());
         childPost.setText(model.getChildContent());
-        database.collection("posts").document(model.getChildLink()).get()
+        FirebaseUtil.getFirebaseFirestore().collection("posts").document(model.getChildLink()).get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {

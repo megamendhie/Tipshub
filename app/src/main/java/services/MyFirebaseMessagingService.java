@@ -60,11 +60,11 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 PendingIntent.FLAG_ONE_SHOT);
 
         Bitmap largeIcon = BitmapFactory.decodeResource(getResources(),
-                R.drawable.ic_notifications_none_black_24dp);
+                R.drawable.icn_medium);
 
         Uri notificationSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, ADMIN_CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_notifications_none_black_24dp)
+                .setSmallIcon(R.drawable.icon_svg)
                 .setLargeIcon(largeIcon)
                 .setContentTitle(remoteMessage.getData().get("title"))
                 .setContentText(remoteMessage.getData().get("message"))
@@ -94,4 +94,5 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             notificationManager.createNotificationChannel(adminChannel);
         }
     }
+
 }

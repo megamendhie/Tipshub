@@ -55,8 +55,8 @@ public class AccountActivity extends AppCompatActivity {
         Query querySubscriptions = database.collection("subscriptions").orderBy("timestamp", Query.Direction.DESCENDING)
                 .whereEqualTo("subFromId", userId);
 
-        SubscriberAdapter subscriberAdapter = new SubscriberAdapter(querySubscribers, userId, AccountActivity.this, getApplicationContext());
-        SubscriptionAdapter subscriptionAdapter = new SubscriptionAdapter(querySubscriptions, userId, AccountActivity.this, getApplicationContext());
+        SubscriberAdapter subscriberAdapter = new SubscriberAdapter(querySubscribers, userId, getApplicationContext());
+        SubscriptionAdapter subscriptionAdapter = new SubscriptionAdapter(querySubscriptions, userId, getApplicationContext());
         listSubscribers.setAdapter(subscriberAdapter);
         listSubscriptions.setAdapter(subscriptionAdapter);
         if(subscriberAdapter!=null){

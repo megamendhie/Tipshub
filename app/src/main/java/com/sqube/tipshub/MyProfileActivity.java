@@ -20,10 +20,8 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,20 +34,16 @@ import fragments.BankersFragment;
 import fragments.PostFragment;
 import fragments.ReviewFragment;
 import models.ProfileMedium;
+import utils.FirebaseUtil;
 
 public class MyProfileActivity extends AppCompatActivity implements View.OnClickListener {
     private ActionBar actionBar;
-    private ViewPager viewPager;
-    private TabLayout tabLayout;
-    private FirebaseUser user;
     private String userId, username;
     private RequestOptions requestOptions = new RequestOptions();
-    private FirebaseFirestore database;
     private CircleImageView imgDp;
     private LinearLayout[] lnrLayout = new LinearLayout[4];
     ProfileMedium profile;
     private RecyclerView recyclerView;
-    PerformanceAdapter adapter;
     Fragment postFragment, bankerFragment, reviewFragment;
     ArrayList<Map<String, Object>> performanceList = new ArrayList<>();
     private TextView txtName, txtUsername, txtBio;
@@ -64,8 +58,8 @@ public class MyProfileActivity extends AppCompatActivity implements View.OnClick
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
-        viewPager = findViewById(R.id.viewpager);
-        tabLayout = findViewById(R.id.tabs);
+        ViewPager viewPager = findViewById(R.id.viewpager);
+        TabLayout tabLayout = findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
         imgDp = findViewById(R.id.imgDp);
         txtName = findViewById(R.id.txtFullName);
@@ -93,10 +87,9 @@ public class MyProfileActivity extends AppCompatActivity implements View.OnClick
             }
         });
         recyclerView.setLayoutManager(lm);
-        user = FirebaseAuth.getInstance().getCurrentUser();
+        FirebaseUser user = FirebaseUtil.getFirebaseAuthentication().getCurrentUser();
         userId = user.getUid();
         username = user.getDisplayName();
-        database = FirebaseFirestore.getInstance();
         requestOptions.placeholder(R.drawable.dummy);
         setupViewPager(viewPager); //set up view pager with fragments
     }
@@ -205,7 +198,7 @@ public class MyProfileActivity extends AppCompatActivity implements View.OnClick
     @Override
     protected void onPostResume() {
         super.onPostResume();
-        database.collection("profiles").document(userId).get()
+        FirebaseUtil.getFirebaseFirestore().collection("profiles").document(userId).get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {

@@ -28,10 +28,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.gson.Gson;
@@ -48,21 +46,18 @@ import models.Post;
 import models.ProfileMedium;
 import models.SnapId;
 import models.UserNetwork;
-
+import utils.FirebaseUtil;
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public class BankerFragment extends Fragment {
-    private FirebaseFirestore database;
-    private FirebaseAuth auth;
-    private FirebaseUser user;
     private Gson gson = new Gson();
     private String json;
     private ProfileMedium myProfile;
     private SharedPreferences prefs;
     private TextView txtNotice;
-    String userId;
+    private String userId;
     BankerAdapter latestAdapter, winAdapter;
     FloatingActionButton fabPost;
     RecyclerView subscribedList, latestList, winningsList;
@@ -93,9 +88,7 @@ public class BankerFragment extends Fragment {
         winningsList.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         intent = new Intent(getActivity().getApplicationContext(), PostActivity.class);
-        database = FirebaseFirestore.getInstance();
-        auth = FirebaseAuth.getInstance();
-        user = auth.getCurrentUser();
+        FirebaseUser user = FirebaseUtil.getFirebaseAuthentication().getCurrentUser();
         userId = user.getUid();
 
         fabPost.setOnClickListener(new View.OnClickListener() {
@@ -124,7 +117,7 @@ public class BankerFragment extends Fragment {
 
     private void loadSub(){
         if(UserNetwork.getSubscribed()==null){
-            database.collection("subscribed_to").document(userId).get()
+            FirebaseUtil.getFirebaseFirestore().collection("subscribed_to").document(userId).get()
                     .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -149,7 +142,7 @@ public class BankerFragment extends Fragment {
         Task[] tasks = new Task[count];
 
         for(int i = 0; i < count; i++){
-            queries[i] = database.collection("posts").orderBy("time", Query.Direction.DESCENDING)
+            queries[i] = FirebaseUtil.getFirebaseFirestore().collection("posts").orderBy("time", Query.Direction.DESCENDING)
                     .whereEqualTo("userId", userIds.get(i)).whereEqualTo("type", 6).limit(2);
             tasks[i] = queries[i].get();
         }
@@ -180,7 +173,7 @@ public class BankerFragment extends Fragment {
 
     private void loadLatest() {
         Log.i(TAG, "loadPost: ");
-        latestAdapter = new BankerAdapter(database.collection("posts").orderBy("time", Query.Direction.DESCENDING)
+        latestAdapter = new BankerAdapter(FirebaseUtil.getFirebaseFirestore().collection("posts").orderBy("time", Query.Direction.DESCENDING)
                 .whereEqualTo("type", 6).limit(8), userId, getActivity(), getContext());
         latestList.setAdapter(latestAdapter);
         if(latestAdapter!=null)
@@ -189,7 +182,7 @@ public class BankerFragment extends Fragment {
 
     private void loadWinning() {
         Log.i(TAG, "loadWinning: ");
-        winAdapter = new BankerAdapter(database.collection("posts").orderBy("time", Query.Direction.DESCENDING)
+        winAdapter = new BankerAdapter(FirebaseUtil.getFirebaseFirestore().collection("posts").orderBy("time", Query.Direction.DESCENDING)
                 .whereEqualTo("type", 6).whereEqualTo("status", 2).limit(8), userId, getActivity(), getContext());
         winningsList.setAdapter(winAdapter);
         if(winAdapter!=null)

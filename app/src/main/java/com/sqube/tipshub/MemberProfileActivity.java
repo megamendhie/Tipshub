@@ -101,7 +101,7 @@ public class MemberProfileActivity extends AppCompatActivity implements View.OnC
                 txtFollowing.setText(String.valueOf(profile.getC5_following()));
                 txtSubscribers.setText(String.valueOf(profile.getC6_subscribers()));
                 txtSubscriptions.setText(String.valueOf(profile.getC7_subscriptions()));
-                txtPost.setText(profile.getE0a_NOG() + " tips  • ");
+                txtPost.setText(profile.getE0a_NOG()>1? profile.getE0a_NOG()+ " tips  • ": profile.getE0a_NOG()+ " tip  • ");
                 txtAccuracy.setText(profile.getE0b_WG()+ " won");
 
                 //set Display picture

@@ -3,7 +3,6 @@ package fragments;
     This fragment is attached to Profile activity
  */
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -13,28 +12,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.github.clans.fab.FloatingActionButton;
-import com.github.clans.fab.FloatingActionMenu;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.sqube.tipshub.R;
 
 import adapters.BankerAdapter;
+import utils.FirebaseUtil;
 
 public class BankersFragment extends Fragment {
-    private FirebaseFirestore database;
-    private Query query;
-    private FirebaseAuth auth;
-    private FirebaseUser user;
-    private final String TAG = "PostFragment";
-    String userId, myId, myUsername;
+    private String userId, myId;
     BankerAdapter postAdapter;
-    FloatingActionButton fapTip, fabNormal;
-    FloatingActionMenu fabMenu;
     RecyclerView recyclerView;
-    Intent intent;
 
     public BankersFragment() {
         // Required empty public constructor
@@ -53,19 +41,17 @@ public class BankersFragment extends Fragment {
         View rootView=inflater.inflate(R.layout.fragment_bankers, container, false);
         recyclerView = rootView.findViewById(R.id.postList);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        database = FirebaseFirestore.getInstance();
-        auth = FirebaseAuth.getInstance();
-        user = auth.getCurrentUser();
+        FirebaseUser user = FirebaseUtil.getFirebaseAuthentication().getCurrentUser();
         myId = user.getUid();
-        myUsername = user.getDisplayName();
         userId = getArguments().getString("userId");
         loadPost();
         return rootView;
     }
 
     private void loadPost() {
+        String TAG = "PostFragment";
         Log.i(TAG, "loadPost: ");
-        query = database.collection("posts").orderBy("time", Query.Direction.DESCENDING)
+        Query query = FirebaseUtil.getFirebaseFirestore().collection("posts").orderBy("time", Query.Direction.DESCENDING)
                 .whereEqualTo("userId", userId).whereEqualTo("type", 6);
         postAdapter = new BankerAdapter(query, myId, getActivity(), getContext());
         recyclerView.setAdapter(postAdapter);

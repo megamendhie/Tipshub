@@ -17,7 +17,6 @@ import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.sqube.tipshub.MemberProfileActivity;
@@ -31,6 +30,7 @@ import models.ProfileShort;
 import models.UserNetwork;
 import services.GlideApp;
 import utils.Calculations;
+import utils.FirebaseUtil;
 import utils.Reusable;
 
 public class PeopleRecAdapter extends RecyclerView.Adapter<PeopleRecAdapter.PostHolder> {
@@ -39,7 +39,6 @@ public class PeopleRecAdapter extends RecyclerView.Adapter<PeopleRecAdapter.Post
     private Context context;
     private String userId;
     private ArrayList<String> list;
-    private FirebaseFirestore database;
     private StorageReference storageReference;
     private RequestOptions requestOptions = new RequestOptions();
 
@@ -50,7 +49,6 @@ public class PeopleRecAdapter extends RecyclerView.Adapter<PeopleRecAdapter.Post
         this.context = context;
         this.userId = userId;
         this.list = list;
-        database = FirebaseFirestore.getInstance();
         requestOptions.placeholder(R.drawable.dummy);
         storageReference = FirebaseStorage.getInstance().getReference().child("profile_images");
     }
@@ -65,7 +63,7 @@ public class PeopleRecAdapter extends RecyclerView.Adapter<PeopleRecAdapter.Post
     @Override
     public void onBindViewHolder(@NonNull PostHolder holder, int i) {
         String ref = list.get(i);
-        database.collection("profiles").document(ref).get()
+        FirebaseUtil.getFirebaseFirestore().collection("profiles").document(ref).get()
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
