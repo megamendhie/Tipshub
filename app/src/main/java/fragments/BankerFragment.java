@@ -36,9 +36,12 @@ import com.google.gson.Gson;
 import com.sqube.tipshub.PostActivity;
 import com.sqube.tipshub.R;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import adapters.BankerAdapter;
 import adapters.FilteredBankerAdapter;
@@ -97,11 +100,18 @@ public class BankerFragment extends Fragment {
                 json = prefs.getString("profile", "");
                 myProfile = (json.equals(""))? null: gson.fromJson(json, ProfileMedium.class);
                 if(myProfile==null){
-                    Toast.makeText(getContext(), "My profile is null", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Something went wrong", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 if(!myProfile.isC1_banker()){
                     popUp();
+                    return;
+                }
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH);
+                String currentDate = sdf.format(new Date().getTime());
+                String lastBankerDate = sdf.format(myProfile.getD3_bankerPostTime());
+                if(currentDate.equals(lastBankerDate)){
+                    popUp2();
                     return;
                 }
                 intent.putExtra("type", "banker");
@@ -198,6 +208,20 @@ public class BankerFragment extends Fragment {
                 "<li>Won at least 70% of them.</li>\n" +
                 "<li>Be very active on the app.</li>\n" +
                 "</ul>";
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.Theme_AppCompat_Light_Dialog_Alert);
+        builder.setMessage(Html.fromHtml(message))
+                .setNegativeButton("Okay", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        //do nothing
+                    }
+                })
+                .show();
+    }
+
+    private void popUp2(){
+        String message = "<p><span style=\"color: #F80051;\"><strong>Already predicted today</strong></span></p>\n" +
+                "<p>Sorry you cannot post any banker tip again for today. Give your subscribers your very surest tip for each day.</p>";
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.Theme_AppCompat_Light_Dialog_Alert);
         builder.setMessage(Html.fromHtml(message))
                 .setNegativeButton("Okay", new DialogInterface.OnClickListener() {

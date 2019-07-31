@@ -49,6 +49,7 @@ public class RecommendedFragment extends Fragment {
     private String userId;
     private RecyclerView peopleList, trendingList, newsList;
     private final String TAG = "RecFragment";
+    private boolean alreadyLoaded;
 
     public final String myAPI_Key = "417444c0502047d69c1c2a9dcc1672cd";
     public final String KEY_AUTHOR = "author";
@@ -84,11 +85,20 @@ public class RecommendedFragment extends Fragment {
 
         FirebaseUser user = FirebaseUtil.getFirebaseAuthentication().getCurrentUser();
         userId = user.getUid();
+        alreadyLoaded = false;
 
-        loadPeople();
         loadPost();
         loadNews();
         return rootView;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if(alreadyLoaded)
+            return;
+        loadPeople();
+        alreadyLoaded=true;
     }
 
     private void loadPeople() {
