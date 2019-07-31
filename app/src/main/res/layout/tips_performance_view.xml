@@ -5,47 +5,47 @@
     android:layout_height="wrap_content"
     android:layout_margin="1dp">
 
-    <TextView
-        android:id="@+id/txtType"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="2"
-        android:textColor="@color/colorPrimaryDark"
-        android:textStyle="bold"
-        android:background="#d3edfc"
-        android:paddingStart="1.5dp"
-        android:paddingEnd="2dp"/>
+  <TextView
+      android:id="@+id/txtType"
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      android:layout_weight="2"
+      android:textColor="@color/colorPrimaryDark"
+      android:textStyle="bold"
+      android:background="#d3edfc"
+      android:paddingStart="1.5dp"
+      android:paddingEnd="2dp"/>
 
-    <TextView
-        android:id="@+id/txtNOG"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="2"
-        android:gravity="center"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:textStyle="bold" />
-    <View
-        android:layout_width="1dp"
-        android:layout_height="match_parent"
-        android:background="@color/likeGrey"/>
+  <TextView
+      android:id="@+id/txtNOG"
+      android:layout_width="0dp"
+      android:layout_height="match_parent"
+      android:layout_weight="2"
+      android:gravity="center"
+      android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+      android:textStyle="bold" />
+  <View
+      android:layout_width="1dp"
+      android:layout_height="match_parent"
+      android:background="@color/likeGrey"/>
 
-    <TextView
-        android:id="@+id/txtWG"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:layout_weight="2"/>
+  <TextView
+      android:id="@+id/txtWG"
+      android:layout_width="0dp"
+      android:layout_height="match_parent"
+      android:gravity="center"
+      android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+      android:layout_weight="2"/>
 
-    <View
-        android:layout_width="1dp"
-        android:layout_height="match_parent"
-        android:background="@color/likeGrey"/>
-    <TextView
-        android:id="@+id/txtWGP"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:layout_weight="2"/>
-    </LinearLayout>
+  <View
+      android:layout_width="1dp"
+      android:layout_height="match_parent"
+      android:background="@color/likeGrey"/>
+  <TextView
+      android:id="@+id/txtWGP"
+      android:layout_width="0dp"
+      android:layout_height="match_parent"
+      android:gravity="center"
+      android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+      android:layout_weight="2"/>
+</LinearLayout>
