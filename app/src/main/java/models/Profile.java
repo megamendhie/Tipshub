@@ -41,6 +41,8 @@ public class Profile {
     //subs
     private int d0_subAmount;
     private String d1_referralCode = "";
+    private int d2_referralCount;
+    private long d3_bankerPostTime;
 
     //values for overall No Of Games, Won Games, and Won Games Percentage
     private long e0a_NOG;
@@ -99,15 +101,6 @@ public class Profile {
     }
 
     public Profile(){}
-
-    public Profile(String userId, String firstName, String lastName, String username, String email, String authProvider){
-        this.a_userId = userId;
-        this.a0_firstName = firstName;
-        this.a1_lastName = lastName;
-        this.a2_username = username;
-        this.a3_email = email;
-        this.b5_authProvider = authProvider;
-    }
 
     public String getA_userId() {
         return a_userId;
@@ -519,5 +512,21 @@ public class Profile {
 
     public String getD1_referralCode() {
         return d1_referralCode;
+    }
+
+    public long getD3_bankerPostTime() {
+        return d3_bankerPostTime;
+    }
+
+    public void setD3_bankerPostTime(long d3_bankerPostTime) {
+        this.d3_bankerPostTime = d3_bankerPostTime;
+    }
+
+    public int getD2_referralCount() {
+        return d2_referralCount;
+    }
+
+    public void setD2_referralCount(int d2_referralCount) {
+        this.d2_referralCount = d2_referralCount;
     }
 }

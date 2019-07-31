@@ -33,6 +33,8 @@ public class ProfileMedium {
     private long c9_todayPostCount;
 
     private String d1_referralCode = "";
+    private int d2_referralCount;
+    private long d3_bankerPostTime;
 
     //values for overall No Of Games, Won Games, and Won Games Percentage
     private long e0a_NOG;
@@ -441,5 +443,21 @@ public class ProfileMedium {
 
     public String getD1_referralCode() {
         return d1_referralCode;
+    }
+
+    public long getD3_bankerPostTime() {
+        return d3_bankerPostTime;
+    }
+
+    public void setD3_bankerPostTime(long d3_bankerPostTime) {
+        this.d3_bankerPostTime = d3_bankerPostTime;
+    }
+
+    public int getD2_referralCount() {
+        return d2_referralCount;
+    }
+
+    public void setD2_referralCount(int d2_referralCount) {
+        this.d2_referralCount = d2_referralCount;
     }
 }

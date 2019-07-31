@@ -6,7 +6,7 @@ import java.util.Date;
 
 public class Subscription {
     private boolean active;
-    private int status;
+    private int status; //refers to payment status
     private long timestamp;
     private String amount;
     private String dateDelete;
@@ -32,7 +32,7 @@ public class Subscription {
         this.subToId = subToId;
         this.duration = duration;
         setDate();
-        }
+    }
 
     private void setDate() {
         final Date today = new Date();
