@@ -4,38 +4,38 @@
     android:layout_height="wrap_content"
     android:layout_marginBottom="10dp">
 
-    <LinearLayout
-        android:id="@+id/lnrDown"
-        android:layout_width="match_parent"
+  <LinearLayout
+      android:id="@+id/lnrDown"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:orientation="horizontal"
+      android:gravity="end">
+
+    <TextView
+        android:id="@+id/btnClose"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="end">
-
-        <TextView
-            android:id="@+id/btnClose"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@android:drawable/editbox_background_normal"
-            android:textColor="@color/colorAccent"
-            android:text="CLOSE"/>
+        android:background="@android:drawable/editbox_background_normal"
+        android:textColor="@color/colorAccent"
+        android:text="CLOSE"/>
 
 
-        <TextView
-            android:id="@+id/btnAddCode"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/colorAccent"
-            android:layout_marginStart="10dp"
-            android:background="@android:drawable/editbox_background_normal"
-            android:text="ADD CODE"/>
+    <TextView
+        android:id="@+id/btnAddCode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/colorAccent"
+        android:layout_marginStart="10dp"
+        android:background="@android:drawable/editbox_background_normal"
+        android:text="ADD CODE"/>
 
-        <Button
-            android:id="@+id/btnPost"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            style="@style/CustomButton"
-            android:text="Post now"/>
-    </LinearLayout>
+    <Button
+        android:id="@+id/btnPost"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        style="@style/CustomButton"
+        android:text="Post now"/>
+  </LinearLayout>
 
 </RelativeLayout>

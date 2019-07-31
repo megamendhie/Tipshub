@@ -3,14 +3,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="#EEEEEE"
     tools:context="fragments.BankersFragment">
 
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/postList"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+  <android.support.v7.widget.RecyclerView
+      android:id="@+id/postList"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent" />
 
 </RelativeLayout>
