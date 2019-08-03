@@ -35,10 +35,14 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.TimeZone;
+import java.util.Timer;
+import java.util.TimerTask;
 
+import adapters.Filtered;
 import adapters.NewsAdapter;
 import adapters.PeopleRecAdapter;
-import adapters.PostAdapter;
+import models.Post;
+import models.SnapId;
 import models.UserNetwork;
 import utils.CacheHelper;
 import utils.FirebaseUtil;
@@ -47,9 +51,13 @@ import utils.Reusable;
 
 public class RecommendedFragment extends Fragment {
     private String userId;
+    Timer timer = new Timer();
     private RecyclerView peopleList, trendingList, newsList;
     private final String TAG = "RecFragment";
     private boolean alreadyLoaded;
+    ArrayList<Post> postList = new ArrayList<>();
+    ArrayList<SnapId> snapIds= new ArrayList<>();
+    Filtered fAdapter;
 
     public final String myAPI_Key = "417444c0502047d69c1c2a9dcc1672cd";
     public final String KEY_AUTHOR = "author";
@@ -85,9 +93,9 @@ public class RecommendedFragment extends Fragment {
 
         FirebaseUser user = FirebaseUtil.getFirebaseAuthentication().getCurrentUser();
         userId = user.getUid();
+        fAdapter = new Filtered(userId, getActivity(), getContext(), postList, snapIds);
+        trendingList.setAdapter(fAdapter);
         alreadyLoaded = false;
-
-        loadPost();
         loadNews();
         return rootView;
     }
@@ -98,6 +106,12 @@ public class RecommendedFragment extends Fragment {
         if(alreadyLoaded)
             return;
         loadPeople();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                loadPost();
+            }
+        }, 0, 300000);
         alreadyLoaded=true;
     }
 
@@ -150,13 +164,26 @@ public class RecommendedFragment extends Fragment {
 
     private void loadPost() {
         Log.i(TAG, "loadPost: ");
-        Query query = FirebaseUtil.getFirebaseFirestore().collection("posts").orderBy("timeRelevance", Query.Direction.DESCENDING).limit(10);
-        PostAdapter postAdapter = new PostAdapter(query, userId, getActivity(), getContext());
-        trendingList.setAdapter(postAdapter);
-        if(postAdapter !=null){
-            Log.i(TAG, "loadPost: started listening");
-            postAdapter.startListening();
-        }
+        FirebaseUtil.getFirebaseFirestore().collection("posts")
+                .orderBy("timeRelevance", Query.Direction.DESCENDING).limit(10).get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        QuerySnapshot result = task.getResult();
+                        if(result==null|| result.isEmpty())
+                            return;
+                        snapIds.clear();
+                        postList.clear();
+                        for(DocumentSnapshot snapshot: result.getDocuments()){
+                            Post post = snapshot.toObject(Post.class);
+                            if(post.getType()==6 && post.getStatus()!=2)
+                                continue;
+                            postList.add(post);
+                            snapIds.add(new SnapId(snapshot.getId(), post.getTime()));
+                        }
+                        fAdapter.notifyDataSetChanged();
+                    }
+                });
     }
 
     public void loadNews(){

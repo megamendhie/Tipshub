@@ -67,7 +67,9 @@ public class UserDataFetcher extends IntentService {
 
                 //set user profile to SharePreference
                 Gson gson = new Gson();
+                Log.i(TAG, "onEvent: happended now");
                 String json = gson.toJson(documentSnapshot.toObject(ProfileMedium.class));
+                editor.putBoolean("isVerified", documentSnapshot.toObject(ProfileMedium.class).isC0_verified());
                 editor.putString("profile", json);
                 editor.apply();
             }

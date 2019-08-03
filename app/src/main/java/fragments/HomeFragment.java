@@ -2,6 +2,7 @@ package fragments;
 
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -38,7 +39,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import adapters.FilteredPostAdapter;
+import adapters.Filtered;
 import adapters.PostAdapter;
 import models.Post;
 import models.ProfileMedium;
@@ -51,8 +52,11 @@ public class HomeFragment extends Fragment{
     private Gson gson = new Gson();
     private SharedPreferences prefs;
     boolean fromEverybody = true;
+    private ArrayList<Post> postList = new ArrayList<>();
+    private ArrayList<SnapId> snapIds= new ArrayList<>();
     String userId, username;
     PostAdapter postAdapter;
+    Filtered fAdapter;
     FloatingActionButton fabTip, fabNormal;
     FloatingActionMenu fabMenu;
     public RecyclerView homeFeed;
@@ -62,9 +66,30 @@ public class HomeFragment extends Fragment{
         // Required empty public constructor
     }
 
+
+    @Override
+    public void onAttachFragment(Fragment childFragment) {
+        super.onAttachFragment(childFragment);
+        Log.i("HomrFrag", "onAttachFragment called");
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        Log.i("HomrFrag", "onAttach called");
+        if(homeFeed!=null && homeFeed.getAdapter()==fAdapter){
+            homeFeed.getLayoutManager().scrollToPosition(0);
+            Log.i("HomrFrag", "onAttach: scroll");
+        }
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        FirebaseUser user = FirebaseUtil.getFirebaseAuthentication().getCurrentUser();
+        userId = user.getUid();
+        username = user.getDisplayName();
     }
 
     @Override
@@ -78,9 +103,6 @@ public class HomeFragment extends Fragment{
         shimmerLayout = rootView.findViewById(R.id.shimmer);
         homeFeed.setLayoutManager(new LinearLayoutManager(getActivity()));
         ((DefaultItemAnimator) homeFeed.getItemAnimator()).setSupportsChangeAnimations(false);
-        FirebaseUser user = FirebaseUtil.getFirebaseAuthentication().getCurrentUser();
-        userId = user.getUid();
-        username = user.getDisplayName();
         fabMenu = rootView.findViewById(R.id.fabMenu);
         fabNormal = rootView.findViewById(R.id.fabNormal);
         fabTip = rootView.findViewById(R.id.fabPost);
@@ -112,9 +134,13 @@ public class HomeFragment extends Fragment{
         fromEverybody = prefs.getBoolean("fromEverybody", true);
         if(fromEverybody)
             loadPost();
-        else
+        else{
+            fAdapter = new Filtered(userId, getActivity(), getContext(), postList, snapIds);
+            homeFeed.setAdapter(fAdapter);
             loadMerged();
+        }
 
+        Log.i("HomeFrag", "onCreateView: ");
         return rootView;
     }
 
@@ -203,21 +229,25 @@ public class HomeFragment extends Fragment{
         Tasks.whenAllSuccess(tasks).addOnSuccessListener(new OnSuccessListener<List<Object>>() {
             @Override
             public void onSuccess(List<Object> list) {
-                ArrayList<Post> posts = new ArrayList<>();
-                ArrayList<SnapId> snapIds= new ArrayList<>();
+                postList.clear();
+                snapIds.clear();
                 for(Object object: list){
                     QuerySnapshot querySnapshot = (QuerySnapshot) object;
                     if(querySnapshot !=null || !querySnapshot.isEmpty()){
                         for(DocumentSnapshot snapshot: querySnapshot.getDocuments()){
                             Post post = snapshot.toObject(Post.class);
-                            posts.add(post);
+                            if(post.getType()==6 && post.getStatus()!=2)
+                                continue;
+                            postList.add(post);
                             snapIds.add(new SnapId(snapshot.getId(), post.getTime()));
                         }
                     }
                 }
-                Collections.sort(posts);
-                Collections.sort(snapIds);
-                homeFeed.setAdapter(new FilteredPostAdapter(userId, getActivity(), getContext(), posts, snapIds));
+                if(postList.size()>1){
+                    Collections.sort(postList);
+                    Collections.sort(snapIds);
+                }
+                fAdapter.notifyDataSetChanged();
                 shimmerLayout.stopShimmer();
                 shimmerLayout.setVisibility(View.GONE);
             }

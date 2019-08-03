@@ -40,7 +40,7 @@ public class Profile {
 
     //subs
     private int d0_subAmount;
-    private String d1_referralCode = "";
+    private String d1_referralCode;
     private int d2_referralCount;
     private long d3_bankerPostTime;
 
@@ -98,6 +98,7 @@ public class Profile {
         this.b4_coverUrl="";
         this.b6_twitter="";
         this.b7_facebook="";
+        this.d1_referralCode = "";
     }
 
     public Profile(){}
