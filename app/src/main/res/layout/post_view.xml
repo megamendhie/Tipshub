@@ -33,7 +33,6 @@
             android:id="@+id/txtUsername"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="megamendhie"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             android:textStyle="bold"/>
 
@@ -41,8 +40,7 @@
         <TextView
             android:id="@+id/txtTime"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="5min ago"/>
+            android:layout_height="wrap_content"/>
 
         <TextView
             android:id="@+id/txtPostType"
@@ -52,8 +50,7 @@
             android:textStyle="bold"
             android:background="@drawable/tip_type_bg"
             android:paddingStart="1.5dp"
-            android:paddingEnd="2dp"
-            android:text="3-5 odds"/>
+            android:paddingEnd="2dp"/>
       </LinearLayout>
 
 
@@ -104,14 +101,14 @@
           android:layout_height="14dp"
           android:layout_gravity="center_vertical"
           android:src="@drawable/hashtag"
+          android:visibility="gone"
           android:tint="@color/colorPrimaryDark"/>
       <TextView
           android:id="@+id/txtCode"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:textColor="#0e0e0e"
-          android:textStyle="bold"
-          android:text="okooji ee"/>
+          android:textStyle="bold"/>
     </LinearLayout>
 
 
@@ -120,6 +117,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="6.0dip"
+        android:visibility="gone"
         android:layout_marginStart="18.0dip"
         app:cardCornerRadius="10dp">
       <LinearLayout
@@ -151,7 +149,6 @@
                 android:id="@+id/txtChildUsername"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="megamendhie"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                 android:textStyle="bold"/>
 
@@ -162,8 +159,7 @@
                 android:textColor="@color/colorPrimaryDark"
                 android:background="@drawable/tip_type_bg"
                 android:paddingStart="1.5dp"
-                android:paddingEnd="2dp"
-                android:text="3-5 odds"/>
+                android:paddingEnd="2dp"/>
           </LinearLayout>
 
 
@@ -205,6 +201,7 @@
               android:layout_width="14dp"
               android:layout_height="14dp"
               android:layout_gravity="center_vertical"
+              android:visibility="gone"
               android:src="@drawable/hashtag"
               android:tint="@color/colorPrimaryDark"/>
           <TextView
@@ -212,8 +209,7 @@
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
               android:textColor="#0e0e0e"
-              android:textStyle="bold"
-              android:text="okooji ee"/>
+              android:textStyle="bold"/>
         </LinearLayout>
       </LinearLayout>
     </android.support.v7.widget.CardView>
@@ -245,8 +241,7 @@
             android:id="@+id/txtLike"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="2dp"
-            android:text="100"/>
+            android:layout_marginStart="2dp"/>
       </LinearLayout>
 
       <LinearLayout
@@ -266,8 +261,7 @@
             android:id="@+id/txtDislike"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="2dp"
-            android:text="33"/>
+            android:layout_marginStart="2dp"/>
       </LinearLayout>
 
       <LinearLayout
@@ -287,8 +281,7 @@
             android:id="@+id/txtComment"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="2dp"
-            android:text="33"/>
+            android:layout_marginStart="2dp"/>
       </LinearLayout>
 
       <LinearLayout
