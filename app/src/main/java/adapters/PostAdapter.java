@@ -4,11 +4,15 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.text.Html;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -34,6 +38,8 @@ import com.sqube.tipshub.MyProfileActivity;
 import com.sqube.tipshub.R;
 import com.sqube.tipshub.RepostActivity;
 import com.sqube.tipshub.SubscriptionActivity;
+
+import java.util.Date;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import models.Post;
@@ -339,6 +345,7 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
             dialogView = inflater.inflate(R.layout.dialog_member, null);
         builder.setView(dialogView);
         final AlertDialog dialog= builder.create();
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.show();
 
         Button btnSubmit, btnDelete, btnShare, btnFollow, btnSubscribe;
@@ -347,6 +354,19 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
         btnShare = dialog.findViewById(R.id.btnShare);
         btnFollow = dialog.findViewById(R.id.btnFollow);
         btnSubscribe = dialog.findViewById(R.id.btnSubscribe);
+
+        long timeDifference = new Date().getTime() - model.getTime();
+        if(model.getUserId().equals(userId)&& model.getType()>0 && timeDifference > 9000000)
+            btnDelete.setEnabled(false);
+        if(model.getUserId().equals(userId)&& timeDifference > 144000000)
+            btnSubmit.setVisibility(View.GONE);
+        else {
+            if (model.getUserId().equals(userId) && model.getStatus() == 2 && timeDifference <= 9000000)
+                btnSubmit.setText("CANCEL WON");
+            if (model.getUserId().equals(userId) && model.getStatus() == 2 && timeDifference > 9000000)
+                btnSubmit.setVisibility(View.GONE);
+        }
+
 
         if(UserNetwork.getSubscribed()==null||UserNetwork.getSubscribed().contains(userID))
             btnSubscribe.setVisibility(View.GONE);
@@ -372,14 +392,44 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
                     dialog.cancel();
                 }
                 else{
+                    Log.i(TAG, "onClick: "+ model.getType());
                     if(model.getType()>0)
                         calculations.onDeletePost(imgOverflow, postId, userId,status==2, type);
                     else {
                         FirebaseUtil.getFirebaseFirestore().collection("posts").document(postId).delete();
                         Snackbar.make(imgOverflow, "Deleted", Snackbar.LENGTH_SHORT).show();
                     }
+                    dialog.cancel();
                 }
+            }
+        });
+
+        btnSubmit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(model.getType()>0)
+                    popUp();
                 dialog.cancel();
+            }
+            private void popUp(){
+                String message = "<p><span style=\"color: #F80051; font-size: 16px;\"><strong>Your tips have delivered?</strong></span></p>\n" +
+                        "<p>By clicking 'YES', you confirm that your prediction has delivered.</p>\n" +
+                        "<p>Your account may be suspended or terminated if that's not true.</p>";
+                AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.Theme_AppCompat_Light_Dialog_Alert);
+                builder.setMessage(Html.fromHtml(message))
+                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                calculations.onPostWon(imgOverflow, postId, userId, type);
+                            }
+                        })
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                //do nothing
+                            }
+                        })
+                        .show();
             }
         });
 
@@ -405,6 +455,7 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
             }
             dialog.cancel();
         });
+
     }
 
     @Override

@@ -1,6 +1,7 @@
 package adapters;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
@@ -12,6 +13,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.sqube.tipshub.NewsStoryActivity;
 import com.sqube.tipshub.R;
 
 import java.util.ArrayList;
@@ -63,9 +65,9 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ListNewsViewHo
                 @Override
                 public void onClick(View v) {
                     Log.i("Testing", "onClick: " + news.get(KEY_TITLE )+ " " + news.get(KEY_URLTOIMAGE));
-                    //Intent i = new Intent(activity.getApplicationContext(), NewsStoryActivity.class);
-                    //i.putExtra("url", data.get(+position).get(MainActivity.KEY_URL));
-                    //activity.startActivity(i);
+                    Intent i = new Intent(activity.getApplicationContext(), NewsStoryActivity.class);
+                    i.putExtra("url", news.get(KEY_URL));
+                    activity.startActivity(i);
                 }
             });
         }catch(Exception e) {}

@@ -1,7 +1,11 @@
 package com.sqube.tipshub;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -12,13 +16,16 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
+import android.text.Html;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.format.DateFormat;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.MultiAutoCompleteTextView;
@@ -42,6 +49,7 @@ import com.google.firebase.firestore.Transaction;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -51,6 +59,7 @@ import adapters.CommentAdapter;
 import de.hdodenhof.circleimageview.CircleImageView;
 import models.Comment;
 import models.Post;
+import models.UserNetwork;
 import services.GlideApp;
 import utils.Calculations;
 import utils.FirebaseUtil;
@@ -63,6 +72,7 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
     private LinearLayout lnrCode, lnrFullPost, lnrChildPost;
     private TextView mpost, mUsername, mTime;
     private RequestOptions requestOptions = new RequestOptions();
+    private Intent intent = null;
     Calculations calculations;
     private String comment;
     boolean childDisplayed;
@@ -70,7 +80,7 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
     final String TAG = "FullPostActivity";
     TextView mLikes, mDislikes, mComment, mCode, mType;
     CircleImageView imgDp, imgMyDp, imgChildDp;
-    ImageView imgOverflow, imgLike, imgDislike, imgComment, imgShare, imgStatus, imgCode;
+    ImageView imgOverflow, imgLike, imgDislike, imgComment, imgRepost, imgStatus, imgCode;
     MultiAutoCompleteTextView edtComment;
     FloatingActionButton fabPost;
     ProgressBar prgPost;
@@ -103,11 +113,12 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
         fabPost = findViewById(R.id.fabPost); fabPost.setOnClickListener(this);
         edtComment = findViewById(R.id.edtComment); edtComment.addTextChangedListener(this);
 
+        imgOverflow = findViewById(R.id.imgOverflow); imgOverflow.setOnClickListener(this);
         imgDp = findViewById(R.id.imgDp); imgDp.setOnClickListener(this);
         imgMyDp = findViewById(R.id.imgMyDp);
         imgLike = findViewById(R.id.imgLike); imgLike.setOnClickListener(this);
         imgDislike = findViewById(R.id.imgDislike); imgDislike.setOnClickListener(this);
-        imgShare = findViewById(R.id.imgShare); imgShare.setOnClickListener(this);
+        imgRepost = findViewById(R.id.imgRepost); imgRepost.setOnClickListener(this);
         imgComment = findViewById(R.id.imgComment);
         imgStatus = findViewById(R.id.imgStatus);
         imgCode = findViewById(R.id.imgCode);
@@ -273,7 +284,130 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
                 lnrChildPost.setOnClickListener(FullPostActivity.this);
             }
         });
+    }
 
+
+    //Displays overflow containing options like follow, subscribe, disagree, etc.
+    private void displayOverflow() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView;
+        if(model.getUserId().equals(userId))
+            dialogView = inflater.inflate(R.layout.dialog_mine, null);
+        else
+            dialogView = inflater.inflate(R.layout.dialog_member, null);
+        builder.setView(dialogView);
+        final AlertDialog dialog= builder.create();
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.show();
+
+        Button btnSubmit, btnDelete, btnShare, btnFollow, btnSubscribe;
+        btnSubmit = dialog.findViewById(R.id.btnSubmit);
+        btnDelete = dialog.findViewById(R.id.btnDelete);
+        btnShare = dialog.findViewById(R.id.btnShare);
+        btnFollow = dialog.findViewById(R.id.btnFollow);
+        btnSubscribe = dialog.findViewById(R.id.btnSubscribe);
+
+        long timeDifference = new Date().getTime() - model.getTime();
+        if(model.getUserId().equals(userId)&& model.getType()>0 && timeDifference > 9000000)
+            btnDelete.setEnabled(false);
+        if(model.getUserId().equals(userId)&& timeDifference > 144000000)
+            btnSubmit.setVisibility(View.GONE);
+        else {
+            if (model.getUserId().equals(userId) && model.getStatus() == 2 && timeDifference <= 9000000)
+                btnSubmit.setText("CANCEL WON");
+            if (model.getUserId().equals(userId) && model.getStatus() == 2 && timeDifference > 9000000)
+                btnSubmit.setVisibility(View.GONE);
+        }
+
+
+        if(UserNetwork.getSubscribed()==null||UserNetwork.getSubscribed().contains(model.getUserId()))
+            btnSubscribe.setVisibility(View.GONE);
+        btnSubscribe.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                intent = new Intent(FullPostActivity.this, SubscriptionActivity.class);
+                intent.putExtra("userId", model.getUserId());
+                startActivity(intent);
+                dialog.cancel();
+            }
+        });
+
+        btnDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(btnDelete.getText().toString().toLowerCase().equals("flag")){
+                    intent = new Intent(FullPostActivity.this, FlagActivity.class);
+                    intent.putExtra("postId", postId);
+                    intent.putExtra("reportedUsername", model.getUsername());
+                    intent.putExtra("reportedUserId", model.getUserId());
+                    startActivity(intent);
+                    dialog.cancel();
+                }
+                else{
+                    Log.i(TAG, "onClick: "+ model.getType());
+                    if(model.getType()>0)
+                        calculations.onDeletePost(imgOverflow, postId, userId,model.getStatus()==2, model.getType());
+                    else {
+                        FirebaseUtil.getFirebaseFirestore().collection("posts").document(postId).delete();
+                        Snackbar.make(imgOverflow, "Deleted", Snackbar.LENGTH_SHORT).show();
+                    }
+                    dialog.cancel();
+                }
+            }
+        });
+
+        btnSubmit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(model.getType()>0)
+                    popUp();
+                dialog.cancel();
+            }
+            private void popUp(){
+                String message = "<p><span style=\"color: #F80051; font-size: 16px;\"><strong>Your tips have delivered?</strong></span></p>\n" +
+                        "<p>By clicking 'YES', you confirm that your prediction has delivered.</p>\n" +
+                        "<p>Your account may be suspended or terminated if that's not true.</p>";
+                AlertDialog.Builder builder = new AlertDialog.Builder(getApplicationContext(), R.style.Theme_AppCompat_Light_Dialog_Alert);
+                builder.setMessage(Html.fromHtml(message))
+                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                calculations.onPostWon(imgOverflow, postId, userId, model.getType());
+                            }
+                        })
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                //do nothing
+                            }
+                        })
+                        .show();
+            }
+        });
+
+        if(UserNetwork.getFollowing()==null)
+            btnFollow.setVisibility(View.GONE);
+        else
+            btnFollow.setText(UserNetwork.getFollowing().contains(model.getUserId())? "UNFOLLOW": "FOLLOW");
+
+        btnShare.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Reusable.shareTips(FullPostActivity.this, model.getUsername(), model.getContent());
+                dialog.cancel();
+            }
+        });
+
+        btnFollow.setOnClickListener(v -> {
+            if(btnFollow.getText().equals("FOLLOW")){
+                calculations.followMember(imgOverflow, userId, model.getUserId());
+            }
+            else{
+                calculations.unfollowMember(imgOverflow, userId, model.getUserId());
+            }
+            dialog.cancel();
+        });
     }
 
     private void loadComment() {
@@ -303,22 +437,26 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
                     startActivity(new Intent(this, MyProfileActivity.class));
                 }
                 else{
-                    Intent intent = new Intent(this, MemberProfileActivity.class);
+                    intent = new Intent(this, MemberProfileActivity.class);
                     intent.putExtra("userId", model.getUserId());
                     startActivity(intent);
                 }
+                break;
             case R.id.childDp:
                 if(model.getChildUserId().equals(userId)){
                     startActivity(new Intent(this, MyProfileActivity.class));
                 }
                 else{
-                    Intent intent = new Intent(this, MemberProfileActivity.class);
+                    intent = new Intent(this, MemberProfileActivity.class);
                     intent.putExtra("userId", model.getChildUserId());
                     startActivity(intent);
                 }
                 break;
+            case R.id.imgOverflow:
+                displayOverflow();
+                break;
             case R.id.container_child_post:
-                Intent intent = new Intent(getApplicationContext(), FullPostActivity.class);
+                intent = new Intent(getApplicationContext(), FullPostActivity.class);
                 intent.putExtra("postId", childLink);
                 startActivity(intent);
                 break;
@@ -332,8 +470,11 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
                 substring = model.getContent().substring(0, Math.min(model.getContent().length(), 90));
                 calculations.onDislike( postId, userId, model.getUserId(), substring);
                 break;
-            case R.id.imgShare:
-                Reusable.shareTips(FullPostActivity.this, model.getUsername(), model.getContent());
+            case R.id.imgRepost:
+                intent = new Intent(FullPostActivity.this, RepostActivity.class);
+                intent.putExtra("postId", postId);
+                intent.putExtra("model", model);
+                startActivity(intent);
                 break;
             case R.id.fabPost:
                 increaseCommentCount();
@@ -348,7 +489,6 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void onLike(){
-        model.getDislikes().contains(userId);
         if(model.getDislikes().contains(userId)){
             imgLike.setColorFilter(getResources().getColor(R.color.likeGold));
             imgDislike.setColorFilter(getResources().getColor(R.color.likeGrey));

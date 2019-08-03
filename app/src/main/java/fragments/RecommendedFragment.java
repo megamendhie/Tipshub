@@ -38,7 +38,7 @@ import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import adapters.Filtered;
+import adapters.FilteredPostAdapter;
 import adapters.NewsAdapter;
 import adapters.PeopleRecAdapter;
 import models.Post;
@@ -57,7 +57,7 @@ public class RecommendedFragment extends Fragment {
     private boolean alreadyLoaded;
     ArrayList<Post> postList = new ArrayList<>();
     ArrayList<SnapId> snapIds= new ArrayList<>();
-    Filtered fAdapter;
+    FilteredPostAdapter fAdapter;
 
     public final String myAPI_Key = "417444c0502047d69c1c2a9dcc1672cd";
     public final String KEY_AUTHOR = "author";
@@ -93,7 +93,7 @@ public class RecommendedFragment extends Fragment {
 
         FirebaseUser user = FirebaseUtil.getFirebaseAuthentication().getCurrentUser();
         userId = user.getUid();
-        fAdapter = new Filtered(userId, getActivity(), getContext(), postList, snapIds);
+        fAdapter = new FilteredPostAdapter(userId, getActivity(), getContext(), postList, snapIds);
         trendingList.setAdapter(fAdapter);
         alreadyLoaded = false;
         loadNews();

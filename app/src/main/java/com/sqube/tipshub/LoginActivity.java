@@ -130,6 +130,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 prgLogin.setVisibility(View.GONE);
                 edtPassword.setEnabled(true);
                 edtEmail.setEnabled(true);
+                e.printStackTrace();
                 Log.i("LoginActivity", "onActivityResult: account not Retrieved");
             }
 

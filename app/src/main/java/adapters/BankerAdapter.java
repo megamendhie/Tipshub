@@ -4,11 +4,12 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.text.Html;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -23,8 +24,6 @@ import android.widget.TextView;
 import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.storage.StorageReference;
 import com.sqube.tipshub.FlagActivity;
@@ -33,6 +32,7 @@ import com.sqube.tipshub.MemberProfileActivity;
 import com.sqube.tipshub.MyProfileActivity;
 import com.sqube.tipshub.R;
 import com.sqube.tipshub.RepostActivity;
+import com.sqube.tipshub.SubscriptionActivity;
 
 import java.util.Date;
 
@@ -46,7 +46,6 @@ import utils.Reusable;
 
 public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.PostHolder>{
     private final String TAG = "BankerAdaper";
-    Reusable reusable = new Reusable();
     private Activity activity;
     private Context context;
     private String userId;
@@ -82,8 +81,6 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
         boolean makeVisible = false, makePublic = false;
         final LinearLayout lnrCode = holder.lnrCode;
         final LinearLayout lnrContainer = holder.lnrContainer;
-        final LinearLayout lnrChildContainer = holder.lnrChildContainer;
-        final CardView crdChildPost = holder.crdChildPost;
         final CircleImageView imgDp = holder.imgDp;
         final TextView mpost = holder.mpost;
         final TextView mUsername = holder.mUsername;
@@ -104,7 +101,6 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
 
         mUsername.setText(model.getUsername());
         imgStatus.setVisibility(model.getStatus()==1? View.GONE: View.VISIBLE);
-        crdChildPost.setVisibility(model.isHasChild()? View.VISIBLE: View.GONE);
         if(model.getBookingCode()!=null && !model.getBookingCode().isEmpty()){
             mCode.setText(model.getBookingCode() + " @" + code[(model.getRecommendedBookie()-1)]);
             mCode.setVisibility(View.VISIBLE);
@@ -127,7 +123,7 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
             makeVisible = true;
         else if(UserNetwork.getSubscribed()!=null && UserNetwork.getSubscribed().contains(this.userId))
             makeVisible = true;
-        if(model.getStatus()==2 || (new Date().getTime() - model.getTime()) >(14*60*60*1000))
+        if(model.getStatus()==2 || (new Date().getTime() - model.getTime()) >(18*60*60*1000))
             makePublic = true;
         if(makeVisible|| makePublic){
             holder.lnrSub.setVisibility(View.GONE);
@@ -203,7 +199,9 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
             public void onClick(View v) {
                 //display full post with comments if visibility or public is set true
                 if(!finalMakePublic && !finalMakeVisible) {
-                    Snackbar.make(mComment, "Access denied", Snackbar.LENGTH_SHORT).show();
+                    Intent intent = new Intent(context, SubscriptionActivity.class);
+                    intent.putExtra("userId", model.getUserId());
+                    context.startActivity(intent);
                     return;
                 }
                 Intent intent = new Intent(context, FullPostActivity.class);
@@ -288,84 +286,6 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
 
             }
         });
-
-        if(model.isHasChild()){
-            displayChildContent(model, holder);
-        }
-    }
-
-    private void displayChildContent(final Post model, final PostHolder holder) {
-        final LinearLayout lnrChildCode = holder.lnrChildCode;
-        final TextView childPost= holder.childPost;
-        final TextView childUsername = holder.childUsername;
-        final TextView childCode = holder.childCode, childType = holder.childType;
-        final CircleImageView childDp = holder.childDp;
-        final ImageView imgChildStatus = holder.imgChildStatus, imgChildCode = holder.imgChildCode;
-
-        imgChildStatus.setVisibility(model.getStatus()==1? View.GONE: View.VISIBLE);
-        if(model.getChildBookingCode()!=null && !model.getChildBookingCode().isEmpty()){
-            childCode.setText(model.getChildBookingCode() + " @" + code[(model.getChildBookie()-1)]);
-            childCode.setVisibility(View.VISIBLE);
-            imgChildCode.setVisibility(View.VISIBLE);
-            lnrChildCode.setVisibility(View.VISIBLE);
-        }
-        else{
-            lnrChildCode.setVisibility(View.GONE);
-            childCode.setVisibility(View.GONE);
-            imgChildCode.setVisibility(View.GONE);
-        }
-        if(model.getChildType()==0){
-            childType.setVisibility(View.GONE);
-        }
-        else{
-            childType.setVisibility(View.VISIBLE);
-            childType.setText(type[model.getChildType()-1]);
-        }
-
-        childUsername.setText(model.getChildUsername());
-        childPost.setText(model.getChildContent());
-        FirebaseUtil.getFirebaseFirestore().collection("posts").document(model.getChildLink()).get()
-                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                imgChildStatus.setVisibility(documentSnapshot.toObject(Post.class).getStatus()==1? View.GONE: View.VISIBLE);
-            }
-        });
-
-
-        GlideApp.with(context)
-                .setDefaultRequestOptions(requestOptions)
-                .load(storageReference.child(model.getChildUserId()))
-                .into(childDp);
-
-        //listen to dp click and open user profile
-        childDp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(model.getChildUserId().equals(userId)){
-                    context.startActivity(new Intent(context, MyProfileActivity.class));
-                }
-                else{
-                    Intent intent = new Intent(context, MemberProfileActivity.class);
-                    intent.putExtra("userId", model.getChildUserId());
-                    context.startActivity(intent);
-                }
-            }
-        });
-        //listen to username click and open user profile
-        childUsername.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(model.getChildUserId().equals(userId)){
-                    context.startActivity(new Intent(context, MyProfileActivity.class));
-                }
-                else{
-                    Intent intent = new Intent(context, MemberProfileActivity.class);
-                    intent.putExtra("userId", model.getChildUserId());
-                    context.startActivity(intent);
-                }
-            }
-        });
     }
 
     private void displayOverflow(final Post model, String userID, final String postId, int status, int type, ImageView imgOverflow,
@@ -373,7 +293,7 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         LayoutInflater inflater = activity.getLayoutInflater();
         View dialogView;
-        if(userId.equals(this.userId))
+        if(userID.equals(this.userId))
             dialogView = inflater.inflate(R.layout.dialog_mine, null);
         else
             dialogView = inflater.inflate(R.layout.dialog_member, null);
@@ -387,8 +307,21 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
         btnShare = dialog.findViewById(R.id.btnShare);
         btnFollow = dialog.findViewById(R.id.btnFollow);
         btnSubscribe = dialog.findViewById(R.id.btnSubscribe);
-        btnSubscribe.setVisibility(UserNetwork.getSubscribed()==null||!UserNetwork.getSubscribed().contains(userId)?
-                View.VISIBLE: View.GONE);
+
+        long timeDifference = new Date().getTime() - model.getTime();
+        if(model.getUserId().equals(userId)&& model.getType()>0 && timeDifference > 9000000)
+            btnDelete.setEnabled(false);
+        if(model.getUserId().equals(userId)&& timeDifference > 144000000)
+            btnSubmit.setVisibility(View.GONE);
+        else {
+            if (model.getUserId().equals(userId) && model.getStatus() == 2 && timeDifference <= 9000000)
+                btnSubmit.setText("CANCEL WON");
+            if (model.getUserId().equals(userId) && model.getStatus() == 2 && timeDifference > 9000000)
+                btnSubmit.setVisibility(View.GONE);
+        }
+
+        if(UserNetwork.getSubscribed()==null||UserNetwork.getSubscribed().contains(userID))
+            btnSubscribe.setVisibility(View.GONE);
         if(!makePublic){
             btnShare.setVisibility(View.GONE);
         }
@@ -398,6 +331,35 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
         else
             btnFollow.setText(UserNetwork.getFollowing().contains(userID)? "UNFOLLOW": "FOLLOW");
 
+
+        btnSubmit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(model.getType()>0)
+                    popUp();
+                dialog.cancel();
+            }
+            private void popUp(){
+                String message = "<p><span style=\"color: #F80051; font-size: 16px;\"><strong>Your tips have delivered?</strong></span></p>\n" +
+                        "<p>By clicking 'YES', you confirm that your prediction has delivered.</p>\n" +
+                        "<p>Your account may be suspended or terminated if that's not true.</p>";
+                AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.Theme_AppCompat_Light_Dialog_Alert);
+                builder.setMessage(Html.fromHtml(message))
+                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                calculations.onPostWon(imgOverflow, postId, userId, type);
+                            }
+                        })
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                //do nothing
+                            }
+                        })
+                        .show();
+            }
+        });
 
         btnDelete.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -425,10 +387,11 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
         btnShare.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                reusable.shareTips(activity, model.getUsername(), model.getContent());
+                Reusable.shareTips(activity, model.getUsername(), model.getContent());
                 dialog.cancel();
             }
         });
+
         btnFollow.setOnClickListener(v -> {
             if(btnFollow.getText().equals("FOLLOW")){
                 calculations.followMember(imgOverflow, userId, userID);
@@ -446,32 +409,23 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
         return new PostHolder(view);
     }
 
-    public class PostHolder extends RecyclerView.ViewHolder {
-        CircleImageView imgDp, childDp;
+    public static class PostHolder extends RecyclerView.ViewHolder {
+        CircleImageView imgDp;
         RelativeLayout lnrSub;
-        LinearLayout lnrCode, lnrContainer,  lnrChildCode, lnrChildContainer;
-        CardView crdChildPost;
-        TextView mpost, childPost;
-        TextView mUsername, childUsername;
-        TextView mTime;
-        TextView mLikes, mDislikes, mComment, mCode, mType, childCode, childType, mSub;
+        LinearLayout lnrCode, lnrContainer;
+        TextView mpost, mUsername, mTime;
+        TextView mLikes, mDislikes, mComment, mCode, mType, mSub;
         ImageView imgOverflow;
-        ImageView imgLikes, imgDislike, imgComment, imgRepost, imgStatus, imgCode, imgChildStatus, imgChildCode;
+        ImageView imgLikes, imgDislike, imgComment, imgRepost, imgStatus, imgCode;
         public PostHolder(View itemView) {
             super(itemView);
             imgDp = itemView.findViewById(R.id.imgDp);
-            childDp = itemView.findViewById(R.id.childDp);
-            crdChildPost = itemView.findViewById(R.id.crdChildPost);
             lnrSub = itemView.findViewById(R.id.lnrSub);
             lnrCode = itemView.findViewById(R.id.lnrCode);
             lnrContainer = itemView.findViewById(R.id.container_post);
-            lnrChildCode = itemView.findViewById(R.id.lnrChildCode);
-            lnrChildContainer = itemView.findViewById(R.id.container_child_post);
 
             mpost = itemView.findViewById(R.id.txtPost);
-            childPost = itemView.findViewById(R.id.txtChildPost);
             mUsername = itemView.findViewById(R.id.txtUsername);
-            childUsername = itemView.findViewById(R.id.txtChildUsername);
             mTime = itemView.findViewById(R.id.txtTime);
             mSub = itemView.findViewById(R.id.txtSub);
 
@@ -480,8 +434,6 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
             mComment = itemView.findViewById(R.id.txtComment);
             mCode = itemView.findViewById(R.id.txtCode);
             mType = itemView.findViewById(R.id.txtPostType);
-            childCode = itemView.findViewById(R.id.txtChildCode);
-            childType = itemView.findViewById(R.id.txtChildType);
 
             imgLikes = itemView.findViewById(R.id.imgLike);
             imgDislike = itemView.findViewById(R.id.imgDislike);
@@ -490,8 +442,6 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
             imgCode = itemView.findViewById(R.id.imgCode);
             imgStatus = itemView.findViewById(R.id.imgStatus);
             imgOverflow = itemView.findViewById(R.id.imgOverflow);
-            imgChildCode = itemView.findViewById(R.id.imgChildCode);
-            imgChildStatus = itemView.findViewById(R.id.imgChildStatus);
         }
     }
 }

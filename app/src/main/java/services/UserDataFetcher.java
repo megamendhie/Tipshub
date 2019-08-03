@@ -104,7 +104,7 @@ public class UserDataFetcher extends IntentService {
         database.collection("subscribed_to").document(userID).addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-                Log.i(TAG, "onEvent: subscribed_to");
+                Log.i(TAG, "onEvent: subscribed_to ");
                 if(documentSnapshot==null)
                     return;
                 if(documentSnapshot.exists() && documentSnapshot.contains("list")){

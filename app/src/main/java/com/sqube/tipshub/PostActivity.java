@@ -243,13 +243,19 @@ public class PostActivity extends AppCompatActivity implements View.OnClickListe
                         final ProfileMedium myProfile = documentSnapshot.toObject(ProfileMedium.class);
                         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH);
                         String currentDate = sdf.format(new Date().getTime());
-                        String lastPostDate = sdf.format(myProfile.getC8_lsPostTime());
-                        long todayPostCount = myProfile.getC9_todayPostCount();
 
-                        if(lastPostDate.equals(currentDate))
-                            todayPostCount++;
-                        else
-                            todayPostCount =1;
+                        if(type==6)
+                            updates.put("d3_bankerPostTime", new Date().getTime());
+                        else{
+                            String lastPostDate = sdf.format(myProfile.getC8_lsPostTime());
+                            long todayPostCount = myProfile.getC9_todayPostCount();
+                            if(lastPostDate.equals(currentDate))
+                                todayPostCount++;
+                            else
+                                todayPostCount =1;
+                            updates.put("c8_lsPostTime", new Date().getTime());
+                            updates.put("c9_todayPostCount", todayPostCount);
+                        }
                         final long totalPostCount = myProfile.getE0a_NOG() + 1;
                         final long wonGamesCount = myProfile.getE0b_WG();
                         final long wonGamesPercentage = totalPostCount>0? ((wonGamesCount*100)/totalPostCount) : 0;
@@ -257,8 +263,6 @@ public class PostActivity extends AppCompatActivity implements View.OnClickListe
                         //retrieve stat for the posted game type
                         long[] stats = Reusable.getStatsForPost(myProfile, type);
 
-                        updates.put("c8_lsPostTime", new Date().getTime());
-                        updates.put("c9_todayPostCount", todayPostCount);
                         updates.put("e0a_NOG", totalPostCount);
                         updates.put("e0c_WGP", wonGamesPercentage);
                         updates.put("e"+type + "a_NOG", stats[0]);
@@ -273,7 +277,6 @@ public class PostActivity extends AppCompatActivity implements View.OnClickListe
                     prgBar.setVisibility(View.GONE);
                     Toast.makeText(PostActivity.this,"Post sending failed", Toast.LENGTH_LONG).show();
                 }
-
             }
         });
     }

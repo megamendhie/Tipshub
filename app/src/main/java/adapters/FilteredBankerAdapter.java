@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateFormat;
 import android.util.Log;
@@ -15,8 +14,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import com.bumptech.glide.request.RequestOptions;
 import com.google.firebase.storage.FirebaseStorage;
@@ -32,7 +29,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import de.hdodenhof.circleimageview.CircleImageView;
 import models.Post;
 import models.SnapId;
 import models.UserNetwork;
@@ -41,16 +37,15 @@ import utils.Calculations;
 import utils.FirebaseUtil;
 import utils.Reusable;
 
-public class FilteredBankerAdapter extends RecyclerView.Adapter<FilteredBankerAdapter.PostHolder> {
+public class FilteredBankerAdapter extends RecyclerView.Adapter<BankerAdapter.PostHolder> {
     private final String TAG = "PostAdaper";
-    Reusable reusable = new Reusable();
     private Activity activity;
     private Context context;
     private String userId;
     private StorageReference storageReference;
-    Calculations calculations;
+    private Calculations calculations;
     private RequestOptions requestOptions = new RequestOptions();
-    ArrayList<Post> postList;
+    private ArrayList<Post> postList;
     private ArrayList<SnapId> snapIds;
 
     private String[] code = {"1xBet", "Bet9ja", "Nairabet", "SportyBet", "BlackBet", "Bet365"};
@@ -81,7 +76,7 @@ public class FilteredBankerAdapter extends RecyclerView.Adapter<FilteredBankerAd
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         LayoutInflater inflater = activity.getLayoutInflater();
         View dialogView;
-        if(userId.equals(this.userId))
+        if(userID.equals(this.userId))
             dialogView = inflater.inflate(R.layout.dialog_mine, null);
         else
             dialogView = inflater.inflate(R.layout.dialog_member, null);
@@ -89,13 +84,25 @@ public class FilteredBankerAdapter extends RecyclerView.Adapter<FilteredBankerAd
         final AlertDialog dialog= builder.create();
         dialog.show();
 
-        Button btnSubmit, btnDelete, btnShare, btnFollow, btnSubscribe, btnObject;
+        Button btnSubmit, btnDelete, btnShare, btnFollow, btnSubscribe;
         btnSubmit = dialog.findViewById(R.id.btnSubmit);
         btnDelete = dialog.findViewById(R.id.btnDelete);
         btnShare = dialog.findViewById(R.id.btnShare);
         btnFollow = dialog.findViewById(R.id.btnFollow);
         btnSubscribe = dialog.findViewById(R.id.btnSubscribe);
         btnSubscribe.setVisibility(View.GONE);
+
+        long timeDifference = new Date().getTime() - model.getTime();
+        if(model.getUserId().equals(userId)&& model.getType()>0 && timeDifference > 9000000)
+            btnDelete.setEnabled(false);
+        if(model.getUserId().equals(userId)&& timeDifference > 144000000)
+            btnSubmit.setVisibility(View.GONE);
+        else {
+            if (model.getUserId().equals(userId) && model.getStatus() == 2 && timeDifference <= 9000000)
+                btnSubmit.setText("CANCEL WON");
+            if (model.getUserId().equals(userId) && model.getStatus() == 2 && timeDifference > 9000000)
+                btnSubmit.setVisibility(View.GONE);
+        }
 
         if(!makePublic){
             btnShare.setVisibility(View.GONE);
@@ -132,7 +139,7 @@ public class FilteredBankerAdapter extends RecyclerView.Adapter<FilteredBankerAd
         btnShare.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                reusable.shareTips(activity, model.getUsername(), model.getContent());
+                Reusable.shareTips(activity, model.getUsername(), model.getContent());
                 dialog.cancel();
             }
         });
@@ -149,22 +156,20 @@ public class FilteredBankerAdapter extends RecyclerView.Adapter<FilteredBankerAd
     }
 
     @Override
-    public PostHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public BankerAdapter.PostHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.post_view, parent, false);
-        return new PostHolder(view);
+        return new BankerAdapter.PostHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull PostHolder holder, int position) {
+    public void onBindViewHolder(@NonNull BankerAdapter.PostHolder holder, int position) {
         Post model = postList.get(position);
         Log.i(TAG, model.getUsername()+" "+ model.getContent());
         Log.i(TAG, "onBindViewHolder: executed");
-        final LinearLayout lnrChildContainer = holder.lnrChildContainer;
         final String postId = snapIds.get(position).getId();
 
         holder.mUsername.setText(model.getUsername());
         holder.imgStatus.setVisibility(model.getStatus()==1? View.GONE: View.VISIBLE);
-        holder.crdChildPost.setVisibility(model.isHasChild()? View.VISIBLE: View.GONE);
         if(model.getBookingCode()!=null && !model.getBookingCode().isEmpty()){
             holder.mCode.setText(model.getBookingCode() + " @" + code[(model.getRecommendedBookie()-1)]);
             holder.mCode.setVisibility(View.VISIBLE);
@@ -232,7 +237,7 @@ public class FilteredBankerAdapter extends RecyclerView.Adapter<FilteredBankerAd
         holder.mLikes.setText(model.getLikesCount()==0? "":String.valueOf(model.getLikesCount()));
         holder.mDislikes.setText(model.getDislikesCount()==0? "":String.valueOf(model.getDislikesCount()));
 
-        final boolean finalMakePublic = (model.getStatus()==2 || (new Date().getTime() - model.getTime()) >(16*60*60*1000))? true: false;
+        final boolean finalMakePublic = (model.getStatus()==2 || (new Date().getTime() - model.getTime()) >(18*60*60*1000))? true: false;
         holder.imgRepost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -346,52 +351,6 @@ public class FilteredBankerAdapter extends RecyclerView.Adapter<FilteredBankerAd
 
             }
         });
-    }
-
-    public class PostHolder extends RecyclerView.ViewHolder {
-        CircleImageView imgDp, childDp;
-        LinearLayout lnrCode, lnrContainer,  lnrChildCode, lnrChildContainer;
-        CardView crdChildPost;
-        TextView mpost, childPost;
-        TextView mUsername, childUsername;
-        TextView mTime;
-        TextView mLikes, mDislikes, mComment, mCode, mType, childCode, childType;
-        ImageView imgOverflow;
-        ImageView imgLikes, imgDislike, imgComment, imgRepost, imgStatus, imgCode, imgChildStatus, imgChildCode;
-        public PostHolder(View itemView) {
-            super(itemView);
-            imgDp = itemView.findViewById(R.id.imgDp);
-            childDp = itemView.findViewById(R.id.childDp);
-            crdChildPost = itemView.findViewById(R.id.crdChildPost);
-            lnrCode = itemView.findViewById(R.id.lnrCode);
-            lnrContainer = itemView.findViewById(R.id.container_post);
-            lnrChildCode = itemView.findViewById(R.id.lnrChildCode);
-            lnrChildContainer = itemView.findViewById(R.id.container_child_post);
-
-            mpost = itemView.findViewById(R.id.txtPost);
-            childPost = itemView.findViewById(R.id.txtChildPost);
-            mUsername = itemView.findViewById(R.id.txtUsername);
-            childUsername = itemView.findViewById(R.id.txtChildUsername);
-            mTime = itemView.findViewById(R.id.txtTime);
-
-            mLikes = itemView.findViewById(R.id.txtLike);
-            mDislikes = itemView.findViewById(R.id.txtDislike);
-            mComment = itemView.findViewById(R.id.txtComment);
-            mCode = itemView.findViewById(R.id.txtCode);
-            mType = itemView.findViewById(R.id.txtPostType);
-            childCode = itemView.findViewById(R.id.txtChildCode);
-            childType = itemView.findViewById(R.id.txtChildType);
-
-            imgLikes = itemView.findViewById(R.id.imgLike);
-            imgDislike = itemView.findViewById(R.id.imgDislike);
-            imgComment = itemView.findViewById(R.id.imgComment);
-            imgRepost = itemView.findViewById(R.id.imgRepost);
-            imgCode = itemView.findViewById(R.id.imgCode);
-            imgStatus = itemView.findViewById(R.id.imgStatus);
-            imgOverflow = itemView.findViewById(R.id.imgOverflow);
-            imgChildCode = itemView.findViewById(R.id.imgChildCode);
-            imgChildStatus = itemView.findViewById(R.id.imgChildStatus);
-        }
     }
 
 }

@@ -139,7 +139,7 @@ public class BankerFragment extends Fragment {
                     });
         }
         else
-            loadList(UserNetwork.getFollowing());
+            loadList(UserNetwork.getSubscribed());
     }
 
     private void loadList(ArrayList<String> userIds){
@@ -147,6 +147,7 @@ public class BankerFragment extends Fragment {
             return;
         int count = userIds.size();
 
+        Log.i(TAG, "loadList: " + userIds);
         //create task and query for each followed id
         Query[] queries = new Query[count];
         Task[] tasks = new Task[count];

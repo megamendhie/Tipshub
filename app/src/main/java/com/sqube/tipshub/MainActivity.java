@@ -2,6 +2,7 @@ package com.sqube.tipshub;
 
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -18,6 +19,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SwitchCompat;
+import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -40,8 +42,11 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
+import com.google.gson.Gson;
 
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nullable;
@@ -51,6 +56,7 @@ import fragments.BankerFragment;
 import fragments.HomeFragment;
 import fragments.NotificationFragment;
 import fragments.RecommendedFragment;
+import models.ProfileMedium;
 import models.ProfileShort;
 import services.UserDataFetcher;
 import utils.FirebaseUtil;
@@ -62,6 +68,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     private Intent serviceIntent;
     SharedPreferences prefs;
     SharedPreferences.Editor editor;
+    private Gson gson = new Gson();
 
     final int versionCode = BuildConfig.VERSION_CODE;
     final String FB_RC_KEY_TITLE = "update_title";
@@ -159,6 +166,8 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         userId = user.getUid();
         actionBar.setTitle("Home");
         checkForUpdate();
+        if(!timeIsValid())
+            popUp();
         loadFragment();
 
         aSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -170,8 +179,23 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                     editor.putBoolean("fromEverybody", false);
                 editor.apply();
                 fragmentManager.beginTransaction().detach(fragmentH).attach(fragmentH).commit();
+                mDrawerLayout.closeDrawer(GravityCompat.START);
             }
         });
+    }
+
+    private void popUp(){
+        String message = "<p><span style=\"color: #F80051; font-size: 16px;\"><strong>Error: Incorrect time</strong></span></p>\n" +
+                "<p>Your phone time is incorrect and this may affect some app functions. Kindly set your phone time.</p>";
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this, R.style.Theme_AppCompat_Light_Dialog_Alert);
+        builder.setCancelable(false).setMessage(Html.fromHtml(message))
+                .setNegativeButton("Okay", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        finish();
+                    }
+                })
+                .show();
     }
 
     @Override
@@ -193,44 +217,12 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         return true;
     }
 
-    private void loadFragment() {
-        fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.add(R.id.main_container,fragmentN, "fragmentN").hide(fragmentN);
-        fragmentTransaction.add(R.id.main_container,fragmentB, "fragmentB").hide(fragmentB);
-        fragmentTransaction.add(R.id.main_container,fragmentR, "fragmentN").hide(fragmentR);
-        fragmentTransaction.add(R.id.main_container,fragmentH, "fragmentN").commit();
-    }
-
-    public void setHeader(){
-        FirebaseUtil.getFirebaseFirestore().collection("profiles").document(userId)
-                .addSnapshotListener(MainActivity.this, new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-                if(documentSnapshot!=null && documentSnapshot.exists()){
-                    ProfileShort profile = documentSnapshot.toObject(ProfileShort.class);
-                    txtName.setText(profile.getA0_firstName()+" "+profile.getA1_lastName());
-                    txtUsername.setText(profile.getA2_username());
-                    txtTips.setText(profile.getE0a_NOG()>1? profile.getE0a_NOG()+ " tips": profile.getE0a_NOG()+ " tip");
-                    txtFollowers.setText(String.valueOf(profile.getC4_followers()));
-                    txtFollowing.setText(String.valueOf(profile.getC5_following()));
-                    Glide.with(MainActivity.this)
-                            .load(profile.getB2_dpUrl())
-                            .into(imgDp);
-                }
-            }
-        });
-    }
-
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        /*
-        if(mDrawerLayout.isDrawerOpen(GravityCompat.START))
-            mDrawerLayout.closeDrawer(GravityCompat.START);
-        */
         int id = item.getItemId();
-        switch (id){
+        switch (id) {
             case R.id.nav_home:
-                if(fragmentActive==fragmentH){
+                if (fragmentActive == fragmentH) {
                     fragmentManager.beginTransaction().detach(fragmentH).attach(fragmentH).commit();
                     return true;
                 }
@@ -239,13 +231,11 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                 fragmentActive = fragmentH;
                 return true;
             case R.id.nav_recommended:
-                if(fragmentActive==fragmentR){
-                    fragmentManager.beginTransaction().detach(fragmentR).attach(fragmentR).commit();
-                    return true;
+                if (fragmentActive != fragmentR) {
+                    actionBar.setTitle("Recommended");
+                    fragmentManager.beginTransaction().hide(fragmentActive).show(fragmentR).commit();
+                    fragmentActive = fragmentR;
                 }
-                actionBar.setTitle("Recommended");
-                fragmentManager.beginTransaction().hide(fragmentActive).show(fragmentR).commit();
-                fragmentActive = fragmentR;
                 return true;
             case R.id.nav_banker:
                 if(fragmentActive==fragmentB){
@@ -293,6 +283,50 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                 startActivity(new Intent(MainActivity.this, MyProfileActivity.class));
                 break;
         }
+    }
+
+    private boolean timeIsValid(){
+        String json = prefs.getString("profile", "");
+        ProfileMedium myProfile = (json.equals("")) ? null : gson.fromJson(json, ProfileMedium.class);
+        if(myProfile ==null)
+            return true;
+
+        Date currentTime = new Date();
+        Date lastSeen = new Date(myProfile.getA8_lastSeen());
+        if(lastSeen.after(currentTime))
+            return false;
+        Log.i("MainActivity", "timeIsValid: happended now");
+        FirebaseUtil.getFirebaseFirestore().collection("profiles").document(userId)
+                .update("a8_lastSeen", currentTime.getTime());
+        return true;
+    }
+
+    private void loadFragment() {
+        fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.add(R.id.main_container,fragmentN, "fragmentN").hide(fragmentN);
+        fragmentTransaction.add(R.id.main_container,fragmentB, "fragmentB").hide(fragmentB);
+        fragmentTransaction.add(R.id.main_container,fragmentR, "fragmentN").hide(fragmentR);
+        fragmentTransaction.add(R.id.main_container,fragmentH, "fragmentN").commit();
+    }
+
+    public void setHeader(){
+        FirebaseUtil.getFirebaseFirestore().collection("profiles").document(userId)
+                .addSnapshotListener(MainActivity.this, new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                if(documentSnapshot!=null && documentSnapshot.exists()){
+                    ProfileShort profile = documentSnapshot.toObject(ProfileShort.class);
+                    txtName.setText(String.format(Locale.getDefault(), "%s %s",profile.getA0_firstName(),profile.getA1_lastName()));
+                    txtUsername.setText(profile.getA2_username());
+                    txtTips.setText(profile.getE0a_NOG()>1? profile.getE0a_NOG()+ " tips": profile.getE0a_NOG()+ " tip");
+                    txtFollowers.setText(String.valueOf(profile.getC4_followers()));
+                    txtFollowing.setText(String.valueOf(profile.getC5_following()));
+                    Glide.with(MainActivity.this)
+                            .load(profile.getB2_dpUrl())
+                            .into(imgDp);
+                }
+            }
+        });
     }
 
     public void Logout(){

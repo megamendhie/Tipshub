@@ -54,7 +54,7 @@
                     android:textSize="18sp"
                     android:layout_marginStart="3dp"
                     android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                    android:text="Trending Posts"/>
+                    android:text="Popular Posts"/>
             </android.support.v7.widget.CardView>
 
             <android.support.v7.widget.RecyclerView

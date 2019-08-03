@@ -2,7 +2,6 @@ package fragments;
 
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -27,7 +26,10 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.gson.Gson;
@@ -39,7 +41,9 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import adapters.Filtered;
+import javax.annotation.Nullable;
+
+import adapters.FilteredPostAdapter;
 import adapters.PostAdapter;
 import models.Post;
 import models.ProfileMedium;
@@ -56,7 +60,7 @@ public class HomeFragment extends Fragment{
     private ArrayList<SnapId> snapIds= new ArrayList<>();
     String userId, username;
     PostAdapter postAdapter;
-    Filtered fAdapter;
+    FilteredPostAdapter fAdapter;
     FloatingActionButton fabTip, fabNormal;
     FloatingActionMenu fabMenu;
     public RecyclerView homeFeed;
@@ -66,23 +70,6 @@ public class HomeFragment extends Fragment{
         // Required empty public constructor
     }
 
-
-    @Override
-    public void onAttachFragment(Fragment childFragment) {
-        super.onAttachFragment(childFragment);
-        Log.i("HomrFrag", "onAttachFragment called");
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-
-        Log.i("HomrFrag", "onAttach called");
-        if(homeFeed!=null && homeFeed.getAdapter()==fAdapter){
-            homeFeed.getLayoutManager().scrollToPosition(0);
-            Log.i("HomrFrag", "onAttach: scroll");
-        }
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -135,7 +122,9 @@ public class HomeFragment extends Fragment{
         if(fromEverybody)
             loadPost();
         else{
-            fAdapter = new Filtered(userId, getActivity(), getContext(), postList, snapIds);
+            LinearLayoutManager layoutManager = (LinearLayoutManager) homeFeed.getLayoutManager();
+            layoutManager.smoothScrollToPosition(homeFeed, null, 0);
+            fAdapter = new FilteredPostAdapter(userId, getActivity(), getContext(), postList, snapIds);
             homeFeed.setAdapter(fAdapter);
             loadMerged();
         }
@@ -205,11 +194,28 @@ public class HomeFragment extends Fragment{
         }
         else
             loadList(UserNetwork.getFollowing());
+
+        FirebaseUtil.getFirebaseFirestore().collection("posts").whereEqualTo("userId", userId).limit(10)
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot Snapshots, @Nullable FirebaseFirestoreException e) {
+                        Log.i("HomeFrag", "onEvent: just fire");
+                        if(e!=null)
+                            return;
+                        for(DocumentChange change: Snapshots.getDocumentChanges()){
+                            if(change.getType()== DocumentChange.Type.ADDED){
+                                Log.i("HomeFrag", "onEvent: added fired");
+                            }
+                        }
+                    }
+                });
     }
 
     private void loadList(ArrayList<String> ids){
         ArrayList<String> userIds = new ArrayList<>();
         userIds.add(userId);
+
         //check if following list has data
         if(ids != null && !ids.isEmpty()){
             userIds.addAll(ids);
