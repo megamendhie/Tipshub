@@ -24,6 +24,7 @@ import com.sqube.tipshub.R;
 import de.hdodenhof.circleimageview.CircleImageView;
 import models.Subscription;
 import services.GlideApp;
+import utils.Reusable;
 
 public class SubscriptionAdapter extends FirestoreRecyclerAdapter<Subscription, SubscriptionAdapter.PostHolder>{
     private final String TAG = "PostAdaper";
@@ -31,7 +32,7 @@ public class SubscriptionAdapter extends FirestoreRecyclerAdapter<Subscription, 
     private String userId;
     private StorageReference storageReference;
     private RequestOptions requestOptions = new RequestOptions();
-    private String[] status = {"", "PENDING", "PAID"};
+    private String[] status = {"", "active", "ended"};
 
     public SubscriptionAdapter(Query query, String userID, Context context) {
         /*
@@ -56,16 +57,20 @@ public class SubscriptionAdapter extends FirestoreRecyclerAdapter<Subscription, 
     @Override
     protected void onBindViewHolder(@NonNull PostHolder holder, final int position, @NonNull final Subscription model) {
         holder.mUsername.setText(model.getSubTo());
-        holder.mStartDate.setText(model.getDateStart());
-        holder.mEndDate.setText(model.getDateEnd());
+        holder.mStartDate.setText(Reusable.getNewDate(model.getDateStart()));
+        holder.mEndDate.setText(Reusable.getNewDate(model.getDateEnd()));
         holder.mAmount.setText(Html.fromHtml(model.getAmount()));
-        holder.mStatus.setText(status[model.getStatus()]);
-        holder.mPosition.setText(String.valueOf(position+1));
+        holder.mStatus.setText(model.isActive()? "active":"ended");
         GlideApp.with(context)
                 .setDefaultRequestOptions(requestOptions)
                 .load(storageReference.child(model.getSubToId()))
                 .into(holder.imgDp);
 
+        holder.mUsername.setOnClickListener(v -> {
+            Intent intent = new Intent(context, MemberProfileActivity.class);
+            intent.putExtra("userId", model.getSubToId());
+            context.startActivity(intent);
+        });
         holder.imgDp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -84,7 +89,7 @@ public class SubscriptionAdapter extends FirestoreRecyclerAdapter<Subscription, 
 
     public static class PostHolder extends RecyclerView.ViewHolder {
         CircleImageView imgDp;
-        TextView mUsername, mStartDate, mEndDate, mAmount, mStatus, mPosition;
+        TextView mUsername, mStartDate, mEndDate, mAmount, mStatus;
         public PostHolder(View itemView) {
             super(itemView);
             imgDp = itemView.findViewById(R.id.imgDp);
@@ -93,7 +98,6 @@ public class SubscriptionAdapter extends FirestoreRecyclerAdapter<Subscription, 
             mStartDate = itemView.findViewById(R.id.txtStarDate);
             mEndDate = itemView.findViewById(R.id.txtEndDate);
             mStatus = itemView.findViewById(R.id.txtStatus);
-            mPosition = itemView.findViewById(R.id.txtPosition);
         }
     }
 }

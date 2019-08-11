@@ -1,5 +1,6 @@
 package com.sqube.tipshub;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
@@ -11,20 +12,25 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import adapters.PerformanceAdapter;
@@ -33,6 +39,10 @@ import fragments.BankersFragment;
 import fragments.PostFragment;
 import fragments.ReviewFragment;
 import models.ProfileMedium;
+import models.UserNetwork;
+import utils.Calculations;
+import utils.FirebaseUtil;
+import utils.Reusable;
 
 public class MemberProfileActivity extends AppCompatActivity implements View.OnClickListener {
     private ActionBar actionBar;
@@ -43,13 +53,15 @@ public class MemberProfileActivity extends AppCompatActivity implements View.OnC
     private FirebaseFirestore database;
     private CircleImageView imgDp;
     private LinearLayout[] lnrLayout = new LinearLayout[4];
+    private Button btnFollow, btnSubscribe;
     ProfileMedium profile;
     private RecyclerView recyclerView;
     PerformanceAdapter adapter;
+    private String myID, imgUrl;
     Fragment postFragment, bankerFragment, reviewFragment;
     ArrayList<Map<String, Object>> performanceList = new ArrayList<>();
     private TextView txtName, txtUsername, txtBio;
-    private TextView txtPost, txtAccuracy;
+    private TextView txtPost, txtWon;
     private TextView txtFollowers, txtFollowing, txtSubscribers, txtSubscriptions;
 
     @Override
@@ -60,6 +72,8 @@ public class MemberProfileActivity extends AppCompatActivity implements View.OnC
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
+        btnFollow = findViewById(R.id.btnFollow); btnFollow.setOnClickListener(this);
+        btnSubscribe = findViewById(R.id.btnSubscribe); btnSubscribe.setOnClickListener(this);
         viewPager = findViewById(R.id.viewpager);
         tabLayout = findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
@@ -68,7 +82,7 @@ public class MemberProfileActivity extends AppCompatActivity implements View.OnC
         txtUsername = findViewById(R.id.txtUsername);
         txtBio = findViewById(R.id.txtBio);
         txtPost = findViewById(R.id.txtPost);
-        txtAccuracy = findViewById(R.id.txtAccuracy);
+        txtWon = findViewById(R.id.txtAccuracy);
         txtFollowers = findViewById(R.id.txtFollowers);
         txtFollowing = findViewById(R.id.txtFollowing);
         txtSubscribers = findViewById(R.id.txtSubscribers);
@@ -80,29 +94,46 @@ public class MemberProfileActivity extends AppCompatActivity implements View.OnC
         for(LinearLayout l: lnrLayout)
             l.setOnClickListener(this);
         recyclerView = findViewById(R.id.performanceList);
+
+        FirebaseUser user = FirebaseUtil.getFirebaseAuthentication().getCurrentUser();
+        myID = user.getUid();
         LinearLayoutManager lm = new LinearLayoutManager(getApplicationContext());
         adapter = new PerformanceAdapter(this, performanceList);
         recyclerView.setLayoutManager(lm);
         userId = getIntent().getStringExtra("userId");
+        if(UserNetwork.getFollowing()==null)
+            btnFollow.setVisibility(View.GONE);
+        else
+            btnFollow.setText(UserNetwork.getFollowing().contains(userId)? "FOLLOWING": "FOLLOW");
+
         database = FirebaseFirestore.getInstance();
         requestOptions.placeholder(R.drawable.dummy);
         database.collection("profiles").document(userId).get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
-                if(!documentSnapshot.exists())
+                if(documentSnapshot==null||!documentSnapshot.exists())
                     return;
                 profile = documentSnapshot.toObject(ProfileMedium.class);
-                txtName.setText(profile.getA0_firstName()+" "+ profile.getA1_lastName());
-                txtUsername.setText("@"+profile.getA2_username());
+                imgUrl = profile.getB2_dpUrl();
+                if(!imgUrl.isEmpty())
+                    imgDp.setOnClickListener(MemberProfileActivity.this);
+                String name = String.format(Locale.getDefault(),"%s %s", profile.getA0_firstName(),profile.getA1_lastName());
+                actionBar.setTitle(name);
+                txtName.setText(name);
+                txtUsername.setText(String.format(Locale.getDefault(),"@%s",profile.getA2_username()));
                 txtBio.setText(profile.getA5_bio());
-                actionBar.setTitle(profile.getA0_firstName()+" "+ profile.getA1_lastName());
                 txtFollowers.setText(String.valueOf(profile.getC4_followers()));
                 txtFollowing.setText(String.valueOf(profile.getC5_following()));
                 txtSubscribers.setText(String.valueOf(profile.getC6_subscribers()));
                 txtSubscriptions.setText(String.valueOf(profile.getC7_subscriptions()));
-                txtPost.setText(profile.getE0a_NOG()>1? profile.getE0a_NOG()+ " tips  • ": profile.getE0a_NOG()+ " tip  • ");
-                txtAccuracy.setText(profile.getE0b_WG()+ " won");
+                String tips = profile.getE0a_NOG()>1? "tips": "tip";
+                txtPost.setText(String.format(Locale.getDefault(),"%d  %s  • ", profile.getE0a_NOG(), tips));
+                txtWon.setText(String.format(Locale.getDefault(),"%d  won  • ", profile.getE0b_WG()));
+                if(profile.isC1_banker()){
+                    if(UserNetwork.getSubscribed()!=null|| !UserNetwork.getSubscribed().contains(userId))
+                        btnSubscribe.setVisibility(View.VISIBLE);
+                }
 
                 //set Display picture
                 Glide.with(getApplicationContext())
@@ -121,7 +152,6 @@ public class MemberProfileActivity extends AppCompatActivity implements View.OnC
             }
         });
         setupViewPager(viewPager); //set up view pager with fragments
-
     }
 
     private  Map<String, Object> getRow(int i) {
@@ -196,34 +226,75 @@ public class MemberProfileActivity extends AppCompatActivity implements View.OnC
         viewPager.setAdapter(adapter);
     }
 
+    private void showDp() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(MemberProfileActivity.this);
+        LayoutInflater inflater = this.getLayoutInflater();
+        View dialogView;
+        dialogView = inflater.inflate(R.layout.image_viewer, null);
+        builder.setView(dialogView);
+        final AlertDialog dialog= builder.create();
+        dialog.show();
+        ImageView imgProfile = dialog.findViewById(R.id.imgDp);
+        //set Display picture
+        Glide.with(getApplicationContext())
+                .setDefaultRequestOptions(requestOptions)
+                .load(profile.getB2_dpUrl())
+                .into(imgProfile);
+    }
+
     @Override
     public void onClick(View v) {
         Intent intent = new Intent(this, FollowerListActivity.class);
         intent.putExtra("personId", userId);
         switch (v.getId()){
+            case R.id.imgDp:
+                showDp();
+                break;
             case R.id.lnrFollowers:
                 if(Integer.valueOf(txtFollowers.getText().toString())<1)
                     return;
                 intent.putExtra("search_type", "followers");
+                startActivity(intent);
                 break;
             case R.id.lnrFollowing:
                 if(Integer.valueOf(txtFollowing.getText().toString())<1)
                     return;
                 intent.putExtra("search_type", "followings");
+                startActivity(intent);
                 break;
             case R.id.lnrSubscribers:
                 if(Integer.valueOf(txtSubscribers.getText().toString())<1)
                     return;
                 intent.putExtra("search_type", "subscribers");
+                startActivity(intent);
                 break;
             case R.id.lnrSubscription:
                 if(Integer.valueOf(txtSubscriptions.getText().toString())<1)
                     return;
                 intent.putExtra("search_type", "subscribed_to");
+                startActivity(intent);
+                break;
+            case R.id.btnFollow:
+                Calculations calculations = new Calculations(getApplicationContext());
+                if(btnFollow.getText().equals("FOLLOW")){
+                    calculations.followMember(btnFollow, myID, userId);
+                    if(Reusable.getNetworkAvailability(this)) {
+                        btnFollow.setText("FOLLOWING");
+                    }
+                }
+                else{
+                    calculations.unfollowMember(btnFollow, myID, userId);
+                    if(Reusable.getNetworkAvailability(this)) {
+                        btnFollow.setText("FOLLOW");
+                    }
+                }
+                break;
+            case R.id.btnSubscribe:
+                Intent intentSub = new Intent(getApplicationContext(), SubscriptionActivity.class);
+                intentSub.putExtra("userId", userId);
+                startActivity(intentSub);
                 break;
         }
-        startActivity(intent);
-
     }
 
     public class ViewPagerAdapter extends FragmentPagerAdapter {

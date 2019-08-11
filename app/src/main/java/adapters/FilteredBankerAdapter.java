@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
-import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,6 +27,7 @@ import com.sqube.tipshub.RepostActivity;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import models.Post;
 import models.SnapId;
@@ -84,13 +84,11 @@ public class FilteredBankerAdapter extends RecyclerView.Adapter<BankerAdapter.Po
         final AlertDialog dialog= builder.create();
         dialog.show();
 
-        Button btnSubmit, btnDelete, btnShare, btnFollow, btnSubscribe;
+        Button btnSubmit, btnDelete, btnShare, btnFollow;
         btnSubmit = dialog.findViewById(R.id.btnSubmit);
         btnDelete = dialog.findViewById(R.id.btnDelete);
         btnShare = dialog.findViewById(R.id.btnShare);
         btnFollow = dialog.findViewById(R.id.btnFollow);
-        btnSubscribe = dialog.findViewById(R.id.btnSubscribe);
-        btnSubscribe.setVisibility(View.GONE);
 
         long timeDifference = new Date().getTime() - model.getTime();
         if(model.getUserId().equals(userId)&& model.getType()>0 && timeDifference > 9000000)
@@ -162,7 +160,8 @@ public class FilteredBankerAdapter extends RecyclerView.Adapter<BankerAdapter.Po
     }
 
     @Override
-    public void onBindViewHolder(@NonNull BankerAdapter.PostHolder holder, int position) {
+    public void onBindViewHolder(@NonNull BankerAdapter.PostHolder holder, int i) {
+        final int position = holder.getAdapterPosition();
         Post model = postList.get(position);
         Log.i(TAG, model.getUsername()+" "+ model.getContent());
         Log.i(TAG, "onBindViewHolder: executed");
@@ -171,7 +170,8 @@ public class FilteredBankerAdapter extends RecyclerView.Adapter<BankerAdapter.Po
         holder.mUsername.setText(model.getUsername());
         holder.imgStatus.setVisibility(model.getStatus()==1? View.GONE: View.VISIBLE);
         if(model.getBookingCode()!=null && !model.getBookingCode().isEmpty()){
-            holder.mCode.setText(model.getBookingCode() + " @" + code[(model.getRecommendedBookie()-1)]);
+            holder.mCode.setText(String.format(Locale.ENGLISH, "%s @%s",
+                    model.getBookingCode(), code[(model.getRecommendedBookie()-1)]));
             holder.mCode.setVisibility(View.VISIBLE);
             holder.imgCode.setVisibility(View.VISIBLE);
             holder.lnrCode.setVisibility(View.VISIBLE);
@@ -224,9 +224,8 @@ public class FilteredBankerAdapter extends RecyclerView.Adapter<BankerAdapter.Po
         });
 
         holder.mpost.setText(model.getContent());
-
-        holder.mTime.setText(DateFormat.format("dd MMM  (h:mm a)", model.getTime()));
-
+        Reusable.applyLinkfy(context, model.getContent(), holder.mpost);
+        holder.mTime.setText(Reusable.getTime(model.getTime()));
         holder.imgLikes.setColorFilter(model.getLikes().contains(userId)?
                 context.getResources().getColor(R.color.likeGold): context.getResources().getColor(R.color.likeGrey));
 
@@ -237,7 +236,7 @@ public class FilteredBankerAdapter extends RecyclerView.Adapter<BankerAdapter.Po
         holder.mLikes.setText(model.getLikesCount()==0? "":String.valueOf(model.getLikesCount()));
         holder.mDislikes.setText(model.getDislikesCount()==0? "":String.valueOf(model.getDislikesCount()));
 
-        final boolean finalMakePublic = (model.getStatus()==2 || (new Date().getTime() - model.getTime()) >(18*60*60*1000))? true: false;
+        final boolean finalMakePublic = (model.getStatus()==2 || (new Date().getTime() - model.getTime()) >(18*60*60*1000));
         holder.imgRepost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

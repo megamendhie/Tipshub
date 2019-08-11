@@ -26,6 +26,10 @@ public class Notification {
         this.sendTo = sendTo;
         this.sentFrom = sentFrom;
         time = new Date().getTime();
+        if(type!="banker")
+            this.channel = sendTo;
+        else
+            this.channel = "b_"+sentFrom;
     }
 
 

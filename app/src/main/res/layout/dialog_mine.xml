@@ -37,14 +37,6 @@
         android:drawableLeft="@drawable/ic_follower"
         android:drawableTint="@color/colorPrimary"
         android:text="FOLLOW" />
-    <Button
-        android:id="@+id/btnSubscribe"
-        android:layout_width="180dp"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        android:drawableLeft="@drawable/ic_favorite_black_24dp"
-        android:drawableTint="@color/colorPrimary"
-        android:text="SUBSCRIBE" />
 
     <Button
         android:id="@+id/btnShare"

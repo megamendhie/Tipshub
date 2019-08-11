@@ -1,12 +1,10 @@
 package adapters;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,17 +33,12 @@ import utils.Reusable;
 
 public class NotificationAdapter extends FirestoreRecyclerAdapter<Notification, NotificationAdapter.PostHolder>{
     private final String TAG = "PostAdaper";
-    Reusable reusable = new Reusable();
-    private Activity activity;
     private Context context;
     private String userId;
     private StorageReference storageReference;
     private RequestOptions requestOptions = new RequestOptions();
-    Calculations calculations;
 
-    private FirebaseFirestore database;
-
-    public NotificationAdapter(Query query, String userID, Activity activity, Context context) {
+    public NotificationAdapter(Query query, String userID, Context context) {
         /*
         Configure recycler adapter options:
         query defines the request made to Firestore
@@ -56,11 +49,10 @@ public class NotificationAdapter extends FirestoreRecyclerAdapter<Notification, 
                 .build());
 
         Log.i(TAG, "PostAdapter: created");
-        this.activity = activity;
         this.context = context;
         this.userId = userID;
-        this.calculations = new Calculations(context);
-        this.database = FirebaseFirestore.getInstance();
+        Calculations calculations = new Calculations(context);
+        FirebaseFirestore database = FirebaseFirestore.getInstance();
         requestOptions.placeholder(R.drawable.dummy);
         storageReference = FirebaseStorage.getInstance().getReference().child("profile_images");
     }
@@ -79,7 +71,7 @@ public class NotificationAdapter extends FirestoreRecyclerAdapter<Notification, 
         final TextView mTime = holder.mTime;
         final String intentUrl = model.getIntentUrl();
 
-        mTime.setText(DateFormat.format("dd MMM  (h:mm a)", model.getTime()));
+        mTime.setText(Reusable.getTime(model.getTime()));
         mTitle.setText(model.getTitle());
         mMessage.setText(model.getMessage());
 
@@ -90,6 +82,7 @@ public class NotificationAdapter extends FirestoreRecyclerAdapter<Notification, 
             case "disliked":
                 imgType.setImageResource(R.drawable.ic_thumb_down_color_24dp);
                 break;
+            case "subEnd":
             case "subscribed":
                 imgType.setImageResource(R.drawable.ic_favorite_color_24dp);
                 break;
@@ -133,12 +126,12 @@ public class NotificationAdapter extends FirestoreRecyclerAdapter<Notification, 
         return new PostHolder(view);
     }
 
-    public class PostHolder extends RecyclerView.ViewHolder {
+    class PostHolder extends RecyclerView.ViewHolder {
         ImageView imgType;
         CircleImageView imgDp;
         LinearLayout lnrContainer;
         TextView mTitle, mMessage, mTime;
-        public PostHolder(View itemView) {
+        PostHolder(View itemView) {
             super(itemView);
             imgType = itemView.findViewById(R.id.imgType);
             imgDp = itemView.findViewById(R.id.imgDp);

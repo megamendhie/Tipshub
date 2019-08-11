@@ -13,7 +13,6 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
-import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,9 +36,9 @@ import com.sqube.tipshub.MemberProfileActivity;
 import com.sqube.tipshub.MyProfileActivity;
 import com.sqube.tipshub.R;
 import com.sqube.tipshub.RepostActivity;
-import com.sqube.tipshub.SubscriptionActivity;
 
 import java.util.Date;
+import java.util.Locale;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import models.Post;
@@ -103,7 +102,8 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
         holder.imgStatus.setVisibility(model.getStatus()==1? View.GONE: View.VISIBLE);
         holder.crdChildPost.setVisibility(model.isHasChild()? View.VISIBLE: View.GONE);
         if(model.getBookingCode()!=null && !model.getBookingCode().isEmpty()){
-            holder.mCode.setText(model.getBookingCode() + " @" + code[(model.getRecommendedBookie()-1)]);
+            holder.mCode.setText(String.format(Locale.ENGLISH, "%s @%s",
+                    model.getBookingCode(), code[(model.getRecommendedBookie()-1)]));
             holder.mCode.setVisibility(View.VISIBLE);
             holder.imgCode.setVisibility(View.VISIBLE);
             holder.lnrCode.setVisibility(View.VISIBLE);
@@ -126,35 +126,30 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
                 .load(storageReference.child(model.getUserId()))
                 .into(holder.imgDp);
         //listen to dp click and open user profile
-        holder.imgDp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(model.getUserId().equals(userId)){
-                    context.startActivity(new Intent(context, MyProfileActivity.class));
-                }
-                else{
-                    Intent intent = new Intent(context, MemberProfileActivity.class);
-                    intent.putExtra("userId", model.getUserId());
-                    context.startActivity(intent);
-                }
+        holder.imgDp.setOnClickListener(v -> {
+            if(model.getUserId().equals(userId)){
+                context.startActivity(new Intent(context, MyProfileActivity.class));
+            }
+            else{
+                Intent intent = new Intent(context, MemberProfileActivity.class);
+                intent.putExtra("userId", model.getUserId());
+                context.startActivity(intent);
             }
         });
         //listen to username click and open user profile
-        holder.mUsername.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(model.getUserId().equals(userId)){
-                    context.startActivity(new Intent(context, MyProfileActivity.class));
-                }
-                else{
-                    Intent intent = new Intent(context, MemberProfileActivity.class);
-                    intent.putExtra("userId", model.getUserId());
-                    context.startActivity(intent);
-                }
+        holder.mUsername.setOnClickListener(v -> {
+            if(model.getUserId().equals(userId)){
+                context.startActivity(new Intent(context, MyProfileActivity.class));
+            }
+            else{
+                Intent intent = new Intent(context, MemberProfileActivity.class);
+                intent.putExtra("userId", model.getUserId());
+                context.startActivity(intent);
             }
         });
         holder.mpost.setText(model.getContent());
-        holder.mTime.setText(DateFormat.format("dd MMM  (h:mm a)", model.getTime()));
+        Reusable.applyLinkfy(context, model.getContent(), holder.mpost);
+        holder.mTime.setText(Reusable.getTime(model.getTime()));
         holder.imgLikes.setColorFilter(model.getLikes().contains(userId)?
                 context.getResources().getColor(R.color.likeGold): context.getResources().getColor(R.color.likeGrey));
 
@@ -266,7 +261,8 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
 
         //holder.imgChildStatus.setVisibility(model.getStatus()==1? View.GONE: View.VISIBLE);
         if(model.getChildBookingCode()!=null && !model.getChildBookingCode().isEmpty()){
-            childCode.setText(model.getChildBookingCode() + " @" + code[(model.getChildBookie()-1)]);
+            childCode.setText(String.format(Locale.ENGLISH, "%s @%s",
+                    model.getBookingCode(), code[(model.getChildBookie()-1)]));
             childCode.setVisibility(View.VISIBLE);
             imgChildCode.setVisibility(View.VISIBLE);
             lnrChildCode.setVisibility(View.VISIBLE);
@@ -286,6 +282,7 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
 
         childUsername.setText(model.getChildUsername());
         childPost.setText(model.getChildContent());
+        Reusable.applyLinkfy(context, model.getChildContent(), childPost);
         FirebaseUtil.getFirebaseFirestore().collection("posts").document(model.getChildLink()).get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
@@ -348,12 +345,11 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.show();
 
-        Button btnSubmit, btnDelete, btnShare, btnFollow, btnSubscribe;
+        Button btnSubmit, btnDelete, btnShare, btnFollow;
         btnSubmit = dialog.findViewById(R.id.btnSubmit);
         btnDelete = dialog.findViewById(R.id.btnDelete);
         btnShare = dialog.findViewById(R.id.btnShare);
         btnFollow = dialog.findViewById(R.id.btnFollow);
-        btnSubscribe = dialog.findViewById(R.id.btnSubscribe);
 
         long timeDifference = new Date().getTime() - model.getTime();
         if(model.getUserId().equals(userId)&& model.getType()>0 && timeDifference > 9000000)
@@ -366,19 +362,6 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
             if (model.getUserId().equals(userId) && model.getStatus() == 2 && timeDifference > 9000000)
                 btnSubmit.setVisibility(View.GONE);
         }
-
-
-        if(UserNetwork.getSubscribed()==null||UserNetwork.getSubscribed().contains(userID))
-            btnSubscribe.setVisibility(View.GONE);
-        btnSubscribe.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(context, SubscriptionActivity.class);
-                intent.putExtra("userId", userID);
-                context.startActivity(intent);
-                dialog.cancel();
-            }
-        });
 
         btnDelete.setOnClickListener(new View.OnClickListener() {
             @Override

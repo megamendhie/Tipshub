@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
-import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,7 +32,6 @@ import com.google.firebase.storage.StorageReference;
 import com.sqube.tipshub.MemberProfileActivity;
 import com.sqube.tipshub.MyProfileActivity;
 import com.sqube.tipshub.R;
-import com.sqube.tipshub.SubscriptionActivity;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -103,7 +101,8 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
         //set username and comment content
         mUsername.setText(model.getUsername());
         mComment.setText(model.getContent());
-        mTime.setText(DateFormat.format("dd MMM  (h:mm a)", model.getTime()));
+        Reusable.applyLinkfy(context, model.getContent(), mComment);
+        mTime.setText(Reusable.getTime(model.getTime()));
         imgLikes.setColorFilter(model.getLikes().contains(userId)?
                 context.getResources().getColor(R.color.likeGold): context.getResources().getColor(R.color.likeGrey));
 
@@ -227,16 +226,13 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
         final AlertDialog dialog= builder.create();
         dialog.show();
 
-        Button btnSubmit, btnDelete, btnFollow, btnSubscribe, btnShare;
+        Button btnSubmit, btnDelete, btnFollow, btnShare;
         btnSubmit = dialog.findViewById(R.id.btnSubmit); btnSubmit.setVisibility(View.GONE);
         btnDelete = dialog.findViewById(R.id.btnDelete);
         if(!commentUserId.equals(this.userId))
             btnDelete.setVisibility(View.GONE);
         btnFollow = dialog.findViewById(R.id.btnFollow);
         btnShare = dialog.findViewById(R.id.btnShare);
-        btnSubscribe = dialog.findViewById(R.id.btnSubscribe);
-        btnSubscribe.setVisibility(UserNetwork.getSubscribed()==null||!UserNetwork.getSubscribed().contains(userId)?
-                View.VISIBLE: View.GONE);
 
         if(UserNetwork.getFollowing()==null)
             btnFollow.setVisibility(View.GONE);
@@ -259,17 +255,6 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
             }
             dialog.cancel();
         });
-
-        btnSubscribe.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(context, SubscriptionActivity.class);
-                intent.putExtra("userId", commentUserId);
-                context.startActivity(intent);
-                dialog.cancel();
-            }
-        });
-
 
         btnDelete.setOnClickListener(new View.OnClickListener() {
             @Override

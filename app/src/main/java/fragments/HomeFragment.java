@@ -26,10 +26,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.gson.Gson;
@@ -41,8 +38,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import javax.annotation.Nullable;
-
 import adapters.FilteredPostAdapter;
 import adapters.PostAdapter;
 import models.Post;
@@ -52,6 +47,7 @@ import models.UserNetwork;
 import utils.FirebaseUtil;
 
 public class HomeFragment extends Fragment{
+    private String TAG = "HomeFrag";
     private ShimmerFrameLayout shimmerLayout;
     private Gson gson = new Gson();
     private SharedPreferences prefs;
@@ -69,7 +65,6 @@ public class HomeFragment extends Fragment{
     public HomeFragment() {
         // Required empty public constructor
     }
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -124,13 +119,20 @@ public class HomeFragment extends Fragment{
         else{
             LinearLayoutManager layoutManager = (LinearLayoutManager) homeFeed.getLayoutManager();
             layoutManager.smoothScrollToPosition(homeFeed, null, 0);
-            fAdapter = new FilteredPostAdapter(userId, getActivity(), getContext(), postList, snapIds);
+            fAdapter = new FilteredPostAdapter(true, userId, getActivity(), getContext(), postList, snapIds);
             homeFeed.setAdapter(fAdapter);
             loadMerged();
         }
 
-        Log.i("HomeFrag", "onCreateView: ");
+        Log.i(TAG, "onCreateView: ");
         return rootView;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        homeFeed.setAdapter(null);
+        Log.i(TAG, "onDestroyView: ");
     }
 
     private void popUp(){
@@ -164,9 +166,8 @@ public class HomeFragment extends Fragment{
     }
 
     private void loadPost() {
-        String TAG = "HomeFrag";
-        Log.i(TAG, "loadPost: ");
-        Query query = FirebaseUtil.getFirebaseFirestore().collection("posts").orderBy("time", Query.Direction.DESCENDING);
+        Query query = FirebaseUtil.getFirebaseFirestore().collection("posts")
+                .orderBy("time", Query.Direction.DESCENDING);
         postAdapter = new PostAdapter(query, userId, getActivity(), getContext());
         homeFeed.setAdapter(postAdapter);
         if(postAdapter!=null){
@@ -181,7 +182,7 @@ public class HomeFragment extends Fragment{
         if(postAdapter!=null)
             postAdapter.stopListening();
         if(UserNetwork.getFollowing()==null){
-            FirebaseUtil.getFirebaseFirestore().collection("followers").document(userId).get()
+            FirebaseUtil.getFirebaseFirestore().collection("followings").document(userId).get()
                     .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -194,22 +195,6 @@ public class HomeFragment extends Fragment{
         }
         else
             loadList(UserNetwork.getFollowing());
-
-        FirebaseUtil.getFirebaseFirestore().collection("posts").whereEqualTo("userId", userId).limit(10)
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
-
-                    @Override
-                    public void onEvent(@Nullable QuerySnapshot Snapshots, @Nullable FirebaseFirestoreException e) {
-                        Log.i("HomeFrag", "onEvent: just fire");
-                        if(e!=null)
-                            return;
-                        for(DocumentChange change: Snapshots.getDocumentChanges()){
-                            if(change.getType()== DocumentChange.Type.ADDED){
-                                Log.i("HomeFrag", "onEvent: added fired");
-                            }
-                        }
-                    }
-                });
     }
 
     private void loadList(ArrayList<String> ids){
@@ -258,5 +243,7 @@ public class HomeFragment extends Fragment{
                 shimmerLayout.setVisibility(View.GONE);
             }
         });
+
     }
+
 }

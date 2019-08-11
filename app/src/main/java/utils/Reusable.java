@@ -10,7 +10,10 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
+import android.text.SpannableString;
+import android.text.Spanned;
 import android.text.format.DateFormat;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.widget.TextView;
 
@@ -25,14 +28,19 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import models.ProfileMedium;
 
 public final class Reusable {
     public Reusable(){}
 
-    public void setTime(TextView txtTime, long messageTime){
+    public static String getTime(long messageTime){
         // Format the date before showing it
         final long diff = (new Date().getTime())  - messageTime;
         final long diffSeconds = diff / 1000 % 60;
@@ -40,24 +48,20 @@ public final class Reusable {
         final long diffHours = diff / (60 * 60 * 1000) % 24;
         final long diffDays = diff / (24 * 60 * 60 * 1000);
 
-        if(diffDays > 0){
-            txtTime.setText(DateFormat.format("dd MMM  (h:mm a)", messageTime));
-        }
-        else if(diffHours > 23){
-            txtTime.setText(DateFormat.format("dd MMM  (h:mm a)", messageTime));
-        }
-        else if(diffHours > 0){
-            txtTime.setText(diffHours+"h ago");
-        }
-        else if(diffMinutes >0){
-            txtTime.setText(diffMinutes==1? "1min":diffMinutes+"mins");
-        }
-        else if(diffSeconds > 8){
-            txtTime.setText(diffSeconds+"s");
-        }
-        else{
-            txtTime.setText("now");
-        }
+        String time;
+        if(diffDays > 0)
+            time = DateFormat.format("dd MMM  (h:mm a)", messageTime).toString();
+        else if(diffHours > 23)
+            time = DateFormat.format("dd MMM  (h:mm a)", messageTime).toString();
+        else if(diffHours > 0)
+            time = diffHours+"h ago";
+        else if(diffMinutes >0)
+            time = diffMinutes==1? "1min":diffMinutes+"mins";
+        else if(diffSeconds > 8)
+            time = diffSeconds+"s";
+        else
+            time = "now";
+        return time;
     }
 
     public String getSignature(){
@@ -80,6 +84,43 @@ public final class Reusable {
         return Signature;
     }
 
+    public static void applyLinkfy(Context context, String a, TextView textView) {
+        //Pattern urlPattern = Patterns.WEB_URL;
+        Pattern mentionPattern = Pattern.compile("(@[A-Za-z0-9_-]+)");
+        Pattern hashtagPattern = Pattern.compile("#(\\w+|\\W+)");
+
+        Matcher o = hashtagPattern.matcher(a);
+        Matcher mention = mentionPattern.matcher(a);
+        //Matcher weblink = urlPattern.matcher(a);
+
+        SpannableString spannableString = new SpannableString(a);
+        //#hashtags
+
+        while (o.find()) {
+            spannableString.setSpan(new NonUnderlinedClickableSpan(context, o.group(),
+                            0), o.start(), o.end(),
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+
+        // --- @mention
+        while (mention.find()) {
+            spannableString.setSpan(
+                    new NonUnderlinedClickableSpan(context, mention.group(), 1), mention.start(), mention.end(),
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+
+        /*
+        //@weblink
+        while (weblink.find()) {
+            spannableString.setSpan(
+                    new NonUnderlinedClickableSpan(context, weblink.group(), 2), weblink.start(), weblink.end(),
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+        */
+        textView.setText(spannableString);
+        textView.setMovementMethod(LinkMovementMethod.getInstance());
+    }
+
     public static void shareTips(Activity activity, String username, String post){
         String output = "@"+username+"'s post on Tipshub:\n\n"+ post + "\n\nApp link: http://bit.ly/SecuredTips" ;
 
@@ -89,6 +130,16 @@ public final class Reusable {
                 Intent.FLAG_ACTIVITY_NEW_DOCUMENT |
                 Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
         activity.startActivity(Intent.createChooser(share, "Share via:"));
+    }
+
+    public static String getNewDate(String oldDate){
+        try {
+            Date date= new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).parse(oldDate);
+            return new SimpleDateFormat("dd MMM", Locale.getDefault()).format(date.getTime());
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return "";
     }
 
     public void shareComment(Activity activity, String username, String post){

@@ -55,8 +55,8 @@ public class RecommendedFragment extends Fragment {
     private RecyclerView peopleList, trendingList, newsList;
     private final String TAG = "RecFragment";
     private boolean alreadyLoaded;
-    ArrayList<Post> postList = new ArrayList<>();
-    ArrayList<SnapId> snapIds= new ArrayList<>();
+    private ArrayList<Post> postList = new ArrayList<>();
+    private ArrayList<SnapId> snapIds= new ArrayList<>();
     FilteredPostAdapter fAdapter;
 
     public final String myAPI_Key = "417444c0502047d69c1c2a9dcc1672cd";
@@ -93,7 +93,7 @@ public class RecommendedFragment extends Fragment {
 
         FirebaseUser user = FirebaseUtil.getFirebaseAuthentication().getCurrentUser();
         userId = user.getUid();
-        fAdapter = new FilteredPostAdapter(userId, getActivity(), getContext(), postList, snapIds);
+        fAdapter = new FilteredPostAdapter(false, userId, getActivity(), getContext(), postList, snapIds);
         trendingList.setAdapter(fAdapter);
         alreadyLoaded = false;
         loadNews();
@@ -165,7 +165,7 @@ public class RecommendedFragment extends Fragment {
     private void loadPost() {
         Log.i(TAG, "loadPost: ");
         FirebaseUtil.getFirebaseFirestore().collection("posts")
-                .orderBy("timeRelevance", Query.Direction.DESCENDING).limit(10).get()
+                .orderBy("timeRelevance", Query.Direction.DESCENDING).limit(15).get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -208,7 +208,7 @@ public class RecommendedFragment extends Fragment {
             String xml = "";
 
             String urlParameters = "";
-            xml = NewsFunction.excuteGet("https://newsapi.org/v2/everything?domains=espnfc.com&language=en&pageSize=10&apiKey="+myAPI_Key, urlParameters);
+            xml = NewsFunction.excuteGet("https://newsapi.org/v2/everything?domains=espnfc.com&language=en&pageSize=15&apiKey="+myAPI_Key, urlParameters);
             return  xml;
         }
         @Override

@@ -13,7 +13,6 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
-import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,22 +24,24 @@ import android.widget.TextView;
 
 import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
+import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.sqube.tipshub.FlagActivity;
 import com.sqube.tipshub.FullPostActivity;
 import com.sqube.tipshub.MemberProfileActivity;
 import com.sqube.tipshub.MyProfileActivity;
 import com.sqube.tipshub.R;
 import com.sqube.tipshub.RepostActivity;
-import com.sqube.tipshub.SubscriptionActivity;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import models.Post;
@@ -56,16 +57,19 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<FilteredPostAdapte
     private Activity activity;
     private Context context;
     private String userId;
-    private StorageReference storageReference;
-    Calculations calculations;
+    private ListenerRegistration listener;
+    private boolean search;
+    private Calculations calculations;
     private RequestOptions requestOptions = new RequestOptions();
-    ArrayList<Post> postList;
+    private ArrayList<Post> postList;
     private ArrayList<SnapId> snapIds;
     private String[] code = {"1xBet", "Bet9ja", "Nairabet", "SportyBet", "BlackBet", "Bet365"};
     private String[] type = {"3-5 odds", "6-10 odds", "11-50 odds", "50+ odds", "Draws", "Banker tip"};
 
-    public FilteredPostAdapter(String userID, Activity activity, Context context, ArrayList<Post> postList, ArrayList<SnapId> snapIds) {
+    public FilteredPostAdapter(boolean search, String userID, Activity activity, Context context, ArrayList<Post> postList,
+                               ArrayList<SnapId> snapIds) {
         Log.i(TAG, "PostAdapter: created");
+        this.search = search;
         this.activity = activity;
         this.context = context;
         this.userId = userID;
@@ -73,12 +77,42 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<FilteredPostAdapte
         this.snapIds = snapIds;
         this.calculations = new Calculations(context);
         requestOptions.placeholder(R.drawable.ic_person_outline_black_24dp);
-        storageReference = FirebaseStorage.getInstance().getReference().child("profile_images");
+        CollectionReference collectionReference = FirebaseUtil.getFirebaseFirestore().collection("posts");
+        long time = new Date().getTime();
+
+        if(search)
+            listener = collectionReference.orderBy("time").startAt(new Date().getTime())
+                    .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                @Override
+                public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @javax.annotation.Nullable FirebaseFirestoreException e) {
+                    if(queryDocumentSnapshots==null)
+                        return;
+                    for(DocumentChange change: queryDocumentSnapshots.getDocumentChanges()){
+                        if(change.getType()== DocumentChange.Type.ADDED){
+                            Log.i(TAG, "onEvent: added again "+ time);
+                            Post post = change.getDocument().toObject(Post.class);
+                            if(!post.getUserId().equals(userId))
+                                if(UserNetwork.getFollowing()==null|| !UserNetwork.getFollowing().contains(post.getUserId()))
+                                    return;
+                            postList.add(0, post);
+                            snapIds.add(0, new SnapId(change.getDocument().getId(), post.getTime()) );
+                            FilteredPostAdapter.this.notifyDataSetChanged();
+                        }
+                    }
+                }
+            });
+    }
+
+    @Override
+    public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
+        if(search)
+            listener.remove();
+        super.onDetachedFromRecyclerView(recyclerView);
     }
 
     @Override
     public int getItemCount() {
-        return snapIds.size();
+        return this.snapIds.size();
     }
 
     private void displayChildContent(final Post model, final PostHolder holder) {
@@ -91,7 +125,8 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<FilteredPostAdapte
 
         //holder.imgChildStatus.setVisibility(model.getStatus()==1? View.GONE: View.VISIBLE);
         if(model.getChildBookingCode()!=null && !model.getChildBookingCode().isEmpty()){
-            childCode.setText(model.getChildBookingCode() + " @" + code[(model.getChildBookie()-1)]);
+            childCode.setText(String.format(Locale.ENGLISH, "%s @%s",
+                    model.getBookingCode(), code[(model.getChildBookie()-1)]));
             childCode.setVisibility(View.VISIBLE);
             imgChildCode.setVisibility(View.VISIBLE);
             lnrChildCode.setVisibility(View.VISIBLE);
@@ -111,6 +146,7 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<FilteredPostAdapte
 
         childUsername.setText(model.getChildUsername());
         childPost.setText(model.getChildContent());
+        Reusable.applyLinkfy(context, model.getChildContent(), childPost);
         FirebaseUtil.getFirebaseFirestore().collection("posts").document(model.getChildLink()).get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
@@ -124,7 +160,7 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<FilteredPostAdapte
 
         GlideApp.with(context)
                 .setDefaultRequestOptions(requestOptions)
-                .load(storageReference.child(model.getChildUserId()))
+                .load(FirebaseUtil.getStorageReference().child(model.getChildUserId()))
                 .into(childDp);
 
         //listen to dp click and open user profile
@@ -173,12 +209,11 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<FilteredPostAdapte
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.show();
 
-        Button btnSubmit, btnDelete, btnShare, btnFollow, btnSubscribe;
+        Button btnSubmit, btnDelete, btnShare, btnFollow;
         btnSubmit = dialog.findViewById(R.id.btnSubmit);
         btnDelete = dialog.findViewById(R.id.btnDelete);
         btnShare = dialog.findViewById(R.id.btnShare);
         btnFollow = dialog.findViewById(R.id.btnFollow);
-        btnSubscribe = dialog.findViewById(R.id.btnSubscribe);
 
         long timeDifference = new Date().getTime() - model.getTime();
         if(model.getUserId().equals(userId)&& model.getType()>0 && timeDifference > 9000000)
@@ -192,18 +227,6 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<FilteredPostAdapte
                 btnSubmit.setVisibility(View.GONE);
         }
 
-        if(UserNetwork.getSubscribed()==null||UserNetwork.getSubscribed().contains(userID))
-            btnSubscribe.setVisibility(View.GONE);
-        btnSubscribe.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(context, SubscriptionActivity.class);
-                intent.putExtra("userId", userID);
-                context.startActivity(intent);
-                dialog.cancel();
-            }
-        });
-
         btnDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -216,7 +239,6 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<FilteredPostAdapte
                     dialog.cancel();
                 }
                 else{
-                    Log.i(TAG, "onClick: "+ model.getType());
                     if(model.getType()>0)
                         calculations.onDeletePost(imgOverflow, postId, userId,status==2, type);
                     else {
@@ -289,7 +311,8 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<FilteredPostAdapte
     }
 
     @Override
-    public void onBindViewHolder(@NonNull PostHolder holder, int position) {
+    public void onBindViewHolder(@NonNull PostHolder holder, int i) {
+        final int position = holder.getAdapterPosition();
         Log.i(TAG, "onBindViewHolder: executed");
         final String postId = snapIds.get(position).getId();
         Post model = postList.get(holder.getAdapterPosition());
@@ -298,10 +321,13 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<FilteredPostAdapte
                 .addSnapshotListener(new EventListener<DocumentSnapshot>() {
                     @Override
                     public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                        Log.i(TAG, "onEvent: pos= " + position);
                         if(documentSnapshot==null||!documentSnapshot.exists()){
-                            postList.remove(position);
-                            snapIds.remove(position);;
-                            FilteredPostAdapter.this.notifyDataSetChanged();
+                            if(postList.size()>position){
+                                postList.remove(position);
+                                snapIds.remove(position);
+                                FilteredPostAdapter.this.notifyDataSetChanged();
+                            }
                         }
                         else {
                             Post model = documentSnapshot.toObject(Post.class);
@@ -341,7 +367,8 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<FilteredPostAdapte
         holder.mUsername.setText(model.getUsername());
         holder.crdChildPost.setVisibility(model.isHasChild()? View.VISIBLE: View.GONE);
         if(model.getBookingCode()!=null && !model.getBookingCode().isEmpty()){
-            holder.mCode.setText(model.getBookingCode() + " @" + code[(model.getRecommendedBookie()-1)]);
+            holder.mCode.setText(String.format(Locale.ENGLISH, "%s @%s",
+                    model.getBookingCode(), code[(model.getRecommendedBookie()-1)]));
             holder.mCode.setVisibility(View.VISIBLE);
             holder.imgCode.setVisibility(View.VISIBLE);
             holder.lnrCode.setVisibility(View.VISIBLE);
@@ -361,8 +388,9 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<FilteredPostAdapte
 
         GlideApp.with(context)
                 .setDefaultRequestOptions(requestOptions)
-                .load(storageReference.child(model.getUserId()))
+                .load(FirebaseUtil.getStorageReference().child(model.getUserId()))
                 .into(holder.imgDp);
+
         //listen to dp click and open user profile
         holder.imgDp.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -394,9 +422,8 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<FilteredPostAdapte
         });
 
         holder.mpost.setText(model.getContent());
-
-        holder.mTime.setText(DateFormat.format("dd MMM  (h:mm a)", model.getTime()));
-
+        Reusable.applyLinkfy(context, model.getContent(), holder.mpost);
+        holder.mTime.setText(Reusable.getTime(model.getTime()));
         holder.imgRepost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -529,8 +556,6 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<FilteredPostAdapte
         if(model.isHasChild()){
             displayChildContent(model, holder);
         }
-
-
     }
 
 

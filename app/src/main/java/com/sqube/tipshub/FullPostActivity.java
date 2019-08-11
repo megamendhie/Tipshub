@@ -19,7 +19,6 @@ import android.text.Editable;
 import android.text.Html;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -175,7 +174,8 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
                     imgStatus.setVisibility(model.getStatus()==1? View.GONE: View.VISIBLE);
                     mUsername.setText(model.getUsername());
                     mpost.setText(model.getContent());
-                    mTime.setText(DateFormat.format("dd MMM  (h:mm a)", model.getTime()));
+                    Reusable.applyLinkfy(getApplicationContext(), model.getContent(), mpost);
+                    mTime.setText(Reusable.getTime(model.getTime()));
 
                     //display booking code if available
                     if(model.getBookingCode()!=null && !model.getBookingCode().isEmpty()){
@@ -276,6 +276,7 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
                 }
                 childUsername.setText(childModel.getUsername());
                 childPost.setText(childModel.getContent());
+                Reusable.applyLinkfy(getApplicationContext(), childModel.getContent(), childPost);
                 GlideApp.with(getApplicationContext())
                         .setDefaultRequestOptions(requestOptions)
                         .load(storageReference.child(childModel.getUserId()))
@@ -301,12 +302,11 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.show();
 
-        Button btnSubmit, btnDelete, btnShare, btnFollow, btnSubscribe;
+        Button btnSubmit, btnDelete, btnShare, btnFollow;
         btnSubmit = dialog.findViewById(R.id.btnSubmit);
         btnDelete = dialog.findViewById(R.id.btnDelete);
         btnShare = dialog.findViewById(R.id.btnShare);
         btnFollow = dialog.findViewById(R.id.btnFollow);
-        btnSubscribe = dialog.findViewById(R.id.btnSubscribe);
 
         long timeDifference = new Date().getTime() - model.getTime();
         if(model.getUserId().equals(userId)&& model.getType()>0 && timeDifference > 9000000)
@@ -319,19 +319,6 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
             if (model.getUserId().equals(userId) && model.getStatus() == 2 && timeDifference > 9000000)
                 btnSubmit.setVisibility(View.GONE);
         }
-
-
-        if(UserNetwork.getSubscribed()==null||UserNetwork.getSubscribed().contains(model.getUserId()))
-            btnSubscribe.setVisibility(View.GONE);
-        btnSubscribe.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                intent = new Intent(FullPostActivity.this, SubscriptionActivity.class);
-                intent.putExtra("userId", model.getUserId());
-                startActivity(intent);
-                dialog.cancel();
-            }
-        });
 
         btnDelete.setOnClickListener(new View.OnClickListener() {
             @Override

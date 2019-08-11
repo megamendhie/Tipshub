@@ -220,9 +220,15 @@
                                 android:layout_height="match_parent"
                                 android:gravity="center"
                                 android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                                android:layout_marginStart="3dp"
-                                android:text=""/>
+                                android:layout_marginStart="3dp"/>
 
+                            <TextView
+                                android:id="@+id/txtWon"
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:gravity="center"
+                                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                                android:layout_marginStart="5dp"/>
 
                             <TextView
                                 android:id="@+id/txtAccuracy"
@@ -230,9 +236,9 @@
                                 android:layout_height="match_parent"
                                 android:gravity="center"
                                 android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                                android:layout_marginStart="5dp"
-                                android:text=""/>
+                                android:layout_marginStart="5dp"/>
                         </LinearLayout>
+
                         <android.support.v7.widget.RecyclerView
                             android:id="@+id/performanceList"
                             android:layout_width="match_parent"

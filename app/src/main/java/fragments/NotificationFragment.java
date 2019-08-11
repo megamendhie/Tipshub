@@ -49,7 +49,7 @@ public class NotificationFragment extends Fragment {
         Log.i(TAG, "loadPost: ");
         Query query = FirebaseUtil.getFirebaseFirestore().collection("notifications").orderBy("time", Query.Direction.DESCENDING)
                 .whereEqualTo("sendTo", userId);
-        NotificationAdapter notificationAdapter = new NotificationAdapter(query, userId, getActivity(), getContext());
+        NotificationAdapter notificationAdapter = new NotificationAdapter(query, userId, getContext());
         notificationList.setAdapter(notificationAdapter);
         if(notificationAdapter !=null){
             Log.i(TAG, "loadPost: started listening");

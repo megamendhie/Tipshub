@@ -18,7 +18,9 @@ import android.util.Log;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
+import com.sqube.tipshub.FullPostActivity;
 import com.sqube.tipshub.MainActivity;
+import com.sqube.tipshub.MemberProfileActivity;
 import com.sqube.tipshub.R;
 
 import java.util.Random;
@@ -42,7 +44,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
-        final Intent intent = new Intent(this, MainActivity.class);
+        Intent intent = new Intent(this, MainActivity.class);
         NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
         int notificationID = new Random().nextInt(3000);
 
@@ -54,9 +56,25 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             setupChannels(notificationManager);
         }
 
+        String received_intent = remoteMessage.getData().get("type");
+        if(received_intent==null){
+            received_intent="main";
+        }
+        switch (received_intent){
+            case "comment":
+            case "post":
+                intent = new Intent(this, FullPostActivity.class);
+                intent.putExtra("postId", remoteMessage.getData().get("intentUrl"));
+                break;
+            case "following":
+            case "subscription":
+                intent = new Intent(this, MemberProfileActivity.class);
+                intent.putExtra("userId", remoteMessage.getData().get("sentFrom"));
+                break;
+        }
+
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this , 0, intent,
-
                 PendingIntent.FLAG_ONE_SHOT);
 
         Bitmap largeIcon = BitmapFactory.decodeResource(getResources(),

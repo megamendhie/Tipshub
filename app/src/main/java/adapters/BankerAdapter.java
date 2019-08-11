@@ -10,7 +10,6 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
-import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -167,7 +166,8 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
             }
         });
         mpost.setText(model.getContent());
-        mTime.setText(DateFormat.format("dd MMM  (h:mm a)", model.getTime()));
+        Reusable.applyLinkfy(context, model.getContent(), holder.mpost);
+        mTime.setText(Reusable.getTime(model.getTime()));
         imgLikes.setColorFilter(model.getLikes().contains(userId)?
                 context.getResources().getColor(R.color.likeGold): context.getResources().getColor(R.color.likeGrey));
 
@@ -301,12 +301,11 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
         final AlertDialog dialog= builder.create();
         dialog.show();
 
-        Button btnSubmit, btnDelete, btnShare, btnFollow, btnSubscribe;
+        Button btnSubmit, btnDelete, btnShare, btnFollow;
         btnSubmit = dialog.findViewById(R.id.btnSubmit);
         btnDelete = dialog.findViewById(R.id.btnDelete);
         btnShare = dialog.findViewById(R.id.btnShare);
         btnFollow = dialog.findViewById(R.id.btnFollow);
-        btnSubscribe = dialog.findViewById(R.id.btnSubscribe);
 
         long timeDifference = new Date().getTime() - model.getTime();
         if(model.getUserId().equals(userId)&& model.getType()>0 && timeDifference > 9000000)
@@ -320,8 +319,6 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
                 btnSubmit.setVisibility(View.GONE);
         }
 
-        if(UserNetwork.getSubscribed()==null||UserNetwork.getSubscribed().contains(userID))
-            btnSubscribe.setVisibility(View.GONE);
         if(!makePublic){
             btnShare.setVisibility(View.GONE);
         }

@@ -21,6 +21,7 @@ import com.sqube.tipshub.R;
 
 import models.Subscription;
 import services.GlideApp;
+import utils.Reusable;
 
 public class SubscriberAdapter extends FirestoreRecyclerAdapter<Subscription, SubscriptionAdapter.PostHolder>{
     private final String TAG = "PostAdaper";
@@ -28,7 +29,7 @@ public class SubscriberAdapter extends FirestoreRecyclerAdapter<Subscription, Su
     private String userId;
     private StorageReference storageReference;
     private RequestOptions requestOptions = new RequestOptions();
-    private String[] status = {"", "PENDING", "PAID"};
+    private String[] status = {"", "pending", "PAID"};
 
     public SubscriberAdapter(Query query, String userID, Context context) {
         /*
@@ -53,23 +54,24 @@ public class SubscriberAdapter extends FirestoreRecyclerAdapter<Subscription, Su
     @Override
     protected void onBindViewHolder(@NonNull SubscriptionAdapter.PostHolder holder, final int position, @NonNull final Subscription model) {
         holder.mUsername.setText(model.getSubFrom());
-        holder.mStartDate.setText(model.getDateStart());
-        holder.mEndDate.setText(model.getDateEnd());
+        holder.mStartDate.setText(Reusable.getNewDate(model.getDateStart()));
+        holder.mEndDate.setText(Reusable.getNewDate(model.getDateEnd()));
         holder.mAmount.setText(Html.fromHtml(model.getAmount()));
         holder.mStatus.setText(status[model.getStatus()]);
-        holder.mPosition.setText(String.valueOf(position+1));
         GlideApp.with(context)
                 .setDefaultRequestOptions(requestOptions)
                 .load(storageReference.child(model.getSubFromId()))
                 .into(holder.imgDp);
 
-        holder.imgDp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(context, MemberProfileActivity.class);
-                intent.putExtra("userId", model.getSubFromId());
-                context.startActivity(intent);
-            }
+        holder.mUsername.setOnClickListener(v -> {
+            Intent intent = new Intent(context, MemberProfileActivity.class);
+            intent.putExtra("userId", model.getSubFromId());
+            context.startActivity(intent);
+        });
+        holder.imgDp.setOnClickListener(v -> {
+            Intent intent = new Intent(context, MemberProfileActivity.class);
+            intent.putExtra("userId", model.getSubFromId());
+            context.startActivity(intent);
         });
     }
 

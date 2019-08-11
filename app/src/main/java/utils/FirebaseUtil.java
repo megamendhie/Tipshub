@@ -3,11 +3,13 @@ package utils;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 public class FirebaseUtil {
     private static FirebaseFirestore mFirebaseFirestore;
     private static FirebaseStorage mFirebaseStorage;
     private static FirebaseAuth mFirebaseAuthentication;
+    private static StorageReference storageReference;
 
     public static FirebaseFirestore getFirebaseFirestore() {
         if(mFirebaseFirestore==null)
@@ -37,5 +39,9 @@ public class FirebaseUtil {
 
     private static void setFirebaseAuthentication() {
         FirebaseUtil.mFirebaseAuthentication = FirebaseAuth.getInstance();
+    }
+
+    public static StorageReference getStorageReference() {
+        return getFirebaseStorage().getReference().child("profile_images");
     }
 }
