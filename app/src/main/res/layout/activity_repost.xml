@@ -16,124 +16,145 @@
         android:layout_centerInParent="true"
         android:visibility="gone"/>
 
-    <LinearLayout
-        android:gravity="bottom"
-        android:orientation="horizontal"
-        android:id="@+id/lnrUp"
+    <ScrollView
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:weightSum="10.0">
-        <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/imgDp"
-            android:layout_width="50.0dip"
-            android:layout_height="50.0dip"
-            android:scaleType="centerCrop"
-            android:contentDescription="@string/user_display_picture" />
-        <View android:layout_width="0.0dip"
-            android:layout_height="1.0dip"
-            android:layout_weight="10.0" />
-    </LinearLayout>
+        android:layout_height="fill_parent"
+        android:layout_above="@id/v">
 
-    <MultiAutoCompleteTextView
-        android:id="@+id/edtPost"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/lnrUp"
-        android:layout_marginTop="10.0dip"
-        android:maxLength="450"
-        android:minLines="2"
-        android:maxLines="12"
-        android:gravity="start"
-        android:textSize="16sp"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:inputType="textCapSentences|textNoSuggestions|textMultiLine"
-        android:background="@android:color/transparent"
-        android:hint="@string/type_your_post"/>
-    <LinearLayout
-        android:orientation="vertical"
-        android:background="@android:drawable/editbox_background_normal"
-        android:padding="6.0dip"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6.0dip"
-        android:layout_below="@id/edtPost"
-        android:layout_marginStart="18.0dip">
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:weightSum="10">
-            <de.hdodenhof.circleimageview.CircleImageView
-                android:id="@+id/childDp"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_gravity="center_vertical"/>
             <LinearLayout
-                android:layout_width="0dp"
+                android:gravity="bottom"
+                android:orientation="horizontal"
+                android:id="@+id/lnrUp"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_weight="10"
-                android:layout_marginStart="4dp">
-                <TextView
-                    android:id="@+id/txtChildUsername"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="megamendhie"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                    android:textStyle="bold"/>
-
-                <TextView
-                    android:id="@+id/txtChildType"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/colorPrimaryDark"
-                    android:text="3-5 odds"/>
+                android:weightSum="10.0">
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/imgDp"
+                    android:layout_width="50.0dip"
+                    android:layout_height="50.0dip"
+                    android:scaleType="centerCrop"
+                    android:contentDescription="@string/user_display_picture" />
+                <View android:layout_width="0.0dip"
+                    android:layout_height="1.0dip"
+                    android:layout_weight="10.0" />
             </LinearLayout>
 
+            <MultiAutoCompleteTextView
+                android:id="@+id/edtPost"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/lnrUp"
+                android:layout_marginTop="10.0dip"
+                android:maxLength="450"
+                android:minLines="2"
+                android:maxLines="12"
+                android:gravity="start"
+                android:textSize="16sp"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:inputType="textCapSentences|textNoSuggestions|textMultiLine"
+                android:background="@android:color/transparent"
+                android:hint="@string/type_your_post"/>
+            <LinearLayout
+                android:orientation="vertical"
+                android:background="@android:drawable/editbox_background_normal"
+                android:padding="6.0dip"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6.0dip"
+                android:layout_below="@id/edtPost"
+                android:layout_marginStart="18.0dip">
 
-            <ImageView
-                android:id="@+id/imgStatus"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:scaleType="centerCrop"
-                android:layout_marginEnd="6dp"
-                android:layout_marginTop="2dp"
-                android:tint="#25b153"
-                android:src="@drawable/ic_check_circle_green_24dp"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:weightSum="10">
+                    <de.hdodenhof.circleimageview.CircleImageView
+                        android:id="@+id/childDp"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_gravity="center_vertical"/>
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_weight="10"
+                        android:layout_marginStart="4dp">
+                        <TextView
+                            android:id="@+id/txtChildUsername"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="megamendhie"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                            android:textStyle="bold"/>
 
-        </LinearLayout>
-        <TextView
-            android:id="@+id/txtPost"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            android:textSize="16.0sp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="" />
-    </LinearLayout>
+                        <TextView
+                            android:id="@+id/txtChildType"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/colorPrimaryDark"
+                            android:text="3-5 odds"/>
+                    </LinearLayout>
+
+
+                    <ImageView
+                        android:id="@+id/imgStatus"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:scaleType="centerCrop"
+                        android:layout_marginEnd="6dp"
+                        android:layout_marginTop="2dp"
+                        android:tint="#25b153"
+                        app:srcCompat="@drawable/ic_check_circle_green_24dp"/>
+
+                </LinearLayout>
+                <TextView
+                    android:id="@+id/txtPost"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                    android:textSize="16.0sp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="" />
+            </LinearLayout>
+        </RelativeLayout>
+    </ScrollView>
+
+    <View
+        android:id="@+id/v"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_above="@id/lnrDown"
+        android:background="@color/placeholder_bg"/>
+
     <LinearLayout
-        android:gravity="end"
-        android:orientation="horizontal"
         android:id="@+id/lnrDown"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="10.0dip"
+        android:orientation="horizontal"
+        android:gravity="end"
         android:layout_alignParentBottom="true">
-        <Button
+
+        <TextView
             android:id="@+id/btnClose"
-            android:textColor="@color/colorAccent"
-            android:background="@android:color/transparent"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Close" />
+            android:textColor="@color/colorAccent"
+            android:background="@drawable/txt_bg"
+            android:padding="8dp"
+            android:text="CLOSE"/>
+
         <Button
             android:id="@+id/btnPost"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Post now"
-            android:layout_marginStart="20.0dip"
-            style="@style/CustomButton" />
+            android:layout_marginStart="12dp"
+            style="@style/CustomButton"
+            android:text="Post now"/>
     </LinearLayout>
 </RelativeLayout>
 
