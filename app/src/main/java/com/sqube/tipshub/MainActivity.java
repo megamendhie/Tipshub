@@ -88,7 +88,6 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     FragmentTransaction fragmentTransaction;
 
     private DrawerLayout mDrawerLayout;
-    private SwitchCompat aSwitch;
     private CircleImageView imgDp;
     TextView txtName, txtUsername, txtTips, txtFollowing, txtFollowers;
     String userId;
@@ -120,7 +119,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
         MenuItem switchMenuItem = navigationView.getMenu().findItem(R.id.nav_switch);
         View actionView = switchMenuItem.getActionView();
-        aSwitch = actionView.findViewById(R.id.drawer_switch);
+        SwitchCompat aSwitch = actionView.findViewById(R.id.drawer_switch);
 
         //confirm if user reading posts from everybody
         if(prefs.getBoolean("fromEverybody", true))
@@ -219,6 +218,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        mDrawerLayout.closeDrawer(GravityCompat.START);
         int id = item.getItemId();
         switch (id) {
             case R.id.nav_home:
@@ -258,8 +258,14 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
             case R.id.nav_profile:
                 startActivity(new Intent(MainActivity.this, MyProfileActivity.class));
                 break;
+            case R.id.nav_contact:
+                startActivity(new Intent(MainActivity.this, SignupActivity.class));
+                break;
             case R.id.nav_settings:
                 startActivity(new Intent(MainActivity.this, SettingsActivity.class));
+                break;
+            case R.id.nav_guide:
+                startActivity(new Intent(MainActivity.this, GuideActivity.class));
                 break;
             case R.id.nav_logout:
                 if(FirebaseUtil.getFirebaseAuthentication().getCurrentUser()!=null)

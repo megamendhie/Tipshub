@@ -16,4 +16,5 @@
     <color name="comment_bg">#eff5fa</color>
     <color name="comment_flagged">#FCD6E2</color>
     <color name="fragment_bg">#EEEEEE</color>
+    <color name="color_bg_login">#F9ECF7</color>
 </resources>
