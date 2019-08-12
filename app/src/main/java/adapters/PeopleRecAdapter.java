@@ -18,13 +18,12 @@ import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 import com.sqube.tipshub.MemberProfileActivity;
 import com.sqube.tipshub.MyProfileActivity;
 import com.sqube.tipshub.R;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import models.ProfileShort;
@@ -39,7 +38,6 @@ public class PeopleRecAdapter extends RecyclerView.Adapter<PeopleRecAdapter.Post
     private Context context;
     private String userId;
     private ArrayList<String> list;
-    private StorageReference storageReference;
     private RequestOptions requestOptions = new RequestOptions();
 
     public PeopleRecAdapter(){}
@@ -50,7 +48,6 @@ public class PeopleRecAdapter extends RecyclerView.Adapter<PeopleRecAdapter.Post
         this.userId = userId;
         this.list = list;
         requestOptions.placeholder(R.drawable.dummy);
-        storageReference = FirebaseStorage.getInstance().getReference().child("profile_images");
     }
 
     @NonNull
@@ -73,10 +70,14 @@ public class PeopleRecAdapter extends RecyclerView.Adapter<PeopleRecAdapter.Post
                     return;
                 }
                 ProfileShort model = task.getResult().toObject(ProfileShort.class);
+                if(model.getA5_bio()!=null&& !model.getA5_bio().isEmpty())
+                    Reusable.applyLinkfy(context,model.getA5_bio(), holder.mBio);
                 holder.mBio.setText(model.getA5_bio());
                 holder.mUsername.setText(model.getA2_username());
-                holder.mPost.setText(model.getE0a_NOG()+ " tips");
-                holder.mAccuracy.setText(String.format("||  Accuracy: %.1f", (double) model.getE0c_WGP())+"%");
+
+                String tips = model.getE0a_NOG()>1? "tips": "tip";
+                holder.mPost.setText(String.format(Locale.getDefault(),"%d  %s  • ", model.getE0a_NOG(), tips));
+                holder.mAccuracy.setText(String.format(Locale.getDefault(),"%.1f%%", (double) model.getE0c_WGP()));
                 holder.btnFollow.setText(UserNetwork.getFollowing()==null||!UserNetwork.getFollowing().contains(ref)? "FOLLOW": "FOLLOWING");
 
                 //load image

@@ -25,6 +25,7 @@ import com.sqube.tipshub.MyProfileActivity;
 import com.sqube.tipshub.R;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import models.ProfileShort;
@@ -73,8 +74,9 @@ public class PeopleAdapter extends RecyclerView.Adapter<PeopleAdapter.PostHolder
                 }
                 ProfileShort model = task.getResult().toObject(ProfileShort.class);
                 holder.mUsername.setText(model.getA2_username());
-                holder.mPost.setText(model.getE0a_NOG()+ " tips");
-                holder.mAccuracy.setText(String.format("||  Accuracy: %.1f", (double) model.getE0c_WGP())+"%");
+                String tips = model.getE0a_NOG()>1? "tips": "tip";
+                holder.mPost.setText(String.format(Locale.getDefault(),"%d  %s  • ", model.getE0a_NOG(), tips));
+                holder.mAccuracy.setText(String.format(Locale.getDefault(),"%.1f%%", (double) model.getE0c_WGP()));
                 holder.btnFollow.setText(UserNetwork.getFollowing()==null||!UserNetwork.getFollowing().contains(ref)? "FOLLOW": "FOLLOWING");
                 if(ref.equals(userId))
                     holder.btnFollow.setVisibility(View.GONE);

@@ -344,7 +344,8 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<FilteredPostAdapte
                             holder.mLikes.setText(model.getLikesCount()==0? "":String.valueOf(model.getLikesCount()));
 
                             holder.mDislikes.setText(model.getDislikesCount()==0? "":String.valueOf(model.getDislikesCount()));
-                            postList.set(position, model);
+                            if(postList.size()>position)
+                                postList.set(position, model);
                         }
                     }
                 });

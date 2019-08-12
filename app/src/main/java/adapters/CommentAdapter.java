@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -88,7 +89,7 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
         final CircleImageView imgDp = holder.imgDp;
         final ImageView imgLikes = holder.imgLikes;
         final ImageView imgDislikes = holder.imgDislike;
-        final ImageView imgShare = holder.imgShare;
+        final ImageView imgReply = holder.imgReply;
         final ImageView imgOverflow = holder.imgOverflow;
         final String postId = getSnapshots().getSnapshot(position).getId();
 
@@ -172,11 +173,13 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
             }
         });
 
-        imgShare.setOnClickListener(new View.OnClickListener() {
+        imgReply.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Reusable reusable = new Reusable();
-                reusable.shareComment(activity, model.getUsername(), model.getContent());
+                EditText edtComment = activity.findViewById(R.id.edtComment);
+                String comment = edtComment.getText().toString();
+                edtComment.setText(String.format("%s@%s ", comment, model.getUsername()));
+                edtComment.setSelection(edtComment.getText().length());
             }
         });
 
@@ -205,6 +208,7 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
                 calculations.onCommentDislike(userId, model.getUserId(), postId, mainPostId, substring);
             }
         });
+
         imgOverflow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -242,7 +246,7 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
         btnShare.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                reusable.shareTips(activity, model.getUsername(), model.getContent());
+                reusable.shareComment(activity, model.getUsername(), model.getContent());
                 dialog.cancel();
             }
         });
@@ -320,7 +324,7 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
         TextView mTime;
         TextView mLikes, mDislikes;
         ImageView imgOverflow;
-        ImageView imgLikes, imgDislike, imgShare;
+        ImageView imgLikes, imgDislike, imgReply;
         public CommentHolder(View itemView) {
             super(itemView);
             lnrContainer = itemView.findViewById(R.id.container_post);
@@ -333,7 +337,7 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
 
             imgLikes = itemView.findViewById(R.id.imgLike);
             imgDislike = itemView.findViewById(R.id.imgDislike);
-            imgShare = itemView.findViewById(R.id.imgShare);
+            imgReply = itemView.findViewById(R.id.imgReply);
             imgOverflow = itemView.findViewById(R.id.imgOverflow);
         }
     }
