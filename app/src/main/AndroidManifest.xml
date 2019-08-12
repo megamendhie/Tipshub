@@ -15,7 +15,8 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ContactActivity"></activity>
+        <activity android:name=".GuideActivity"></activity>
+        <activity android:name=".ContactActivity" />
         <activity
             android:name=".NewsStoryActivity"
             android:theme="@style/AppTheme.NoActionBar" />
@@ -43,8 +44,12 @@
         <activity android:name=".SignupActivity" />
         <activity android:name=".MyProfileActivity" />
         <activity android:name=".MemberProfileActivity" />
-        <activity android:name=".PostActivity" />
-        <activity android:name=".RepostActivity" />
+        <activity
+            android:name=".PostActivity"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".RepostActivity"
+            android:windowSoftInputMode="adjustResize" />
         <activity android:name=".SubscriptionActivity" />
         <activity
             android:name=".FullPostActivity"
