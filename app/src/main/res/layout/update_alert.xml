@@ -1,11 +1,10 @@
-
+<?xml version="1.0" encoding="utf-8" ?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_marginStart="16dp"
     android:layout_marginEnd="16dp"
-    android:background="#fce5c8"
+    android:background="@color/color_bg_login"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
     android:orientation="vertical">
@@ -26,7 +25,7 @@
       android:layout_height="wrap_content"
       android:textStyle="bold"
       android:gravity="center_horizontal"
-      android:textColor="@color/colorAccent"
+      android:textColor="@color/color_oxblood"
       android:textAppearance="@style/TextAppearance.AppCompat.Medium"
       android:text="New available version"/>
 
@@ -40,10 +39,11 @@
         android:id="@+id/btnLater"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:background="@drawable/btn_bg"
         android:layout_alignParentEnd="true"
         android:layout_alignTop="@+id/btnUpdate"
         android:layout_marginEnd="119dp"
-        android:text="LATER" />
+        android:text="@string/txt_later" />
 
     <TextView
         android:id="@+id/txtDescription"
@@ -57,9 +57,10 @@
         android:id="@+id/btnUpdate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:background="@drawable/btn_bg"
         android:layout_below="@id/txtDescription"
         android:layout_marginTop="10dp"
         android:layout_alignParentEnd="true"
-        android:text="UPDATE"/>
+        android:text="@string/txt_update"/>
   </RelativeLayout>
 </LinearLayout>

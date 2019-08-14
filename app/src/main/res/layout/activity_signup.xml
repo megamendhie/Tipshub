@@ -5,7 +5,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F9ECF7">
+    android:background="@color/color_bg_login"
+    tools:context=".SignupActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -14,15 +15,20 @@
         android:background="#F9ECF7"
         android:paddingStart="@dimen/vertical_padding"
         android:paddingEnd="@dimen/vertical_padding"
-        android:orientation="vertical"
-        tools:context=".SignupActivity">
+        android:orientation="vertical">
 
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/tipshub_logo_land"
+            android:layout_marginTop="36dp"/>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:layout_marginTop="52dp" >
+            android:layout_marginTop="@dimen/activity_horizontal_margin"
+            android:gravity="center" >
 
 
             <android.support.design.widget.TextInputLayout

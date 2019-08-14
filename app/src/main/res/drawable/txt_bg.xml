@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-
     <item android:state_pressed="true">
         <shape android:shape="rectangle">
             <gradient android:startColor="#cde2ef"
                 android:endColor="#cde2ef"
                 android:angle="270" />
-            <corners android:radius="12dp"/>
-            <stroke android:width="3.5dp" android:color="@color/colorPrimaryDark" />
+            <corners android:radius="2dp"/>
+            <stroke android:width="2.5dp" android:color="@color/colorAccent" />
         </shape>
     </item>
 
@@ -16,8 +15,8 @@
             <gradient android:startColor="#ffffff"
                 android:endColor="#F1EEEE"
                 android:angle="270" />
-            <corners android:radius="16dp"/>
-            <stroke android:width="3dp" android:color="@color/colorPrimary" />
+            <corners android:radius="6dp"/>
+            <stroke android:width="2dp" android:color="@color/colorAccent" />
         </shape>
     </item>
 

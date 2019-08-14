@@ -91,13 +91,15 @@
                                 android:gravity="center"
                                 android:layout_below="@id/txtFullName"
                                 android:textSize="14sp"/>
+
                             <TextView
                                 android:id="@+id/txtBio"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_below="@id/txtUsername"
                                 android:layout_marginTop="2dp"
-                                android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+                                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                                android:textSize="16sp" />
                         </RelativeLayout>
                         <View
                             android:layout_width="match_parent"

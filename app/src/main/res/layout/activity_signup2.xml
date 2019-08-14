@@ -4,7 +4,7 @@
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:gravity="center_horizontal"
-    android:background="#F9ECF7"
+    android:background="@color/color_bg_login"
     android:paddingStart="@dimen/vertical_padding"
     android:paddingEnd="@dimen/vertical_padding"
     android:orientation="vertical"
@@ -51,7 +51,7 @@
             android:layout_height="wrap_content"
             android:background="@null"
             android:inputType="textNoSuggestions"
-            android:maxLength="40"
+            android:maxLength="15"
             android:ems="10"
             android:hint="Choose username" />
     </android.support.design.widget.TextInputLayout>
@@ -101,6 +101,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:digits="1234567890"
+            android:maxLength="18"
             android:background="@null"
             android:editable="false"
             android:hint="phone"
