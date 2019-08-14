@@ -44,10 +44,10 @@ import utils.SpaceTokenizer;
 
 public class RepostActivity extends AppCompatActivity implements View.OnClickListener {
     ActionBar actionBar;
-    Button btnPost, btnClose;
+    Button btnPost;
     private MultiAutoCompleteTextView edtPost;
     private ProgressBar prgBar;
-    private TextView txtPost, txtChildUsername, txtChildType;
+    private TextView btnClose, txtPost, txtChildUsername, txtChildType;
     private ImageView imgStatus;
     private CircleImageView childDp;
     Post model;

@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -22,6 +21,7 @@ import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -37,6 +37,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.UploadTask;
@@ -60,19 +61,20 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private GoogleSignInClient mGoogleSignInClient;
     private ProgressBar prgLogin;
     private ProgressDialog progressDialog;
-    private String userId, firstName, lastName, email, password, provider;
+    private String userId;
+    private String firstName;
+    private String lastName;
+    private String email;
+    private String provider;
     private Uri filePath = null;
-    private SharedPreferences prefs;
     private SharedPreferences.Editor editor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setTitle("Login");
-        }
+
+        ShimmerFrameLayout shimmerLayout = findViewById(R.id.shimmer);
         btnLogin = findViewById(R.id.btnLogin); btnLogin.setOnClickListener(this);
         Button btnSignup = findViewById(R.id.btnSignup);
         btnSignup.setOnClickListener(this);
@@ -82,7 +84,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         edtPassword = findViewById(R.id.edtPassword);
         prgLogin = findViewById(R.id.prgLogin);
         progressDialog = new ProgressDialog(this);
-        prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         editor = prefs.edit();
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
@@ -90,10 +92,11 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 .build();
         mGoogleSignInClient = GoogleSignIn.getClient(LoginActivity.this, gso);
 
-        if(prefs.getString("PASSWORD", "X%p8kznAA1")!= "X%p8kznAA1"){
+        if(!prefs.getString("PASSWORD", "X%p8kznAA1").equals("X%p8kznAA1")){
             edtEmail.setText(prefs.getString("EMAIL","email@domain.com"));
             edtPassword.setText(prefs.getString("PASSWORD", "X%p8kznAA1"));
         }
+        shimmerLayout.startShimmer();
     }
 
     @Override
@@ -154,7 +157,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     private void signInWithEmail(){
         email = edtEmail.getText().toString().trim();
-        password = edtPassword.getText().toString();
+        String password = edtPassword.getText().toString();
         if(TextUtils.isEmpty(email)){
             edtEmail.setError("Enter email");
             return;
@@ -316,27 +319,40 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     return;
                 }
 
-                //Map new user datails, and ready to save to db
-                Map<String, String> url = new HashMap<>();
-                url.put("a2_username", username);
-                url.put("a4_gender", gender);
-                url.put("b0_country", country);
-                url.put("b1_phone", phone);
+                String finalGender = gender;
+                FirebaseUtil.getFirebaseFirestore().collection("profiles")
+                        .whereEqualTo("a2_username", username).limit(1).get()
+                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                if (task.getResult() == null || !task.getResult().isEmpty()) {
+                                    edtUsername.setError("Username already exist");
+                                    Toast.makeText(LoginActivity.this, "Username already exist", Toast.LENGTH_SHORT).show();
+                                    return;
+                                }
 
-                //set the new username to firebase auth user
-                UserProfileChangeRequest profileUpdate = new UserProfileChangeRequest.Builder()
-                        .setDisplayName(username)
-                        .build();
-                FirebaseUtil.getFirebaseAuthentication().getCurrentUser().updateProfile(profileUpdate);
+                                //Map new user datails, and ready to save to db
+                                Map<String, String> url = new HashMap<>();
+                                url.put("a2_username", username);
+                                url.put("a4_gender", finalGender);
+                                url.put("b0_country", country);
+                                url.put("b1_phone", phone);
 
-                //save username, phone number, and gender to database
-                FirebaseUtil.getFirebaseFirestore().collection("profiles").document(userId).set(url, SetOptions.merge());
-                dialog.cancel();
-                finish();
-                startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                                //set the new username to firebase auth user
+                                UserProfileChangeRequest profileUpdate = new UserProfileChangeRequest.Builder()
+                                        .setDisplayName(username)
+                                        .build();
+                                FirebaseUtil.getFirebaseAuthentication().getCurrentUser().updateProfile(profileUpdate);
+
+                                //save username, phone number, and gender to database
+                                FirebaseUtil.getFirebaseFirestore().collection("profiles").document(userId).set(url, SetOptions.merge());
+                                dialog.cancel();
+                                finish();
+                                startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                            }
+                        });
             }
         });
-        //uploadDp();
     }
 
     @Override

@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
@@ -99,6 +100,11 @@ public class RecommendedFragment extends Fragment {
         loadNews();
         return rootView;
     }
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        trendingList.setAdapter(null);
+    }
 
     @Override
     public void onStart() {
@@ -164,12 +170,12 @@ public class RecommendedFragment extends Fragment {
 
     private void loadPost() {
         Log.i(TAG, "loadPost: ");
+
         FirebaseUtil.getFirebaseFirestore().collection("posts")
                 .orderBy("timeRelevance", Query.Direction.DESCENDING).limit(15).get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        QuerySnapshot result = task.getResult();
+                    public void onSuccess(QuerySnapshot result) {
                         if(result==null|| result.isEmpty())
                             return;
                         snapIds.clear();
@@ -193,7 +199,7 @@ public class RecommendedFragment extends Fragment {
         newsTask.execute();
     }
 
-    class DownloadNews extends AsyncTask<String, Void, String> {
+    private class DownloadNews extends AsyncTask<String, Void, String> {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();

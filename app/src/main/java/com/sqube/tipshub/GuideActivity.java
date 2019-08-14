@@ -19,7 +19,7 @@ public class GuideActivity extends AppCompatActivity implements View.OnClickList
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setTitle("Guidelines/Privacy Policy");
+            actionBar.setTitle("About/Privacy Policy");
         }
 
         txtGuidelines = findViewById(R.id.txtGuidelines);
@@ -41,6 +41,7 @@ public class GuideActivity extends AppCompatActivity implements View.OnClickList
         Intent intent = null;
         switch (v.getId()){
             case R.id.txtGuidelines:
+                intent = new Intent(GuideActivity.this, AboutActivity.class);
                 break;
             case R.id.txtPrivacyPolicy:
                 intent = new Intent(GuideActivity.this, NewsStoryActivity.class);

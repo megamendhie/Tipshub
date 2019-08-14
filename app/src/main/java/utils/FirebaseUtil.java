@@ -9,7 +9,6 @@ public class FirebaseUtil {
     private static FirebaseFirestore mFirebaseFirestore;
     private static FirebaseStorage mFirebaseStorage;
     private static FirebaseAuth mFirebaseAuthentication;
-    private static StorageReference storageReference;
 
     public static FirebaseFirestore getFirebaseFirestore() {
         if(mFirebaseFirestore==null)

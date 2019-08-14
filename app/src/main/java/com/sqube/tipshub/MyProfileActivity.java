@@ -39,6 +39,7 @@ import fragments.PostFragment;
 import fragments.ReviewFragment;
 import models.ProfileMedium;
 import utils.FirebaseUtil;
+import utils.Reusable;
 
 public class MyProfileActivity extends AppCompatActivity implements View.OnClickListener {
     private ActionBar actionBar;
@@ -232,6 +233,7 @@ public class MyProfileActivity extends AppCompatActivity implements View.OnClick
                 txtName.setText(name);
                 txtUsername.setText(String.format(Locale.getDefault(),"@%s",profile.getA2_username()));
                 txtBio.setText(profile.getA5_bio());
+                Reusable.applyLinkfy(MyProfileActivity.this, profile.getA5_bio(), txtBio);
                 txtFollowers.setText(String.valueOf(profile.getC4_followers()));
                 txtFollowing.setText(String.valueOf(profile.getC5_following()));
                 txtSubscribers.setText(String.valueOf(profile.getC6_subscribers()));

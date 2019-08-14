@@ -123,6 +123,7 @@ public class MemberProfileActivity extends AppCompatActivity implements View.OnC
                 txtName.setText(name);
                 txtUsername.setText(String.format(Locale.getDefault(),"@%s",profile.getA2_username()));
                 txtBio.setText(profile.getA5_bio());
+                Reusable.applyLinkfy(MemberProfileActivity.this, profile.getA5_bio(), txtBio);
                 txtFollowers.setText(String.valueOf(profile.getC4_followers()));
                 txtFollowing.setText(String.valueOf(profile.getC5_following()));
                 txtSubscribers.setText(String.valueOf(profile.getC6_subscribers()));

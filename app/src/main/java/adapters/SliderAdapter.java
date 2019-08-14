@@ -30,7 +30,7 @@ public class SliderAdapter extends PagerAdapter {
         this.images = images;
         this.bodyList = bodyList;
     }
-    
+
     @Override
     public int getCount() {
         return images.size();

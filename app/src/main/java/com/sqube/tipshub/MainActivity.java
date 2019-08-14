@@ -259,7 +259,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                 startActivity(new Intent(MainActivity.this, MyProfileActivity.class));
                 break;
             case R.id.nav_contact:
-                startActivity(new Intent(MainActivity.this, SignupActivity.class));
+                startActivity(new Intent(MainActivity.this, ContactActivity.class));
                 break;
             case R.id.nav_settings:
                 startActivity(new Intent(MainActivity.this, SettingsActivity.class));

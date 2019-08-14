@@ -39,6 +39,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.UploadTask;
@@ -102,7 +103,7 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
                 grabImage();
                 break;
             case R.id.btnSignup:
-                registerUser();
+                registerUserWithEmail();
                 break;
             case R.id.gSignIn:
                 edtPassword.setEnabled(false);
@@ -254,7 +255,7 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
         });
     }
 
-    private void registerUser(){
+    private void registerUserWithEmail(){
         firstName = edtFirstName.getText().toString();
         lastName = edtLastName.getText().toString();
         email = edtEmail.getText().toString();
@@ -339,6 +340,7 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
         imgDp = dialog.findViewById(R.id.imgDp); imgDp.setOnClickListener(this);
         final CountryCodePicker ccp = dialog.findViewById(R.id.ccp);
         ccp.registerCarrierNumberEditText(edtPhone);
+
         if(user.getPhotoUrl()==null)
             Glide.with(this).load(R.drawable.dummy).into(imgDp);
         else
@@ -378,29 +380,44 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
                     edtPhone.setError("Invalid phone number");
                     return;
                 }
+
                 if(TextUtils.isEmpty(gender)){
                     Toast.makeText(SignupActivity.this, "Select gender", Toast.LENGTH_LONG).show();
                     return;
                 }
 
-                //Map new user datails, and ready to save to db
-                Map<String, String> url = new HashMap<>();
-                url.put("a2_username", username);
-                url.put("a4_gender", gender);
-                url.put("b0_country", country);
-                url.put("b1_phone", phone);
+                String finalGender = gender;
+                FirebaseUtil.getFirebaseFirestore().collection("profiles")
+                        .whereEqualTo("a2_username", username).limit(1).get()
+                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if(task.getResult() == null || !task.getResult().isEmpty()){
+                            edtUsername.setError("Username already exist");
+                            Toast.makeText(SignupActivity.this, "Username already exist", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
 
-                //set the new username to firebase auth user
-                UserProfileChangeRequest profileUpdate = new UserProfileChangeRequest.Builder()
-                        .setDisplayName(username)
-                        .build();
-                user.updateProfile(profileUpdate);
+                        //Map new user datails, and ready to save to db
+                        Map<String, String> url = new HashMap<>();
+                        url.put("a2_username", username);
+                        url.put("a4_gender", finalGender);
+                        url.put("b0_country", country);
+                        url.put("b1_phone", phone);
 
-                //save username, phone number, and gender to database
-                FirebaseUtil.getFirebaseFirestore().collection("profiles").document(userId).set(url, SetOptions.merge());
-                dialog.cancel();
-                finish();
-                startActivity(new Intent(SignupActivity.this, MainActivity.class));
+                        //set the new username to firebase auth user
+                        UserProfileChangeRequest profileUpdate = new UserProfileChangeRequest.Builder()
+                                .setDisplayName(username)
+                                .build();
+                        user.updateProfile(profileUpdate);
+
+                        //save username, phone number, and gender to database
+                        FirebaseUtil.getFirebaseFirestore().collection("profiles").document(userId).set(url, SetOptions.merge());
+                        dialog.cancel();
+                        finish();
+                        startActivity(new Intent(SignupActivity.this, MainActivity.class));
+                    }
+                });
             }
         });
     }

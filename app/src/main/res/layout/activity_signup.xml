@@ -12,7 +12,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center_horizontal"
-        android:background="#F9ECF7"
         android:paddingStart="@dimen/vertical_padding"
         android:paddingEnd="@dimen/vertical_padding"
         android:orientation="vertical">

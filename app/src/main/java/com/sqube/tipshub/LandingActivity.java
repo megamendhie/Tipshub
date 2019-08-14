@@ -45,9 +45,9 @@ public class LandingActivity extends AppCompatActivity {
         bodyList.add("Don't go searching.\nAll the sports news is here");
 
         //Adds the images to each slide
-        images.add(getResources().getDrawable(R.drawable.slide_a));
-        images.add(getResources().getDrawable(R.drawable.slide_b));
-        images.add(getResources().getDrawable(R.drawable.slide_c));
+        images.add(getResources().getDrawable(R.drawable.sld_c));
+        images.add(getResources().getDrawable(R.drawable.sld_b));
+        images.add(getResources().getDrawable(R.drawable.sld_d));
 
         //set adapter to viewpager
         viewPager.setAdapter(new SliderAdapter(getApplicationContext(), images, bodyList));

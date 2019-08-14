@@ -15,7 +15,8 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".GuideActivity"></activity>
+        <activity android:name=".AboutActivity"></activity>
+        <activity android:name=".GuideActivity" />
         <activity android:name=".ContactActivity" />
         <activity
             android:name=".NewsStoryActivity"
@@ -40,7 +41,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".LoginActivity" />
+        <activity
+            android:name=".LoginActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".SignupActivity" />
         <activity android:name=".MyProfileActivity" />
         <activity android:name=".MemberProfileActivity" />
