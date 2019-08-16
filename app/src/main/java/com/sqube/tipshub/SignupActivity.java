@@ -15,6 +15,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -124,8 +125,24 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.signup_menu, menu);
+        return true;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        finish();
+        switch (item.getItemId()){
+            case R.id.nav_contact:
+                startActivity(new Intent(SignupActivity.this, ContactActivity.class));
+                break;
+            case R.id.nav_guide:
+                startActivity(new Intent(SignupActivity.this, GuideActivity.class));
+                break;
+            default:
+                finish();
+                break;
+        }
         return true;
     }
 

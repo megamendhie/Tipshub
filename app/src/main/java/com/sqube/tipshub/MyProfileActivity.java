@@ -304,4 +304,10 @@ public class MyProfileActivity extends AppCompatActivity implements View.OnClick
         finish();
         return true;
     }
+
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+    }
 }

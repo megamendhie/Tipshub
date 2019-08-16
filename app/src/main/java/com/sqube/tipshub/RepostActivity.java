@@ -61,6 +61,7 @@ public class RepostActivity extends AppCompatActivity implements View.OnClickLis
     private String childLink;
 
     boolean postExist=false;
+    private  String MODEL = "model";
     private String[] type = {"3-5 odds", "6-10 odds", "11-50 odds", "50+ odds", "Draws", "Banker tip"};
     private SharedPreferences prefs;
     private Calculations calculations;
@@ -124,11 +125,14 @@ public class RepostActivity extends AppCompatActivity implements View.OnClickLis
                 .setDefaultRequestOptions(requestOptions)
                 .load(FirebaseStorage.getInstance().getReference().child("profile_images").child(userId))
                 .into(imgDp);
-        loadPost();
+        loadPost(savedInstanceState);
     }
 
-    private void loadPost() {
-        model = (Post) getIntent().getParcelableExtra("model");
+    private void loadPost(Bundle savedState) {
+        if(savedState!=null)
+            model = (Post) savedState.getParcelable(MODEL);
+        else
+            model = (Post) getIntent().getParcelableExtra("model");
         if(model==null){
             return;
         }
@@ -270,5 +274,11 @@ public class RepostActivity extends AppCompatActivity implements View.OnClickLis
         String substring = content.substring(0, Math.min(content.length(), 90));
         calculations.setCount(model.getRepostCount());
         calculations.sendPushNotification(true, userId, model.getUserId(), childLink, "reposted", "post", substring);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putParcelable(MODEL, model);
+        super.onSaveInstanceState(outState);
     }
 }

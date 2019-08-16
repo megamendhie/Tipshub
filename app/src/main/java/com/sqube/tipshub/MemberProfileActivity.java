@@ -49,6 +49,7 @@ public class MemberProfileActivity extends AppCompatActivity implements View.OnC
     private ViewPager viewPager;
     private TabLayout tabLayout;
     private String userId;
+    private String USER_ID = "userId";
     private RequestOptions requestOptions = new RequestOptions();
     private FirebaseFirestore database;
     private CircleImageView imgDp;
@@ -100,7 +101,10 @@ public class MemberProfileActivity extends AppCompatActivity implements View.OnC
         LinearLayoutManager lm = new LinearLayoutManager(getApplicationContext());
         adapter = new PerformanceAdapter(this, performanceList);
         recyclerView.setLayoutManager(lm);
-        userId = getIntent().getStringExtra("userId");
+        if(savedInstanceState!=null)
+            userId = savedInstanceState.getString(USER_ID);
+        else
+            userId = getIntent().getStringExtra(USER_ID);
         if(UserNetwork.getFollowing()==null)
             btnFollow.setVisibility(View.GONE);
         else
@@ -212,7 +216,7 @@ public class MemberProfileActivity extends AppCompatActivity implements View.OnC
 
     private void setupViewPager(ViewPager viewPager) {
         Bundle bundle = new Bundle();
-        bundle.putString("userId", userId);
+        bundle.putString(USER_ID, userId);
         postFragment = new PostFragment();
         bankerFragment = new BankersFragment();
         reviewFragment = new ReviewFragment();
@@ -292,7 +296,7 @@ public class MemberProfileActivity extends AppCompatActivity implements View.OnC
                 break;
             case R.id.btnSubscribe:
                 Intent intentSub = new Intent(getApplicationContext(), SubscriptionActivity.class);
-                intentSub.putExtra("userId", userId);
+                intentSub.putExtra(USER_ID, userId);
                 startActivity(intentSub);
                 break;
         }
@@ -331,6 +335,12 @@ public class MemberProfileActivity extends AppCompatActivity implements View.OnC
     public boolean onOptionsItemSelected(MenuItem item) {
         finish();
         return true;
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putString(USER_ID, userId);
+        super.onSaveInstanceState(outState);
     }
 }
 

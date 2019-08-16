@@ -61,6 +61,7 @@ public class PostActivity extends AppCompatActivity implements View.OnClickListe
     private int type =1;
     private String code;
     private int codeIndex = 0;
+    private String CODE = "code", CODE_INDEX = "code_index";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +77,11 @@ public class PostActivity extends AppCompatActivity implements View.OnClickListe
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setTitle("Post");
             actionBar.setHomeAsUpIndicator(R.drawable.ic_close_black_24dp);
+        }
+
+        if(savedInstanceState!=null){
+            code = savedInstanceState.getString(CODE);
+            codeIndex = savedInstanceState.getInt(CODE_INDEX,0);
         }
         prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         user = FirebaseUtil.getFirebaseAuthentication().getCurrentUser();
@@ -279,5 +285,12 @@ public class PostActivity extends AppCompatActivity implements View.OnClickListe
                 }
             }
         });
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putString(CODE, code);
+        outState.putInt(CODE_INDEX, codeIndex);
+        super.onSaveInstanceState(outState);
     }
 }

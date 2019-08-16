@@ -70,25 +70,30 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
     private DocumentReference postReference;
     private LinearLayout lnrCode, lnrFullPost, lnrChildPost;
     private TextView mpost, mUsername, mTime;
+    private TextView mLikes, mDislikes, mComment, mCode, mType;
+    private CircleImageView imgDp, imgChildDp;
+    private ImageView imgOverflow;
+    private ImageView imgLike;
+    private ImageView imgDislike;
+    private ImageView imgStatus;
+    private ImageView imgCode;
+    private MultiAutoCompleteTextView edtComment;
+    private FloatingActionButton fabPost;
+    private ProgressBar prgPost;
+    private RecyclerView commentsList;
+    private Post model;
+
     private RequestOptions requestOptions = new RequestOptions();
     private Intent intent = null;
-    Calculations calculations;
-    private String comment;
-    boolean childDisplayed;
-    private SharedPreferences prefs;
-    final String TAG = "FullPostActivity";
-    TextView mLikes, mDislikes, mComment, mCode, mType;
-    CircleImageView imgDp, imgMyDp, imgChildDp;
-    ImageView imgOverflow, imgLike, imgDislike, imgComment, imgRepost, imgStatus, imgCode;
-    MultiAutoCompleteTextView edtComment;
-    FloatingActionButton fabPost;
-    ProgressBar prgPost;
-    RecyclerView commentsList;
-    CommentAdapter commentAdapter;
-    ActionBar actionBar;
-    Post model;
 
-    String userId, username, postId, childLink;
+    private String POST_ID = "postId";
+    private String comment;
+    private final String TAG = "FullPostActivity";
+    private String userId, username, postId, childLink;
+    private boolean childDisplayed;
+    private SharedPreferences prefs;
+    Calculations calculations;
+
     private String[] code = {"1xBet", "Bet9ja", "Nairabet", "SportyBet", "BlackBet", "Bet365"};
     private String[] type = {"3-5 odds", "6-10 odds", "11-50 odds", "50+ odds", "Draws", "Banker tip"};
     private StorageReference storageReference;
@@ -97,7 +102,7 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_full_post);
-        actionBar =getSupportActionBar();
+        ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setTitle("Post");
         prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -114,11 +119,11 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
 
         imgOverflow = findViewById(R.id.imgOverflow); imgOverflow.setOnClickListener(this);
         imgDp = findViewById(R.id.imgDp); imgDp.setOnClickListener(this);
-        imgMyDp = findViewById(R.id.imgMyDp);
+        CircleImageView imgMyDp = findViewById(R.id.imgMyDp);
         imgLike = findViewById(R.id.imgLike); imgLike.setOnClickListener(this);
         imgDislike = findViewById(R.id.imgDislike); imgDislike.setOnClickListener(this);
-        imgRepost = findViewById(R.id.imgRepost); imgRepost.setOnClickListener(this);
-        imgComment = findViewById(R.id.imgComment);
+        ImageView imgRepost = findViewById(R.id.imgRepost);
+        imgRepost.setOnClickListener(this);
         imgStatus = findViewById(R.id.imgStatus);
         imgCode = findViewById(R.id.imgCode);
         prgPost = findViewById(R.id.prgPost); prgPost.setVisibility(View.VISIBLE);
@@ -137,7 +142,10 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
 
         commentsList = findViewById(R.id.listComments);
         commentsList.setLayoutManager(new LinearLayoutManager(this));
-        postId = getIntent().getStringExtra("postId");
+        if(savedInstanceState!=null)
+            postId = savedInstanceState.getString(POST_ID);
+        else
+            postId = getIntent().getStringExtra(POST_ID);
         postReference = FirebaseUtil.getFirebaseFirestore().collection("posts").document(postId);
 
         String[] clubs = getResources().getStringArray(R.array.club_arrays);
@@ -287,7 +295,6 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
         });
     }
 
-
     //Displays overflow containing options like follow, subscribe, disagree, etc.
     private void displayOverflow() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -401,9 +408,9 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
         //loads comment into commentList
         commentReference = FirebaseUtil.getFirebaseFirestore().collection("comments");
         Query query = commentReference.whereEqualTo("commentOn", postId).orderBy("time", Query.Direction.DESCENDING);
-        commentAdapter = new CommentAdapter(postId, query, userId, FullPostActivity.this, getApplicationContext());
+        CommentAdapter commentAdapter = new CommentAdapter(postId, query, userId, FullPostActivity.this, getApplicationContext());
         commentsList.setAdapter(commentAdapter);
-        if(commentAdapter!=null){
+        if(commentAdapter !=null){
             commentAdapter.startListening();
         }
     }
@@ -593,5 +600,11 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
     @Override
     public void afterTextChanged(Editable s) {
 
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putString(POST_ID, postId);
+        super.onSaveInstanceState(outState);
     }
 }

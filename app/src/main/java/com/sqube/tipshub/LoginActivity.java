@@ -359,7 +359,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     public void onBackPressed() {
         super.onBackPressed();
         finish();
-        startActivity(new Intent(LoginActivity.this, LandingActivity.class));
     }
 
     public void grabImage(){
@@ -401,6 +400,11 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     }
                 })
         ;
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
     }
 
 }

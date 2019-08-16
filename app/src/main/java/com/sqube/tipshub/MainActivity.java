@@ -419,6 +419,11 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         txtDescription.setText(description);
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+    }
+
     public void rateApp(){
         Uri uri = Uri.parse("market://details?id=" + getApplicationContext().getPackageName());
         Intent goToMarket = new Intent(Intent.ACTION_VIEW, uri);
