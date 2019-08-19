@@ -80,7 +80,7 @@ public class UserDataFetcher extends IntentService {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
                 Log.i(TAG, "onEvent: followers");
-                if(documentSnapshot==null)
+                if(documentSnapshot==null || !documentSnapshot.exists())
                     return;
                 if(documentSnapshot.exists() && documentSnapshot.contains("list")){
                     UserNetwork.setFollowers((ArrayList<String>) documentSnapshot.get("list"));
@@ -92,7 +92,7 @@ public class UserDataFetcher extends IntentService {
         database.collection("followings").document(userID).addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-                if(documentSnapshot==null)
+                if(documentSnapshot==null || !documentSnapshot.exists())
                     return;
                 if(documentSnapshot.exists() && documentSnapshot.contains("list")){
                     UserNetwork.setFollowing((ArrayList<String>) documentSnapshot.get("list"));
@@ -105,7 +105,7 @@ public class UserDataFetcher extends IntentService {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
                 Log.i(TAG, "onEvent: subscribed_to ");
-                if(documentSnapshot==null)
+                if(documentSnapshot==null || !documentSnapshot.exists())
                     return;
                 if(documentSnapshot.exists() && documentSnapshot.contains("list")){
                     UserNetwork.setSubscribed((ArrayList<String>) documentSnapshot.get("list"));

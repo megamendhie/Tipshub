@@ -51,6 +51,7 @@
             android:layout_height="wrap_content"
             android:background="@null"
             android:inputType="textNoSuggestions"
+            android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890_"
             android:maxLength="15"
             android:ems="10"
             android:hint="Choose username" />

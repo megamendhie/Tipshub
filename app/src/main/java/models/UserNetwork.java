@@ -3,9 +3,9 @@ package models;
 import java.util.ArrayList;
 
 public final class UserNetwork {
-    private static ArrayList<String> followers = new ArrayList<String>();
-    private static ArrayList<String> following;
-    private static ArrayList<String> subscribed;
+    private static ArrayList<String> followers = new ArrayList<>();
+    private static ArrayList<String> following = new ArrayList<>();
+    private static ArrayList<String> subscribed = new ArrayList<>();
 
     public static ArrayList<String> getFollowers() {
         return followers;

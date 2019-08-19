@@ -22,13 +22,6 @@ import java.util.HashMap;
 public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ListNewsViewHolder>{
     private Activity activity;
     private ArrayList<HashMap<String, String>> data;
-    HashMap<String, String> news = new HashMap<String, String>();
-    private final String KEY_AUTHOR = "author";
-    private final String KEY_TITLE = "title";
-    private final String KEY_DESCRIPTION = "description";
-    private final String KEY_URL = "url";
-    private final String KEY_URLTOIMAGE = "urlToImage";
-    private final String KEY_PUBLISHEDAT = "publishedAt";
 
     public NewsAdapter(Activity a, ArrayList<HashMap<String, String>> d) {
         activity = a;
@@ -47,27 +40,24 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ListNewsViewHo
 
     @Override
     public void onBindViewHolder(@NonNull ListNewsViewHolder holder, int position) {
-        news = data.get(position);
+        HashMap<String, String> news = data.get(position);
         try{
-            holder.author.setText(news.get(KEY_AUTHOR));
-            holder.title.setText(news.get(KEY_TITLE));
-            holder.time.setText(news.get(KEY_PUBLISHEDAT));
+            holder.author.setText(news.get("author"));
+            holder.title.setText(news.get("title"));
+            holder.time.setText(news.get("publishedAt"));
 
-            if(news.get(KEY_URLTOIMAGE).toString().length() < 5)
-            {
-                //holder.galleryImage.setVisibility(View.GONE);
-            }else{
+            if(news.get("urlToImage").length() > 5)
                 Glide.with(activity)
-                        .load(news.get(KEY_URLTOIMAGE))
+                        .load(news.get("urlToImage"))
                         .into(holder.galleryImage);
-            }
+
             holder.crdContainer.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Log.i("Testing", "onClick: " + news.get(KEY_TITLE )+ " " + news.get(KEY_URLTOIMAGE));
                     Intent i = new Intent(activity.getApplicationContext(), NewsStoryActivity.class);
-                    i.putExtra("url", news.get(KEY_URL));
+                    i.putExtra("url", news.get("url"));
                     activity.startActivity(i);
+                    activity.overridePendingTransition(R.anim.slide_right_in, R.anim.slide_left_out);
                 }
             });
         }catch(Exception e) {}
@@ -83,7 +73,7 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ListNewsViewHo
         CardView crdContainer;
         ImageView galleryImage;
         TextView author, title, time;
-        public ListNewsViewHolder(View itemView) {
+        ListNewsViewHolder(View itemView) {
             super(itemView);
             crdContainer = itemView.findViewById(R.id.crdContainer);
             galleryImage = itemView.findViewById(R.id.galleryImage);

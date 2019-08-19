@@ -178,6 +178,14 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
                 context.startActivity(intent);
             }
         });
+        holder.mpost.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, FullPostActivity.class);
+                intent.putExtra("postId", postId);
+                context.startActivity(intent);
+            }
+        });
         holder.imgComment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

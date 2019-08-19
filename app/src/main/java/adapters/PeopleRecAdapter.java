@@ -64,7 +64,7 @@ public class PeopleRecAdapter extends RecyclerView.Adapter<PeopleRecAdapter.Post
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if(task.getResult()==null || !task.getResult().exists()){
+                if(!task.isSuccessful() || !task.getResult().exists()){
                     list.remove(i);
                     PeopleRecAdapter.this.notifyDataSetChanged();
                     return;

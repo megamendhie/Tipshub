@@ -125,11 +125,14 @@ public class RecommendedFragment extends Fragment {
         CollectionReference recReference = FirebaseUtil.getFirebaseFirestore().collection("recommended").document(userId)
         .collection("rec");
 
-        recReference.orderBy("count", Query.Direction.DESCENDING).limit(10).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        recReference.orderBy("count", Query.Direction.DESCENDING).limit(10).get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.getResult() == null || task.getResult().isEmpty())
+                if (task.getResult() == null || task.getResult().isEmpty()){
                     loadPeopleFromProfile();
+                    return;
+                }
                 if (task.getResult().getDocuments().size() > 6) {
                     ArrayList<String> list = new ArrayList<>();
                     for (DocumentSnapshot snapshot : task.getResult().getDocuments()) {

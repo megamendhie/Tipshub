@@ -371,7 +371,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                     // After config data is successfully fetched, it must be activated before newly fetched
                     // values are returned.
                     mFirebaseRemoteConfig.activateFetched();
-                    Boolean visible = true;
+                    boolean visible = true;
                     String title = mFirebaseRemoteConfig.getString(FB_RC_KEY_TITLE);
                     String description = mFirebaseRemoteConfig.getString(FB_RC_KEY_DESCRIPTION);
                     int forceUpdateVersion = Integer.parseInt(mFirebaseRemoteConfig.getString(FB_RC_KEY_FORCE_UPDATE_VERSION));
@@ -399,7 +399,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         alertDialog.show();
 
         Button btnUpdate = alertDialog.findViewById(R.id.btnUpdate);
-        Button btnLater = alertDialog.findViewById(R.id.btnLater);
+        TextView btnLater = alertDialog.findViewById(R.id.btnLater);
         btnLater.setVisibility(visible? View.VISIBLE : View.GONE);
         btnUpdate.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -416,7 +416,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         TextView txtTitle = alertDialog.findViewById(R.id.txtTitle);
         TextView txtDescription = alertDialog.findViewById(R.id.txtDescription);
         txtTitle.setText(title);
-        txtDescription.setText(description);
+        txtDescription.setText(Html.fromHtml(description));
     }
 
     @Override

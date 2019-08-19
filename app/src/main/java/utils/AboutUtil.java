@@ -51,7 +51,7 @@ public class AboutUtil {
                 "    },\n" +
                 "    {\n" +
                 "      \"heading\": \"How to receive your cash from subscribers\",\n" +
-                "      \"body\": \"<p>Once someone subscribes to you, the money will be transferred to the account details on your profile within 48 hours.</p>\"\n" +
+                "      \"body\": \"<p>Once someone subscribes to you, the money will be transferred to the account details on your profile within 48 hours. Tipshub charges 25% of every subscription for operations</p>\"\n" +
                 "    }\n" +
                 "  ]\n" +
                 "}";

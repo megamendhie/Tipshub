@@ -439,4 +439,9 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
         });
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+    }
+
 }

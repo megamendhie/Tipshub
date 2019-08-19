@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -47,7 +48,7 @@ import models.UserNetwork;
 import utils.FirebaseUtil;
 
 public class HomeFragment extends Fragment{
-    private String TAG = "HomeFrag";
+    private String TAG = "HomeFrag", HOME_FEED_STATE = "homeFeedState";
     private ShimmerFrameLayout shimmerLayout;
     private Gson gson = new Gson();
     private SharedPreferences prefs;
@@ -61,6 +62,7 @@ public class HomeFragment extends Fragment{
     FloatingActionMenu fabMenu;
     public RecyclerView homeFeed;
     Intent intent;
+    LinearLayoutManager managerHome;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -114,16 +116,23 @@ public class HomeFragment extends Fragment{
 
         //confirm if user is seeing everybody's post
         fromEverybody = prefs.getBoolean("fromEverybody", true);
+
+        fAdapter = new FilteredPostAdapter(true, userId, getActivity(), getContext(), postList, snapIds);
+        homeFeed.setAdapter(fAdapter);
         if(fromEverybody)
             loadPost();
         else{
-            LinearLayoutManager layoutManager = (LinearLayoutManager) homeFeed.getLayoutManager();
-            layoutManager.smoothScrollToPosition(homeFeed, null, 0);
-            fAdapter = new FilteredPostAdapter(true, userId, getActivity(), getContext(), postList, snapIds);
-            homeFeed.setAdapter(fAdapter);
             loadMerged();
         }
 
+        if(savedInstanceState!=null){
+            Parcelable homeFeedState = savedInstanceState.getParcelable(HOME_FEED_STATE);
+            homeFeed.getLayoutManager().onRestoreInstanceState(homeFeedState);
+        }
+        else {
+            LinearLayoutManager layoutManager = (LinearLayoutManager) homeFeed.getLayoutManager();
+            layoutManager.smoothScrollToPosition(homeFeed, null, 0);
+        }
         Log.i(TAG, "onCreateView: ");
         return rootView;
     }
@@ -246,4 +255,11 @@ public class HomeFragment extends Fragment{
 
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+
+        Parcelable homeFeedState = homeFeed.getLayoutManager().onSaveInstanceState();
+        outState.putParcelable(HOME_FEED_STATE, homeFeedState);
+        super.onSaveInstanceState(outState);
+    }
 }
