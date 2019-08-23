@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,6 +44,7 @@ public class PeopleRecAdapter extends RecyclerView.Adapter<PeopleRecAdapter.Post
     public PeopleRecAdapter(){}
 
     public PeopleRecAdapter(Activity activity, Context context, String userId,  ArrayList<String> list){
+        Log.i(TAG, "PeopleRecAdapter: called");
         this.activity =activity;
         this.context = context;
         this.userId = userId;
@@ -65,10 +67,12 @@ public class PeopleRecAdapter extends RecyclerView.Adapter<PeopleRecAdapter.Post
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if(!task.isSuccessful() || !task.getResult().exists()){
+                    Log.i(TAG, "onComplete: task result" + task.getResult());
                     list.remove(i);
                     PeopleRecAdapter.this.notifyDataSetChanged();
                     return;
                 }
+                Log.i(TAG, "onComplete: ");
                 ProfileShort model = task.getResult().toObject(ProfileShort.class);
                 if(model.getA5_bio()!=null&& !model.getA5_bio().isEmpty())
                     Reusable.applyLinkfy(context,model.getA5_bio(), holder.mBio);

@@ -11,7 +11,6 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.MultiAutoCompleteTextView;
@@ -40,7 +39,6 @@ import models.Post;
 import services.GlideApp;
 import utils.Calculations;
 import utils.FirebaseUtil;
-import utils.SpaceTokenizer;
 
 public class RepostActivity extends AppCompatActivity implements View.OnClickListener {
     ActionBar actionBar;
@@ -114,11 +112,6 @@ public class RepostActivity extends AppCompatActivity implements View.OnClickLis
 
             }
         });
-        String[] clubs = getResources().getStringArray(R.array.club_arrays);
-        ArrayAdapter<String> club_adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, clubs);
-        edtPost.setAdapter(club_adapter);
-        edtPost.setTokenizer(new SpaceTokenizer());
-        edtPost.setThreshold(3);
 
         //set Display picture
         GlideApp.with(getApplicationContext())

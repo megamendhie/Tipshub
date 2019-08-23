@@ -36,6 +36,7 @@ import com.google.gson.Gson;
 import com.sqube.tipshub.PostActivity;
 import com.sqube.tipshub.R;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -64,7 +65,7 @@ public class BankerFragment extends Fragment {
     BankerAdapter latestAdapter, winAdapter;
     FloatingActionButton fabPost;
     RecyclerView subscribedList, latestList, winningsList;
-    private final String TAG = "RecFragment";
+    private final String TAG = "BankerFragment";
     Intent intent;
 
     public BankerFragment() {
@@ -108,14 +109,21 @@ public class BankerFragment extends Fragment {
                     return;
                 }
                 SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH);
-                String currentDate = sdf.format(new Date().getTime());
-                String lastBankerDate = sdf.format(myProfile.getD3_bankerPostTime());
-                if(currentDate.equals(lastBankerDate)){
-                    popUp2();
-                    return;
+                String currentTime = sdf.format(new Date().getTime());
+                String lastBankerTime = sdf.format(new Date(myProfile.getD3_bankerPostTime()));
+
+                try {
+                    Date currentDate = sdf.parse(currentTime);
+                    Date lastPostDate = sdf.parse(lastBankerTime);
+                    if(currentDate.equals(lastPostDate)){
+                        popUp2();
+                        return;
+                    }
+                    intent.putExtra("type", "banker");
+                    startActivity(intent);
+                } catch (ParseException e) {
+                    e.printStackTrace();
                 }
-                intent.putExtra("type", "banker");
-                startActivity(intent);
             }
         });
 
@@ -221,7 +229,7 @@ public class BankerFragment extends Fragment {
     }
 
     private void popUp2(){
-        String message = "<p><span style=\"color: #F80051;\"><strong>Already predicted today</strong></span></p>\n" +
+        String message = "<p><span style=\"color: #F80051;\"><strong>You already predicted today</strong></span></p>\n" +
                 "<p>Sorry you cannot post any banker tip again for today. Give your subscribers your very surest tip for each day.</p>";
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.Theme_AppCompat_Light_Dialog_Alert);
         builder.setMessage(Html.fromHtml(message))

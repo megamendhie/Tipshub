@@ -56,6 +56,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             setupChannels(notificationManager);
         }
 
+        Log.i(TAG, "onMessageReceived: "+ remoteMessage.getData());
         String received_intent = remoteMessage.getData().get("type");
         if(received_intent==null){
             received_intent="main";

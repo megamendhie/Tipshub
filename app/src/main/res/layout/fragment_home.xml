@@ -63,7 +63,7 @@
                 app:fab_colorPressed="@color/colorPrimary"
                 app:fab_colorRipple="@color/colorAccentLight"
                 app:fab_hideAnimation="@anim/fab_scale_down"
-                app:fab_label="Tips"
+                app:fab_label="Post games"
                 app:fab_shadowColor="#66000000"
                 app:fab_shadowRadius="4dp"
                 app:fab_shadowXOffset="1dp"

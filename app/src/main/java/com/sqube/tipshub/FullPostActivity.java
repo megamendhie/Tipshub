@@ -33,6 +33,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.signature.ObjectKey;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -156,6 +157,7 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
         GlideApp.with(getApplicationContext())
                 .setDefaultRequestOptions(requestOptions)
                 .load(storageReference.child(userId))
+                .signature(new ObjectKey(userId+"_"+Reusable.getSignature()))
                 .into(imgMyDp);
 
         listener();
@@ -219,6 +221,7 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
                     GlideApp.with(getApplicationContext())
                             .setDefaultRequestOptions(requestOptions)
                             .load(storageReference.child(model.getUserId()))
+                            .signature(new ObjectKey(model.getUserId()+"_"+Reusable.getSignature()))
                             .into(imgDp);
                     if(model.isHasChild()){
                         childLink = model.getChildLink();
@@ -288,6 +291,7 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
                 GlideApp.with(getApplicationContext())
                         .setDefaultRequestOptions(requestOptions)
                         .load(storageReference.child(childModel.getUserId()))
+                        .signature(new ObjectKey(childModel.getUserId()+"_"+Reusable.getSignature()))
                         .into(imgChildDp);
                 lnrChildPost.setVisibility(View.VISIBLE); //display child layout if child post exists
                 lnrChildPost.setOnClickListener(FullPostActivity.this);
@@ -318,7 +322,9 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
         long timeDifference = new Date().getTime() - model.getTime();
         if(model.getUserId().equals(userId)&& model.getType()>0 && timeDifference > 9000000)
             btnDelete.setEnabled(false);
-        if(model.getUserId().equals(userId)&& timeDifference > 144000000)
+        if(model.getUserId().equals(userId) && model.getType()==0)
+            btnSubmit.setVisibility(View.GONE);
+        else if(model.getUserId().equals(userId)&& timeDifference > 144000000)
             btnSubmit.setVisibility(View.GONE);
         else {
             if (model.getUserId().equals(userId) && model.getStatus() == 2 && timeDifference <= 9000000)
@@ -543,6 +549,7 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
         comment = edtComment.getText().toString();
         if(TextUtils.isEmpty(comment)){
             edtComment.setError("Type your comment");
+            fabPost.setEnabled(true);
             return;
         }
 
@@ -554,7 +561,8 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
 
                 //check if post still exists
                 if(!snapshot.exists()){
-                    Log.i(TAG, "apply: like doesn't exist");
+                    Toast.makeText(FullPostActivity.this, "Seems the post has been deleted", Toast.LENGTH_SHORT).show();
+                    fabPost.setEnabled(true);
                     return null;
                 }
 
@@ -579,7 +587,6 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         fabPost.setEnabled(true);
-                        Log.w(TAG, "Transaction failure.", e);
                         Toast.makeText(FullPostActivity.this, "Connection failed", Toast.LENGTH_SHORT).show();
                     }
                 });

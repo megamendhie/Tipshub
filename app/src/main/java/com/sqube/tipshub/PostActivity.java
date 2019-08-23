@@ -109,7 +109,7 @@ public class PostActivity extends AppCompatActivity implements View.OnClickListe
         else if(getIntent().getStringExtra("type").equals("banker")){
             spnType.setVisibility(View.GONE);
             btnAdd.setVisibility(View.VISIBLE);
-            txtNormal.setText("Banker");
+            txtNormal.setText(" Banker");
             txtNormal.setVisibility(View.VISIBLE);
             type = 6;
         }
@@ -154,11 +154,13 @@ public class PostActivity extends AppCompatActivity implements View.OnClickListe
 
             }
         });
-        String[] clubs = getResources().getStringArray(R.array.club_arrays);
-        ArrayAdapter<String> club_adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, clubs);
-        edtPost.setAdapter(club_adapter);
-        edtPost.setTokenizer(new SpaceTokenizer());
-        edtPost.setThreshold(3);
+        if(type>0) {
+            String[] clubs = getResources().getStringArray(R.array.club_arrays);
+            ArrayAdapter<String> club_adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, clubs);
+            edtPost.setAdapter(club_adapter);
+            edtPost.setTokenizer(new SpaceTokenizer());
+            edtPost.setThreshold(4);
+        }
     }
 
     @Override

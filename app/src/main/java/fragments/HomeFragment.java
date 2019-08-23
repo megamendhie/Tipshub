@@ -34,10 +34,13 @@ import com.google.gson.Gson;
 import com.sqube.tipshub.PostActivity;
 import com.sqube.tipshub.R;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import adapters.FilteredPostAdapter;
 import adapters.PostAdapter;
@@ -62,7 +65,6 @@ public class HomeFragment extends Fragment{
     FloatingActionMenu fabMenu;
     public RecyclerView homeFeed;
     Intent intent;
-    LinearLayoutManager managerHome;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -147,7 +149,7 @@ public class HomeFragment extends Fragment{
     private void popUp(){
         String message = "<p><span style=\"color: #F80051; font-size: 16px;\"><strong>Tips limit reached</strong></span></p>\n" +
                 "<p>Take it easy, "+username+". You have reached your tips limit for today.</p>\n" +
-                "<p>To prevent spam, each person can post tips only 5 times in a day.\n"+
+                "<p>To prevent spam, each person can post tips only 4 times in a day.\n"+
                 "But there is no limit to normal post. Enjoy!</p>";
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.Theme_AppCompat_Light_Dialog_Alert);
         builder.setMessage(Html.fromHtml(message))
@@ -167,11 +169,19 @@ public class HomeFragment extends Fragment{
         if(myProfile ==null)
             return true;
 
-        Date currentDate = new Date();
-        Date lastPostDate = new Date(myProfile.getC8_lsPostTime());
-        if(currentDate.after(lastPostDate))
-            return false;
-        return myProfile.getC9_todayPostCount() >= 5;
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+        String currentTime = sdf.format(new Date().getTime());
+        String lastPostTime = sdf.format(new Date(myProfile.getC8_lsPostTime()));
+
+        try {
+            Date currentDate = sdf.parse(currentTime);
+            Date lastPostDate = sdf.parse(lastPostTime);
+            if(currentDate.after(lastPostDate))
+                return false;
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return myProfile.getC9_todayPostCount() >= 4;
     }
 
     private void loadPost() {

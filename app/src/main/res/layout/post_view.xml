@@ -81,7 +81,7 @@
         android:layout_height="wrap_content"
         android:textSize="16sp"
         android:layout_marginTop="10dp"
-        android:maxLines="6"
+        android:maxLines="8"
         android:ellipsize="end"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
 

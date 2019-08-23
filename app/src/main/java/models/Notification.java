@@ -12,6 +12,7 @@ public class Notification {
     private String imageUrl;
     private String sendTo;
     private String sentFrom;
+    private boolean seen = false;
     private long time;
 
     public Notification(){}
@@ -103,5 +104,13 @@ public class Notification {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public boolean isSeen() {
+        return seen;
+    }
+
+    public void setSeen(boolean seen) {
+        this.seen = seen;
     }
 }
