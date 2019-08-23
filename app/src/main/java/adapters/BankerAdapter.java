@@ -21,6 +21,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.signature.ObjectKey;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.firestore.Query;
@@ -135,6 +136,7 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
         GlideApp.with(context)
                 .setDefaultRequestOptions(requestOptions)
                 .load(storageReference.child(model.getUserId()))
+                .signature(new ObjectKey(model.getUserId()+"_"+Reusable.getSignature()))
                 .into(imgDp);
 
         //listen to dp click and open user profile
@@ -190,6 +192,22 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
                 Intent intent = new Intent(context, RepostActivity.class);
                 intent.putExtra("postId", postId);
                 intent.putExtra("model", model);
+                context.startActivity(intent);
+            }
+        });
+
+        mpost.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //display full post with comments if visibility or public is set true
+                if(!finalMakePublic && !finalMakeVisible) {
+                    Intent intent = new Intent(context, SubscriptionActivity.class);
+                    intent.putExtra("userId", model.getUserId());
+                    context.startActivity(intent);
+                    return;
+                }
+                Intent intent = new Intent(context, FullPostActivity.class);
+                intent.putExtra("postId", postId);
                 context.startActivity(intent);
             }
         });
@@ -310,7 +328,9 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
         long timeDifference = new Date().getTime() - model.getTime();
         if(model.getUserId().equals(userId)&& model.getType()>0 && timeDifference > 9000000)
             btnDelete.setEnabled(false);
-        if(model.getUserId().equals(userId)&& timeDifference > 144000000)
+        if(model.getUserId().equals(userId) && model.getType()==0)
+            btnSubmit.setVisibility(View.GONE);
+        else if(model.getUserId().equals(userId)&& timeDifference > 144000000)
             btnSubmit.setVisibility(View.GONE);
         else {
             if (model.getUserId().equals(userId) && model.getStatus() == 2 && timeDifference <= 9000000)

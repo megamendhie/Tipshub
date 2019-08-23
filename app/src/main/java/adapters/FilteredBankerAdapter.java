@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 
 import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.signature.ObjectKey;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.sqube.tipshub.FlagActivity;
@@ -93,7 +94,9 @@ public class FilteredBankerAdapter extends RecyclerView.Adapter<BankerAdapter.Po
         long timeDifference = new Date().getTime() - model.getTime();
         if(model.getUserId().equals(userId)&& model.getType()>0 && timeDifference > 9000000)
             btnDelete.setEnabled(false);
-        if(model.getUserId().equals(userId)&& timeDifference > 144000000)
+        if(model.getUserId().equals(userId) && model.getType()==0)
+            btnSubmit.setVisibility(View.GONE);
+        else if(model.getUserId().equals(userId)&& timeDifference > 144000000)
             btnSubmit.setVisibility(View.GONE);
         else {
             if (model.getUserId().equals(userId) && model.getStatus() == 2 && timeDifference <= 9000000)
@@ -192,6 +195,7 @@ public class FilteredBankerAdapter extends RecyclerView.Adapter<BankerAdapter.Po
         GlideApp.with(context)
                 .setDefaultRequestOptions(requestOptions)
                 .load(storageReference.child(model.getUserId()))
+                .signature(new ObjectKey(model.getUserId()+"_"+Reusable.getSignature()))
                 .into(holder.imgDp);
         //listen to dp click and open user profile
         holder.imgDp.setOnClickListener(new View.OnClickListener() {

@@ -19,6 +19,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.signature.ObjectKey;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -116,6 +117,7 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
         GlideApp.with(context)
                 .setDefaultRequestOptions(requestOptions)
                 .load(storageReference.child(model.getUserId()))
+                .signature(new ObjectKey(model.getUserId()+"_"+Reusable.getSignature()))
                 .into(imgDp);
 
         //listen to dp click and open user profile
@@ -264,6 +266,7 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
             @Override
             public void onClick(View v) {
                 deleteComment(postId, imgOverflow);
+                dialog.cancel();
             }
         });
     }

@@ -23,6 +23,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.signature.ObjectKey;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -124,6 +125,7 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
         GlideApp.with(context)
                 .setDefaultRequestOptions(requestOptions)
                 .load(storageReference.child(model.getUserId()))
+                .signature(new ObjectKey(model.getUserId()+"_"+Reusable.getSignature()))
                 .into(holder.imgDp);
         //listen to dp click and open user profile
         holder.imgDp.setOnClickListener(v -> {
@@ -305,6 +307,7 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
         GlideApp.with(context)
                 .setDefaultRequestOptions(requestOptions)
                 .load(storageReference.child(model.getChildUserId()))
+                .signature(new ObjectKey(model.getChildUserId()+"_"+Reusable.getSignature()))
                 .into(childDp);
 
         //listen to dp click and open user profile
@@ -362,7 +365,9 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
         long timeDifference = new Date().getTime() - model.getTime();
         if(model.getUserId().equals(userId)&& model.getType()>0 && timeDifference > 9000000)
             btnDelete.setEnabled(false);
-        if(model.getUserId().equals(userId)&& timeDifference > 144000000)
+        if(model.getUserId().equals(userId) && model.getType()==0)
+            btnSubmit.setVisibility(View.GONE);
+        else if(model.getUserId().equals(userId)&& timeDifference > 144000000)
             btnSubmit.setVisibility(View.GONE);
         else {
             if (model.getUserId().equals(userId) && model.getStatus() == 2 && timeDifference <= 9000000)

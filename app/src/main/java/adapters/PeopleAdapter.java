@@ -18,8 +18,6 @@ import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 import com.sqube.tipshub.MemberProfileActivity;
 import com.sqube.tipshub.MyProfileActivity;
 import com.sqube.tipshub.R;
@@ -40,7 +38,6 @@ public class PeopleAdapter extends RecyclerView.Adapter<PeopleAdapter.PostHolder
     private Context context;
     private String userId;
     private ArrayList<String> list;
-    private StorageReference storageReference;
     private RequestOptions requestOptions = new RequestOptions();
 
     public PeopleAdapter(){}
@@ -51,7 +48,6 @@ public class PeopleAdapter extends RecyclerView.Adapter<PeopleAdapter.PostHolder
         this.userId = userId;
         this.list = list;
         requestOptions.placeholder(R.drawable.dummy);
-        storageReference = FirebaseStorage.getInstance().getReference().child("profile_images");
     }
 
     @NonNull
@@ -134,12 +130,12 @@ public class PeopleAdapter extends RecyclerView.Adapter<PeopleAdapter.PostHolder
         return list.size();
     }
 
-    public class PostHolder extends RecyclerView.ViewHolder {
+    class PostHolder extends RecyclerView.ViewHolder {
         CircleImageView imgDp;
         LinearLayout lnrContainer;
         TextView mUsername, mPost, mAccuracy;
         Button btnFollow;
-        public PostHolder(View itemView) {
+        PostHolder(View itemView) {
             super(itemView);
             imgDp = itemView.findViewById(R.id.imgDp);
             lnrContainer = itemView.findViewById(R.id.lnrContainer);
