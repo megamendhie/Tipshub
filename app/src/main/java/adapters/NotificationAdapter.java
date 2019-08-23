@@ -13,7 +13,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.signature.ObjectKey;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -75,22 +77,22 @@ public class NotificationAdapter extends FirestoreRecyclerAdapter<Notification, 
         mTitle.setText(model.getTitle());
         mMessage.setText(model.getMessage());
 
-        switch (model.getAction()) {
-            case "liked":
-                imgType.setImageResource(R.drawable.ic_thumb_up_color_24dp);
-                break;
-            case "disliked":
-                imgType.setImageResource(R.drawable.ic_thumb_down_color_24dp);
-                break;
-            case "subEnd":
-            case "subscribed":
-                imgType.setImageResource(R.drawable.ic_favorite_color_24dp);
-                break;
-        }
+        imgType.setVisibility(View.VISIBLE);
+        if (model.getAction().equals("liked"))
+                Glide.with(context).load(R.drawable.ic_thumb_up_color_24dp).into(imgType);
+        else if(model.getAction().equals("disliked"))
+                Glide.with(context).load(R.drawable.ic_thumb_down_color_24dp).into(imgType);
+        else if(model.getAction().equals("reposted"))
+                Glide.with(context).load(R.drawable.ic_retweet_color).into(imgType);
+        else if(model.getAction().equals("subEnd") || model.getAction().equals("subscribed"))
+                Glide.with(context).load(R.drawable.ic_favorite_color_24dp).into(imgType);
+        else
+            imgType.setVisibility(View.INVISIBLE);
 
         GlideApp.with(context)
                 .setDefaultRequestOptions(requestOptions)
                 .load(storageReference.child(model.getSentFrom()))
+                .signature(new ObjectKey(model.getSentFrom()+"_"+Reusable.getSignature()))
                 .into(imgDp);
 
         lnrContainer.setOnClickListener(new View.OnClickListener() {
@@ -122,16 +124,17 @@ public class NotificationAdapter extends FirestoreRecyclerAdapter<Notification, 
 
     @Override
     public PostHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.notification_view1, parent, false);
+        Log.i(TAG, "onCreateViewHolder: ");
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.notification_view, parent, false);
         return new PostHolder(view);
     }
 
     class PostHolder extends RecyclerView.ViewHolder {
-        ImageView imgType;
-        CircleImageView imgDp;
-        LinearLayout lnrContainer;
-        TextView mTitle, mMessage, mTime;
-        PostHolder(View itemView) {
+        private ImageView imgType;
+        private CircleImageView imgDp;
+        private LinearLayout lnrContainer;
+        private TextView mTitle, mMessage, mTime;
+        private PostHolder(View itemView) {
             super(itemView);
             imgType = itemView.findViewById(R.id.imgType);
             imgDp = itemView.findViewById(R.id.imgDp);

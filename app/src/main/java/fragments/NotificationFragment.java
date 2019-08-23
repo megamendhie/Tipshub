@@ -23,6 +23,7 @@ import utils.FirebaseUtil;
  */
 public class NotificationFragment extends Fragment {
     private String userId;
+    private String TAG = "NotificationFrag";
     private RecyclerView notificationList;
 
 
@@ -40,13 +41,11 @@ public class NotificationFragment extends Fragment {
 
         FirebaseUser user = FirebaseUtil.getFirebaseAuthentication().getCurrentUser();
         userId = user.getUid();
-        loadPost();
+        loadNotifications();
         return rootView;
     }
 
-    private void loadPost() {
-        String TAG = "NotificationFrag";
-        Log.i(TAG, "loadPost: ");
+    private void loadNotifications() {
         Query query = FirebaseUtil.getFirebaseFirestore().collection("notifications").orderBy("time", Query.Direction.DESCENDING)
                 .whereEqualTo("sendTo", userId);
         NotificationAdapter notificationAdapter = new NotificationAdapter(query, userId, getContext());
@@ -56,5 +55,4 @@ public class NotificationFragment extends Fragment {
             notificationAdapter.startListening();
         }
     }
-
 }
