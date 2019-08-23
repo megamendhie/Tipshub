@@ -9,6 +9,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.design.internal.BottomNavigationItemView;
+import android.support.design.internal.BottomNavigationMenuView;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
@@ -40,10 +42,15 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.google.gson.Gson;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
@@ -66,6 +73,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     private FirebaseRemoteConfig mFirebaseRemoteConfig;
     private FirebaseUser user;
     private Intent serviceIntent;
+    private ArrayList<String> unseenNotList = new ArrayList<>();
     SharedPreferences prefs;
     SharedPreferences.Editor editor;
     private Gson gson = new Gson();
@@ -167,6 +175,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         checkForUpdate();
         if(!timeIsValid())
             popUp();
+        setBadge();
         loadFragment();
 
         aSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -181,6 +190,47 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                 mDrawerLayout.closeDrawer(GravityCompat.START);
             }
         });
+    }
+
+    private void setBadge() {
+        BottomNavigationMenuView menuView = (BottomNavigationMenuView) btmNav.getChildAt(0);
+        BottomNavigationItemView itemView =  (BottomNavigationItemView) menuView.getChildAt(3); //get notification item
+
+        View notificationBadge= LayoutInflater.from(this).inflate(R.layout.notification_badge, menuView, false);
+        notificationBadge.setVisibility(View.GONE);
+        TextView txtBadge = notificationBadge.findViewById(R.id.badge);
+        itemView.addView(notificationBadge);
+
+        FirebaseUtil.getFirebaseFirestore().collection("notifications")
+                .orderBy("time", Query.Direction.DESCENDING)
+                .whereEqualTo("sendTo", userId).whereEqualTo("seen", false)
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                        Log.i("MainActivity", "onEvent: noyefired");
+                        if(queryDocumentSnapshots!=null && !queryDocumentSnapshots.isEmpty()){
+                            Log.i("MainActivity", "onEvent: noyefired suc");
+                            int count = queryDocumentSnapshots.size();
+                            txtBadge.setText(count>=9? count+"+" : String.valueOf(count));
+                            notificationBadge.setVisibility(View.VISIBLE);
+                            unseenNotList.clear();
+                            for(DocumentSnapshot snap : queryDocumentSnapshots.getDocuments())
+                                unseenNotList.add(snap.getId());
+                        }
+                        else
+                            notificationBadge.setVisibility(View.GONE);
+
+                    }
+                });
+    }
+
+    private void clearNotification() {
+        if(unseenNotList.isEmpty())
+            return;
+        for (int i=0; i < unseenNotList.size(); i++){
+            FirebaseUtil.getFirebaseFirestore().collection("notifications").document(unseenNotList.get(i))
+            .update("seen", true);
+        }
     }
 
     private void popUp(){
@@ -254,6 +304,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                 actionBar.setTitle("Notifications");
                 fragmentManager.beginTransaction().hide(fragmentActive).show(fragmentN).commit();
                 fragmentActive = fragmentN;
+                clearNotification();
                 return true;
             case R.id.nav_profile:
                 startActivity(new Intent(MainActivity.this, MyProfileActivity.class));
@@ -336,8 +387,14 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     }
 
     public void Logout(){
-        FirebaseMessaging FCM = FirebaseMessaging.getInstance();
-        FCM.unsubscribeFromTopic(userId); //unsubscribe user from corresponding channel with userId
+        FirebaseMessaging.getInstance().unsubscribeFromTopic(userId);
+        try {
+            FirebaseInstanceId.getInstance().deleteInstanceId();
+            FirebaseInstanceId.getInstance().getToken();
+        } catch (IOException e) {
+            Log.i("MainActivity", "Logout: "+ e.getMessage());
+            e.printStackTrace();
+        }
         if(user.getProviderData().get(1).getProviderId().equals("google.com")){
             FirebaseUtil.getFirebaseAuthentication().signOut();
             mGoogleSignInClient.signOut();

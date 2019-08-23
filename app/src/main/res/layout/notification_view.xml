@@ -50,16 +50,6 @@
                     android:textSize="16sp"
                     android:maxLines="2"
                     android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
-                <ImageView
-                    android:id="@+id/imgOverflow"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:clickable="true"
-                    android:background="@drawable/img_like_bg"
-                    android:contentDescription="more_options"
-                    android:layout_gravity="end"
-                    android:tint="@android:color/darker_gray"
-                    app:srcCompat="@drawable/ic_more_vert_black_24dp"/>
             </LinearLayout>
 
             <TextView

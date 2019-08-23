@@ -13,7 +13,7 @@
 
         <item
             android:id="@+id/nav_switch"
-            android:title="Posts from everybody"
+            android:title="Everybody's post"
             android:icon="@drawable/ic_group_work_black_24dp"
             app:actionLayout="@layout/layout_switch" />
         <item
