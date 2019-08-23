@@ -52,7 +52,7 @@ import utils.Reusable;
 
 public class RecommendedFragment extends Fragment {
     private String userId;
-    Timer timer = new Timer();
+    private Timer timer = new Timer();
     private RecyclerView peopleList, trendingList, newsList;
     private final String TAG = "RecFragment";
     private boolean alreadyLoaded;
@@ -153,15 +153,13 @@ public class RecommendedFragment extends Fragment {
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if(task.getResult()!=null && !task.getResult().isEmpty()){
                     ArrayList<String> list = new ArrayList<>();
-                    int c=0;
                     for (DocumentSnapshot snapshot: task.getResult().getDocuments()){
                         String ref = snapshot.getId();
                         if(ref.equals(userId) || UserNetwork.getFollowing().contains(ref))
                             continue;
-                        if(c>=12)
-                            return;
+                        if(list.size()>=12)
+                            break;
                         list.add(ref);
-                        c++;
                     }
                     Collections.shuffle(list);
                     peopleList.setAdapter( new PeopleRecAdapter(getActivity(), getContext(), userId, list));
@@ -172,8 +170,6 @@ public class RecommendedFragment extends Fragment {
     }
 
     private void loadPost() {
-        Log.i(TAG, "loadPost: ");
-
         FirebaseUtil.getFirebaseFirestore().collection("posts")
                 .orderBy("timeRelevance", Query.Direction.DESCENDING).limit(15).get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
