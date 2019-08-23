@@ -250,6 +250,7 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
                                 else{
                                     finish();
                                     startActivity(new Intent(SignupActivity.this, MainActivity.class));
+                                    startActivity(new Intent(SignupActivity.this, AboutActivity.class));
                                 }
                             }
                         }
@@ -433,6 +434,7 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
                         dialog.cancel();
                         finish();
                         startActivity(new Intent(SignupActivity.this, MainActivity.class));
+                        startActivity(new Intent(SignupActivity.this, AboutActivity.class));
                     }
                 });
             }
