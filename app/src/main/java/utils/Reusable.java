@@ -64,19 +64,15 @@ public final class Reusable {
         return time;
     }
 
-    public String getSignature(){
+    public static String getSignature(){
         String Signature = "";
         String s = DateFormat.format("HH", new Date().getTime()).toString();
         int sign = Integer.parseInt(s);
-        if(sign>=20){
-            Signature = "f";
-        }else if(sign>=16){
-            Signature = "e";
-        }else if(sign>=12){
+        if(sign>=18){
             Signature = "d";
-        }else if(sign>=8){
+        }else if(sign>=12){
             Signature = "c";
-        }else if(sign>=4){
+        }else if(sign>=6){
             Signature = "b";
         }else{
             Signature = "a";
@@ -122,7 +118,7 @@ public final class Reusable {
     }
 
     public static void shareTips(Activity activity, String username, String post){
-        String output = "@"+username+"'s post on Tipshub:\n\n"+ post + "\n\nApp link: http://bit.ly/SecuredTips" ;
+        String output = "@"+username+"'s post on Tipshub:\n\n"+ post + "\n\nApp link: http://bit.ly/tipshub" ;
 
         Intent share = new Intent(Intent.ACTION_SEND);share.setType("text/plain");
         share.putExtra(Intent.EXTRA_TEXT, output);
@@ -143,7 +139,7 @@ public final class Reusable {
     }
 
     public void shareComment(Activity activity, String username, String post){
-        String output = "@"+username+"'s comment on Tipshub:\n\n"+ post + "\n\nApp link: http://bit.ly/SecuredTips" ;
+        String output = "@"+username+"'s comment on Tipshub:\n\n"+ post + "\n\nApp link: http://bit.ly/tipshub" ;
 
         Intent share = new Intent(Intent.ACTION_SEND);share.setType("text/plain");
         share.putExtra(Intent.EXTRA_TEXT, output);
@@ -209,7 +205,7 @@ public final class Reusable {
         });
     }
 
-    public static long[] getStatsForDelete(ProfileMedium profile, int type, boolean won){
+    static long[] getStatsForDelete(ProfileMedium profile, int type, boolean won){
         long tPost = 0;
         long wGames = 0;
         switch (type){
@@ -278,7 +274,7 @@ public final class Reusable {
         return new long[]{tPost, wPercentage};
     }
 
-    public static long[] getStatsForWonPost(ProfileMedium profile, int type){
+    static long[] getStatsForWonPost(ProfileMedium profile, int type){
         long tPost = 0;
         long wGames = 0;
         switch (type){

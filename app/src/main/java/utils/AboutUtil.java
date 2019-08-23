@@ -27,7 +27,7 @@ public class AboutUtil {
                 "    },\n" +
                 "    {\n" +
                 "      \"heading\": \"How may posts per day?\",\n" +
-                "      \"body\": \"<p>You can post as many normal posts as you like.</p><p>But you can only <strong>predict</strong> only <strong>5 times</strong> in a day.</p><p>And only 1 <strong>banker tip</strong> per day.</p>\"\n" +
+                "      \"body\": \"<p>You can post as many normal posts as you like.</p><p>But you can only <strong>predict</strong> only <strong>4 times</strong> in a day.</p><p>And only 1 <strong>banker tip</strong> per day.</p>\"\n" +
                 "    },\n" +
                 "    {\n" +
                 "      \"heading\": \"What is BANKER?\",\n" +
