@@ -319,7 +319,7 @@
                 android:textStyle="bold"
                 android:textSize="24sp"
                 android:gravity="center"
-                android:background="@color/greyBackground"/>
+                android:background="@color/bg_off_green"/>
 
             <View
                 android:layout_width="match_parent"
@@ -336,6 +336,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginTop="5dp"
+                app:layoutManager="android.support.v7.widget.LinearLayoutManager"
+                app:stackFromEnd="true"
+                app:reverseLayout="true"
                 android:paddingBottom="45dp"/>
 
         </LinearLayout>

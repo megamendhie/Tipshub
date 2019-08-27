@@ -62,7 +62,8 @@
           android:layout_marginEnd="6dp"
           android:layout_marginTop="2dp"
           android:tint="#25b153"
-          app:srcCompat="@drawable/ic_check_circle_green_24dp"/>
+          app:srcCompat="@drawable/ic_check_circle_green_24dp"
+          android:contentDescription="@string/text_post_status" />
 
       <ImageView
           android:id="@+id/imgOverflow"
@@ -70,7 +71,7 @@
           android:layout_height="wrap_content"
           android:clickable="true"
           android:background="@drawable/img_like_bg"
-          android:contentDescription="more_options"
+          android:contentDescription="@string/text_overflow"
           android:tint="@android:color/darker_gray"
           app:srcCompat="@drawable/ic_more_vert_black_24dp"/>
     </LinearLayout>
@@ -102,7 +103,8 @@
           android:layout_gravity="center_vertical"
           android:src="@drawable/hashtag"
           android:visibility="gone"
-          android:tint="@color/colorPrimaryDark"/>
+          android:tint="@color/colorPrimaryDark"
+          android:contentDescription="@string/text_post_code" />
       <TextView
           android:id="@+id/txtCode"
           android:layout_width="wrap_content"
