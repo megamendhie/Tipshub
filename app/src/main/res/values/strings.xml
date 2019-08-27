@@ -966,4 +966,7 @@
     <string name="txt_notice_dp"><![CDATA[>Profile picture is important]]></string>
     <string name="txt_later">LATER</string>
     <string name="txt_update">UPDATE</string>
+    <string name="text_post_status">post status</string>
+    <string name="text_overflow">more_options</string>
+    <string name="text_post_code">post code</string>
 </resources>
