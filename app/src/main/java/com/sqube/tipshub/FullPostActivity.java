@@ -8,13 +8,12 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.RecyclerView;
 import android.text.Editable;
 import android.text.Html;
 import android.text.TextUtils;
@@ -142,7 +141,6 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
         username = user.getDisplayName();
 
         commentsList = findViewById(R.id.listComments);
-        commentsList.setLayoutManager(new LinearLayoutManager(this));
         if(savedInstanceState!=null)
             postId = savedInstanceState.getString(POST_ID);
         else
@@ -153,7 +151,7 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
         ArrayAdapter<String> club_adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, clubs);
         edtComment.setAdapter(club_adapter);
         edtComment.setTokenizer(new SpaceTokenizer());
-        edtComment.setThreshold(3);
+        edtComment.setThreshold(4);
         GlideApp.with(getApplicationContext())
                 .setDefaultRequestOptions(requestOptions)
                 .load(storageReference.child(userId))
@@ -485,7 +483,7 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
     private void sendNotification(String content) {
         String substring = content.substring(0, Math.min(content.length(), 90));
         calculations.setCount(model.getRepostCount());
-        calculations.sendPushNotification(true, userId, model.getUserId(), childLink, "commented on", "post", substring);
+        calculations.sendPushNotification(true, userId, model.getUserId(), postId, "commented on", "post", substring);
     }
 
     private void onLike(){
@@ -534,8 +532,6 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
                     public void onSuccess(DocumentReference documentReference) {
                         final String content = comment;
                         comment= "";
-                        edtComment.setText("");
-                        Snackbar.make(edtComment, "Comment added", Snackbar.LENGTH_SHORT).show();
                         if(!userId.equals(model.getUserId())){
                             calculations.recommend(userId, model.getUserId());
                             sendNotification(content);
@@ -545,12 +541,14 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
     }
 
     public void increaseCommentCount(){
-        fabPost.setEnabled(false);
         comment = edtComment.getText().toString();
         if(TextUtils.isEmpty(comment)){
             edtComment.setError("Type your comment");
-            fabPost.setEnabled(true);
             return;
+        }
+        else{
+            fabPost.setEnabled(false);
+            edtComment.setEnabled(false);
         }
 
         FirebaseUtil.getFirebaseFirestore().runTransaction(new Transaction.Function<Void>() {
@@ -581,6 +579,9 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
                         Log.d(TAG, "Transaction success!");
                         postComment();
                         fabPost.setEnabled(true);
+                        edtComment.setEnabled(true);
+                        edtComment.setText("");
+                        Snackbar.make(edtComment, "Comment added", Snackbar.LENGTH_SHORT).show();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {

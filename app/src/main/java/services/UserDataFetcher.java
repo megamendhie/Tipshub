@@ -41,7 +41,7 @@ public class UserDataFetcher extends IntentService {
     }
 
     @Override
-    protected void onHandleIntent(@android.support.annotation.Nullable Intent intent) {
+    protected void onHandleIntent(@androidx.annotation.Nullable Intent intent) {
 
         database = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();

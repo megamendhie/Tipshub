@@ -28,7 +28,7 @@
                 android:src="@drawable/tipshub_logo_land"/>
         </com.facebook.shimmer.ShimmerFrameLayout>
 
-        <android.support.design.widget.TextInputLayout
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@android:drawable/editbox_background_normal"
@@ -43,10 +43,10 @@
                 android:ems="10"
                 android:hint="Enter your email"
                 android:inputType="textEmailAddress" />
-        </android.support.design.widget.TextInputLayout>
+        </com.google.android.material.textfield.TextInputLayout>
 
 
-        <android.support.design.widget.TextInputLayout
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:passwordToggleEnabled="true">
@@ -61,7 +61,7 @@
                 android:inputType="textPassword"
                 android:background="@android:drawable/editbox_background_normal"
                 android:hint="Choose password" />
-        </android.support.design.widget.TextInputLayout>
+        </com.google.android.material.textfield.TextInputLayout>
 
         <RelativeLayout
             android:layout_width="match_parent"

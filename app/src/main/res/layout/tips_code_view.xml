@@ -24,7 +24,7 @@
         android:inputType="textCapSentences|textNoSuggestions|textMultiLine"
         android:background="@android:drawable/editbox_background_normal"/>
 
-    <android.support.v7.widget.AppCompatSpinner
+    <androidx.appcompat.widget.AppCompatSpinner
         android:id="@+id/spnCode"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

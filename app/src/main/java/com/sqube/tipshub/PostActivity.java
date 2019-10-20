@@ -4,9 +4,9 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -195,7 +195,7 @@ public class PostActivity extends AppCompatActivity implements View.OnClickListe
         View dialogView = inflater.inflate(R.layout.tips_code_view, null);
         builder.setView(dialogView);
 
-        final android.support.v7.app.AlertDialog dialog= builder.create();
+        final androidx.appcompat.app.AlertDialog dialog= builder.create();
         dialog.setCancelable(false);
         dialog.show();
         final EditText edtCode = dialog.findViewById(R.id.edtCode);

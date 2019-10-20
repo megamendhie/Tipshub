@@ -8,10 +8,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
-import android.support.v7.widget.CardView;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import com.google.android.material.snackbar.Snackbar;
+import androidx.cardview.widget.CardView;
+import androidx.recyclerview.widget.RecyclerView;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -272,7 +272,7 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
         //holder.imgChildStatus.setVisibility(model.getStatus()==1? View.GONE: View.VISIBLE);
         if(model.getChildBookingCode()!=null && !model.getChildBookingCode().isEmpty()){
             childCode.setText(String.format(Locale.ENGLISH, "%s @%s",
-                    model.getBookingCode(), code[(model.getChildBookie()-1)]));
+                    model.getChildBookingCode(), code[(model.getChildBookie()-1)]));
             childCode.setVisibility(View.VISIBLE);
             imgChildCode.setVisibility(View.VISIBLE);
             lnrChildCode.setVisibility(View.VISIBLE);

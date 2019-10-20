@@ -25,6 +25,7 @@ allprojects {
             url 'https://jitpack.io' //Flutterwave repository
         }
         jcenter()
+        google()
     }
 }
 

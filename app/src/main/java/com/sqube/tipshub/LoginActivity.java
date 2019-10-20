@@ -6,10 +6,10 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import com.google.android.material.snackbar.Snackbar;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -222,8 +222,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                                         else{
                                             finish();
                                             startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                                            startActivity(new Intent(LoginActivity.this, AboutActivity.class));
-
                                         }
                                     }
                                 }
@@ -351,6 +349,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                                 dialog.cancel();
                                 finish();
                                 startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                                startActivity(new Intent(LoginActivity.this, AboutActivity.class));
                             }
                         });
             }

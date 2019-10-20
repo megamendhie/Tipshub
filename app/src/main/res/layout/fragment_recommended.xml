@@ -6,7 +6,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/fragment_bg">
 
-    <android.support.v4.widget.NestedScrollView
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#EEEEEE"
@@ -17,7 +17,7 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <android.support.v7.widget.CardView
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingTop="3dp"
@@ -31,15 +31,15 @@
                     android:layout_marginStart="3dp"
                     android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:text="People you may like"/>
-            </android.support.v7.widget.CardView>
+            </androidx.cardview.widget.CardView>
 
-            <android.support.v7.widget.RecyclerView
+            <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/peopleList"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"/>
 
-            <android.support.v7.widget.CardView
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingTop="3dp"
@@ -55,16 +55,16 @@
                     android:layout_marginStart="3dp"
                     android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:text="Popular Posts"/>
-            </android.support.v7.widget.CardView>
+            </androidx.cardview.widget.CardView>
 
-            <android.support.v7.widget.RecyclerView
+            <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/trendingList"
                 android:nestedScrollingEnabled="false"
                 android:layout_marginTop="@dimen/img_padding"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
 
-            <android.support.v7.widget.CardView
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:cardElevation="0dp"
@@ -80,9 +80,9 @@
                     android:textSize="18sp"
                     android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:text="Sports Update"/>
-            </android.support.v7.widget.CardView>
+            </androidx.cardview.widget.CardView>
 
-            <android.support.v7.widget.RecyclerView
+            <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/newsList"
                 android:nestedScrollingEnabled="false"
                 android:layout_width="match_parent"
@@ -90,5 +90,5 @@
                 android:layout_marginTop="5dp"/>
 
         </LinearLayout>
-    </android.support.v4.widget.NestedScrollView>
+    </androidx.core.widget.NestedScrollView>
 </RelativeLayout>
