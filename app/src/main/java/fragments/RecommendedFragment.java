@@ -1,5 +1,8 @@
 package fragments;
 
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
@@ -7,10 +10,13 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -50,7 +56,7 @@ import utils.FirebaseUtil;
 import utils.NewsFunction;
 import utils.Reusable;
 
-public class RecommendedFragment extends Fragment {
+public class RecommendedFragment extends Fragment implements View.OnClickListener {
     private String userId;
     private Timer timer = new Timer();
     private RecyclerView peopleList, trendingList, newsList;
@@ -58,15 +64,8 @@ public class RecommendedFragment extends Fragment {
     private boolean alreadyLoaded;
     private ArrayList<Post> postList = new ArrayList<>();
     private ArrayList<SnapId> snapIds= new ArrayList<>();
-    FilteredPostAdapter fAdapter;
+    private FilteredPostAdapter fAdapter;
 
-    public final String myAPI_Key = "417444c0502047d69c1c2a9dcc1672cd";
-    public final String KEY_AUTHOR = "author";
-    public final String KEY_TITLE = "title";
-    public final String KEY_DESCRIPTION = "description";
-    public final String KEY_URL = "url";
-    public final String KEY_URLTOIMAGE = "urlToImage";
-    public final String KEY_PUBLISHEDAT = "publishedAt";
     ArrayList<HashMap<String, String>> dataList = new ArrayList<HashMap<String, String>>();
 
     public RecommendedFragment() {
@@ -91,6 +90,9 @@ public class RecommendedFragment extends Fragment {
 
         newsList = rootView.findViewById(R.id.newsList);
         newsList.setLayoutManager(new LinearLayoutManager(getActivity()));
+        Button btnInvite = rootView.findViewById(R.id.btnInvite); btnInvite.setOnClickListener(this);
+        Button btnInviteWhatsapp = rootView.findViewById(R.id.btnInviteWhatsapp);
+        btnInviteWhatsapp.setOnClickListener(this);
 
         FirebaseUser user = FirebaseUtil.getFirebaseAuthentication().getCurrentUser();
         userId = user.getUid();
@@ -191,14 +193,50 @@ public class RecommendedFragment extends Fragment {
                 });
     }
 
-    public void loadNews(){
+    private void loadNews(){
         DownloadNews newsTask = new DownloadNews();
         if(!Reusable.getNetworkAvailability(getActivity()))
             Toast.makeText(getContext(), "No Internet Connection", Toast.LENGTH_LONG).show();
         newsTask.execute();
     }
 
+    @Override
+    public void onClick(View view) {
+        String invite = "Tipshub is a very fantastic sports social network. " +
+                "Join now to connect with fans and also get sure predictions from good tipsters." +
+                "\n\nApp here: http://bit.ly/tipshub" ;
+
+        Intent invitationIntent = new Intent(Intent.ACTION_SEND);
+        invitationIntent.setType("text/plain");
+        invitationIntent.putExtra(Intent.EXTRA_TEXT, invite);
+        invitationIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+
+        switch (view.getId()){
+            case R.id.btnInvite:
+                startActivity(Intent.createChooser(invitationIntent, "Invite via:"));
+                break;
+            case R.id.btnInviteWhatsapp:
+                invitationIntent.setPackage("com.whatsapp");
+                try {
+                    startActivity(invitationIntent);
+                }
+                catch (Throwable e){
+                    Toast.makeText(getContext(), "No whatsapp installed", Toast.LENGTH_LONG).show();
+                }
+                break;
+        }
+    }
+
     private class DownloadNews extends AsyncTask<String, Void, String> {
+
+        String myAPI_Key = "417444c0502047d69c1c2a9dcc1672cd";
+        String KEY_AUTHOR = "author";
+        String KEY_TITLE = "title";
+        String KEY_DESCRIPTION = "description";
+        String KEY_URL = "url";
+        String KEY_URLTOIMAGE = "urlToImage";
+        String KEY_PUBLISHEDAT = "publishedAt";
+
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -213,7 +251,7 @@ public class RecommendedFragment extends Fragment {
             String xml = "";
 
             String urlParameters = "";
-            xml = NewsFunction.excuteGet("https://newsapi.org/v2/everything?domains=espnfc.com&language=en&pageSize=15&apiKey="+myAPI_Key, urlParameters);
+            xml = NewsFunction.excuteGet("https://newsapi.org/v2/everything?domains=espnfc.com&language=en&pageSize=15&apiKey="+ myAPI_Key, urlParameters);
             return  xml;
         }
         @Override

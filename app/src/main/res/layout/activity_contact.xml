@@ -39,7 +39,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="#25D366"
+                android:background="@color/color_whatsapp"
                 android:padding="6dp"
                 android:gravity="center_vertical">
 
@@ -77,7 +77,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="#1da1f2"
+                android:background="@color/color_twitter"
                 android:gravity="center_vertical"
                 android:padding="6dp">
 
@@ -115,7 +115,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="#3b5998"
+                android:background="@color/color_facebook"
                 android:gravity="center_vertical"
                 android:padding="6dp">
 

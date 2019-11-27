@@ -2,14 +2,11 @@
 <androidx.cardview.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/cardView"
-    android:elevation="10dp"
     app:cardCornerRadius="10dp"
     android:layout_margin="4dp"
-    android:layout_width="240dp"
-    android:layout_height="210dp"
-    tools:targetApi="lollipop">
+    android:layout_width="220dp"
+    android:layout_height="190dp">
 
     <FrameLayout
         android:layout_gravity="center"
@@ -18,7 +15,7 @@
         android:layout_height="match_parent">
         <View
             android:layout_width="match_parent"
-            android:layout_height="60dp"
+            android:layout_height="48dp"
             android:background="@color/greyBackground"/>
 
         <LinearLayout
@@ -35,9 +32,10 @@
 
                 <de.hdodenhof.circleimageview.CircleImageView
                     android:id="@+id/imgDp"
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
                     app:civ_border_width="2dp"
+                    android:src="@drawable/dummy"
                     app:civ_border_color="@color/bg_off_green" />
                 <Button
                     android:id="@+id/btnFollow"
@@ -46,8 +44,8 @@
                     android:text="@string/txt_follow"
                     android:background="@drawable/btn_bg"
                     android:layout_alignParentEnd="true"
-                    android:layout_marginTop="32dp"
-                    android:layout_marginEnd="5dp"/>
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="3dp"/>
 
             </RelativeLayout>
             <LinearLayout

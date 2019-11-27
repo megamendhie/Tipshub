@@ -3,76 +3,76 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.sqube.tipshub">
 
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-    <uses-permission android:name="android.Manifest.permission.READ_PHONE_STATE" />
+  <uses-permission android:name="android.permission.INTERNET" />
+  <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+  <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+  <uses-permission android:name="android.Manifest.permission.READ_PHONE_STATE" />
 
-    <application
-        android:name=".MyApplication"
-        android:allowBackup="true"
-        android:icon="@drawable/icn_medium"
-        android:label="@string/app_name"
-        android:supportsRtl="true"
-        android:theme="@style/AppTheme">
-        <activity android:name=".AboutActivity"></activity>
-        <activity android:name=".GuideActivity" />
-        <activity android:name=".ContactActivity" />
-        <activity
-            android:name=".NewsStoryActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
+  <application
+      android:name=".MyApplication"
+      android:allowBackup="true"
+      android:icon="@drawable/icn_medium"
+      android:label="@string/app_name"
+      android:supportsRtl="true"
+      android:theme="@style/AppTheme">
+      <activity android:name=".AboutActivity" />
+    <activity android:name=".GuideActivity" />
+    <activity android:name=".ContactActivity" />
+    <activity
+        android:name=".NewsStoryActivity"
+        android:theme="@style/AppTheme.NoActionBar" />
 
-        <meta-data
-            android:name="com.google.firebase.messaging.default_notification_icon"
-            android:resource="@drawable/icon_svg" /> <!-- Set color used with incoming notification messages. This is used when no color is set for the incoming notification message. -->
-        <meta-data
-            android:name="com.google.firebase.messaging.default_notification_color"
-            android:resource="@color/colorAccent" />
+    <meta-data
+        android:name="com.google.firebase.messaging.default_notification_icon"
+        android:resource="@drawable/icon_svg" /> <!-- Set color used with incoming notification messages. This is used when no color is set for the incoming notification message. -->
+    <meta-data
+        android:name="com.google.firebase.messaging.default_notification_color"
+        android:resource="@color/colorAccent" />
 
-        <activity android:name=".FollowerListActivity" />
-        <activity android:name=".FlagActivity" />
-        <activity android:name=".AccountActivity" />
-        <activity android:name=".SettingsActivity" />
-        <activity android:name=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <action android:name="android.intent.action.MAIN" />
+    <activity android:name=".FollowerListActivity" />
+    <activity android:name=".FlagActivity" />
+    <activity android:name=".AccountActivity" />
+    <activity android:name=".SettingsActivity" />
+    <activity android:name=".MainActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.VIEW" />
+        <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".LoginActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".SignupActivity" />
-        <activity android:name=".MyProfileActivity" />
-        <activity android:name=".MemberProfileActivity" />
-        <activity
-            android:name=".PostActivity"
-            android:windowSoftInputMode="adjustResize" />
-        <activity
-            android:name=".RepostActivity"
-            android:windowSoftInputMode="adjustResize" />
-        <activity android:name=".SubscriptionActivity" />
-        <activity
-            android:name=".FullPostActivity"
-            android:windowSoftInputMode="stateHidden" />
-        <activity
-            android:name=".LandingActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
-            android:theme="@style/Base.Theme.AppCompat" />
+        <category android:name="android.intent.category.LAUNCHER" />
+      </intent-filter>
+    </activity>
+    <activity
+        android:name=".LoginActivity"
+        android:theme="@style/AppTheme.NoActionBar" />
+    <activity android:name=".SignupActivity" />
+    <activity android:name=".MyProfileActivity" />
+    <activity android:name=".MemberProfileActivity" />
+    <activity
+        android:name=".PostActivity"
+        android:windowSoftInputMode="adjustResize" />
+    <activity
+        android:name=".RepostActivity"
+        android:windowSoftInputMode="adjustResize" />
+    <activity android:name=".SubscriptionActivity" />
+    <activity
+        android:name=".FullPostActivity"
+        android:windowSoftInputMode="stateHidden" />
+    <activity
+        android:name=".LandingActivity"
+        android:theme="@style/AppTheme.NoActionBar" />
+    <activity
+        android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
+        android:theme="@style/Base.Theme.AppCompat" />
 
-        <service
-            android:name="services.MyFirebaseMessagingService"
-            android:permission="com.google.android.c2dm.permission.SEND">
-            <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT" />
-                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
-            </intent-filter>
-        </service>
-        <service android:name="services.UserDataFetcher" />
-    </application>
+    <service
+        android:name="services.MyFirebaseMessagingService"
+        android:permission="com.google.android.c2dm.permission.SEND">
+      <intent-filter>
+        <action android:name="com.google.firebase.MESSAGING_EVENT" />
+        <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+      </intent-filter>
+    </service>
+    <service android:name="services.UserDataFetcher" />
+  </application>
 
 </manifest>

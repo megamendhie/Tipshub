@@ -17,4 +17,7 @@
     <color name="comment_flagged">#FCD6E2</color>
     <color name="fragment_bg">#EEEEEE</color>
     <color name="color_bg_login">#F7F7F7</color>
+    <color name="color_whatsapp">#25D366</color>
+    <color name="color_twitter">#1da1f2</color>
+    <color name="color_facebook">#3b5998</color>
 </resources>

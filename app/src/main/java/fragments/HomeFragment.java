@@ -13,6 +13,8 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -55,16 +57,16 @@ public class HomeFragment extends Fragment{
     private ShimmerFrameLayout shimmerLayout;
     private Gson gson = new Gson();
     private SharedPreferences prefs;
-    boolean fromEverybody = true;
+    private boolean fromEverybody = true;
     private ArrayList<Post> postList = new ArrayList<>();
     private ArrayList<SnapId> snapIds= new ArrayList<>();
-    String userId, username;
-    PostAdapter postAdapter;
-    FilteredPostAdapter fAdapter;
-    FloatingActionButton fabTip, fabNormal;
-    FloatingActionMenu fabMenu;
-    public RecyclerView homeFeed;
-    Intent intent;
+    private String userId, username;
+    private PostAdapter postAdapter;
+    private FilteredPostAdapter fAdapter;
+    private FloatingActionMenu fabMenu;
+    private RecyclerView homeFeed;
+    private Intent intent;
+    private SwipeRefreshLayout refresher;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -84,16 +86,26 @@ public class HomeFragment extends Fragment{
 
         // Inflate the layout for this fragment
         View rootView=inflater.inflate(R.layout.fragment_home, container, false);
-        intent = new Intent(getActivity().getApplicationContext(), PostActivity.class);
+        intent = new Intent(getContext(), PostActivity.class);
         homeFeed = rootView.findViewById(R.id.testList);
         shimmerLayout = rootView.findViewById(R.id.shimmer);
         homeFeed.setLayoutManager(new LinearLayoutManager(getActivity()));
         ((DefaultItemAnimator) homeFeed.getItemAnimator()).setSupportsChangeAnimations(false);
         fabMenu = rootView.findViewById(R.id.fabMenu);
-        fabNormal = rootView.findViewById(R.id.fabNormal);
-        fabTip = rootView.findViewById(R.id.fabPost);
+        FloatingActionButton fabNormal = rootView.findViewById(R.id.fabNormal);
+        FloatingActionButton fabTip = rootView.findViewById(R.id.fabPost);
+        refresher = rootView.findViewById(R.id.refresher);
+        refresher.setColorSchemeResources(R.color.colorPrimary);
         prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
         shimmerLayout.startShimmer();
+
+        refresher.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                selectPostToLoad(savedInstanceState);
+            }
+        });
+
         fabTip.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -121,12 +133,18 @@ public class HomeFragment extends Fragment{
 
         fAdapter = new FilteredPostAdapter(true, userId, getActivity(), getContext(), postList, snapIds);
         homeFeed.setAdapter(fAdapter);
+        selectPostToLoad(savedInstanceState);
+        Log.i(TAG, "onCreateView: ");
+        return rootView;
+    }
+
+    private void selectPostToLoad(Bundle savedInstanceState) {
+        refresher.setRefreshing(true);
         if(fromEverybody)
             loadPost();
         else{
             loadMerged();
         }
-
         if(savedInstanceState!=null){
             Parcelable homeFeedState = savedInstanceState.getParcelable(HOME_FEED_STATE);
             homeFeed.getLayoutManager().onRestoreInstanceState(homeFeedState);
@@ -135,8 +153,6 @@ public class HomeFragment extends Fragment{
             LinearLayoutManager layoutManager = (LinearLayoutManager) homeFeed.getLayoutManager();
             layoutManager.smoothScrollToPosition(homeFeed, null, 0);
         }
-        Log.i(TAG, "onCreateView: ");
-        return rootView;
     }
 
     @Override
@@ -195,6 +211,7 @@ public class HomeFragment extends Fragment{
             shimmerLayout.stopShimmer();
             shimmerLayout.setVisibility(View.GONE);
         }
+        refresher.setRefreshing(false);
     }
 
     private void loadMerged(){
@@ -214,6 +231,7 @@ public class HomeFragment extends Fragment{
         }
         else
             loadList(UserNetwork.getFollowing());
+        refresher.setRefreshing(false);
     }
 
     private void loadList(ArrayList<String> ids){

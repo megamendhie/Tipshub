@@ -42,10 +42,75 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="4dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:padding="5dp"
+                    android:orientation="vertical">
+                    <ImageView
+                        android:layout_width="40dp"
+                        android:layout_height="34dp"
+                        android:src="@drawable/ic_com"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Inivite Friends to Join Tipshub"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:gravity="center"
+                        android:text="With more people on Tipshub, you will get more accurate predictions as the community grows"
+                        android:textSize="14sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center">
+                        <Button
+                            android:id="@+id/btnInvite"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            app:backgroundTint="@color/color_twitter"
+                            android:textColor="@color/white"
+                            android:textStyle="bold"
+                            android:drawablePadding="4dp"
+                            android:drawableStart="@drawable/ic_follower"
+                            app:drawableTint="@color/white"
+                            android:text="Invite Friends"/>
+
+                        <Button
+                            android:id="@+id/btnInviteWhatsapp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="6dp"
+                            android:tint="@color/white"
+                            android:drawableStart="@drawable/ic_whatsapp"
+                            android:drawablePadding="4dp"
+                            app:drawableTint="@color/white"
+                            app:backgroundTint="@color/color_whatsapp"
+                            android:textColor="@color/white"
+                            android:textStyle="bold"
+                            android:text="Invite on WhatsApp"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:paddingTop="3dp"
                 android:paddingBottom="3dp"
                 app:cardElevation="0dp"
-                android:layout_marginTop="10dp">
+                android:layout_marginTop="4dp">
 
                 <TextView
                     android:layout_width="wrap_content"

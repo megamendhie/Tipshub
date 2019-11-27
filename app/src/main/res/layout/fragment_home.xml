@@ -26,11 +26,16 @@
         android:layout_height="match_parent"
         tools:context="fragments.HomeFragment">
 
-
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/refresher"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_behavior="android.support.design.widget.AppBarLayout$ScrollingViewBehavior">
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/testList"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
         <com.github.clans.fab.FloatingActionMenu
             android:id="@+id/fabMenu"

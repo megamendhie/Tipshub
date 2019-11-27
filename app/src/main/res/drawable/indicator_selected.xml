@@ -9,5 +9,4 @@
             <solid android:color="@color/colorPrimary"/>
         </shape>
     </item>
-
 </layer-list>

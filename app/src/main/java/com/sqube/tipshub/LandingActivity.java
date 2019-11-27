@@ -40,9 +40,9 @@ public class LandingActivity extends AppCompatActivity {
         TabLayout indicator = findViewById(R.id.indicator);
 
         //Adds the writeups to each side
-        bodyList.add("Share your predictions and opinions with others");
-        bodyList.add("Follow people you like.\nSubscribe for their banker tips");
-        bodyList.add("Don't go searching.\nAll the sports news is here");
+        bodyList.add("Share sports analysis and predictions with others");
+        bodyList.add("Follow people you like and subscribe to good tipsters.");
+        bodyList.add("Get all your sports news on the app");
 
         //Adds the images to each slide
         images.add(getResources().getDrawable(R.drawable.sld_c));
