@@ -93,37 +93,28 @@
                 android:layout_marginTop="10dp"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
 
-            <LinearLayout
-                android:id="@+id/lnrCode"
+
+            <TextView
+                android:id="@+id/txtCode"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
-                android:padding="1dp"
-                android:clickable="true"
+                android:drawableStart="@drawable/ic_external_link"
+                app:drawableTint="@color/colorPrimaryDark"
+                android:padding="2dp"
+                android:gravity="center"
+                android:drawablePadding="2dp"
                 android:background="@drawable/tip_code_bg"
-                android:paddingEnd="4dp"
-                android:layout_gravity="end">
-                <ImageView
-                    android:id="@+id/imgCode"
-                    android:layout_width="14dp"
-                    android:layout_height="14dp"
-                    android:layout_gravity="center_vertical"
-                    android:src="@drawable/hashtag"
-                    android:tint="@color/colorPrimaryDark"/>
-                <TextView
-                    android:id="@+id/txtCode"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="#0e0e0e"
-                    android:textStyle="bold"
-                    android:text="okooji ee"/>
-            </LinearLayout>
+                android:layout_gravity="end"
+                android:textColor="#0e0e0e"
+                android:textStyle="bold"/>
 
             <LinearLayout
                 android:id="@+id/container_child_post"
                 android:orientation="vertical"
                 android:background="@android:drawable/editbox_background_normal"
                 android:padding="6.0dip"
+                android:visibility="gone"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6.0dip"
@@ -184,34 +175,22 @@
                     android:layout_marginTop="8dp"
                     android:text="" />
 
-                <LinearLayout
-                    android:id="@+id/lnrChildCode"
+                <TextView
+                    android:id="@+id/txtChildCode"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
-                    android:padding="1dp"
-                    android:clickable="true"
+                    android:visibility="gone"
+                    android:drawableStart="@drawable/ic_external_link"
+                    app:drawableTint="@color/colorPrimaryDark"
+                    android:padding="2dp"
+                    android:gravity="center"
+                    android:drawablePadding="2dp"
                     android:background="@drawable/tip_code_bg"
-                    android:paddingEnd="4dp"
-                    android:layout_gravity="end">
-                    <ImageView
-                        android:id="@+id/imgChildCode"
-                        android:layout_width="14dp"
-                        android:layout_height="14dp"
-                        android:visibility="gone"
-                        android:layout_gravity="center_vertical"
-                        android:src="@drawable/hashtag"
-                        android:tint="@color/colorPrimaryDark"/>
-                    <TextView
-                        android:id="@+id/txtChildCode"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="#0e0e0e"
-                        android:textStyle="bold"/>
-                </LinearLayout>
+                    android:layout_gravity="end"
+                    android:textColor="#0e0e0e"
+                    android:textStyle="bold"/>
             </LinearLayout>
-
-
 
             <LinearLayout
                 android:layout_width="match_parent"

@@ -117,26 +117,20 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<FilteredPostAdapte
     }
 
     private void displayChildContent(final Post model, final PostHolder holder) {
-        final LinearLayout lnrChildCode = holder.lnrChildCode;
         final TextView childPost= holder.childPost;
         final TextView childUsername = holder.childUsername;
         final TextView childCode = holder.childCode, childType = holder.childType;
         final CircleImageView childDp = holder.childDp;
-        final ImageView imgChildCode = holder.imgChildCode;
 
         //holder.imgChildStatus.setVisibility(model.getStatus()==1? View.GONE: View.VISIBLE);
         if(model.getChildBookingCode()!=null && !model.getChildBookingCode().isEmpty()){
             childCode.setText(String.format(Locale.ENGLISH, "%s @%s",
                     model.getChildBookingCode(), code[(model.getChildBookie()-1)]));
             childCode.setVisibility(View.VISIBLE);
-            imgChildCode.setVisibility(View.VISIBLE);
-            lnrChildCode.setVisibility(View.VISIBLE);
         }
-        else{
-            lnrChildCode.setVisibility(View.GONE);
+        else
             childCode.setVisibility(View.GONE);
-            imgChildCode.setVisibility(View.GONE);
-        }
+
         if(model.getChildType()==0){
             childType.setVisibility(View.GONE);
         }
@@ -375,14 +369,9 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<FilteredPostAdapte
             holder.mCode.setText(String.format(Locale.ENGLISH, "%s @%s",
                     model.getBookingCode(), code[(model.getRecommendedBookie()-1)]));
             holder.mCode.setVisibility(View.VISIBLE);
-            holder.imgCode.setVisibility(View.VISIBLE);
-            holder.lnrCode.setVisibility(View.VISIBLE);
         }
-        else{
-            holder.lnrCode.setVisibility(View.GONE);
+        else
             holder.mCode.setVisibility(View.GONE);
-            holder.imgCode.setVisibility(View.GONE);
-        }
         if(model.getType()==0){
             holder.mType.setVisibility(View.GONE);
         }
@@ -552,37 +541,28 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<FilteredPostAdapte
             }
         });
 
-        holder.lnrCode.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
-
         if(model.isHasChild()){
             displayChildContent(model, holder);
         }
     }
 
 
-    public class PostHolder extends RecyclerView.ViewHolder {
+    class PostHolder extends RecyclerView.ViewHolder {
         CircleImageView imgDp, childDp;
-        LinearLayout lnrCode, lnrContainer,  lnrChildCode, lnrChildContainer;
+        LinearLayout lnrContainer, lnrChildContainer;
         CardView crdChildPost;
         TextView mpost, childPost;
         TextView mUsername, childUsername;
         TextView mTime;
         TextView mLikes, mDislikes, mComment, mCode, mType, childCode, childType;
         ImageView imgOverflow;
-        ImageView imgLikes, imgDislike, imgComment, imgRepost, imgStatus, imgCode, imgChildStatus, imgChildCode;
-        public PostHolder(View itemView) {
+        ImageView imgLikes, imgDislike, imgComment, imgRepost, imgStatus, imgChildStatus;
+        PostHolder(View itemView) {
             super(itemView);
             imgDp = itemView.findViewById(R.id.imgDp);
             childDp = itemView.findViewById(R.id.childDp);
             crdChildPost = itemView.findViewById(R.id.crdChildPost);
-            lnrCode = itemView.findViewById(R.id.lnrCode);
             lnrContainer = itemView.findViewById(R.id.container_post);
-            lnrChildCode = itemView.findViewById(R.id.lnrChildCode);
             lnrChildContainer = itemView.findViewById(R.id.container_child_post);
 
             mpost = itemView.findViewById(R.id.txtPost);
@@ -603,10 +583,8 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<FilteredPostAdapte
             imgDislike = itemView.findViewById(R.id.imgDislike);
             imgComment = itemView.findViewById(R.id.imgComment);
             imgRepost = itemView.findViewById(R.id.imgRepost);
-            imgCode = itemView.findViewById(R.id.imgCode);
             imgStatus = itemView.findViewById(R.id.imgStatus);
             imgOverflow = itemView.findViewById(R.id.imgOverflow);
-            imgChildCode = itemView.findViewById(R.id.imgChildCode);
             imgChildStatus = itemView.findViewById(R.id.imgChildStatus);
         }
     }

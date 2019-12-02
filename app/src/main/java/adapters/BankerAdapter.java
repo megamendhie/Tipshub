@@ -79,7 +79,6 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
     protected void onBindViewHolder(@NonNull final PostHolder holder, final int position, @NonNull final Post model) {
         Log.i(TAG, "onBindViewHolder: executed");
         boolean makeVisible = false, makePublic = false;
-        final LinearLayout lnrCode = holder.lnrCode;
         final LinearLayout lnrContainer = holder.lnrContainer;
         final CircleImageView imgDp = holder.imgDp;
         final TextView mpost = holder.mpost;
@@ -93,7 +92,6 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
         final ImageView imgLikes = holder.imgLikes;
         final ImageView imgDislikes = holder.imgDislike;
         final ImageView imgStatus = holder.imgStatus;
-        final ImageView imgCode = holder.imgCode;
         final ImageView imgComment = holder.imgComment;
         final ImageView imgRepost = holder.imgRepost;
         final ImageView imgOverflow = holder.imgOverflow;
@@ -104,14 +102,10 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
         if(model.getBookingCode()!=null && !model.getBookingCode().isEmpty()){
             mCode.setText(model.getBookingCode() + " @" + code[(model.getRecommendedBookie()-1)]);
             mCode.setVisibility(View.VISIBLE);
-            imgCode.setVisibility(View.VISIBLE);
-            lnrCode.setVisibility(View.VISIBLE);
         }
-        else{
-            lnrCode.setVisibility(View.GONE);
+        else
             mCode.setVisibility(View.GONE);
-            imgCode.setVisibility(View.GONE);
-        }
+
         if(model.getType()==0){
             mType.setVisibility(View.GONE);
         }
@@ -297,13 +291,6 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
                 displayOverflow(model, model.getUserId(), postId, model.getStatus(), model.getType(), imgOverflow, finalMakePublic);
             }
         });
-
-        lnrCode.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
     }
 
     private void displayOverflow(final Post model, String userID, final String postId, int status, int type, ImageView imgOverflow,
@@ -426,19 +413,18 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
         return new PostHolder(view);
     }
 
-    public static class PostHolder extends RecyclerView.ViewHolder {
+    static class PostHolder extends RecyclerView.ViewHolder {
         CircleImageView imgDp;
         RelativeLayout lnrSub;
-        LinearLayout lnrCode, lnrContainer;
+        LinearLayout lnrContainer;
         TextView mpost, mUsername, mTime;
         TextView mLikes, mDislikes, mComment, mCode, mType, mSub;
         ImageView imgOverflow;
-        ImageView imgLikes, imgDislike, imgComment, imgRepost, imgStatus, imgCode;
-        public PostHolder(View itemView) {
+        ImageView imgLikes, imgDislike, imgComment, imgRepost, imgStatus;
+        PostHolder(View itemView) {
             super(itemView);
             imgDp = itemView.findViewById(R.id.imgDp);
             lnrSub = itemView.findViewById(R.id.lnrSub);
-            lnrCode = itemView.findViewById(R.id.lnrCode);
             lnrContainer = itemView.findViewById(R.id.container_post);
 
             mpost = itemView.findViewById(R.id.txtPost);
@@ -456,7 +442,6 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
             imgDislike = itemView.findViewById(R.id.imgDislike);
             imgComment = itemView.findViewById(R.id.imgComment);
             imgRepost = itemView.findViewById(R.id.imgRepost);
-            imgCode = itemView.findViewById(R.id.imgCode);
             imgStatus = itemView.findViewById(R.id.imgStatus);
             imgOverflow = itemView.findViewById(R.id.imgOverflow);
         }

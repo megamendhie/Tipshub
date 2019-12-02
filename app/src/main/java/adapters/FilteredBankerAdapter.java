@@ -176,14 +176,10 @@ public class FilteredBankerAdapter extends RecyclerView.Adapter<BankerAdapter.Po
             holder.mCode.setText(String.format(Locale.ENGLISH, "%s @%s",
                     model.getBookingCode(), code[(model.getRecommendedBookie()-1)]));
             holder.mCode.setVisibility(View.VISIBLE);
-            holder.imgCode.setVisibility(View.VISIBLE);
-            holder.lnrCode.setVisibility(View.VISIBLE);
         }
-        else{
-            holder.lnrCode.setVisibility(View.GONE);
+        else
             holder.mCode.setVisibility(View.GONE);
-            holder.imgCode.setVisibility(View.GONE);
-        }
+
         if(model.getType()==0){
             holder.mType.setVisibility(View.GONE);
         }
@@ -197,6 +193,7 @@ public class FilteredBankerAdapter extends RecyclerView.Adapter<BankerAdapter.Po
                 .load(storageReference.child(model.getUserId()))
                 .signature(new ObjectKey(model.getUserId()+"_"+Reusable.getSignature()))
                 .into(holder.imgDp);
+
         //listen to dp click and open user profile
         holder.imgDp.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -345,13 +342,6 @@ public class FilteredBankerAdapter extends RecyclerView.Adapter<BankerAdapter.Po
             @Override
             public void onClick(View v) {
                 displayOverflow(model, model.getUserId(), postId, model.getStatus(), model.getType(), holder.imgOverflow, finalMakePublic);
-            }
-        });
-
-        holder.lnrCode.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
             }
         });
     }
