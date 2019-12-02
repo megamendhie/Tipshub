@@ -151,8 +151,10 @@ public class BankerFragment extends Fragment {
     }
 
     private void loadList(ArrayList<String> userIds){
-        if(userIds==null||userIds.isEmpty())
+        if(userIds==null||userIds.isEmpty()){
+            txtNotice.setText("You haven't subscribed to anyone yet");
             return;
+        }
         int count = userIds.size();
 
         Log.i(TAG, "loadList: " + userIds);
@@ -181,7 +183,12 @@ public class BankerFragment extends Fragment {
                         }
                     }
                 }
-                txtNotice.setVisibility(!posts.isEmpty()? View.GONE: View.VISIBLE);
+                if(posts.isEmpty()){
+                    txtNotice.setText("No tips at the moment");
+                    txtNotice.setVisibility(View.VISIBLE);
+                }
+                else
+                    txtNotice.setVisibility(View.GONE);
                 Collections.sort(posts);
                 Collections.sort(snapIds);
                 subscribedList.setAdapter(new FilteredBankerAdapter(userId, getActivity(), getContext(), posts, snapIds));

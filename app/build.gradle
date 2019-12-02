@@ -37,6 +37,7 @@ dependencies {
     implementation 'com.firebaseui:firebase-ui-firestore:4.2.1'
     implementation 'com.firebaseui:firebase-ui-auth:4.2.1'
     implementation 'androidx.multidex:multidex:2.0.1'
+    implementation 'com.algolia:algoliasearch-android:3.+'
     implementation 'com.hbb20:ccp:2.2.9'
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'com.google.android.material:material:1.0.0'

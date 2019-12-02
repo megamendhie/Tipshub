@@ -68,7 +68,7 @@ import utils.SpaceTokenizer;
 public class FullPostActivity extends AppCompatActivity implements View.OnClickListener, TextWatcher {
     private CollectionReference commentReference;
     private DocumentReference postReference;
-    private LinearLayout lnrCode, lnrFullPost, lnrChildPost;
+    private LinearLayout lnrFullPost, lnrChildPost;
     private TextView mpost, mUsername, mTime;
     private TextView mLikes, mDislikes, mComment, mCode, mType;
     private CircleImageView imgDp, imgChildDp;
@@ -76,7 +76,6 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
     private ImageView imgLike;
     private ImageView imgDislike;
     private ImageView imgStatus;
-    private ImageView imgCode;
     private MultiAutoCompleteTextView edtComment;
     private FloatingActionButton fabPost;
     private ProgressBar prgPost;
@@ -125,9 +124,7 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
         ImageView imgRepost = findViewById(R.id.imgRepost);
         imgRepost.setOnClickListener(this);
         imgStatus = findViewById(R.id.imgStatus);
-        imgCode = findViewById(R.id.imgCode);
         prgPost = findViewById(R.id.prgPost); prgPost.setVisibility(View.VISIBLE);
-        lnrCode = findViewById(R.id.lnrCode);
         lnrFullPost = findViewById(R.id.container_post);
         lnrFullPost.setVisibility(View.GONE);
         lnrChildPost = findViewById(R.id.container_child_post);
@@ -189,14 +186,9 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
                     if(model.getBookingCode()!=null && !model.getBookingCode().isEmpty()){
                         mCode.setText(model.getBookingCode() + " @" + code[(model.getRecommendedBookie()-1)]);
                         mCode.setVisibility(View.VISIBLE);
-                        imgCode.setVisibility(View.VISIBLE);
-                        lnrCode.setVisibility(View.VISIBLE);
                     }
-                    else{
-                        lnrCode.setVisibility(View.GONE);
+                    else
                         mCode.setVisibility(View.GONE);
-                        imgCode.setVisibility(View.GONE);
-                    }
 
                     if(model.getType()==0){
                         mType.setVisibility(View.GONE);
@@ -235,13 +227,11 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
             return;
         }
         //initialize child post views
-        final LinearLayout lnrChildCode = findViewById(R.id.lnrChildCode);
         final TextView childPost= findViewById(R.id.txtChildPost);
         final TextView childUsername = findViewById(R.id.txtChildUsername);
         final TextView childCode = findViewById(R.id.txtChildCode);
         final TextView childType = findViewById(R.id.txtChildType);
         final ImageView imgChildStatus = findViewById(R.id.imgChildStatus);
-        final ImageView imgChildCode = findViewById(R.id.imgCode);
         imgChildDp = findViewById(R.id.childDp); imgChildDp.setOnClickListener(this);
 
         childDisplayed = true;
@@ -255,7 +245,6 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
                     childUsername.setVisibility(View.GONE);
                     childType.setVisibility(View.GONE);
                     imgChildStatus.setVisibility(View.GONE);
-                    imgChildCode.setVisibility(View.GONE);
                     childCode.setVisibility(View.GONE);
                     lnrChildPost.setBackgroundResource(R.color.placeholder_bg);
                     lnrChildPost.setVisibility(View.VISIBLE); //display child layout if child post exists
@@ -268,14 +257,10 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
                 if(childModel.getBookingCode()!=null && !childModel.getBookingCode().isEmpty()){
                     childCode.setText(childModel.getBookingCode() + " @" + code[(childModel.getRecommendedBookie()-1)]);
                     childCode.setVisibility(View.VISIBLE);
-                    imgChildCode.setVisibility(View.VISIBLE);
-                    lnrChildCode.setVisibility(View.VISIBLE);
                 }
-                else{
-                    lnrChildCode.setVisibility(View.GONE);
+                else
                     childCode.setVisibility(View.GONE);
-                    imgChildCode.setVisibility(View.GONE);
-                }
+
                 if(childModel.getType()==0){
                     childType.setVisibility(View.GONE);
                 }

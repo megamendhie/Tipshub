@@ -24,6 +24,8 @@ import androidx.appcompat.widget.SwitchCompat;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -254,6 +256,13 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.recommended_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case android.R.id.home:
@@ -261,6 +270,11 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                     mDrawerLayout.closeDrawer(GravityCompat.START);
                 else
                     mDrawerLayout.openDrawer(GravityCompat.START);
+                break;
+            case R.id.mnuSearch:
+                Intent intent = new Intent(MainActivity.this, SearchActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                startActivity(intent);
                 break;
         }
         return true;

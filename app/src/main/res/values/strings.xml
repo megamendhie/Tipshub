@@ -969,4 +969,5 @@
     <string name="text_post_status">post status</string>
     <string name="text_overflow">more_options</string>
     <string name="text_post_code">post code</string>
+    <string name="txt_search">search</string>
 </resources>

@@ -14,6 +14,9 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -28,6 +31,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.sqube.tipshub.R;
+import com.sqube.tipshub.SearchActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -69,7 +73,7 @@ public class RecommendedFragment extends Fragment implements View.OnClickListene
     ArrayList<HashMap<String, String>> dataList = new ArrayList<HashMap<String, String>>();
 
     public RecommendedFragment() {
-        // Required empty public constructor
+        // Required empty public   constructor
     }
 
     @Override
@@ -102,6 +106,7 @@ public class RecommendedFragment extends Fragment implements View.OnClickListene
         loadNews();
         return rootView;
     }
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
