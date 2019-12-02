@@ -1,8 +1,11 @@
 package com.sqube.tipshub;
 
 import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -12,6 +15,8 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -55,7 +60,7 @@ public class MemberProfileActivity extends AppCompatActivity implements View.OnC
     private CircleImageView imgDp;
     private LinearLayout[] lnrLayout = new LinearLayout[4];
     private Button btnFollow, btnSubscribe;
-    ProfileMedium profile;
+    private ProfileMedium profile;
     private RecyclerView recyclerView;
     PerformanceAdapter adapter;
     private String myID, imgUrl;
@@ -112,51 +117,57 @@ public class MemberProfileActivity extends AppCompatActivity implements View.OnC
 
         database = FirebaseFirestore.getInstance();
         requestOptions.placeholder(R.drawable.dummy);
+        setupViewPager(viewPager); //set up view pager with fragments
+    }
+
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
         database.collection("profiles").document(userId).get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                if(documentSnapshot==null||!documentSnapshot.exists())
-                    return;
-                profile = documentSnapshot.toObject(ProfileMedium.class);
-                imgUrl = profile.getB2_dpUrl();
-                if(!imgUrl.isEmpty())
-                    imgDp.setOnClickListener(MemberProfileActivity.this);
-                String name = String.format(Locale.getDefault(),"%s %s", profile.getA0_firstName(),profile.getA1_lastName());
-                actionBar.setTitle(name);
-                txtName.setText(name);
-                txtUsername.setText(String.format(Locale.getDefault(),"@%s",profile.getA2_username()));
-                txtBio.setText(profile.getA5_bio());
-                Reusable.applyLinkfy(MemberProfileActivity.this, profile.getA5_bio(), txtBio);
-                txtFollowers.setText(String.valueOf(profile.getC4_followers()));
-                txtFollowing.setText(String.valueOf(profile.getC5_following()));
-                txtSubscribers.setText(String.valueOf(profile.getC6_subscribers()));
-                txtSubscriptions.setText(String.valueOf(profile.getC7_subscriptions()));
-                String tips = profile.getE0a_NOG()>1? "tips": "tip";
-                txtPost.setText(String.format(Locale.getDefault(),"%d  %s  • ", profile.getE0a_NOG(), tips));
-                txtWon.setText(String.format(Locale.getDefault(),"%d  won  • ", profile.getE0b_WG()));
-                if(profile.isC1_banker()){
-                    if(UserNetwork.getSubscribed()!=null|| !UserNetwork.getSubscribed().contains(userId))
-                        btnSubscribe.setVisibility(View.VISIBLE);
-                }
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        if(documentSnapshot==null||!documentSnapshot.exists())
+                            return;
+                        profile = documentSnapshot.toObject(ProfileMedium.class);
+                        imgUrl = profile.getB2_dpUrl();
+                        if(!imgUrl.isEmpty())
+                            imgDp.setOnClickListener(MemberProfileActivity.this);
+                        String name = String.format(Locale.getDefault(),"%s %s", profile.getA0_firstName(),profile.getA1_lastName());
+                        actionBar.setTitle(name);
+                        txtName.setText(name);
+                        txtUsername.setText(String.format(Locale.getDefault(),"@%s",profile.getA2_username()));
+                        txtBio.setText(profile.getA5_bio());
+                        Reusable.applyLinkfy(MemberProfileActivity.this, profile.getA5_bio(), txtBio);
+                        txtFollowers.setText(String.valueOf(profile.getC4_followers()));
+                        txtFollowing.setText(String.valueOf(profile.getC5_following()));
+                        txtSubscribers.setText(String.valueOf(profile.getC6_subscribers()));
+                        txtSubscriptions.setText(String.valueOf(profile.getC7_subscriptions()));
+                        String tips = profile.getE0a_NOG()>1? "tips": "tip";
+                        txtPost.setText(String.format(Locale.getDefault(),"%d  %s  • ", profile.getE0a_NOG(), tips));
+                        txtWon.setText(String.format(Locale.getDefault(),"%d  won  • ", profile.getE0b_WG()));
+                        if(profile.isC1_banker()){
+                            if(UserNetwork.getSubscribed()!=null|| !UserNetwork.getSubscribed().contains(userId))
+                                btnSubscribe.setVisibility(View.VISIBLE);
+                        }
 
-                //set Display picture
-                Glide.with(getApplicationContext())
-                        .setDefaultRequestOptions(requestOptions)
-                        .load(profile.getB2_dpUrl())
-                        .into(imgDp);
+                        //set Display picture
+                        Glide.with(getApplicationContext())
+                                .setDefaultRequestOptions(requestOptions)
+                                .load(profile.getB2_dpUrl())
+                                .into(imgDp);
 
-                if(profile.getE0a_NOG()>0){
-                    for(int i=1; i<=6; i++){
-                        Map<String, Object> row = getRow(i);
-                        if(!row.isEmpty())
-                            performanceList.add(row);
+                        if(profile.getE0a_NOG()>0){
+                            for(int i=1; i<=6; i++){
+                                Map<String, Object> row = getRow(i);
+                                if(!row.isEmpty())
+                                    performanceList.add(row);
+                            }
+                            recyclerView.setAdapter(adapter);
+                        }
                     }
-                    recyclerView.setAdapter(adapter);
-                }
-            }
-        });
-        setupViewPager(viewPager); //set up view pager with fragments
+                });
+
     }
 
     private  Map<String, Object> getRow(int i) {
@@ -280,19 +291,19 @@ public class MemberProfileActivity extends AppCompatActivity implements View.OnC
                 startActivity(intent);
                 break;
             case R.id.btnFollow:
-                Calculations calculations = new Calculations(getApplicationContext());
+                if(!Reusable.getNetworkAvailability(this)){
+                    Snackbar.make(btnFollow, "No Internet connection", Snackbar.LENGTH_SHORT).show();
+                    return;
+                }
                 if(btnFollow.getText().equals("FOLLOW")){
+                    Calculations calculations = new Calculations(MemberProfileActivity.this);
                     calculations.followMember(btnFollow, myID, userId);
-                    if(Reusable.getNetworkAvailability(this)) {
-                        btnFollow.setText("FOLLOWING");
-                    }
+                    profile.setC4_followers(profile.getC4_followers()+1);
+                    txtFollowers.setText(String.valueOf(profile.getC4_followers()));
+                    btnFollow.setText("FOLLOWING");
                 }
-                else{
-                    calculations.unfollowMember(btnFollow, myID, userId);
-                    if(Reusable.getNetworkAvailability(this)) {
-                        btnFollow.setText("FOLLOW");
-                    }
-                }
+                else
+                    unfollowPrompt();
                 break;
             case R.id.btnSubscribe:
                 Intent intentSub = new Intent(getApplicationContext(), SubscriptionActivity.class);
@@ -300,6 +311,30 @@ public class MemberProfileActivity extends AppCompatActivity implements View.OnC
                 startActivity(intentSub);
                 break;
         }
+    }
+
+    private void unfollowPrompt(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(MemberProfileActivity.this,
+                R.style.Theme_AppCompat_Light_Dialog_Alert);
+        builder.setMessage(String.format("Do you want to unfollow %s?", profile.getA2_username()))
+                .setTitle("Unfollow")
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        //do nothing
+                    }
+                })
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Calculations calculations = new Calculations(MemberProfileActivity.this);
+                        calculations.unfollowMember(btnFollow, myID, userId);
+                        profile.setC4_followers(Math.max(0, profile.getC4_followers()-1));
+                        txtFollowers.setText(String.valueOf(profile.getC4_followers()));
+                        btnFollow.setText("FOLLOW");
+                    }
+                })
+                .show();
     }
 
     public class ViewPagerAdapter extends FragmentPagerAdapter {

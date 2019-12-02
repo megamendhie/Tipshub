@@ -15,7 +15,6 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".SearchActivity"></activity>
         <activity android:name=".AboutActivity" />
         <activity android:name=".GuideActivity" />
         <activity android:name=".ContactActivity" />
