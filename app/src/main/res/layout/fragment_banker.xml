@@ -19,8 +19,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="32dp"
-                android:text="Not available"
                 android:textColor="@color/colorPrimaryDark"
+                android:background="@android:drawable/editbox_background"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                 android:textSize="18sp"
                 android:textStyle="bold"
@@ -29,32 +29,43 @@
                 app:layout_constraintTop_toBottomOf="@id/crdSubscription" />
 
 
-            <TextView
-                android:id="@+id/txtBanker"
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layout_constraintTop_toTopOf="parent"
-                android:textStyle="bold|italic"
-                android:textSize="16sp"
-                android:background="#F5F5F5"
-                android:padding="3dp"
-                android:layout_marginStart="3dp"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                android:text="Bankers tips are predictions from people you subscribed to. A tipster can post ONLY one(1) banker in a day and it must be very sure."/>
+                app:layout_constraintTop_toTopOf="parent">
 
-            <ImageView
-                android:id="@+id/imgBanker"
-                android:layout_width="match_parent"
-                android:layout_height="180dp"
-                android:src="@drawable/ic_banker"
-                android:scaleType="fitXY"
-                app:layout_constraintTop_toBottomOf="@id/txtBanker" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/txtBanker"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textStyle="bold|italic"
+                        android:textSize="16sp"
+                        android:background="#F5F5F5"
+                        android:paddingTop="3dp"
+                        android:paddingStart="6dp"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                        android:text="Bankers tips are predictions from people you subscribed to. A tipster can post ONLY one(1) banker in a day and must be very sure."/>
+
+                    <ImageView
+                        android:id="@+id/imgBanker"
+                        android:layout_width="match_parent"
+                        android:layout_height="180dp"
+                        android:src="@drawable/ic_banker"
+                        android:scaleType="fitXY" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
                 android:id="@+id/crdSubscription"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@id/imgBanker"
+                app:layout_constraintTop_toBottomOf="@id/cardView"
                 android:layout_marginTop="10dp"
                 app:cardElevation="0dp"
                 android:paddingTop="3dp"
@@ -67,14 +78,14 @@
                     android:textSize="18sp"
                     android:layout_marginStart="3dp"
                     android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                    android:text="People you subscribed to"/>
+                    android:text="From people you subscribed to"/>
             </androidx.cardview.widget.CardView>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/subscribedList"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:minHeight="100dp"
+                android:minHeight="120dp"
                 android:layout_marginTop="@dimen/img_padding"
                 app:layout_constraintTop_toBottomOf="@id/crdSubscription" />
             

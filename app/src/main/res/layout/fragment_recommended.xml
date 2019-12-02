@@ -79,7 +79,7 @@
                             android:id="@+id/btnInvite"
                             android:layout_width="wrap_content"
                             android:layout_height="match_parent"
-                            app:backgroundTint="@color/color_twitter"
+                            app:backgroundTint="@color/colorPrimary"
                             android:textColor="@color/white"
                             android:textStyle="bold"
                             android:drawablePadding="4dp"
