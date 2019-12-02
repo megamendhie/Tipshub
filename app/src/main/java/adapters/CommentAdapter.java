@@ -4,10 +4,14 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import androidx.annotation.NonNull;
 import com.google.android.material.snackbar.Snackbar;
 import androidx.recyclerview.widget.RecyclerView;
+
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -230,6 +234,7 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
             dialogView = inflater.inflate(R.layout.dialog_member, null);
         builder.setView(dialogView);
         final AlertDialog dialog= builder.create();
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.show();
 
         Button btnSubmit, btnDelete, btnFollow, btnShare;
@@ -252,13 +257,18 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
                 dialog.cancel();
             }
         });
+
         btnFollow.setOnClickListener(v -> {
+            if(!Reusable.getNetworkAvailability(context)){
+                Snackbar.make(btnFollow, "No Internet connection", Snackbar.LENGTH_SHORT).show();
+                dialog.cancel();
+                return;
+            }
             if(btnFollow.getText().equals("FOLLOW")){
                 calculations.followMember(imgOverflow, userId, commentUserId);
             }
-            else{
-                calculations.unfollowMember(imgOverflow, userId, commentUserId);
-            }
+            else
+                unfollowPrompt(imgOverflow, commentUserId, model.getUsername());
             dialog.cancel();
         });
 
@@ -269,6 +279,26 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
                 dialog.cancel();
             }
         });
+    }
+
+    private void unfollowPrompt(ImageView imgOverflow, String userID, String username){
+        AlertDialog.Builder builder = new AlertDialog.Builder(context,
+                R.style.Theme_AppCompat_Light_Dialog_Alert);
+        builder.setMessage(String.format("Do you want to unfollow %s?", username))
+                .setTitle("Unfollow")
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        //do nothing
+                    }
+                })
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        calculations.unfollowMember(imgOverflow, userId, userID);
+                    }
+                })
+                .show();
     }
 
     private void deleteComment(String postId, View imgOverflow){
@@ -319,7 +349,7 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
         return new CommentHolder(view);
     }
 
-    public class CommentHolder extends RecyclerView.ViewHolder {
+    class CommentHolder extends RecyclerView.ViewHolder {
         CircleImageView imgDp;
         LinearLayout lnrContainer;
         TextView mComment;
@@ -328,7 +358,7 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
         TextView mLikes, mDislikes;
         ImageView imgOverflow;
         ImageView imgLikes, imgDislike, imgReply;
-        public CommentHolder(View itemView) {
+        CommentHolder(View itemView) {
             super(itemView);
             lnrContainer = itemView.findViewById(R.id.container_post);
             imgDp = itemView.findViewById(R.id.imgDp);

@@ -1,7 +1,9 @@
 package adapters;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import androidx.annotation.NonNull;
 import com.google.android.material.snackbar.Snackbar;
@@ -41,8 +43,6 @@ public class PeopleRecAdapter extends RecyclerView.Adapter<PeopleRecAdapter.Post
     private ArrayList<String> list;
     private RequestOptions requestOptions = new RequestOptions();
 
-    public PeopleRecAdapter(){}
-
     public PeopleRecAdapter(Activity activity, Context context, String userId,  ArrayList<String> list){
         Log.i(TAG, "PeopleRecAdapter: called");
         this.activity =activity;
@@ -57,6 +57,11 @@ public class PeopleRecAdapter extends RecyclerView.Adapter<PeopleRecAdapter.Post
     public PostHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.user_view, parent, false);
         return new PostHolder(view);
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return position;
     }
 
     @Override
@@ -104,34 +109,43 @@ public class PeopleRecAdapter extends RecyclerView.Adapter<PeopleRecAdapter.Post
                     }
                 });
 
-                holder.btnFollow.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if(UserNetwork.getFollowing()==null){
-                            Snackbar.make(holder.btnFollow, "Can't follow this person now", Snackbar.LENGTH_SHORT).show();
-                            return;
-                        }
-                        Calculations calculations= new Calculations(context);
-                        switch (holder.btnFollow.getText().toString().toLowerCase()){
-                            case "follow":
-                                calculations.followMember(holder.imgDp, userId, ref);
-                                if(Reusable.getNetworkAvailability(activity)) {
-                                    holder.btnFollow.setText("FOLLOWING");
-                                }
-                                break;
-                            case "following":
-                                calculations.unfollowMember(holder.imgDp, userId, ref);
-                                if(Reusable.getNetworkAvailability(activity)) {
-                                    holder.btnFollow.setText("FOLLOW");
-                                }
-                                break;
-                        }
+                holder.btnFollow.setOnClickListener(v -> {
+                    if(!Reusable.getNetworkAvailability(context)){
+                        Snackbar.make(holder.btnFollow, "No Internet connection", Snackbar.LENGTH_SHORT).show();
+                        return;
                     }
+                    if(holder.btnFollow.getText().toString().toUpperCase().equals("FOLLOW")){
+                        Calculations calculations= new Calculations(context);
+                        calculations.followMember(holder.imgDp, userId, ref);
+                        holder.btnFollow.setText("FOLLOWING");
+                    }
+                    else
+                        unfollowPrompt(holder.btnFollow, ref, model.getA2_username());
                 });
             }
         });
+    }
 
-
+    private void unfollowPrompt(Button btnFollow, String userID, String username){
+        AlertDialog.Builder builder = new AlertDialog.Builder(context,
+                R.style.Theme_AppCompat_Light_Dialog_Alert);
+        builder.setMessage(String.format("Do you want to unfollow %s?", username))
+                .setTitle("Unfollow")
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        //do nothing
+                    }
+                })
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Calculations calculations= new Calculations(context);
+                        calculations.unfollowMember(btnFollow, userId, userID);
+                        btnFollow.setText("FOLLOW");
+                    }
+                })
+                .show();
     }
 
     @Override
