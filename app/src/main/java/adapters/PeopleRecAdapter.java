@@ -71,14 +71,14 @@ public class PeopleRecAdapter extends RecyclerView.Adapter<PeopleRecAdapter.Post
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if(!task.isSuccessful()||task.isCanceled()){
+                if(!task.isSuccessful()||task.isCanceled() || !task.getResult().exists()){
                     list.remove(i);
                     PeopleRecAdapter.this.notifyDataSetChanged();
                     return;
                 }
                 Log.i(TAG, "onComplete: ");
                 ProfileShort model = task.getResult().toObject(ProfileShort.class);
-                if(model.getA5_bio()!=null&& !model.getA5_bio().isEmpty())
+                if(model.getA5_bio()!=null && !model.getA5_bio().isEmpty())
                     Reusable.applyLinkfy(context,model.getA5_bio(), holder.mBio);
                 holder.mBio.setText(model.getA5_bio());
                 holder.mUsername.setText(model.getA2_username());
