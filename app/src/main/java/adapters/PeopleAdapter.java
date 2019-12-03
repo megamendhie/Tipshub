@@ -68,7 +68,7 @@ public class PeopleAdapter extends RecyclerView.Adapter<PeopleAdapter.PostHolder
         FirebaseUtil.getFirebaseFirestore().collection("profiles").document(ref).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if(!task.isSuccessful() || !task.getResult().exists()){
+                if(!task.isSuccessful()||task.isCanceled()){
                     list.remove(i);
                     PeopleAdapter.this.notifyDataSetChanged();
                     return;

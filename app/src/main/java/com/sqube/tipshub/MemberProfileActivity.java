@@ -157,6 +157,9 @@ public class MemberProfileActivity extends AppCompatActivity implements View.OnC
                                 .load(profile.getB2_dpUrl())
                                 .into(imgDp);
 
+                        if(!performanceList.isEmpty())
+                            return;
+
                         if(profile.getE0a_NOG()>0){
                             for(int i=1; i<=6; i++){
                                 Map<String, Object> row = getRow(i);
