@@ -32,8 +32,8 @@ public class ContactActivity extends AppCompatActivity implements View.OnClickLi
         crdTwitter.setOnClickListener(this);
         CardView crdFacebook = findViewById(R.id.crdFacebook);
         crdFacebook.setOnClickListener(this);
-        CardView crdMessenger = findViewById(R.id.crdMessenger);
-        crdMessenger.setOnClickListener(this);
+        CardView crdEmail = findViewById(R.id.crdEmail);
+        crdEmail.setOnClickListener(this);
 
         pkMgt = getPackageManager();
     }
@@ -47,6 +47,9 @@ public class ContactActivity extends AppCompatActivity implements View.OnClickLi
     @Override
     public void onClick(View v) {
         switch (v.getId()){
+            case R.id.crdEmail:
+                sendEmail();
+                break;
             case R.id.crdWhatsapp:
                 startWhatsapp();
                 break;
@@ -56,11 +59,16 @@ public class ContactActivity extends AppCompatActivity implements View.OnClickLi
             case R.id.crdFacebook:
                 startBrowser("https://web.facebook.com/Tipshub-110212083647469");
                 break;
-            case R.id.crdMessenger:
-                startBrowser("https://www.messenger.com/t/110212083647469");
-                break;
         }
     }
+
+    private void sendEmail(){
+        Intent sendIntent = new Intent(Intent.ACTION_SENDTO);
+        sendIntent.setData(Uri.parse("mailto:swiftqube@gmail.com"));
+        sendIntent.putExtra(Intent.EXTRA_SUBJECT, "Tipshub Help Request");
+        startActivity(Intent.createChooser(sendIntent, "Select:"));
+    }
+
 
     private void startWhatsapp() {
         String mssg = "Hello Tipshub";
@@ -69,7 +77,6 @@ public class ContactActivity extends AppCompatActivity implements View.OnClickLi
         try {
             Intent whatsApp = new Intent(Intent.ACTION_VIEW);
             whatsApp.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY |
-                    Intent.FLAG_ACTIVITY_NEW_DOCUMENT |
                     Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
             whatsApp.setData(uri);
             pkMgt.getPackageInfo("com.whatsapp", PackageManager.GET_META_DATA);
@@ -84,7 +91,6 @@ public class ContactActivity extends AppCompatActivity implements View.OnClickLi
         Uri uri = Uri.parse(url);
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY |
-                Intent.FLAG_ACTIVITY_NEW_DOCUMENT |
                 Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
         intent.setData(uri);
         startActivity(intent);

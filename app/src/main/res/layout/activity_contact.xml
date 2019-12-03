@@ -23,12 +23,52 @@
             app:srcCompat="@drawable/ic_contact_us"
             android:contentDescription="contact" />
 
+
+
         <androidx.cardview.widget.CardView
-            android:id="@+id/crdWhatsapp"
+            android:id="@+id/crdEmail"
             android:layout_width="240dp"
             android:layout_height="40dp"
             android:layout_below="@id/imgContact"
             android:layout_marginTop="30dp"
+            android:layout_centerHorizontal="true"
+            android:clickable="true"
+            android:elevation="6dp"
+            android:padding="2dp"
+            app:cardCornerRadius="@dimen/vertical_padding"
+            card_view:cardUseCompatPadding="true">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@android:color/holo_red_dark"
+                android:gravity="center_vertical"
+                android:padding="6dp">
+
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:tint="@color/white"
+                    android:scaleType="centerInside"
+                    app:srcCompat="@drawable/ic_mail_outline_black_24dp" />
+
+                <TextView
+                    android:id="@+id/txtEmail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="EMAIL"
+                    android:textColor="@android:color/white"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/crdWhatsapp"
+            android:layout_width="240dp"
+            android:layout_height="40dp"
+            android:layout_below="@id/crdEmail"
+            android:layout_marginTop="20dp"
             android:layout_centerHorizontal="true"
             android:clickable="true"
             app:cardCornerRadius="@dimen/vertical_padding"
@@ -132,44 +172,6 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:text="FACEBOOK"
-                    android:textColor="@android:color/white"
-                    android:textStyle="bold" />
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-
-        <androidx.cardview.widget.CardView
-            android:id="@+id/crdMessenger"
-            android:layout_width="240dp"
-            android:layout_height="40dp"
-            android:layout_below="@id/crdFacebook"
-            android:layout_marginTop="20dp"
-            android:layout_centerHorizontal="true"
-            android:clickable="true"
-            android:elevation="6dp"
-            android:padding="2dp"
-            app:cardCornerRadius="@dimen/vertical_padding"
-            card_view:cardUseCompatPadding="true">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="#0084FF"
-                android:gravity="center_vertical"
-                android:padding="6dp">
-
-                <ImageView
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:tint="@color/white"
-                    android:scaleType="centerInside"
-                    app:srcCompat="@drawable/ic_messenger" />
-
-                <TextView
-                    android:id="@+id/txtMessenger"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="MESSENGER"
                     android:textColor="@android:color/white"
                     android:textStyle="bold" />
             </LinearLayout>
