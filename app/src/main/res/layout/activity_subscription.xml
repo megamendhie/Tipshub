@@ -5,19 +5,32 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="@dimen/vertical_padding"
+    android:paddingTop="5dp"
+    android:paddingStart="20dp"
+    android:paddingEnd="20dp"
+    android:paddingBottom="20dp"
     tools:context=".SubscriptionActivity">
 
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:padding="@dimen/vertical_padding">
+            android:layout_height="match_parent">
+
+
+            <TextView
+                android:id="@+id/txtContact"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                android:textColor="@android:color/holo_red_dark"
+                android:onClick="openContact"
+                android:text="@string/txt_contact_notice"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="30sp"
+                android:layout_marginTop="5dp"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                 android:text="Subscribe To:"/>
 

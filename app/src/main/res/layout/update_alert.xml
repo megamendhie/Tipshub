@@ -13,7 +13,7 @@
   <ImageView
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_marginTop="12dp"
+      android:layout_marginTop="6dp"
       android:layout_gravity="center_horizontal"
       app:srcCompat="@drawable/tipshub_logo_land"/>
 
@@ -22,11 +22,11 @@
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:textStyle="bold"
-      android:layout_marginTop="12dp"
+      android:layout_marginTop="6dp"
       android:gravity="center_horizontal"
       android:textColor="@color/color_oxblood"
       android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-      android:text="New available version"/>
+      android:text="App update available"/>
 
   <RelativeLayout
       android:layout_width="match_parent"
@@ -35,37 +35,38 @@
       android:padding="10dp">
 
     <TextView
-        android:id="@+id/btnLater"
-        android:layout_width="80dp"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:layout_alignTop="@+id/btnUpdate"
-        android:layout_alignParentEnd="true"
-        android:textColor="@color/colorAccent"
-        android:layout_marginTop="6dp"
-        android:layout_marginEnd="100dp"
-        android:background="@drawable/txt_bg"
-        android:padding="8dp"
-        android:text="@string/txt_later" />
-
-    <TextView
         android:id="@+id/txtDescription"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="8dp"
         android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-        android:text="Looks like you have an older version of the app.\nPlease update to get the latest features and best experience."
+        android:text="You are using an old version of the app. Please update to the new app to enjoy amazing new features."
         android:textSize="16sp"/>
 
     <Button
         android:id="@+id/btnUpdate"
-        android:layout_width="wrap_content"
+        android:layout_width="180dp"
         android:layout_height="wrap_content"
         android:textStyle="bold"
+        android:layout_centerHorizontal="true"
         style="@style/CustomButton"
         android:layout_below="@id/txtDescription"
-        android:layout_marginTop="10dp"
-        android:layout_alignParentEnd="true"
+        android:layout_marginTop="20dp"
         android:text="@string/txt_update"/>
+
+
+    <TextView
+        android:id="@+id/btnLater"
+        android:layout_width="180dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/btnUpdate"
+        android:textColor="@color/colorAccent"
+        android:layout_marginTop="6dp"
+        android:background="@drawable/txt_bg"
+        android:padding="8dp"
+        android:text="@string/txt_later" />
   </RelativeLayout>
 </LinearLayout>

@@ -5,6 +5,8 @@ import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,9 +24,6 @@ import utils.FirebaseUtil;
  * A simple {@link Fragment} subclass.
  */
 public class NotificationFragment extends Fragment {
-    private String userId;
-    private String TAG = "NotificationFrag";
-    private RecyclerView notificationList;
 
 
     public NotificationFragment() {
@@ -34,25 +33,34 @@ public class NotificationFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         // Inflate the layout for this fragment
         View rootView=inflater.inflate(R.layout.fragment_notification, container, false);
-        notificationList = rootView.findViewById(R.id.testList);
+        RecyclerView notificationList = rootView.findViewById(R.id.testList);
         notificationList.setLayoutManager(new LinearLayoutManager(getActivity()));
+        SwipeRefreshLayout refresher = rootView.findViewById(R.id.refresher);
+        refresher.setColorSchemeResources(R.color.colorPrimary);
 
         FirebaseUser user = FirebaseUtil.getFirebaseAuthentication().getCurrentUser();
-        userId = user.getUid();
-        loadNotifications();
-        return rootView;
-    }
+        String userId = user.getUid();
+        Query query = FirebaseUtil.getFirebaseFirestore().collection("notifications")
+                .orderBy("time", Query.Direction.DESCENDING).whereEqualTo("sendTo", userId);
 
-    private void loadNotifications() {
-        Query query = FirebaseUtil.getFirebaseFirestore().collection("notifications").orderBy("time", Query.Direction.DESCENDING)
-                .whereEqualTo("sendTo", userId);
         NotificationAdapter notificationAdapter = new NotificationAdapter(query, userId, getContext());
         notificationList.setAdapter(notificationAdapter);
-        if(notificationAdapter !=null){
-            Log.i(TAG, "loadPost: started listening");
-            notificationAdapter.startListening();
-        }
+        notificationAdapter.startListening();
+
+        refresher.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                refresher.setRefreshing(true);
+                if(notificationAdapter !=null) {
+                    notificationAdapter.stopListening();
+                    notificationAdapter.startListening();
+                }
+                refresher.setRefreshing(false);
+            }
+        });
+        return rootView;
     }
 }

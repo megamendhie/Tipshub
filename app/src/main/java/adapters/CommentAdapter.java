@@ -103,6 +103,7 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
         else
             holder.lnrContainer.setBackgroundColor(context.getResources().getColor(R.color.comment_bg));
 
+        imgReply.setVisibility(model.getUserId().equals(userId)? View.GONE: View.VISIBLE);
 
         //set username and comment content
         mUsername.setText(model.getUsername());

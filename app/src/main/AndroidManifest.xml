@@ -33,7 +33,8 @@
         <activity android:name=".FlagActivity" />
         <activity android:name=".AccountActivity" />
         <activity android:name=".SettingsActivity" />
-        <activity android:name=".SearchActivity" />
+        <activity android:name=".SearchActivity"
+            android:theme="@style/AppTheme.NoActionBar"/>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
