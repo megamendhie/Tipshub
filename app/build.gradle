@@ -30,9 +30,9 @@ dependencies {
     implementation 'com.google.firebase:firebase-auth:19.1.0'       //Authentication
     implementation 'com.google.firebase:firebase-firestore:21.2.0'  //Cloud Firestore
     implementation 'com.google.firebase:firebase-storage:17.0.0'    //Storage
-    implementation 'com.google.firebase:firebase-messaging:20.0.0'  //Messaging
-    implementation 'com.google.firebase:firebase-database:17.0.0' //RT database
-    implementation 'com.google.firebase:firebase-config:17.0.0'    //Remote Config
+    implementation 'com.google.firebase:firebase-messaging:20.0.1'  //Messaging
+    implementation 'com.google.firebase:firebase-database:19.2.0' //RT database
+    implementation 'com.google.firebase:firebase-config:19.0.3'    //Remote Config
     implementation 'com.firebaseui:firebase-ui-storage:4.2.0'
     implementation 'com.firebaseui:firebase-ui-firestore:4.2.1'
     implementation 'com.firebaseui:firebase-ui-auth:4.2.1'
@@ -45,7 +45,7 @@ dependencies {
     implementation 'androidx.arch.core:core-runtime:2.1.0'
     implementation 'com.github.clans:fab:1.6.4'
     implementation 'de.hdodenhof:circleimageview:2.2.0'
-    implementation 'com.github.Flutterwave:rave-android:1.0.40'
+    implementation 'com.github.Flutterwave:rave-android:1.0.45.1'
     implementation 'com.theartofdev.edmodo:android-image-cropper:2.7.+'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'com.facebook.shimmer:shimmer:0.4.0'
