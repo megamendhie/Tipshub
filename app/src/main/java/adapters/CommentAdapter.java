@@ -39,12 +39,14 @@ import com.sqube.tipshub.MemberProfileActivity;
 import com.sqube.tipshub.MyProfileActivity;
 import com.sqube.tipshub.R;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import models.Comment;
 import models.Post;
+import models.SnapId;
 import models.UserNetwork;
 import services.GlideApp;
 import utils.Calculations;
@@ -52,7 +54,7 @@ import utils.FirebaseUtil;
 import utils.Reusable;
 
 public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAdapter.CommentHolder>{
-    private final String TAG = "CommentAdaper";
+    private final String TAG = "CommentAdapter";
     private Activity activity;
     private Context context;
     private String userId;
@@ -60,6 +62,15 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
     private Calculations calculations;
     private RequestOptions requestOptions = new RequestOptions();
     private StorageReference storageReference;
+    private ArrayList<SnapId> repliedList = new ArrayList<>();
+
+    public ArrayList<SnapId> getRepliedList() {
+        return repliedList;
+    }
+
+    public void resetRepliesList(){
+        repliedList.clear();
+    }
 
     public CommentAdapter(String mainPostId, Query query, String userID, Activity activity, Context context) {
         /*
@@ -185,8 +196,12 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
             public void onClick(View v) {
                 EditText edtComment = activity.findViewById(R.id.edtComment);
                 String comment = edtComment.getText().toString();
-                edtComment.setText(String.format("%s@%s ", comment, model.getUsername()));
+                if(comment.isEmpty())
+                    edtComment.setText(String.format("@%s ", model.getUsername()));
+                else
+                    edtComment.setText(String.format("%s @%s ", comment.trim(), model.getUsername()));
                 edtComment.setSelection(edtComment.getText().length());
+                repliedList.add(new SnapId(model.getUserId(), model.getUsername()));
             }
         });
 

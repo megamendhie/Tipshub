@@ -48,9 +48,12 @@ import com.google.firebase.firestore.Transaction;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Nullable;
 
@@ -58,6 +61,7 @@ import adapters.CommentAdapter;
 import de.hdodenhof.circleimageview.CircleImageView;
 import models.Comment;
 import models.Post;
+import models.SnapId;
 import models.UserNetwork;
 import services.GlideApp;
 import utils.Calculations;
@@ -80,6 +84,7 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
     private FloatingActionButton fabPost;
     private ProgressBar prgPost;
     private RecyclerView commentsList;
+    private CommentAdapter commentAdapter;
     private Post model;
 
     private RequestOptions requestOptions = new RequestOptions();
@@ -397,7 +402,7 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
         //loads comment into commentList
         commentReference = FirebaseUtil.getFirebaseFirestore().collection("comments");
         Query query = commentReference.whereEqualTo("commentOn", postId).orderBy("time", Query.Direction.DESCENDING);
-        CommentAdapter commentAdapter = new CommentAdapter(postId, query, userId, FullPostActivity.this, getApplicationContext());
+        commentAdapter = new CommentAdapter(postId, query, userId, FullPostActivity.this, getApplicationContext());
         commentsList.setAdapter(commentAdapter);
         if(commentAdapter !=null){
             commentAdapter.startListening();
@@ -467,7 +472,7 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
 
     private void sendNotification(String content) {
         String substring = content.substring(0, Math.min(content.length(), 90));
-        calculations.setCount(model.getRepostCount());
+        calculations.setCount(model.getCommentsCount());
         calculations.sendPushNotification(true, userId, model.getUserId(), postId, "commented on", "post", substring);
     }
 
@@ -520,9 +525,28 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
                         if(!userId.equals(model.getUserId())){
                             calculations.recommend(userId, model.getUserId());
                             sendNotification(content);
+                            notifyMentionedUsers(content);
                         }
                     }
                 });
+    }
+
+    //send notification to mentioned users
+    private void notifyMentionedUsers(String comment){
+        ArrayList<SnapId> repliedUsers = commentAdapter.getRepliedList();
+        if(!repliedUsers.isEmpty()){
+            Set<SnapId> set = new HashSet<>(repliedUsers);
+            repliedUsers.clear();
+            repliedUsers.addAll(set);
+            String substring = comment.substring(0, Math.min(comment.length(), 90));
+            for(SnapId user: repliedUsers){
+                if(comment.contains("@"+ user.getUsername()) && !model.getUserId().equals(user.getId()))
+                    calculations.sendPushNotification(true, userId, user.getId(), postId,
+                            "mentioned you", "comment", substring);
+            }
+            edtComment.setText("");
+            commentAdapter.resetRepliesList();
+        }
     }
 
     public void increaseCommentCount(){
