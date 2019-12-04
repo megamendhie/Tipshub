@@ -18,6 +18,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.RadioGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -75,6 +76,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         setContentView(R.layout.activity_login);
 
         ShimmerFrameLayout shimmerLayout = findViewById(R.id.shimmer);
+        TextView txtForgotPassword = findViewById(R.id.txtForgetPassword);
         btnLogin = findViewById(R.id.btnLogin); btnLogin.setOnClickListener(this);
         Button btnSignup = findViewById(R.id.btnSignup);
         btnSignup.setOnClickListener(this);
@@ -247,6 +249,54 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 prgLogin.setVisibility(View.GONE);
             }
         });
+    }
+
+    public void passwordReset(View v){
+        /*
+        Build a dialogView for user to enter email
+         */
+        AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_reset_password, null);
+        builder.setView(dialogView);
+        final AlertDialog dialog= builder.create();
+        dialog.show();
+
+        final EditText edtPassResetEmail = dialog.findViewById(R.id.edtEmail);
+        final Button btnSendPassword = dialog.findViewById(R.id.btnSendPassword);
+        final TextView txtHeading = dialog.findViewById(R.id.txtHeading);
+        final ProgressBar progressBar = dialog.findViewById(R.id.prgPasswordReset);
+        edtPassResetEmail.setText(edtEmail.getText().toString().trim());
+
+        btnSendPassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(btnSendPassword.getText().toString().equals("CLOSE")){
+                    dialog.cancel();
+                    return;
+                }
+                progressBar.setVisibility(View.VISIBLE);
+                String email = edtPassResetEmail.getText().toString().trim();
+                FirebaseUtil.getFirebaseAuthentication().sendPasswordResetEmail(email).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if(task.isSuccessful()){
+                            progressBar.setVisibility(View.GONE);
+                            edtPassResetEmail.setVisibility(View.GONE);
+                            txtHeading.setText("Password link has been sent to your email");
+                            btnSendPassword.setText("CLOSE");
+                        }
+                        else{
+                            progressBar.setVisibility(View.GONE);
+                            Toast.makeText(LoginActivity.this, "Error " + task.getException().toString(),
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
+            }
+        });
+
+
     }
 
     public void completeProfile(){
