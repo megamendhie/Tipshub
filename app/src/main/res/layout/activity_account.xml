@@ -16,6 +16,7 @@
         android:layout_height="wrap_content"
         android:text="Your Subscribers"
         android:textAlignment="center"
+        android:padding="4dp"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:background="@color/colorPrimaryLight"
         android:textSize="20sp"
@@ -84,18 +85,28 @@
         </TableRow>
       </TableLayout>
 
+      <View
+          android:layout_width="match_parent"
+          android:layout_height="1dp"
+          android:layout_marginTop="1dp"
+          android:background="@color/black"/>
+
       <androidx.recyclerview.widget.RecyclerView
           android:id="@+id/listSubscribers"
           android:layout_width="match_parent"
-          android:layout_height="wrap_content" />
+          android:layout_height="wrap_content"
+          android:layout_marginTop="2dp"
+          android:minHeight="60dp"/>
 
       <TextView
           android:id="@+id/txtDipsplay1"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:layout_gravity="center_horizontal"
-          android:layout_marginTop="40dp"
+          android:layout_marginTop="10dp"
           android:text="No subscribers yet"
+          android:textSize="16sp"
+          android:background="@android:drawable/editbox_background"
           android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
     </LinearLayout>
 
@@ -104,7 +115,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:text="Your Subsriptions "
+        android:text="Your Subscriptions "
+        android:padding="4dp"
         android:textAlignment="center"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:background="@color/colorPrimaryLight"
@@ -171,18 +183,28 @@
         </TableRow>
       </TableLayout>
 
+      <View
+          android:layout_width="match_parent"
+          android:layout_height="1dp"
+          android:layout_marginTop="1dp"
+          android:background="@color/black"/>
+
       <androidx.recyclerview.widget.RecyclerView
           android:id="@+id/listSubscriptions"
           android:layout_width="match_parent"
-          android:layout_height="wrap_content"/>
+          android:layout_height="wrap_content"
+          android:minHeight="60dp"
+          android:layout_marginTop="2dp"/>
 
       <TextView
           android:id="@+id/txtDipsplay2"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:text="No subscriptions yet"
-          android:layout_marginTop="40dp"
+          android:layout_marginTop="10dp"
           android:layout_gravity="center_horizontal"
+          android:textSize="16sp"
+          android:background="@android:drawable/editbox_background"
           android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
     </LinearLayout>
