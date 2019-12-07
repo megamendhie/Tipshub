@@ -20,9 +20,13 @@ import android.widget.TextView;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.UploadTask;
+
+import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -31,7 +35,9 @@ import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -335,5 +341,22 @@ public final class Reusable {
                 return null;
             }
         }
+    }
+
+    public static void updateAlgoliaIndex(String firstName, String lastName, String username, String objectID, long score, boolean newEntry){
+        Map<String, Object> userDetails = new HashMap<>();
+        userDetails.put("a0_firstName",  firstName);
+        userDetails.put("a1_lastName",lastName);
+        userDetails.put("a2_username", username);
+        userDetails.put("c2_score", score);
+        userDetails.put("objectID", objectID);
+
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
+
+        if(newEntry)
+            ref = ref.child("algolia_add");
+        else
+            ref = ref.child("algolia_update");
+        ref.push().setValue(userDetails);
     }
 }
