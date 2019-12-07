@@ -25,7 +25,6 @@ public class UserDataFetcher extends IntentService {
     FirebaseFirestore database;
     FirebaseAuth auth;
     String userID;
-    private SharedPreferences prefs;
     SharedPreferences.Editor editor;
     private String TAG = "UserDataFetcher";
     private FirebaseMessaging FCM;
@@ -42,20 +41,22 @@ public class UserDataFetcher extends IntentService {
 
     @Override
     protected void onHandleIntent(@androidx.annotation.Nullable Intent intent) {
-
-        database = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
-        prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        editor = prefs.edit();
-        FCM = FirebaseMessaging.getInstance();
         Log.i(TAG, "onCreate: ");
-        if(auth.getCurrentUser()==null){
+        if(auth.getCurrentUser()==null)
             onDestroy();
-            return;
+        else {
+            userID = auth.getCurrentUser().getUid();
+            setUserData();
         }
-        userID = auth.getCurrentUser().getUid();
+    }
 
-        //Set user profile
+    private void setUserData(){
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        editor = prefs.edit();
+        database = FirebaseFirestore.getInstance();
+        FCM = FirebaseMessaging.getInstance();
+
         database.collection("profiles").document(userID).addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
@@ -100,7 +101,7 @@ public class UserDataFetcher extends IntentService {
             }
         });
 
-        //set user subsrciptions
+        //set user subscriptions
         database.collection("subscribed_to").document(userID).addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {

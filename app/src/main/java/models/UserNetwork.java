@@ -3,16 +3,16 @@ package models;
 import java.util.ArrayList;
 
 public final class UserNetwork {
-    private static ArrayList<String> followers = new ArrayList<>();
-    private static ArrayList<String> following = new ArrayList<>();
-    private static ArrayList<String> subscribed = new ArrayList<>();
+    private static ArrayList<String> followers;
+    private static ArrayList<String> following;
+    private static ArrayList<String> subscribed;
 
     public static ArrayList<String> getFollowers() {
         return followers;
     }
 
     public static void setFollowers(ArrayList<String> mFollowers) {
-        followers = followers;
+        followers = mFollowers;
     }
 
     public static ArrayList<String> getFollowing() {
@@ -27,7 +27,7 @@ public final class UserNetwork {
         return subscribed;
     }
 
-    public static void setSubscribed(ArrayList<String> mSubscibed) {
-        subscribed = mSubscibed;
+    public static void setSubscribed(ArrayList<String> mSubscribed) {
+        subscribed = mSubscribed;
     }
 }

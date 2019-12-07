@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import androidx.annotation.NonNull;
+
 import com.google.android.material.bottomnavigation.BottomNavigationItemView;
 import com.google.android.material.bottomnavigation.BottomNavigationMenuView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -56,6 +57,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nullable;
@@ -67,11 +69,15 @@ import fragments.NotificationFragment;
 import fragments.RecommendedFragment;
 import models.ProfileMedium;
 import models.ProfileShort;
+import models.UserNetwork;
 import services.UserDataFetcher;
 import utils.FirebaseUtil;
+import utils.Reusable;
 
-public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener, View.OnClickListener, NavigationView.OnNavigationItemSelectedListener {
-    GoogleSignInClient mGoogleSignInClient;
+public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener,
+        View.OnClickListener, NavigationView.OnNavigationItemSelectedListener {
+
+    private GoogleSignInClient mGoogleSignInClient;
     private FirebaseRemoteConfig mFirebaseRemoteConfig;
     private FirebaseUser user;
     private Intent serviceIntent;
@@ -151,25 +157,26 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                 .requestEmail()
                 .build();
         mGoogleSignInClient = GoogleSignIn.getClient(MainActivity.this, gso);
+
         if(FirebaseUtil.getFirebaseAuthentication().getCurrentUser()==null){
             startActivity(new Intent(MainActivity.this, LandingActivity.class));
             finish();
             return;
         }
+
+        serviceIntent = new Intent(MainActivity.this, UserDataFetcher.class);
+        startService(serviceIntent);
+
         FirebaseUtil.getFirebaseAuthentication().addAuthStateListener(new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 if(FirebaseUtil.getFirebaseAuthentication().getCurrentUser()==null){
-                    stopService(serviceIntent);
-                    startActivity(new Intent(MainActivity.this, LoginActivity.class));
                     finish();
-                    return;
+                    startActivity(new Intent(MainActivity.this, LoginActivity.class));
                 }
             }
         });
 
-        serviceIntent = new Intent(this, UserDataFetcher.class);
-        startService(serviceIntent);
         mFirebaseRemoteConfig = FirebaseRemoteConfig.getInstance();
         user = FirebaseUtil.getFirebaseAuthentication().getCurrentUser();
         userId = user.getUid();
@@ -192,6 +199,13 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                 mDrawerLayout.closeDrawer(GravityCompat.START);
             }
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(serviceIntent!=null)
+            stopService(serviceIntent);
     }
 
     private void setBadge() {
@@ -402,20 +416,32 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
     public void Logout(){
         FirebaseMessaging.getInstance().unsubscribeFromTopic(userId);
-        try {
-            FirebaseInstanceId.getInstance().deleteInstanceId();
-            FirebaseInstanceId.getInstance().getToken();
-        } catch (IOException e) {
-            Log.i("MainActivity", "Logout: "+ e.getMessage());
-            e.printStackTrace();
-        }
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    FirebaseInstanceId.getInstance().deleteInstanceId();
+                } catch (IOException e) {
+                    Log.i("FbMessagingService", "Logout: "+ e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+
+        clearCache();
         if(user.getProviderData().get(1).getProviderId().equals("google.com")){
             FirebaseUtil.getFirebaseAuthentication().signOut();
             mGoogleSignInClient.signOut();
         }
-        else{
+        else
             FirebaseUtil.getFirebaseAuthentication().signOut();
-        }
+    }
+
+    private void clearCache() {
+        UserNetwork.setFollowers(null);
+        UserNetwork.setFollowing(null);
+        UserNetwork.setSubscribed(null);
     }
 
     private void checkForUpdate() {
