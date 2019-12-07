@@ -17,11 +17,14 @@
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_above="@id/crdInput"
+        android:layout_alignParentTop="true"
         android:padding="6dp">
         <LinearLayout
             android:id="@+id/container_post"
             android:orientation="vertical"
             android:background="@drawable/container_bg"
+            android:descendantFocusability="blocksDescendants"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
             <LinearLayout
@@ -92,7 +95,6 @@
                 android:textSize="16sp"
                 android:layout_marginTop="10dp"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
-
 
             <TextView
                 android:id="@+id/txtCode"
@@ -287,6 +289,7 @@
                 android:layout_height="1dp"
                 android:layout_marginTop="5dp"
                 android:background="#3d3c3c"/>
+
             <TextView
                 android:id="@+id/txtAds"
                 android:layout_width="match_parent"
@@ -317,12 +320,12 @@
                 android:layout_marginTop="5dp"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 app:stackFromEnd="true"
-                app:reverseLayout="true"
-                android:paddingBottom="45dp"/>
+                app:reverseLayout="true"/>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
     <androidx.cardview.widget.CardView
+        android:id="@+id/crdInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true">
@@ -342,7 +345,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="14.5"
-                android:maxLines="8"
+                android:maxLines="6"
                 android:inputType="textCapSentences|textNoSuggestions|textMultiLine"
                 android:hint="Post a comment"/>
             <com.google.android.material.floatingactionbutton.FloatingActionButton

@@ -241,50 +241,48 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
 
         childDisplayed = true;
         FirebaseUtil.getFirebaseFirestore().collection("posts").document(childLink).get()
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if(!task.getResult().exists()){
-                    childPost.setText("This content has been deleted");
-                    imgChildDp.setVisibility(View.GONE);
-                    childUsername.setVisibility(View.GONE);
-                    childType.setVisibility(View.GONE);
-                    imgChildStatus.setVisibility(View.GONE);
-                    childCode.setVisibility(View.GONE);
-                    lnrChildPost.setBackgroundResource(R.color.placeholder_bg);
+                .addOnCompleteListener(task -> {
+                    if(!task.getResult().exists()){
+                        childPost.setText("This content has been deleted");
+                        imgChildDp.setVisibility(View.GONE);
+                        childUsername.setVisibility(View.GONE);
+                        childType.setVisibility(View.GONE);
+                        imgChildStatus.setVisibility(View.GONE);
+                        childCode.setVisibility(View.GONE);
+                        lnrChildPost.setBackgroundResource(R.color.placeholder_bg);
+                        lnrChildPost.setVisibility(View.VISIBLE); //display child layout if child post exists
+                        return;
+                    }
+                    Post childModel = task.getResult().toObject(Post.class); //retrieve child post
+
+                    //bind post to views
+                    imgChildStatus.setVisibility(childModel.getStatus()==1? View.GONE: View.VISIBLE);
+                    if(childModel.getBookingCode()!=null && !childModel.getBookingCode().isEmpty()){
+                        childCode.setText(childModel.getBookingCode() + " @" + code[(childModel.getRecommendedBookie()-1)]);
+                        childCode.setVisibility(View.VISIBLE);
+                    }
+                    else
+                        childCode.setVisibility(View.GONE);
+
+                    if(childModel.getType()==0){
+                        childType.setVisibility(View.GONE);
+                    }
+                    else{
+                        childType.setVisibility(View.VISIBLE);
+                        childType.setText(type[childModel.getType()-1]);
+                    }
+                    childUsername.setText(childModel.getUsername());
+                    childPost.setText(childModel.getContent());
+                    Reusable.applyLinkfy(getApplicationContext(), childModel.getContent(), childPost);
+                    GlideApp.with(getApplicationContext())
+                            .setDefaultRequestOptions(requestOptions)
+                            .load(storageReference.child(childModel.getUserId()))
+                            .signature(new ObjectKey(childModel.getUserId()+"_"+Reusable.getSignature()))
+                            .into(imgChildDp);
                     lnrChildPost.setVisibility(View.VISIBLE); //display child layout if child post exists
-                    return;
-                }
-                Post childModel = task.getResult().toObject(Post.class); //retrieve child post
-
-                //bind post to views
-                imgChildStatus.setVisibility(childModel.getStatus()==1? View.GONE: View.VISIBLE);
-                if(childModel.getBookingCode()!=null && !childModel.getBookingCode().isEmpty()){
-                    childCode.setText(childModel.getBookingCode() + " @" + code[(childModel.getRecommendedBookie()-1)]);
-                    childCode.setVisibility(View.VISIBLE);
-                }
-                else
-                    childCode.setVisibility(View.GONE);
-
-                if(childModel.getType()==0){
-                    childType.setVisibility(View.GONE);
-                }
-                else{
-                    childType.setVisibility(View.VISIBLE);
-                    childType.setText(type[childModel.getType()-1]);
-                }
-                childUsername.setText(childModel.getUsername());
-                childPost.setText(childModel.getContent());
-                Reusable.applyLinkfy(getApplicationContext(), childModel.getContent(), childPost);
-                GlideApp.with(getApplicationContext())
-                        .setDefaultRequestOptions(requestOptions)
-                        .load(storageReference.child(childModel.getUserId()))
-                        .signature(new ObjectKey(childModel.getUserId()+"_"+Reusable.getSignature()))
-                        .into(imgChildDp);
-                lnrChildPost.setVisibility(View.VISIBLE); //display child layout if child post exists
-                lnrChildPost.setOnClickListener(FullPostActivity.this);
-            }
-        });
+                    childPost.setOnClickListener(FullPostActivity.this);
+                    lnrChildPost.setOnClickListener(FullPostActivity.this);
+                });
     }
 
     //Displays overflow containing options like follow, subscribe, disagree, etc.
@@ -443,6 +441,7 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
             case R.id.imgOverflow:
                 displayOverflow();
                 break;
+            case R.id.txtChildPost:
             case R.id.container_child_post:
                 intent = new Intent(getApplicationContext(), FullPostActivity.class);
                 intent.putExtra("postId", childLink);

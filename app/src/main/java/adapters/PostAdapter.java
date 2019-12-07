@@ -96,8 +96,8 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
             return;
         }
         Log.i(TAG, "onBindViewHolder: executed");
-        final LinearLayout lnrChildContainer = holder.lnrChildContainer;
         final String postId = getSnapshots().getSnapshot(position).getId();
+        holder.setPostId(postId);
 
         holder.mUsername.setText(model.getUsername());
         holder.imgStatus.setVisibility(model.getStatus()==1? View.GONE: View.VISIBLE);
@@ -168,14 +168,6 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
             }
         });
 
-        holder.lnrContainer.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(context, FullPostActivity.class);
-                intent.putExtra("postId", postId);
-                context.startActivity(intent);
-            }
-        });
         holder.mpost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -184,6 +176,7 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
                 context.startActivity(intent);
             }
         });
+
         holder.imgComment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -473,8 +466,9 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
     }
 
     class PostHolder extends RecyclerView.ViewHolder {
+        String postId;
         CircleImageView imgDp, childDp;
-        LinearLayout lnrContainer, lnrChildContainer;
+        LinearLayout lnrChildContainer;
         CardView crdChildPost;
         TextView mpost, childPost;
         TextView mUsername, childUsername;
@@ -488,7 +482,6 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
             imgDp = itemView.findViewById(R.id.imgDp);
             childDp = itemView.findViewById(R.id.childDp);
             crdChildPost = itemView.findViewById(R.id.crdChildPost);
-            lnrContainer = itemView.findViewById(R.id.container_post);
             lnrChildContainer = itemView.findViewById(R.id.container_child_post);
 
             mpost = itemView.findViewById(R.id.txtPost);
@@ -512,6 +505,19 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
             imgStatus = itemView.findViewById(R.id.imgStatus);
             imgOverflow = itemView.findViewById(R.id.imgOverflow);
             imgChildStatus = itemView.findViewById(R.id.imgChildStatus);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(context, FullPostActivity.class);
+                    intent.putExtra("postId", postId);
+                    context.startActivity(intent);
+                }
+            });
+        }
+
+        private void setPostId(String postId){
+            this.postId = postId;
         }
     }
 

@@ -336,6 +336,7 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<FilteredPostAdapte
         final int position = holder.getAdapterPosition();
         Log.i(TAG, "onBindViewHolder: executed");
         final String postId = snapIds.get(position).getId();
+        holder.setPostId(postId);
         Post model = postList.get(holder.getAdapterPosition());
 
         FirebaseUtil.getFirebaseFirestore().collection("posts").document(postId)
@@ -452,7 +453,7 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<FilteredPostAdapte
             }
         });
 
-        holder.lnrContainer.setOnClickListener(new View.OnClickListener() {
+        holder.mpost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context, FullPostActivity.class);
@@ -571,8 +572,9 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<FilteredPostAdapte
 
 
     class PostHolder extends RecyclerView.ViewHolder {
+        String postId;
         CircleImageView imgDp, childDp;
-        LinearLayout lnrContainer, lnrChildContainer;
+        LinearLayout lnrChildContainer;
         CardView crdChildPost;
         TextView mpost, childPost;
         TextView mUsername, childUsername;
@@ -585,7 +587,6 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<FilteredPostAdapte
             imgDp = itemView.findViewById(R.id.imgDp);
             childDp = itemView.findViewById(R.id.childDp);
             crdChildPost = itemView.findViewById(R.id.crdChildPost);
-            lnrContainer = itemView.findViewById(R.id.container_post);
             lnrChildContainer = itemView.findViewById(R.id.container_child_post);
 
             mpost = itemView.findViewById(R.id.txtPost);
@@ -609,7 +610,19 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<FilteredPostAdapte
             imgStatus = itemView.findViewById(R.id.imgStatus);
             imgOverflow = itemView.findViewById(R.id.imgOverflow);
             imgChildStatus = itemView.findViewById(R.id.imgChildStatus);
-        }
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(context, FullPostActivity.class);
+                    intent.putExtra("postId", postId);
+                    context.startActivity(intent);
+                    }
+                });
+            }
+
+            private void setPostId(String postId){
+                this.postId = postId;
+            }
     }
 
 }
