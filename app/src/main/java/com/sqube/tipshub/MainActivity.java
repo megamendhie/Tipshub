@@ -71,6 +71,7 @@ import models.ProfileMedium;
 import models.ProfileShort;
 import models.UserNetwork;
 import services.UserDataFetcher;
+import utils.Calculations;
 import utils.FirebaseUtil;
 import utils.Reusable;
 
@@ -347,16 +348,35 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                 startActivity(new Intent(MainActivity.this, GuideActivity.class));
                 break;
             case R.id.nav_logout:
-                if(FirebaseUtil.getFirebaseAuthentication().getCurrentUser()!=null)
-                    Logout();
-                else
-                    Toast.makeText(MainActivity.this, "No user logged in", Toast.LENGTH_LONG).show();
+                showLogoutPrompt();
                 break;
             case R.id.nav_account:
                 startActivity(new Intent(MainActivity.this, AccountActivity.class));
                 break;
         }
         return false;
+    }
+
+    private void showLogoutPrompt() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this,
+                R.style.Theme_AppCompat_Light_Dialog_Alert);
+        builder.setMessage("Do you want to logout of Tipshub?")
+                .setTitle("Logout")
+                .setIcon(R.drawable.ic_power_settings_new_color_24dp)
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {}
+                })
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        if(FirebaseUtil.getFirebaseAuthentication().getCurrentUser()!=null)
+                            Logout();
+                        else
+                            Toast.makeText(MainActivity.this, "No user logged in", Toast.LENGTH_LONG).show();
+                    }
+                })
+                .show();
     }
 
     @Override
