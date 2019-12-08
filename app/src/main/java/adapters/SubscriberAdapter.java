@@ -26,12 +26,11 @@ import utils.Reusable;
 public class SubscriberAdapter extends FirestoreRecyclerAdapter<Subscription, SubscriptionAdapter.PostHolder>{
     private final String TAG = "PostAdaper";
     private Context context;
-    private String userId;
     private StorageReference storageReference;
     private RequestOptions requestOptions = new RequestOptions();
     private String[] status = {"", "pending", "PAID"};
 
-    public SubscriberAdapter(Query query, String userID, Context context) {
+    public SubscriberAdapter(Query query, Context context) {
         /*
         Configure recycler adapter options:
         query defines the request made to Firestore
@@ -43,7 +42,6 @@ public class SubscriberAdapter extends FirestoreRecyclerAdapter<Subscription, Su
 
         Log.i(TAG, "PostAdapter: created");
         this.context = context;
-        this.userId = userID;
         requestOptions.placeholder(R.drawable.dummy);
         storageReference = FirebaseStorage.getInstance().getReference().child("profile_images");
         int i = getItemCount();
@@ -56,8 +54,9 @@ public class SubscriberAdapter extends FirestoreRecyclerAdapter<Subscription, Su
         holder.mUsername.setText(model.getSubFrom());
         holder.mStartDate.setText(Reusable.getNewDate(model.getDateStart()));
         holder.mEndDate.setText(Reusable.getNewDate(model.getDateEnd()));
-        holder.mAmount.setText(Html.fromHtml(model.getAmount()));
-        holder.mStatus.setText(status[model.getStatus()]);
+        holder.mAmount.setText(Html.fromHtml(model.getTipsterAmount()));
+        if(model.getStatus() < status.length)
+            holder.mStatus.setText(status[model.getStatus()]);
         GlideApp.with(context)
                 .setDefaultRequestOptions(requestOptions)
                 .load(storageReference.child(model.getSubFromId()))

@@ -29,12 +29,10 @@ import utils.Reusable;
 public class SubscriptionAdapter extends FirestoreRecyclerAdapter<Subscription, SubscriptionAdapter.PostHolder>{
     private final String TAG = "PostAdaper";
     private Context context;
-    private String userId;
     private StorageReference storageReference;
     private RequestOptions requestOptions = new RequestOptions();
-    private String[] status = {"", "active", "ended"};
 
-    public SubscriptionAdapter(Query query, String userID, Context context) {
+    public SubscriptionAdapter(Query query, Context context) {
         /*
         Configure recycler adapter options:
         query defines the request made to Firestore
@@ -46,7 +44,6 @@ public class SubscriptionAdapter extends FirestoreRecyclerAdapter<Subscription, 
 
         Log.i(TAG, "PostAdapter: created");
         this.context = context;
-        this.userId = userID;
         requestOptions.placeholder(R.drawable.dummy);
         storageReference = FirebaseStorage.getInstance().getReference().child("profile_images");
         int i = getItemCount();
