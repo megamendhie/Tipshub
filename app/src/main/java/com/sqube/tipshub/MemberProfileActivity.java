@@ -150,7 +150,7 @@ public class MemberProfileActivity extends AppCompatActivity implements View.OnC
                         txtAccuracy.setText(String.format(Locale.getDefault(),"%.1f%%", (double) profile.getE0c_WGP()));
 
                         if(profile.isC1_banker()){
-                            if(UserNetwork.getSubscribed()!=null|| !UserNetwork.getSubscribed().contains(userId))
+                            if(UserNetwork.getSubscribed()==null || !UserNetwork.getSubscribed().contains(userId))
                                 btnSubscribe.setVisibility(View.VISIBLE);
                         }
 
