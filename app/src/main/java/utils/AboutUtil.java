@@ -15,19 +15,19 @@ public class AboutUtil {
                 "  \"about\": [\n" +
                 "    {\n" +
                 "      \"heading\": \"Welcome to Tipshub\",\n" +
-                "      \"body\": \"Tipshub is a social network for tipsters and all sports fans. We all want to win so we created this platform so the very good tipsters can share their best tips with others.\"\n" +
+                "      \"body\": \"Tipshub is a social network for tipsters and all sports fans. It is an interactive platform where sports fans discuss on trending sports events and good tipsters share their predictions with their followers and subscribers.\"\n" +
                 "    },\n" +
                 "    {\n" +
                 "      \"heading\": \"What can you do on Tipshub?\",\n" +
-                "      \"body\": \"<ul><li>You can share your opinion on any sports event</li><li>Share your predictions with your followers</li><li>Follow people you like to get their tips.</li><li>Subscribe to the best tipsters for their Banker tips.</li><li>Get the latest sports news.</li></ul>\"\n" +
+                "      \"body\": \"<ul><li>You can discuss on any sports event</li><li>Share your predictions with others</li><li>Follow people you like to get their tips.</li><li>Subscribe to the best tipsters for their Banker tips.</li><li>Get the latest sports news.</li></ul>\"\n" +
                 "    },\n" +
                 "    {\n" +
                 "      \"heading\": \"What kind of post is allowed on Tipshub?\",\n" +
-                "      \"body\": \"<p>Since Tipshub is dedicated for sports, we expect sports gist, analysis, and predictions.</p><p>&nbsp;</p><p>DO NOT post anything that is profane, pornographic, fraudulent, false, or insulting as you will be either suspended or blocked.</p>\"\n" +
+                "      \"body\": \"<p>Since Tipshub is dedicated for sports, we expect sports gist, analysis, and predictions.</p><p>&nbsp;</p><p>DO NOT post anything that is profane, pornographic, fraudulent, false, or insulting as you will be immediately suspended or blocked.</p>\"\n" +
                 "    },\n" +
                 "    {\n" +
                 "      \"heading\": \"How may posts per day?\",\n" +
-                "      \"body\": \"<p>You can post as many normal posts as you like.</p><p>But you can only <strong>predict</strong> only <strong>4 times</strong> in a day.</p><p>And only 1 <strong>banker tip</strong> per day.</p>\"\n" +
+                "      \"body\": \"<p>You can post as many normal posts as you like.</p><p>But you can only <strong>predict</strong> only <strong>4 times</strong> in a day.</p><p>And only 1 <strong>banker tip</strong> in a day.</p>\"\n" +
                 "    },\n" +
                 "    {\n" +
                 "      \"heading\": \"What is BANKER?\",\n" +
@@ -51,7 +51,7 @@ public class AboutUtil {
                 "    },\n" +
                 "    {\n" +
                 "      \"heading\": \"How to receive your cash from subscribers\",\n" +
-                "      \"body\": \"<p>Once someone subscribes to you, the money will be transferred to the account details on your profile within 48 hours. Tipshub charges 25% of every subscription for operations</p>\"\n" +
+                "      \"body\": \"<p>Once someone subscribes to you, the money will be transferred to the account details on your profile within 48 hours. Tipshub charges 25% of every subscription for operations.</p>\"\n" +
                 "    }\n" +
                 "  ]\n" +
                 "}";
