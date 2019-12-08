@@ -14,8 +14,8 @@ public class AboutUtil {
         return  "{\n" +
                 "  \"about\": [\n" +
                 "    {\n" +
-                "      \"heading\": \"What is Tipshub?\",\n" +
-                "      \"body\": \"Tipshub is a social network for tipsters and all sports lovers. We all want to win so we created this platform so the very good tipsters can share their best tips with others.\"\n" +
+                "      \"heading\": \"Welcome to Tipshub\",\n" +
+                "      \"body\": \"Tipshub is a social network for tipsters and all sports fans. We all want to win so we created this platform so the very good tipsters can share their best tips with others.\"\n" +
                 "    },\n" +
                 "    {\n" +
                 "      \"heading\": \"What can you do on Tipshub?\",\n" +
@@ -39,7 +39,7 @@ public class AboutUtil {
                 "    },\n" +
                 "    {\n" +
                 "      \"heading\": \"Qualification to post Banker\",\n" +
-                "      \"body\": \"<p>Before you can post Banker tips, we must ensure that you are qualified. You can deliver consistent winning and you will not defraud your subscribers.</p><ul><li>You must have posted at least 50 free tips.</li><li>Won at least 70% of them</li><li>And you are very active on the platform</li></ul>\"\n" +
+                "      \"body\": \"<p>Before you can post Banker tips, we must ensure that you are qualified. You can deliver consistent winning and you will not defraud your subscribers.</p><ul><li>You must have posted at least 40 free tips.</li><li>Won at least 60% of them</li><li>And you are very active on the platform</li></ul>\"\n" +
                 "    },\n" +
                 "    {\n" +
                 "      \"heading\": \"How to submit won games\",\n" +
