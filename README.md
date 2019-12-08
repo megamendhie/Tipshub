@@ -1,11 +1,11 @@
 
 # Welcome to Tipshub!
-Tipshub is an social platform where sports fans discuss on trending sports events and good tipsters share their predictions with their followers and subscribers.
+Tipshub is a social platform where sports fans discuss trending sports events and good tipsters share their predictions with their followers and subscribers.
 
 ## What users can do on the app
-- Discuss on any sports events.
+- Discuss trending sports events.
 - Share predictions with their fans, followers, and subscribers.
-- Follow people they like for latest gist and tips.
+- Follow people they like for the latest gist and tips.
 - Subscribe to the best tipsters for their Banker tips.
 - Get up-to-date sports news
 
