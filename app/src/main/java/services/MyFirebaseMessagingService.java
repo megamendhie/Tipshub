@@ -15,6 +15,7 @@ import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import android.util.Log;
 
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
@@ -23,23 +24,41 @@ import com.sqube.tipshub.MainActivity;
 import com.sqube.tipshub.MemberProfileActivity;
 import com.sqube.tipshub.R;
 
+import java.util.ArrayList;
 import java.util.Random;
+
+import models.UserNetwork;
+import utils.FirebaseUtil;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private final String ADMIN_CHANNEL_ID ="admin_channel";
     private static final String SUBSCRIBE_TO = "tipshub_admin";
     private static final String TAG = "FbMessagingService";
+    FirebaseMessaging FCM;
 
 
     @Override
     public void onNewToken(String token) {
         super.onNewToken(token);
+        Log.i(TAG, "onTokenRefresh completed with token: " + token);
+        FCM = FirebaseMessaging.getInstance();
 
         // Once the token is generated, subscribe to topic with the userId
-        FirebaseMessaging.getInstance().subscribeToTopic(SUBSCRIBE_TO);
-        Log.i(TAG, "onTokenRefresh completed with token: " + token);
+        FCM.subscribeToTopic(SUBSCRIBE_TO);
 
+        FirebaseUser user = FirebaseUtil.getFirebaseAuthentication().getCurrentUser();
+
+        if(user == null)
+            return;
+
+        FCM.subscribeToTopic(user.getUid());
+        ArrayList<String> subscriptionList = UserNetwork.getSubscribed();
+        if(subscriptionList!=null && !subscriptionList.isEmpty()){
+            for(String s: subscriptionList){
+                FCM.subscribeToTopic("sub_"+s);
+            }
+        }
     }
 
     @Override
@@ -87,6 +106,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 .setLargeIcon(largeIcon)
                 .setContentTitle(remoteMessage.getData().get("title"))
                 .setContentText(remoteMessage.getData().get("message"))
+                .setStyle(new NotificationCompat.BigTextStyle().bigText(remoteMessage.getData().get("message")))
                 .setAutoCancel(true)
                 .setSound(notificationSoundUri)
                 .setContentIntent(pendingIntent);

@@ -27,6 +27,8 @@ import android.widget.Toast;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.SetOptions;
@@ -39,6 +41,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import models.Notification;
 import models.Post;
 import models.ProfileMedium;
 import services.GlideApp;
@@ -277,6 +280,10 @@ public class PostActivity extends AppCompatActivity implements View.OnClickListe
                         updates.put("e"+type + "c_WGP", stats[1]);
                     }
                     FirebaseUtil.getFirebaseFirestore().collection("profiles").document(userId).set(updates, SetOptions.merge());
+
+                    if(type==6)
+                        notifySubscribers(); //send notification if banker tip
+
                     prgBar.setVisibility(View.GONE);
                     Toast.makeText(getApplicationContext(), "Posted", Toast.LENGTH_LONG).show();
                     finish();
@@ -294,5 +301,13 @@ public class PostActivity extends AppCompatActivity implements View.OnClickListe
         outState.putString(CODE, code);
         outState.putInt(CODE_INDEX, codeIndex);
         super.onSaveInstanceState(outState);
+    }
+
+    private void notifySubscribers(){
+        String title = "Sure Banker Tip";
+        String message = username + " posted banker tip";
+        Notification notification = new Notification("banker", title, message, "banker", userId,
+                user.getPhotoUrl().toString()!=null? user.getPhotoUrl().toString(): "", "sub_"+userId, userId);
+        FirebaseDatabase.getInstance().getReference().child("notifications").push().setValue(notification);
     }
 }
