@@ -11,6 +11,8 @@ import androidx.annotation.Nullable;
 import com.google.android.material.snackbar.Snackbar;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.text.Html;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
@@ -18,6 +20,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
@@ -29,6 +32,11 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
@@ -38,6 +46,7 @@ import com.hbb20.CountryCodePicker;
 import com.theartofdev.edmodo.cropper.CropImage;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -53,10 +62,82 @@ public class SettingsActivity extends AppCompatActivity {
     RadioButton rdMale, rdFemale, rdSub0, rdSub1, rdSub2, rdSub3;
     private Profile profile;
     private ProgressDialog progressDialog;
-    FirebaseUser user;
-    String userId, username;
+    private FirebaseUser user;
+    private DatabaseReference dbRef;
+    private String userId, username;
     private Uri filePath = null;
+    private int[] amount = {0,0,0,0};
     private boolean numberValid;
+    private String currency, currencyRef;
+    private final String[] currencySymbol = {"&#8358;", "&#36;", "&#8364;", "&#xa3;", "&#8373;", "KES ", "UGX ", "TZS ",
+            "ZAR ", "ZMW ", "RWF ", "XAF ", "XOF "};
+
+    private String setCurrency(String country){
+        switch (country.toLowerCase()){
+            case "nigeria":
+                currency = currencySymbol[0];
+                return "NGN";
+            case "ghana":
+                currency = currencySymbol[4];
+                return "GHS";
+            case "kenya":
+                currency = currencySymbol[5];
+                return "KES";
+            case "uganda":
+                currency = currencySymbol[6];
+                return "UGX";
+            case "tanzania":
+                currency = currencySymbol[7];
+                return "TZS";
+            case "south africa":
+                currency = currencySymbol[8];
+                return "ZAR";
+            case "zambia":
+                currency = currencySymbol[9];
+                return "ZMW";
+            case "rwanda":
+                currency = currencySymbol[10];
+                return "RWF";
+            case "cameroon":
+                currency = currencySymbol[11];
+                return "XAF";
+            case "mali":
+            case "ivory coast":
+            case "senegal":
+                currency = currencySymbol[12];
+                return "XOF";
+            case "northern ireland":
+            case "wales":
+            case "england":
+            case "scotland":
+            case "united kingdom":
+                currency = currencySymbol[3];
+                return "GBP";
+            case "austria":
+            case "belgium":
+            case "cyprus":
+            case "estonia":
+            case "finland":
+            case "france":
+            case "germany":
+            case "greece":
+            case "ireland":
+            case "italy":
+            case "latvia":
+            case "lithuania":
+            case "luxembourg":
+            case "malta":
+            case "portugal":
+            case "slovakia":
+            case "slovenia":
+            case "spain":
+                currency = currencySymbol[2];
+                return "EUR";
+            default:
+                currency = currencySymbol[1];
+                return "USD";
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,52 +175,85 @@ public class SettingsActivity extends AppCompatActivity {
         userId = user.getUid();
         username = user.getDisplayName();
 
+        dbRef = FirebaseDatabase.getInstance().getReference().child("SystemConfig").child("Subscription");
+        dbRef.keepSynced(true);
         updateView();
     }
 
     private void updateView(){
-        FirebaseUtil.getFirebaseFirestore().collection("profiles").document(userId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-        @Override
-        public void onSuccess(DocumentSnapshot documentSnapshot) {
-            if(!documentSnapshot.exists())
-                return;
-            profile = documentSnapshot.toObject(Profile.class);
-            edtFirstName.setText(profile.getA0_firstName());
-            edtLastName.setText(profile.getA1_lastName());
-            edtUsername.setText(profile.getA2_username());
-            edtEmail.setText(profile.getA3_email());
-            edtBio.setText(profile.getA5_bio());
-            edtBankDetails.setText(profile.getA9_bank());
-            ccp.setFullNumber(profile.getB1_phone());
+        FirebaseUtil.getFirebaseFirestore().collection("profiles").document(userId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if(!documentSnapshot.exists())
+                        return;
+                    profile = documentSnapshot.toObject(Profile.class);
+                    edtFirstName.setText(profile.getA0_firstName());
+                    edtLastName.setText(profile.getA1_lastName());
+                    edtUsername.setText(profile.getA2_username());
+                    edtEmail.setText(profile.getA3_email());
+                    edtBio.setText(profile.getA5_bio());
+                    edtBankDetails.setText(profile.getA9_bank());
+                    ccp.setFullNumber(profile.getB1_phone());
 
-            //set Display picture
-            Glide.with(getApplicationContext())
-                    .load(profile.getB2_dpUrl())
-                    .into(imgDp);
-            switch (profile.getA4_gender()) {
-                case "male":
-                    rdMale.toggle();
-                    break;
-                case "female":
-                    rdFemale.toggle();
-                    break;
-            }
-            switch ((String.valueOf(profile.getD0_subAmount()))) {
-                case "1":
-                    rdSub1.toggle();
-                    break;
-                case "2":
-                    rdSub2.toggle();
-                    break;
-                case "3":
-                    rdSub3.toggle();
-                    break;
-                default:
-                    rdSub0.toggle();
+                    //set Display picture
+                    Glide.with(getApplicationContext())
+                            .load(profile.getB2_dpUrl())
+                            .into(imgDp);
+                    switch (profile.getA4_gender()) {
+                        case "male":
+                            rdMale.toggle();
+                            break;
+                        case "female":
+                            rdFemale.toggle();
+                            break;
+                    }
+                    switch ((String.valueOf(profile.getD0_subAmount()))) {
+                        case "1":
+                            rdSub1.toggle();
+                            break;
+                        case "2":
+                            rdSub2.toggle();
+                            break;
+                        case "3":
+                            rdSub3.toggle();
+                            break;
+                        default:
+                            rdSub0.toggle();
+                    }
 
-            }
-        }
-    });
+                    currencyRef = setCurrency(profile.getB0_country());
+                    dbRef.child(currencyRef).addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            if (!dataSnapshot.exists()){
+                                rdSub0.setText("check back later");
+                                rdSub1.setText("check back later");
+                                rdSub2.setText("check back later");
+                                rdSub3.setText("check back later");
+                                return;
+                            }
+
+                            amount[0] = dataSnapshot.child("sub1").getValue(Integer.class)!=null? dataSnapshot.child("sub1").getValue(int.class):0;
+                            amount[1] = dataSnapshot.child("sub2").getValue(Integer.class)!=null? dataSnapshot.child("sub2").getValue(int.class):0;
+                            amount[2] = dataSnapshot.child("sub3").getValue(Integer.class)!=null? dataSnapshot.child("sub3").getValue(int.class):0;
+                            amount[3] = dataSnapshot.child("sub4").getValue(Integer.class)!=null? dataSnapshot.child("sub4").getValue(int.class):0;
+
+                            String r0 = String.format(Locale.ENGLISH,"%s%d", currency,amount[0]);
+                            String r1 = String.format(Locale.ENGLISH,"%s%d", currency,amount[1]);
+                            String r2 = String.format(Locale.ENGLISH,"%s%d", currency,amount[2]);
+                            String r3 = String.format(Locale.ENGLISH,"%s%d", currency,amount[3]);
+
+                            rdSub0.setText(Html.fromHtml(r0));
+                            rdSub1.setText(Html.fromHtml(r1));
+                            rdSub2.setText(Html.fromHtml(r2));
+                            rdSub3.setText(Html.fromHtml(r3));
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                        }
+                    });
+                });
     }
 
     @Override

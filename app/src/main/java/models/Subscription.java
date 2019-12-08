@@ -9,6 +9,7 @@ public class Subscription {
     private int status; //refers to payment status
     private long timestamp;
     private String amount;
+    private String tipsterAmount;
     private String dateDelete;
     private String dateEnd;
     private String dateNotify;
@@ -21,11 +22,12 @@ public class Subscription {
 
     public Subscription(){}
 
-    public Subscription(String amount, String subFrom, String subFromId, String subTo, String subToId, String duration){
+    public Subscription(String amount, String tipsterAmount, String subFrom, String subFromId, String subTo, String subToId, String duration){
         this.active = true;
         this.status = 1;
         this.timestamp = new Date().getTime();
         this.amount = amount;
+        this.tipsterAmount = tipsterAmount;
         this.subFrom = subFrom;
         this.subFromId = subFromId;
         this.subTo = subTo;
@@ -154,5 +156,13 @@ public class Subscription {
 
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public String getTipsterAmount() {
+        return tipsterAmount;
+    }
+
+    public void setTipsterAmount(String tipsterAmount) {
+        this.tipsterAmount = tipsterAmount;
     }
 }

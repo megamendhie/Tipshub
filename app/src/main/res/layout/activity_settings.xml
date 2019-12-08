@@ -251,23 +251,19 @@
                     <RadioButton
                         android:id="@+id/rdbSub0"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="$10"/>
+                        android:layout_height="wrap_content"/>
                     <RadioButton
                         android:id="@+id/rdbSub1"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="$15"/>
+                        android:layout_height="wrap_content"/>
                     <RadioButton
                         android:id="@+id/rdbSub2"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="$20"/>
+                        android:layout_height="wrap_content"/>
                     <RadioButton
                         android:id="@+id/rdbSub3"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="$30"/>
+                        android:layout_height="wrap_content"/>
                 </RadioGroup>
 
             </LinearLayout>
