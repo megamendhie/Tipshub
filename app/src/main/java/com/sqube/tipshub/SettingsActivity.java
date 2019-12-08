@@ -43,6 +43,7 @@ import java.util.Map;
 import de.hdodenhof.circleimageview.CircleImageView;
 import models.Profile;
 import utils.FirebaseUtil;
+import utils.Reusable;
 
 public class SettingsActivity extends AppCompatActivity {
     private CircleImageView imgDp;
@@ -50,7 +51,7 @@ public class SettingsActivity extends AppCompatActivity {
     private CountryCodePicker ccp;
     RadioGroup rdbGender, rdbSub;
     RadioButton rdMale, rdFemale, rdSub0, rdSub1, rdSub2, rdSub3;
-    Profile profile;
+    private Profile profile;
     private ProgressDialog progressDialog;
     FirebaseUser user;
     String userId, username;
@@ -65,7 +66,6 @@ public class SettingsActivity extends AppCompatActivity {
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
-        ImageView imgCover = findViewById(R.id.imgCover);
         imgDp = findViewById(R.id.imgDp); imgDp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -94,48 +94,52 @@ public class SettingsActivity extends AppCompatActivity {
         userId = user.getUid();
         username = user.getDisplayName();
 
+        updateView();
+    }
+
+    private void updateView(){
         FirebaseUtil.getFirebaseFirestore().collection("profiles").document(userId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                if(!documentSnapshot.exists())
-                    return;
-                profile = documentSnapshot.toObject(Profile.class);
-                edtFirstName.setText(profile.getA0_firstName());
-                edtLastName.setText(profile.getA1_lastName());
-                edtUsername.setText(profile.getA2_username());
-                edtEmail.setText(profile.getA3_email());
-                edtBio.setText(profile.getA5_bio());
-                edtBankDetails.setText(profile.getA9_bank());
-                ccp.setFullNumber(profile.getB1_phone());
+        @Override
+        public void onSuccess(DocumentSnapshot documentSnapshot) {
+            if(!documentSnapshot.exists())
+                return;
+            profile = documentSnapshot.toObject(Profile.class);
+            edtFirstName.setText(profile.getA0_firstName());
+            edtLastName.setText(profile.getA1_lastName());
+            edtUsername.setText(profile.getA2_username());
+            edtEmail.setText(profile.getA3_email());
+            edtBio.setText(profile.getA5_bio());
+            edtBankDetails.setText(profile.getA9_bank());
+            ccp.setFullNumber(profile.getB1_phone());
 
-                //set Display picture
-                Glide.with(getApplicationContext())
-                        .load(profile.getB2_dpUrl())
-                        .into(imgDp);
-                switch (profile.getA4_gender()) {
-                    case "male":
-                        rdMale.toggle();
-                        break;
-                    case "female":
-                        rdFemale.toggle();
-                        break;
-                }
-                switch ((String.valueOf(profile.getD0_subAmount()))) {
-                    case "1":
-                        rdSub1.toggle();
-                        break;
-                    case "2":
-                        rdSub2.toggle();
-                        break;
-                    case "3":
-                        rdSub3.toggle();
-                        break;
-                    default:
-                        rdSub0.toggle();
-
-                }
+            //set Display picture
+            Glide.with(getApplicationContext())
+                    .load(profile.getB2_dpUrl())
+                    .into(imgDp);
+            switch (profile.getA4_gender()) {
+                case "male":
+                    rdMale.toggle();
+                    break;
+                case "female":
+                    rdFemale.toggle();
+                    break;
             }
-        });
+            switch ((String.valueOf(profile.getD0_subAmount()))) {
+                case "1":
+                    rdSub1.toggle();
+                    break;
+                case "2":
+                    rdSub2.toggle();
+                    break;
+                case "3":
+                    rdSub3.toggle();
+                    break;
+                default:
+                    rdSub0.toggle();
+
+            }
+        }
+    });
     }
 
     @Override
@@ -161,7 +165,7 @@ public class SettingsActivity extends AppCompatActivity {
         final String account = edtBankDetails.getText().toString();
         final String phone = ccp.getFullNumber();
         final String country = ccp.getSelectedCountryName();
-        int sub = 0;
+        int sub;
 
         switch (rdbSub.getCheckedRadioButtonId()) {
             case R.id.rdbSub1:
@@ -197,49 +201,38 @@ public class SettingsActivity extends AppCompatActivity {
         }
 
         //Map new user datails, and ready to save to db
-        Map<String, Object> url = new HashMap<>();
-        url.put("a0_firstName",firstName);
-        url.put("a1_lastName",lastName);
-        url.put("a5_bio",bio);
-        url.put("b0_country", country);
-        url.put("b1_phone", phone);
-        url.put("a9_bank",account);
-        url.put("d0_subAmount", sub);
+        Map<String, Object> updatedObject = new HashMap<>();
+        updatedObject.put("a0_firstName",firstName);
+        updatedObject.put("a1_lastName",lastName);
+        updatedObject.put("a5_bio",bio);
+        updatedObject.put("b0_country", country);
+        updatedObject.put("b1_phone", phone);
+        updatedObject.put("a9_bank",account);
+        updatedObject.put("d0_subAmount", sub);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(SettingsActivity.this, R.style.Theme_AppCompat_Light_Dialog_Alert);
         builder.setMessage("Save changes?")
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        //save username, phone number, and gender to database
-                        FirebaseUtil.getFirebaseFirestore().collection("profiles").document(userId).set(url, SetOptions.merge())
-                                .addOnCompleteListener(SettingsActivity.this,new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        /*
-                                        //set the new username to firebase auth user
-                                        UserProfileChangeRequest profileUpdate = new UserProfileChangeRequest.Builder()
-                                                .setDisplayName(username)
-                                                .build();
-                                        mAuth.getCurrentUser().updateProfile(profileUpdate);
-                                        */
-                                        Log.i("TAG", "onSuccess: saved");
+                        //update profile with edited user information
+                        FirebaseUtil.getFirebaseFirestore().collection("profiles").document(userId).set(updatedObject, SetOptions.merge())
+                                .addOnCompleteListener(SettingsActivity.this, task -> {
+                                    if (task.isSuccessful()) {
+                                        Snackbar.make(edtBio, "Saved", Snackbar.LENGTH_SHORT).show();
+                                        if (!profile.getA0_firstName().equals(firstName) || !profile.getA1_lastName().equals(lastName))
+                                            Reusable.updateAlgoliaIndex(firstName, lastName, profile.getA2_username(),
+                                                    userId, profile.getC2_score(), false);
+                                        updateView();
                                     }
-                                })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.i("TAG", "onFailure: ");
-                            }
-                        });
-                        Snackbar.make(edtBio, "Saved", Snackbar.LENGTH_SHORT).show();
+                                    else
+                                        Snackbar.make(edtBio, "Failed to save", Snackbar.LENGTH_SHORT).show();
+                                });
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        //do nothing
-                    }
+                    public void onClick(DialogInterface dialogInterface, int i) { }
                 })
                 .show();
     }

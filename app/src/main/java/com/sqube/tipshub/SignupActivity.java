@@ -239,7 +239,10 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
                                     final String displayName = user.getDisplayName();
                                     String[] names = displayName.split(" ");
                                     firstName = names[0];
-                                    lastName = names[1];
+                                    if(names.length>1)
+                                        lastName = names[1];
+                                    else
+                                        lastName = "";
                                     email = user.getEmail();
                                     provider = "google.com";
                                     FirebaseUtil.getFirebaseFirestore().collection("profiles").document(userId)
@@ -250,7 +253,6 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
                                 else{
                                     finish();
                                     startActivity(new Intent(SignupActivity.this, MainActivity.class));
-                                    startActivity(new Intent(SignupActivity.this, AboutActivity.class));
                                 }
                             }
                         }
@@ -260,16 +262,20 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
                     edtPassword.setEnabled(true);
                     edtEmail.setEnabled(true);
                     prgLogin.setVisibility(View.GONE);
+                    final String message = "Login unsuccessful. " + task.getException().getMessage();
+                    FirebaseUtil.getFirebaseAuthentication().signOut();
+                    mGoogleSignInClient.signOut();
+                    Snackbar.make(edtEmail, message, Snackbar.LENGTH_LONG).show();
+                    Log.i("onComplete", message);
                 }
 
             }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                edtPassword.setEnabled(true);
-                edtEmail.setEnabled(true);
-                prgLogin.setVisibility(View.GONE);
-            }
+        }).addOnFailureListener(e -> {
+            edtPassword.setEnabled(true);
+            edtEmail.setEnabled(true);
+            prgLogin.setVisibility(View.GONE);
+            String message = "Login unsuccessful. " + e.getMessage();
+            Snackbar.make(edtEmail, message, Snackbar.LENGTH_LONG).show();
         });
     }
 
@@ -412,7 +418,7 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if(task.getResult() == null || !task.getResult().isEmpty()){
                             edtUsername.setError("Username already exist");
-                            Toast.makeText(SignupActivity.this, "Username already exist", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(SignupActivity.this, "Username already exist. Try another one", Toast.LENGTH_SHORT).show();
                             return;
                         }
 
@@ -431,10 +437,14 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
 
                         //save username, phone number, and gender to database
                         FirebaseUtil.getFirebaseFirestore().collection("profiles").document(userId).set(url, SetOptions.merge());
+                        Reusable.updateAlgoliaIndex(firstName, lastName, username, userId, 0, true); //add to Algolia index
+
                         dialog.cancel();
                         finish();
                         startActivity(new Intent(SignupActivity.this, MainActivity.class));
-                        startActivity(new Intent(SignupActivity.this, AboutActivity.class));
+                        Intent intent = new Intent(SignupActivity.this, AboutActivity.class);
+                        intent.putExtra("showCongratsImage", true);
+                        startActivity(intent);
                     }
                 });
             }
