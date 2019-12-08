@@ -58,7 +58,7 @@
         <activity android:name=".SubscriptionActivity" />
         <activity
             android:name=".FullPostActivity"
-            android:windowSoftInputMode="stateHidden" />
+            android:windowSoftInputMode="stateHidden|adjustResize" />
         <activity
             android:name=".LandingActivity"
             android:theme="@style/AppTheme.NoActionBar" />
