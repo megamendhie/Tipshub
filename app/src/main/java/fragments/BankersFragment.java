@@ -21,8 +21,8 @@ import utils.FirebaseUtil;
 
 public class BankersFragment extends Fragment {
     private String userId, myId;
-    BankerAdapter postAdapter;
-    RecyclerView recyclerView;
+    private BankerAdapter postAdapter;
+    private RecyclerView recyclerView;
 
     public BankersFragment() {
         // Required empty public constructor

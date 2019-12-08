@@ -139,10 +139,10 @@ public class BankerFragment extends Fragment {
                     .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                            if(task.getResult()==null|| !task.getResult().contains("list"))
-                                loadList(null);
-                            else
+                            if(task.isSuccessful() && task.getResult().contains("list"))
                                 loadList((ArrayList<String>) task.getResult().get("list"));
+                            else
+                                loadList(null);
                         }
                     });
         }
