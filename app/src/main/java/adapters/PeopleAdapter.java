@@ -83,10 +83,12 @@ public class PeopleAdapter extends RecyclerView.Adapter<PeopleAdapter.PostHolder
                     holder.btnFollow.setVisibility(View.GONE);
 
                 //load image
-                Glide.with(activity)
-                        .setDefaultRequestOptions(requestOptions)
-                        .load(model.getB2_dpUrl())
-                        .into(holder.imgDp);
+                if (!activity.isDestroyed()) {
+                    Glide.with(activity)
+                            .setDefaultRequestOptions(requestOptions)
+                            .load(model.getB2_dpUrl())
+                            .into(holder.imgDp);
+                }
 
                 holder.lnrContainer.setOnClickListener(new View.OnClickListener() {
                     @Override

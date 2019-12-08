@@ -89,10 +89,12 @@ public class PeopleRecAdapter extends RecyclerView.Adapter<PeopleRecAdapter.Post
                 holder.btnFollow.setText(UserNetwork.getFollowing()==null||!UserNetwork.getFollowing().contains(ref)? "FOLLOW": "FOLLOWING");
 
                 //load image
-                Glide.with(activity)
-                        .setDefaultRequestOptions(requestOptions)
-                        .load(model.getB2_dpUrl())
-                        .into(holder.imgDp);
+                if (!activity.isDestroyed()) {
+                    Glide.with(activity)
+                            .setDefaultRequestOptions(requestOptions)
+                            .load(model.getB2_dpUrl())
+                            .into(holder.imgDp);
+                }
 
                 holder.lnrContainer.setOnClickListener(new View.OnClickListener() {
                     @Override
