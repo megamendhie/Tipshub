@@ -168,11 +168,15 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             edtPassword.setError("Enter password");
             return;
         }
+        prgLogin.setVisibility(View.VISIBLE);
+        progressDialog.setTitle("Signing in...");
+        progressDialog.show();
         FirebaseUtil.getFirebaseAuthentication().signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         progressDialog.dismiss();
+                        prgLogin.setVisibility(View.GONE);
                         if(task.isSuccessful()){
                             editor.putString("PASSWORD", edtPassword.getText().toString().trim());
                             editor.putString("EMAIL", edtEmail.getText().toString().trim());
@@ -185,12 +189,14 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                if(FirebaseUtil.getFirebaseAuthentication().getCurrentUser()!=null)
-                    FirebaseUtil.getFirebaseAuthentication().signOut();
-                Snackbar.make(btnLogin, "Login failed. " + e.getMessage(), Snackbar.LENGTH_LONG).show();
-            }
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        progressDialog.dismiss();
+                        prgLogin.setVisibility(View.GONE);
+                        if(FirebaseUtil.getFirebaseAuthentication().getCurrentUser()!=null)
+                            FirebaseUtil.getFirebaseAuthentication().signOut();
+                        Snackbar.make(btnLogin, "Login failed. " + e.getMessage(), Snackbar.LENGTH_LONG).show();
+                    }
         });
     }
 
@@ -213,7 +219,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                                             String displayName = user.getDisplayName();
                                             String[] names = displayName.split(" ");
                                             firstName = names[0];
-                                            lastName = names[1];
+                                            if(names.length>1)
+                                                lastName = names[1];
+                                            else
+                                                lastName = "";
                                             email = user.getEmail();
                                             provider = "google.com";
                                             FirebaseUtil.getFirebaseFirestore().collection("profiles").document(userId)
@@ -241,13 +250,12 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 }
 
             }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                edtPassword.setEnabled(true);
-                edtEmail.setEnabled(true);
-                prgLogin.setVisibility(View.GONE);
-            }
+        }).addOnFailureListener(e -> {
+            edtPassword.setEnabled(true);
+            edtEmail.setEnabled(true);
+            prgLogin.setVisibility(View.GONE);
+            String message = "Login unsuccessful. " + e.getMessage();
+            Snackbar.make(btnLogin, message, Snackbar.LENGTH_LONG).show();
         });
     }
 
@@ -377,7 +385,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                 if (task.getResult() == null || !task.getResult().isEmpty()) {
                                     edtUsername.setError("Username already exist");
-                                    Toast.makeText(LoginActivity.this, "Username already exist", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(LoginActivity.this, "Username already exist. Try another one", Toast.LENGTH_SHORT).show();
                                     return;
                                 }
 
@@ -396,10 +404,14 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
                                 //save username, phone number, and gender to database
                                 FirebaseUtil.getFirebaseFirestore().collection("profiles").document(userId).set(url, SetOptions.merge());
+                                Reusable.updateAlgoliaIndex(firstName, lastName, username, userId, 0, true); //add to Algolia index
+
                                 dialog.cancel();
                                 finish();
                                 startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                                startActivity(new Intent(LoginActivity.this, AboutActivity.class));
+                                Intent intent = new Intent(LoginActivity.this, AboutActivity.class);
+                                intent.putExtra("showCongratsImage", true);
+                                startActivity(intent);
                             }
                         });
             }
@@ -457,5 +469,4 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
     }
-
 }

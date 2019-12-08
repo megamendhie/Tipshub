@@ -20,11 +20,6 @@ import adapters.SubscriptionAdapter;
 
 public class AccountActivity extends AppCompatActivity {
     private static final String TAG = "AccActivity";
-    private RecyclerView listSubscribers, listSubscriptions;
-    private ActionBar actionBar;
-    private FirebaseFirestore database;
-    private FirebaseUser user;
-    private TextView txtDisplay1, txtDisplay2;
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -36,18 +31,20 @@ public class AccountActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_account);
-        actionBar = getSupportActionBar();
+        ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
-        txtDisplay1 = findViewById(R.id.txtDipsplay1);
-        txtDisplay2 = findViewById(R.id.txtDipsplay2);
-        listSubscribers = findViewById(R.id.listSubscribers);
+
+        TextView txtDisplay1 = findViewById(R.id.txtDipsplay1);
+        TextView txtDisplay2 = findViewById(R.id.txtDipsplay2);
+        RecyclerView listSubscribers = findViewById(R.id.listSubscribers);
+        RecyclerView listSubscriptions = findViewById(R.id.listSubscriptions);
+
         listSubscribers.setLayoutManager(new LinearLayoutManager(this));
-        listSubscriptions = findViewById(R.id.listSubscriptions);
         listSubscriptions.setLayoutManager(new LinearLayoutManager(this));
-        database = FirebaseFirestore.getInstance();
-        user = FirebaseAuth.getInstance().getCurrentUser();
+        FirebaseFirestore database = FirebaseFirestore.getInstance();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         String userId = user.getUid();
 
         Query querySubscribers = database.collection("subscriptions").orderBy("timestamp", Query.Direction.DESCENDING)
@@ -55,8 +52,8 @@ public class AccountActivity extends AppCompatActivity {
         Query querySubscriptions = database.collection("subscriptions").orderBy("timestamp", Query.Direction.DESCENDING)
                 .whereEqualTo("subFromId", userId);
 
-        SubscriberAdapter subscriberAdapter = new SubscriberAdapter(querySubscribers, userId, getApplicationContext());
-        SubscriptionAdapter subscriptionAdapter = new SubscriptionAdapter(querySubscriptions, userId, getApplicationContext());
+        SubscriberAdapter subscriberAdapter = new SubscriberAdapter(querySubscribers, getApplicationContext());
+        SubscriptionAdapter subscriptionAdapter = new SubscriptionAdapter(querySubscriptions, getApplicationContext());
         listSubscribers.setAdapter(subscriberAdapter);
         listSubscriptions.setAdapter(subscriptionAdapter);
         if(subscriberAdapter!=null){
@@ -77,7 +74,5 @@ public class AccountActivity extends AppCompatActivity {
             txtDisplay2.setVisibility(View.VISIBLE);
         else
             txtDisplay2.setVisibility(View.GONE);
-
-
     }
 }

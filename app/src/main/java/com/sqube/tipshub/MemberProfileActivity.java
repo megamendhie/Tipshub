@@ -67,7 +67,7 @@ public class MemberProfileActivity extends AppCompatActivity implements View.OnC
     Fragment postFragment, bankerFragment, reviewFragment;
     ArrayList<Map<String, Object>> performanceList = new ArrayList<>();
     private TextView txtName, txtUsername, txtBio;
-    private TextView txtPost, txtWon;
+    private TextView txtPost, txtWon, txtAccuracy;
     private TextView txtFollowers, txtFollowing, txtSubscribers, txtSubscriptions;
 
     @Override
@@ -88,7 +88,8 @@ public class MemberProfileActivity extends AppCompatActivity implements View.OnC
         txtUsername = findViewById(R.id.txtUsername);
         txtBio = findViewById(R.id.txtBio);
         txtPost = findViewById(R.id.txtPost);
-        txtWon = findViewById(R.id.txtAccuracy);
+        txtWon = findViewById(R.id.txtWon);
+        txtAccuracy = findViewById(R.id.txtAccuracy);
         txtFollowers = findViewById(R.id.txtFollowers);
         txtFollowing = findViewById(R.id.txtFollowing);
         txtSubscribers = findViewById(R.id.txtSubscribers);
@@ -146,6 +147,8 @@ public class MemberProfileActivity extends AppCompatActivity implements View.OnC
                         String tips = profile.getE0a_NOG()>1? "tips": "tip";
                         txtPost.setText(String.format(Locale.getDefault(),"%d  %s  • ", profile.getE0a_NOG(), tips));
                         txtWon.setText(String.format(Locale.getDefault(),"%d  won  • ", profile.getE0b_WG()));
+                        txtAccuracy.setText(String.format(Locale.getDefault(),"%.1f%%", (double) profile.getE0c_WGP()));
+
                         if(profile.isC1_banker()){
                             if(UserNetwork.getSubscribed()!=null|| !UserNetwork.getSubscribed().contains(userId))
                                 btnSubscribe.setVisibility(View.VISIBLE);

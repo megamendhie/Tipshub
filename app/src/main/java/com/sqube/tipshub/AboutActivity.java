@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -31,10 +32,13 @@ public class AboutActivity extends AppCompatActivity {
             actionBar.setTitle("About");
         }
         RecyclerView listAbout = findViewById(R.id.listAbout);
+
+        boolean showCongratsImage = getIntent().getBooleanExtra("showCongratsImage", false);
+        ImageView imgCongrats = findViewById(R.id.imgCongrats);
+        imgCongrats.setVisibility(showCongratsImage? View.VISIBLE: View.GONE);
         listAbout.setLayoutManager(new LinearLayoutManager(this));
         listAbout.setAdapter(new Adapt());
     }
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
