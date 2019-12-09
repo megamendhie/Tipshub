@@ -6,8 +6,8 @@ android {
         applicationId "com.sqube.tipshub"
         minSdkVersion 19
         targetSdkVersion 28
-        versionCode 7
-        versionName "1.0.7"
+        versionCode 8
+        versionName "1.0.8"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
         vectorDrawables.useSupportLibrary = true;
