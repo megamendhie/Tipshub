@@ -155,7 +155,9 @@ public class RecommendedFragment extends Fragment implements View.OnClickListene
                     ArrayList<String> list = new ArrayList<>();
                     for (DocumentSnapshot snapshot: task.getResult().getDocuments()){
                         String ref = snapshot.getId();
-                        if(ref.equals(userId) || UserNetwork.getFollowing().contains(ref))
+                        if(ref.equals(userId))
+                            continue;
+                        if(UserNetwork.getFollowing()!=null && UserNetwork.getFollowing().contains(ref))
                             continue;
                         if(list.size()>=12)
                             break;
