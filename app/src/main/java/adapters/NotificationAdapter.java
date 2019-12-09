@@ -120,6 +120,17 @@ public class NotificationAdapter extends FirestoreRecyclerAdapter<Notification, 
                 }
             }
         });
+
+        imgDp.setOnClickListener(v -> {
+            if(model.getSentFrom().equals(userId)){
+                context.startActivity(new Intent(context, MyProfileActivity.class));
+            }
+            else{
+                Intent intent = new Intent(context, MemberProfileActivity.class);
+                intent.putExtra("userId", model.getSentFrom());
+                context.startActivity(intent);
+            }
+        });
     }
 
     @Override
