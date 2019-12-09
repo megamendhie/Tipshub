@@ -45,6 +45,8 @@ import com.google.firebase.storage.UploadTask;
 import com.hbb20.CountryCodePicker;
 import com.theartofdev.edmodo.cropper.CropImage;
 
+import org.w3c.dom.Text;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -321,13 +323,14 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         //Initialize variables
         final boolean[] numberValid = new boolean[1];
+        final TextView txtError = dialog.findViewById(R.id.txtError);
         final EditText edtUsername = dialog.findViewById(R.id.edtUsername);
-        final EditText edtPhone = dialog.findViewById(R.id.edtPhone);
+        final EditText edtPhone = dialog.findViewById(R.id.editText_carrierNumber);
         final RadioGroup rdbGroup = dialog.findViewById(R.id.rdbGroupGender);
         imgDp = dialog.findViewById(R.id.imgDp); imgDp.setOnClickListener(this);
         final CountryCodePicker ccp = dialog.findViewById(R.id.ccp);
-        final EditText editTextCarrierNumber= dialog.findViewById(R.id.editText_carrierNumber);
-        ccp.registerCarrierNumberEditText(editTextCarrierNumber);
+        ccp.registerCarrierNumberEditText(edtPhone);
+
         assert imgDp != null;
         Glide.with(this).load(user.getPhotoUrl()).into(imgDp);
         Button btnSave = dialog.findViewById(R.id.btnSave);
@@ -338,83 +341,89 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 numberValid[0] =isValidNumber;
             }
         });
-        btnSave.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String username = edtUsername.getText().toString().trim();
-                String phone = ccp.getFullNumber();
-                String country = ccp.getSelectedCountryName();
-                String gender ="";
-                switch (rdbGroup.getCheckedRadioButtonId()) {
-                    case R.id.rdbMale:
-                        gender = "male";
-                        break;
-                    case R.id.rdbFemale:
-                        gender = "female";
-                        break;
-                }
-                //verify fields meet requirement
-                if(TextUtils.isEmpty(username)){
-                    edtUsername.setError("Enter username");
-                    return;
-                }
-                if(username.length() < 2){
-                    edtUsername.setError("Username too short");
-                    return;
-                }
-                if(TextUtils.isEmpty(gender)){
-                    Toast.makeText(LoginActivity.this, "Select gender", Toast.LENGTH_LONG).show();
-                    return;
-                }
-                if(TextUtils.isEmpty(phone)){
-                    edtPhone.setError("Enter phone number");
-                    Toast.makeText(getApplicationContext(), "Enter phone number", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                if(!numberValid[0]){
-                    edtPhone.setError("Invalid phone number");
-                    Toast.makeText(getApplicationContext(), "Enter phone number", Toast.LENGTH_SHORT).show();
-                    return;
-                }
 
-                String finalGender = gender;
-                FirebaseUtil.getFirebaseFirestore().collection("profiles")
-                        .whereEqualTo("a2_username", username).limit(1).get()
-                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                if (task.getResult() == null || !task.getResult().isEmpty()) {
-                                    edtUsername.setError("Username already exist");
-                                    Toast.makeText(LoginActivity.this, "Username already exist. Try another one", Toast.LENGTH_SHORT).show();
-                                    return;
-                                }
-
-                                //Map new user datails, and ready to save to db
-                                Map<String, String> url = new HashMap<>();
-                                url.put("a2_username", username);
-                                url.put("a4_gender", finalGender);
-                                url.put("b0_country", country);
-                                url.put("b1_phone", phone);
-
-                                //set the new username to firebase auth user
-                                UserProfileChangeRequest profileUpdate = new UserProfileChangeRequest.Builder()
-                                        .setDisplayName(username)
-                                        .build();
-                                FirebaseUtil.getFirebaseAuthentication().getCurrentUser().updateProfile(profileUpdate);
-
-                                //save username, phone number, and gender to database
-                                FirebaseUtil.getFirebaseFirestore().collection("profiles").document(userId).set(url, SetOptions.merge());
-                                Reusable.updateAlgoliaIndex(firstName, lastName, username, userId, 0, true); //add to Algolia index
-
-                                dialog.cancel();
-                                finish();
-                                startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                                Intent intent = new Intent(LoginActivity.this, AboutActivity.class);
-                                intent.putExtra("showCongratsImage", true);
-                                startActivity(intent);
-                            }
-                        });
+        btnSave.setOnClickListener(v -> {
+            String username = edtUsername.getText().toString().trim();
+            String phone = ccp.getFullNumber();
+            String country = ccp.getSelectedCountryName();
+            String gender ="";
+            switch (rdbGroup.getCheckedRadioButtonId()) {
+                case R.id.rdbMale:
+                    gender = "male";
+                    break;
+                case R.id.rdbFemale:
+                    gender = "female";
+                    break;
             }
+            //verify fields meet requirement
+            if(TextUtils.isEmpty(username)){
+                edtUsername.setError("Enter username");
+                txtError.setText("Enter username");
+                txtError.setVisibility(View.VISIBLE);
+                return;
+            }
+            if(username.length() < 3){
+                edtUsername.setError("Username too short");
+                txtError.setText("Username too short");
+                txtError.setVisibility(View.VISIBLE);
+                return;
+            }
+
+            if(TextUtils.isEmpty(phone)){
+                txtError.setText("Enter phone number");
+                txtError.setVisibility(View.VISIBLE);
+                return;
+            }
+
+            if(!numberValid[0]){
+                txtError.setText("Phone number is incorrect");
+                txtError.setVisibility(View.VISIBLE);
+                return;
+            }
+
+            if(TextUtils.isEmpty(gender)){
+                txtError.setText("Select gender (M/F)");
+                txtError.setVisibility(View.VISIBLE);
+                return;
+            }
+
+            txtError.setVisibility(View.GONE);
+
+            String finalGender = gender;
+            FirebaseUtil.getFirebaseFirestore().collection("profiles")
+                    .whereEqualTo("a2_username", username).limit(1).get()
+                    .addOnCompleteListener(task -> {
+                        if (task.getResult() == null || !task.getResult().isEmpty()) {
+                            edtUsername.setError("Username already exist");
+                            Toast.makeText(LoginActivity.this, "Username already exist. Try another one", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        //Map new user datails, and ready to save to db
+                        Map<String, String> url = new HashMap<>();
+                        url.put("a2_username", username);
+                        url.put("a4_gender", finalGender);
+                        url.put("b0_country", country);
+                        url.put("b1_phone", phone);
+
+                        //set the new username to firebase auth user
+                        UserProfileChangeRequest profileUpdate = new UserProfileChangeRequest.Builder()
+                                .setDisplayName(username)
+                                .build();
+                        FirebaseUtil.getFirebaseAuthentication().getCurrentUser().updateProfile(profileUpdate);
+
+                        //save username, phone number, and gender to database
+                        FirebaseUtil.getFirebaseFirestore().collection("profiles").document(userId).set(url, SetOptions.merge());
+                        Reusable.updateAlgoliaIndex(firstName, lastName, username, userId, 0, true); //add to Algolia index
+
+                        dialog.cancel();
+                        finish();
+                        startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                        Intent intent = new Intent(LoginActivity.this, AboutActivity.class);
+                        intent.putExtra("showCongratsImage", true);
+                        startActivity(intent);
+                    });
+
         });
     }
 

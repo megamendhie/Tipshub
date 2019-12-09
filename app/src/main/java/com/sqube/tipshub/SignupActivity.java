@@ -22,6 +22,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.RadioGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -358,6 +359,7 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
 
         //Initialize variables
         final boolean[] numberValid = {false};
+        final TextView txtError = dialog.findViewById(R.id.txtError);
         final EditText edtUsername = dialog.findViewById(R.id.edtUsername);
         final EditText edtPhone = dialog.findViewById(R.id.editText_carrierNumber);
         final RadioGroup rdbGroup = dialog.findViewById(R.id.rdbGroupGender);
@@ -372,50 +374,59 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
 
         Button btnSave = dialog.findViewById(R.id.btnSave);
         ccp.setPhoneNumberValidityChangeListener(isValidNumber -> numberValid[0] =isValidNumber);
-        btnSave.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String username = edtUsername.getText().toString().trim();
-                String phone = ccp.getFullNumber();
-                String country = ccp.getSelectedCountryName();
-                String gender ="";
-                switch (rdbGroup.getCheckedRadioButtonId()) {
-                    case R.id.rdbMale:
-                        gender = "male";
-                        break;
-                    case R.id.rdbFemale:
-                        gender = "female";
-                        break;
-                }
-                //verify fields meet requirement
-                if(TextUtils.isEmpty(username)){
-                    edtUsername.setError("Enter username");
-                    return;
-                }
-                if(username.length() < 3){
-                    edtUsername.setError("Username too short");
-                    return;
-                }
-                if(TextUtils.isEmpty(phone)){
-                    edtPhone.setError("Enter phone number");
-                    return;
-                }
-                if(!numberValid[0]){
-                    edtPhone.setError("Invalid phone number");
-                    return;
-                }
 
-                if(TextUtils.isEmpty(gender)){
-                    Toast.makeText(SignupActivity.this, "Select gender", Toast.LENGTH_LONG).show();
-                    return;
-                }
+        btnSave.setOnClickListener(v -> {
+            String username = edtUsername.getText().toString().trim();
+            String phone = ccp.getFullNumber();
+            String country = ccp.getSelectedCountryName();
+            String gender ="";
+            switch (rdbGroup.getCheckedRadioButtonId()) {
+                case R.id.rdbMale:
+                    gender = "male";
+                    break;
+                case R.id.rdbFemale:
+                    gender = "female";
+                    break;
+            }
 
-                String finalGender = gender;
-                FirebaseUtil.getFirebaseFirestore().collection("profiles")
-                        .whereEqualTo("a2_username", username).limit(1).get()
-                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+            //verify fields meet requirement
+            if(TextUtils.isEmpty(username)){
+                edtUsername.setError("Enter username");
+                txtError.setText("Enter username");
+                txtError.setVisibility(View.VISIBLE);
+                return;
+            }
+            if(username.length() < 3){
+                edtUsername.setError("Username too short");
+                txtError.setText("Username too short");
+                txtError.setVisibility(View.VISIBLE);
+                return;
+            }
+
+            if(TextUtils.isEmpty(phone)){
+                txtError.setText("Enter phone number");
+                txtError.setVisibility(View.VISIBLE);
+                return;
+            }
+
+            if(!numberValid[0]){
+                txtError.setText("Phone number is incorrect");
+                txtError.setVisibility(View.VISIBLE);
+                return;
+            }
+
+            if(TextUtils.isEmpty(gender)){
+                txtError.setText("Select gender (M/F)");
+                txtError.setVisibility(View.VISIBLE);
+                return;
+            }
+
+            txtError.setVisibility(View.GONE);
+
+            String finalGender = gender;
+            FirebaseUtil.getFirebaseFirestore().collection("profiles")
+                    .whereEqualTo("a2_username", username).limit(1).get()
+                    .addOnCompleteListener(task -> {
                         if(task.getResult() == null || !task.getResult().isEmpty()){
                             edtUsername.setError("Username already exist");
                             Toast.makeText(SignupActivity.this, "Username already exist. Try another one", Toast.LENGTH_SHORT).show();
@@ -445,9 +456,7 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
                         Intent intent = new Intent(SignupActivity.this, AboutActivity.class);
                         intent.putExtra("showCongratsImage", true);
                         startActivity(intent);
-                    }
-                });
-            }
+                    });
         });
     }
 
