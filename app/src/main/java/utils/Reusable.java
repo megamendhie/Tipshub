@@ -353,8 +353,16 @@ public final class Reusable {
 
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
 
-        if(newEntry)
+        if(newEntry){
             ref = ref.child("algolia_add");
+            try {
+                String email = FirebaseUtil.getFirebaseAuthentication().getCurrentUser().getEmail();
+                userDetails.put("a3_email", email);
+            }
+            catch (NullPointerException e){
+                Log.i("ReusableClass", "updateAlgoliaIndex error: "+ e.getMessage());
+            }
+        }
         else
             ref = ref.child("algolia_update");
         ref.push().setValue(userDetails);
