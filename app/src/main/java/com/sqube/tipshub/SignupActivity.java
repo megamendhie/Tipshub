@@ -40,8 +40,6 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.auth.UserProfileChangeRequest;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.UploadTask;
@@ -64,6 +62,7 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
     private final static int RC_SIGN_IN = 123;
     private GoogleSignInClient mGoogleSignInClient;
     private Uri filePath = null;
+    private Button btnSignup;
     SharedPreferences.Editor editor;
     EditText edtFirstName, edtLastName, edtEmail, edtConfirmEmail, edtPassword;
     private String userId, firstName, lastName, email, confirmEmail, password, provider;
@@ -80,8 +79,7 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
         Button gSignIn = findViewById(R.id.gSignIn);
         gSignIn.setOnClickListener(this);
         prgLogin = findViewById(R.id.prgLogin);
-        Button btnSignup = findViewById(R.id.btnSignup);
-        btnSignup.setOnClickListener(this);
+        btnSignup = findViewById(R.id.btnSignup); btnSignup.setOnClickListener(this);
         edtFirstName = findViewById(R.id.edtFirstName);
         edtLastName = findViewById(R.id.edtLastName);
         edtEmail = findViewById(R.id.edtEmail);
@@ -105,9 +103,14 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
                 grabImage();
                 break;
             case R.id.btnSignup:
+                if(!Reusable.getNetworkAvailability(getApplicationContext())){
+                    Snackbar.make(edtEmail, "No Internet connection", Snackbar.LENGTH_SHORT).show();
+                    return;
+                }
                 registerUserWithEmail();
                 break;
             case R.id.gSignIn:
+                btnSignup.setEnabled(false);
                 edtPassword.setEnabled(false);
                 edtEmail.setEnabled(false);
                 edtFirstName.setEnabled(false);
@@ -189,6 +192,18 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
         ;
     }
 
+    private void enableViews(String message){
+        prgLogin.setVisibility(View.GONE);
+        btnSignup.setEnabled(true);
+        edtPassword.setEnabled(true);
+        edtEmail.setEnabled(true);
+        edtFirstName.setEnabled(true);
+        edtLastName.setEnabled(true);
+        edtPassword.setEnabled(true);
+        edtConfirmEmail.setEnabled(true);
+        Snackbar.make(edtEmail, message, Snackbar.LENGTH_SHORT).show();
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -199,17 +214,11 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
                 authWithGoogle(account);
                 Log.i("LoginActivity", "onActivityResult: account Retrieved successfully");
             } catch (ApiException e) {
-                prgLogin.setVisibility(View.GONE);
-                edtPassword.setEnabled(true);
-                edtEmail.setEnabled(true);
-                edtFirstName.setEnabled(true);
-                edtLastName.setEnabled(true);
-                edtPassword.setEnabled(true);
-                edtConfirmEmail.setEnabled(true);
-                Log.i("LoginActivity", "onActivityResult: account not Retrieved");
+                enableViews("Cannot login at this time");
+                e.printStackTrace();
             }
-
         }
+
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
             if (resultCode == RESULT_OK) {
@@ -224,19 +233,15 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
 
     public void authWithGoogle(GoogleSignInAccount account){
         final AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
-        FirebaseUtil.getFirebaseAuthentication().signInWithCredential(credential).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-            @Override
-            public void onComplete(@NonNull Task<AuthResult> task) {
-                if(task.isSuccessful()){
-                    user = FirebaseUtil.getFirebaseAuthentication().getCurrentUser();
-                    userId = user.getUid();
-                    FirebaseUtil.getFirebaseFirestore().collection("profiles").document(userId).get()
-                            .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                            Log.i("onComplete", "get() successful " + task.getResult().toString());
-                            if(task.isSuccessful()){
-                                if(!task.getResult().exists()){
+        FirebaseUtil.getFirebaseAuthentication().signInWithCredential(credential).addOnCompleteListener(task -> {
+            if(task.isSuccessful()){
+                user = FirebaseUtil.getFirebaseAuthentication().getCurrentUser();
+                userId = user.getUid();
+                FirebaseUtil.getFirebaseFirestore().collection("profiles").document(userId).get()
+                        .addOnCompleteListener(task1 -> {
+                            Log.i("onComplete", "get() successful " + task1.getResult().toString());
+                            if(task1.isSuccessful()){
+                                if(!task1.getResult().exists()){
                                     final String displayName = user.getDisplayName();
                                     String[] names = displayName.split(" ");
                                     firstName = names[0];
@@ -256,27 +261,15 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
                                     startActivity(new Intent(SignupActivity.this, MainActivity.class));
                                 }
                             }
-                        }
-                    });
-                }
-                else{
-                    edtPassword.setEnabled(true);
-                    edtEmail.setEnabled(true);
-                    prgLogin.setVisibility(View.GONE);
-                    final String message = "Login unsuccessful. " + task.getException().getMessage();
-                    FirebaseUtil.getFirebaseAuthentication().signOut();
-                    mGoogleSignInClient.signOut();
-                    Snackbar.make(edtEmail, message, Snackbar.LENGTH_LONG).show();
-                    Log.i("onComplete", message);
-                }
-
+                        });
             }
-        }).addOnFailureListener(e -> {
-            edtPassword.setEnabled(true);
-            edtEmail.setEnabled(true);
-            prgLogin.setVisibility(View.GONE);
-            String message = "Login unsuccessful. " + e.getMessage();
-            Snackbar.make(edtEmail, message, Snackbar.LENGTH_LONG).show();
+            else{
+                final String message = "Login unsuccessful. " + task.getException().getMessage();
+                enableViews(message);
+                FirebaseUtil.getFirebaseAuthentication().signOut();
+                mGoogleSignInClient.signOut();
+            }
+
         });
     }
 
@@ -315,34 +308,30 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
         if (password.length() < 5) {
             edtPassword.setError("password too small");
             return;}
+        progressDialog.setCancelable(false);
         progressDialog.setMessage("Registering...");
         progressDialog.show();
 
         FirebaseUtil.getFirebaseAuthentication().createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        progressDialog.dismiss();
-                        if(task.isSuccessful()){
-                            editor.putString("PASSWORD", password);
-                            editor.putString("EMAIL", email);
-                            editor.apply();
-                            Snackbar.make(edtEmail, "Registration successful.", Snackbar.LENGTH_SHORT).show();
-                            Toast.makeText(getApplicationContext(), "", Toast.LENGTH_SHORT).show();
-                            user = FirebaseUtil.getFirebaseAuthentication().getCurrentUser();
-                            userId = user.getUid();
-                            provider = "email";
-                            FirebaseUtil.getFirebaseFirestore().collection("profiles").document(userId)
-                                    .set(new Profile(firstName, lastName, email, provider ));
-                            completeProfile();
-                        }
+                .addOnCompleteListener(this, task -> {
+                    progressDialog.dismiss();
+                    if(task.isSuccessful()){
+                        editor.putString("PASSWORD", password);
+                        editor.putString("EMAIL", email);
+                        editor.apply();
+                        Snackbar.make(edtEmail, "Registration successful.", Snackbar.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "", Toast.LENGTH_SHORT).show();
+                        user = FirebaseUtil.getFirebaseAuthentication().getCurrentUser();
+                        userId = user.getUid();
+                        provider = "email";
+                        FirebaseUtil.getFirebaseFirestore().collection("profiles").document(userId)
+                                .set(new Profile(firstName, lastName, email, provider ));
+                        completeProfile();
                     }
-                }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Snackbar.make(edtEmail, "Registration failed. " + e.getMessage(), Snackbar.LENGTH_LONG).show();
-            }
-        });
+                    else
+                        Snackbar.make(edtEmail, "Registration failed. Check your details.", Snackbar.LENGTH_LONG).show();
+                });
+
     }
 
     public void completeProfile(){

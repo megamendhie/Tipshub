@@ -37,15 +37,11 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.auth.UserProfileChangeRequest;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.UploadTask;
 import com.hbb20.CountryCodePicker;
 import com.theartofdev.edmodo.cropper.CropImage;
-
-import org.w3c.dom.Text;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -110,6 +106,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 grabImage();
                 break;
             case R.id.btnLogin:
+                if(!Reusable.getNetworkAvailability(getApplicationContext())){
+                    Snackbar.make(btnLogin, "No Internet connection", Snackbar.LENGTH_SHORT).show();
+                    return;
+                }
                 signInWithEmail();
                 break;
             case R.id.btnSignup:
@@ -124,23 +124,26 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         }
     }
 
+    private void enableViews(String message){
+        prgLogin.setVisibility(View.GONE);
+        edtPassword.setEnabled(true);
+        edtEmail.setEnabled(true);
+        Snackbar.make(btnLogin, message, Snackbar.LENGTH_SHORT).show();
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode==RC_SIGN_IN ){
+        if(requestCode==RC_SIGN_IN){
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             try {
                 GoogleSignInAccount account = task.getResult(ApiException.class);
                 authWithGoogle(account);
                 Log.i("LoginActivity", "onActivityResult: account Retrieved successfully");
             } catch (ApiException e) {
-                prgLogin.setVisibility(View.GONE);
-                edtPassword.setEnabled(true);
-                edtEmail.setEnabled(true);
+                enableViews("Cannot login at this time");
                 e.printStackTrace();
-                Log.i("LoginActivity", "onActivityResult: account not Retrieved");
             }
-
         }
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
@@ -194,10 +197,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         progressDialog.dismiss();
-                        prgLogin.setVisibility(View.GONE);
+                        enableViews("Login failed. " + e.getMessage());
                         if(FirebaseUtil.getFirebaseAuthentication().getCurrentUser()!=null)
                             FirebaseUtil.getFirebaseAuthentication().signOut();
-                        Snackbar.make(btnLogin, "Login failed. " + e.getMessage(), Snackbar.LENGTH_LONG).show();
                     }
         });
     }
@@ -205,19 +207,15 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     public void authWithGoogle(GoogleSignInAccount account){
         final AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
         FirebaseUtil.getFirebaseAuthentication().signInWithCredential(credential)
-                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-            @Override
-            public void onComplete(@NonNull Task<AuthResult> task) {
-                if(task.isSuccessful()){
-                    user = FirebaseUtil.getFirebaseAuthentication().getCurrentUser();
-                    userId = user.getUid();
+                .addOnCompleteListener(task -> {
+                    if(task.isSuccessful()){
+                        user = FirebaseUtil.getFirebaseAuthentication().getCurrentUser();
+                        userId = user.getUid();
 
-                    FirebaseUtil.getFirebaseFirestore().collection("profiles").document(userId).get()
-                            .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                    if(task.isSuccessful()){
-                                        if(task.getResult()==null || !task.getResult().exists()){
+                        FirebaseUtil.getFirebaseFirestore().collection("profiles").document(userId).get()
+                                .addOnCompleteListener(task1 -> {
+                                    if(task1.isSuccessful()){
+                                        if(task1.getResult()==null || !task1.getResult().exists()){
                                             String displayName = user.getDisplayName();
                                             String[] names = displayName.split(" ");
                                             firstName = names[0];
@@ -237,28 +235,15 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                                             startActivity(new Intent(LoginActivity.this, MainActivity.class));
                                         }
                                     }
-                                }
-                    });
-                }
-                else{
-                    edtPassword.setEnabled(true);
-                    edtEmail.setEnabled(true);
-                    prgLogin.setVisibility(View.GONE);
-                    final String message = "Login unsuccessful. " + task.getException().getMessage();
-                    FirebaseUtil.getFirebaseAuthentication().signOut();
-                    mGoogleSignInClient.signOut();
-                    Snackbar.make(btnLogin, message, Snackbar.LENGTH_LONG).show();
-                    Log.i("onComplete", message);
-                }
-
-            }
-        }).addOnFailureListener(e -> {
-            edtPassword.setEnabled(true);
-            edtEmail.setEnabled(true);
-            prgLogin.setVisibility(View.GONE);
-            String message = "Login unsuccessful. " + e.getMessage();
-            Snackbar.make(btnLogin, message, Snackbar.LENGTH_LONG).show();
-        });
+                                });
+                    }
+                    else{
+                        final String message = "Login unsuccessful. " + task.getException().getMessage();
+                        enableViews(message);
+                        FirebaseUtil.getFirebaseAuthentication().signOut();
+                        mGoogleSignInClient.signOut();
+                    }
+                });
     }
 
     public void passwordReset(View v){
