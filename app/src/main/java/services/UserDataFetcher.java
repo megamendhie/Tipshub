@@ -57,69 +57,70 @@ public class UserDataFetcher extends IntentService {
         database = FirebaseFirestore.getInstance();
         FCM = FirebaseMessaging.getInstance();
 
-        database.collection("profiles").document(userID).addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-                Log.i(TAG, "onEvent: profile");
-                if(documentSnapshot==null || !documentSnapshot.exists())
-                    return;
+        database.collection("profiles").document(userID).addSnapshotListener((documentSnapshot, e) -> {
+            Log.i(TAG, "onEvent: profile");
+            if(documentSnapshot==null || !documentSnapshot.exists())
+                return;
 
-                FCM.subscribeToTopic(userID); //subscribe user to corresponding channel with userId
+            FCM.subscribeToTopic(userID); //subscribe user to corresponding channel with userId
 
-                //set user profile to SharePreference
-                Gson gson = new Gson();
-                Log.i(TAG, "onEvent: happended now");
-                String json = gson.toJson(documentSnapshot.toObject(ProfileMedium.class));
-                editor.putBoolean("isVerified", documentSnapshot.toObject(ProfileMedium.class).isC0_verified());
-                editor.putString("profile", json);
-                editor.apply();
-            }
+            //set user profile to SharePreference
+            Gson gson = new Gson();
+            Log.i(TAG, "onEvent: happended now");
+            String json = gson.toJson(documentSnapshot.toObject(ProfileMedium.class));
+            editor.putBoolean("isVerified", documentSnapshot.toObject(ProfileMedium.class).isC0_verified());
+            editor.putString("profile", json);
+            editor.apply();
         });
 
         //set user followers
-        database.collection("followers").document(userID).addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-                Log.i(TAG, "onEvent: followers");
-                if(documentSnapshot==null || !documentSnapshot.exists())
-                    return;
-                if(documentSnapshot.exists() && documentSnapshot.contains("list")){
-                    UserNetwork.setFollowers((ArrayList<String>) documentSnapshot.get("list"));
-                }
+        database.collection("followers").document(userID).addSnapshotListener((documentSnapshot, e) -> {
+            Log.i(TAG, "onEvent: followers");
+            if(documentSnapshot==null)
+                return;
+            if(!documentSnapshot.exists()){
+                UserNetwork.setFollowers(new ArrayList<>());
+                return;
+            }
+            if(documentSnapshot.exists() && documentSnapshot.contains("list")){
+                UserNetwork.setFollowers((ArrayList<String>) documentSnapshot.get("list"));
             }
         });
 
         //set user followings
-        database.collection("followings").document(userID).addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-                if(documentSnapshot==null || !documentSnapshot.exists())
-                    return;
-                if(documentSnapshot.exists() && documentSnapshot.contains("list")){
-                    UserNetwork.setFollowing((ArrayList<String>) documentSnapshot.get("list"));
-                }
+        database.collection("followings").document(userID).addSnapshotListener((documentSnapshot, e) -> {
+            Log.i(TAG, "onEvent: followings");
+            if(documentSnapshot==null)
+                return;
+            if(!documentSnapshot.exists()){
+                UserNetwork.setFollowing(new ArrayList<>());
+                return;
+            }
+            if(documentSnapshot.exists() && documentSnapshot.contains("list")){
+                UserNetwork.setFollowing((ArrayList<String>) documentSnapshot.get("list"));
             }
         });
 
         //set user subscriptions
-        database.collection("subscribed_to").document(userID).addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-                Log.i(TAG, "onEvent: subscribed_to ");
-                if(documentSnapshot==null || !documentSnapshot.exists())
-                    return;
-                if(documentSnapshot.exists() && documentSnapshot.contains("list")){
-                    UserNetwork.setSubscribed((ArrayList<String>) documentSnapshot.get("list"));
-                }
-
-                //subscribe for notification from people you have subscribed to
-                if(((ArrayList<String>) documentSnapshot.get("list"))==null || (((ArrayList<String>) documentSnapshot.get("list")).isEmpty()))
-                    return;
-                for(String s: ((ArrayList<String>) documentSnapshot.get("list"))){
-                    FCM.subscribeToTopic("sub_"+s);
-                }
-
+        database.collection("subscribed_to").document(userID).addSnapshotListener((documentSnapshot, e) -> {
+            Log.i(TAG, "onEvent: subscribed_to ");
+            if(documentSnapshot==null)
+                return;
+            if(!documentSnapshot.exists()){
+                UserNetwork.setSubscribed(new ArrayList<>());
+                return;
             }
+            if(documentSnapshot.exists() && documentSnapshot.contains("list")){
+                UserNetwork.setSubscribed((ArrayList<String>) documentSnapshot.get("list"));
+            }
+
+            //subscribe for notification from people you have subscribed to
+            if(UserNetwork.getSubscribed()==null || UserNetwork.getSubscribed().isEmpty())
+                return;
+            for(String s: ((ArrayList<String>) documentSnapshot.get("list"))){
+                FCM.subscribeToTopic("sub_"+s);
+            }
+
         });
     }
 }
