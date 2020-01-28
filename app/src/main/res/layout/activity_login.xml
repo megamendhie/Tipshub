@@ -16,18 +16,11 @@
         android:orientation="vertical"
         tools:context=".LoginActivity">
 
-        <com.facebook.shimmer.ShimmerFrameLayout
-            android:id="@+id/shimmer"
+        <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="92dp"
-            app:shimmer_duration="2000">
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/tipshub_logo_land"/>
-        </com.facebook.shimmer.ShimmerFrameLayout>
-
+            android:src="@drawable/tipshub_logo_land"/>
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -44,8 +37,6 @@
                 android:hint="Enter your email"
                 android:inputType="textEmailAddress" />
         </com.google.android.material.textfield.TextInputLayout>
-
-
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -62,7 +53,6 @@
                 android:background="@android:drawable/editbox_background_normal"
                 android:hint="Choose password" />
         </com.google.android.material.textfield.TextInputLayout>
-
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -79,7 +69,6 @@
                 android:layout_alignParentStart="true"
                 android:text="Forgot password?" />
         </RelativeLayout>
-
         <Button
             style="@style/Base.Widget.AppCompat.Button"
             android:id="@+id/btnLogin"
@@ -91,7 +80,6 @@
             android:background="@color/colorAccent"
             android:layout_margin="20dp"
             android:text="Login" />
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -116,7 +104,6 @@
                 android:background="@color/colorPrimary"
                 android:layout_weight="3"/>
         </LinearLayout>
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

@@ -110,13 +110,13 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        android:layout_marginTop="6.0dip"
-        android:layout_marginStart="18.0dip"
+        android:layout_marginTop="6dp"
+        android:layout_marginStart="18dp"
         app:cardCornerRadius="10dp">
       <LinearLayout
           android:id="@+id/container_child_post"
           android:orientation="vertical"
-          android:padding="6.0dip"
+          android:padding="6dp"
           android:background="@null"
           android:layout_width="fill_parent"
           android:layout_height="wrap_content"

@@ -48,7 +48,7 @@
                         android:textSize="16sp"
                         android:background="#F5F5F5"
                         android:paddingTop="3dp"
-                        android:paddingStart="6dp"
+                        android:padding="6dp"
                         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                         android:text="Bankers tips are predictions from people you subscribed to. A tipster can post ONLY one(1) banker in a day and must be very sure."/>
 
@@ -63,22 +63,22 @@
 
             <androidx.cardview.widget.CardView
                 android:id="@+id/crdSubscription"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@id/cardView"
                 android:layout_marginTop="10dp"
-                app:cardElevation="0dp"
-                android:paddingTop="3dp"
-                android:paddingBottom="3dp">
+                app:layout_constraintTop_toBottomOf="@id/cardView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textStyle="bold"
-                    android:textSize="18sp"
-                    android:layout_marginStart="3dp"
+                    android:paddingTop="6dp"
+                    android:paddingBottom="6dp"
+                    android:paddingStart="10dp"
+                    android:textSize="20sp"
+                    android:gravity="center_vertical"
+                    android:text="From people you subscribed to"
                     android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                    android:text="From people you subscribed to"/>
+                    android:textStyle="bold" />
             </androidx.cardview.widget.CardView>
 
             <androidx.recyclerview.widget.RecyclerView
@@ -88,25 +88,25 @@
                 android:minHeight="120dp"
                 android:layout_marginTop="@dimen/img_padding"
                 app:layout_constraintTop_toBottomOf="@id/crdSubscription" />
-            
+
             <androidx.cardview.widget.CardView
                 android:id="@+id/crdLatest"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:layout_constraintTop_toBottomOf="@id/subscribedList"
-                app:cardElevation="0dp"
-                android:paddingTop="3dp"
-                android:paddingBottom="3dp"
                 android:layout_marginTop="10dp">
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textStyle="bold"
-                    android:textSize="18sp"
-                    android:layout_marginStart="3dp"
+                    android:paddingTop="6dp"
+                    android:paddingBottom="6dp"
+                    android:paddingStart="10dp"
+                    android:textSize="20sp"
+                    android:gravity="center_vertical"
+                    android:text="Latest"
                     android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                    android:text="Latest"/>
+                    android:textStyle="bold" />
             </androidx.cardview.widget.CardView>
 
             <androidx.recyclerview.widget.RecyclerView
@@ -120,20 +120,19 @@
                 android:id="@+id/crdWinning"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@id/latestList"
-                app:cardElevation="0dp"
-                android:paddingTop="3dp"
-                android:paddingBottom="3dp"
-                android:layout_marginTop="10dp">
-
+                android:layout_marginTop="10dp"
+                app:layout_constraintTop_toBottomOf="@id/latestList">
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textStyle="bold"
-                    android:textSize="18sp"
-                    android:layout_marginStart="3dp"
+                    android:paddingTop="6dp"
+                    android:paddingBottom="6dp"
+                    android:paddingStart="10dp"
+                    android:textSize="20sp"
+                    android:gravity="center_vertical"
+                    android:text="Recent Winnings"
                     android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                    android:text="Recent Winnings"/>
+                    android:textStyle="bold" />
             </androidx.cardview.widget.CardView>
 
             <androidx.recyclerview.widget.RecyclerView
