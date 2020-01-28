@@ -971,4 +971,10 @@
     <string name="text_post_code">post code</string>
     <string name="txt_search">search</string>
     <string name="txt_contact_notice"><u>If you have any issue with payment, click here to contact Tipshub Admin</u></string>
+
+    <string name="title_activity_land">LandActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="txt_subscription">Subscription gives you full access to VIP, Over 2.5, and BTTS</string>
+    <string name="txt_view_now">View now</string>
 </resources>

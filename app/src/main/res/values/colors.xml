@@ -11,13 +11,20 @@
     <color name="likeButton">#F2465C</color>
     <color name="greyBackground">#CEE0EC</color>
     <color name="bg_off_green">#D3EDFC</color>
+    <color name="bg_off_green_deep">#652A7FFF</color>
+    <color name="bg_off_green_deeper">#802A7FFF</color>
     <color name="currencyGreen">#035829</color>
     <color name="color_oxblood">#F80051</color>
     <color name="comment_bg">#E9F5FC</color>
     <color name="comment_flagged">#FCD6E2</color>
+    <color name="brown">#883B28</color>
+    <color name="purple">#F027CF</color>
     <color name="fragment_bg">#EEEEEE</color>
     <color name="color_bg_login">#F7F7F7</color>
     <color name="color_whatsapp">#25D366</color>
     <color name="color_twitter">#1da1f2</color>
     <color name="color_facebook">#3b5998</color>
+
+    <color name="black_overlay">#66000000</color>
+    <color name="check_green">#28BA58</color>
 </resources>
