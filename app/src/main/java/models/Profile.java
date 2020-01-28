@@ -43,6 +43,7 @@ public class Profile {
   private String d1_referralCode;
   private int d2_referralCount;
   private long d3_bankerPostTime;
+  private boolean d4_vipSubscriber;
 
   //values for overall No Of Games, Won Games, and Won Games Percentage
   private long e0a_NOG;
@@ -530,4 +531,11 @@ public class Profile {
   public void setD2_referralCount(int d2_referralCount) {
     this.d2_referralCount = d2_referralCount;
   }
+
+  public boolean isD4_vipSubscriber() {
+        return d4_vipSubscriber;
+    }
+  public void setD4_vipSubscriber(boolean d4_vipSubscriber) {
+        this.d4_vipSubscriber = d4_vipSubscriber;
+    }
 }
