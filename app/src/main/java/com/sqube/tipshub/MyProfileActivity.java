@@ -257,7 +257,7 @@ public class MyProfileActivity extends AppCompatActivity implements View.OnClick
                         if(!row.isEmpty())
                             performanceList.add(row);
                     }
-                    recyclerView.setAdapter(new PerformanceAdapter(MyProfileActivity.this, performanceList));
+                    recyclerView.setAdapter(new PerformanceAdapter(performanceList));
                 }
             }
         });

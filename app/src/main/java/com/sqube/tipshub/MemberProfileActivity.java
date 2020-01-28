@@ -51,12 +51,11 @@ import utils.Reusable;
 
 public class MemberProfileActivity extends AppCompatActivity implements View.OnClickListener {
     private ActionBar actionBar;
-    private ViewPager viewPager;
-    private TabLayout tabLayout;
     private String userId;
     private String USER_ID = "userId";
     private RequestOptions requestOptions = new RequestOptions();
     private FirebaseFirestore database;
+    private FirebaseUser user;
     private CircleImageView imgDp;
     private LinearLayout[] lnrLayout = new LinearLayout[4];
     private Button btnFollow, btnSubscribe;
@@ -80,8 +79,8 @@ public class MemberProfileActivity extends AppCompatActivity implements View.OnC
         }
         btnFollow = findViewById(R.id.btnFollow); btnFollow.setOnClickListener(this);
         btnSubscribe = findViewById(R.id.btnSubscribe); btnSubscribe.setOnClickListener(this);
-        viewPager = findViewById(R.id.viewpager);
-        tabLayout = findViewById(R.id.tabs);
+        ViewPager viewPager = findViewById(R.id.viewpager);
+        TabLayout tabLayout = findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
         imgDp = findViewById(R.id.imgDp);
         txtName = findViewById(R.id.txtFullName);
@@ -102,10 +101,13 @@ public class MemberProfileActivity extends AppCompatActivity implements View.OnC
             l.setOnClickListener(this);
         recyclerView = findViewById(R.id.performanceList);
 
-        FirebaseUser user = FirebaseUtil.getFirebaseAuthentication().getCurrentUser();
-        myID = user.getUid();
+        user = FirebaseUtil.getFirebaseAuthentication().getCurrentUser();
+        if(user==null)
+            myID = Calculations.GUEST;
+        else
+            myID = user.getUid();
         LinearLayoutManager lm = new LinearLayoutManager(getApplicationContext());
-        adapter = new PerformanceAdapter(this, performanceList);
+        adapter = new PerformanceAdapter(performanceList);
         recyclerView.setLayoutManager(lm);
         if(savedInstanceState!=null)
             userId = savedInstanceState.getString(USER_ID);
@@ -119,6 +121,16 @@ public class MemberProfileActivity extends AppCompatActivity implements View.OnC
         database = FirebaseFirestore.getInstance();
         requestOptions.placeholder(R.drawable.dummy);
         setupViewPager(viewPager); //set up view pager with fragments
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        user = FirebaseUtil.getFirebaseAuthentication().getCurrentUser();
+        if(user==null)
+            myID = Calculations.GUEST;
+        else
+            myID = user.getUid();
     }
 
     @Override
@@ -149,10 +161,9 @@ public class MemberProfileActivity extends AppCompatActivity implements View.OnC
                         txtWon.setText(String.format(Locale.getDefault(),"%d  won  • ", profile.getE0b_WG()));
                         txtAccuracy.setText(String.format(Locale.getDefault(),"%.1f%%", (double) profile.getE0c_WGP()));
 
-                        if(profile.isC1_banker()){
-                            if(UserNetwork.getSubscribed()==null || !UserNetwork.getSubscribed().contains(userId))
-                                btnSubscribe.setVisibility(View.VISIBLE);
-                        }
+                        if(UserNetwork.getSubscribed()!=null && profile.isC1_banker()
+                                && !UserNetwork.getSubscribed().contains(userId))
+                            btnSubscribe.setVisibility(View.VISIBLE);
 
                         //set Display picture
                         Glide.with(getApplicationContext())
@@ -176,7 +187,7 @@ public class MemberProfileActivity extends AppCompatActivity implements View.OnC
 
     }
 
-    private  Map<String, Object> getRow(int i) {
+    private Map<String, Object> getRow(int i) {
         Map<String, Object> row = new HashMap<>();
         switch (i){
             case 1:
@@ -297,6 +308,10 @@ public class MemberProfileActivity extends AppCompatActivity implements View.OnC
                 startActivity(intent);
                 break;
             case R.id.btnFollow:
+                if (userId.equals(Calculations.GUEST)) {
+                    loginPrompt();
+                    return;
+                }
                 if(!Reusable.getNetworkAvailability(this)){
                     Snackbar.make(btnFollow, "No Internet connection", Snackbar.LENGTH_SHORT).show();
                     return;
@@ -312,11 +327,33 @@ public class MemberProfileActivity extends AppCompatActivity implements View.OnC
                     unfollowPrompt();
                 break;
             case R.id.btnSubscribe:
+                if (userId.equals(Calculations.GUEST)) {
+                    loginPrompt();
+                    return;
+                }
                 Intent intentSub = new Intent(getApplicationContext(), SubscriptionActivity.class);
                 intentSub.putExtra(USER_ID, userId);
                 startActivity(intentSub);
                 break;
         }
+    }
+
+    private void loginPrompt() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(MemberProfileActivity.this,
+                R.style.Theme_AppCompat_Light_Dialog_Alert);
+        builder.setMessage("You have to login first")
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {}
+                })
+                .setPositiveButton("Login", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        startActivity(new Intent(MemberProfileActivity.this, LoginActivity.class));
+                        finish();
+                    }
+                })
+                .show();
     }
 
     private void unfollowPrompt(){
@@ -384,4 +421,3 @@ public class MemberProfileActivity extends AppCompatActivity implements View.OnC
         super.onSaveInstanceState(outState);
     }
 }
-

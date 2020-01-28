@@ -93,6 +93,7 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
     private String POST_ID = "postId";
     private String comment;
     private final String TAG = "FullPostActivity";
+    private FirebaseUser user;
     private String userId, username, postId, childLink;
     private boolean childDisplayed;
     private SharedPreferences prefs;
@@ -110,37 +111,17 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setTitle("Post");
         prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        mpost = findViewById(R.id.txtPost);
-        mUsername = findViewById(R.id.txtUsername); mUsername.setOnClickListener(this);
-        mTime = findViewById(R.id.txtTime);
-        mLikes = findViewById(R.id.txtLike);
-        mDislikes = findViewById(R.id.txtDislike);
-        mComment = findViewById(R.id.txtComment);
-        mCode = findViewById(R.id.txtCode);
-        mType = findViewById(R.id.txtPostType);
-        fabPost = findViewById(R.id.fabPost); fabPost.setOnClickListener(this);
-        edtComment = findViewById(R.id.edtComment); edtComment.addTextChangedListener(this);
-
-        imgOverflow = findViewById(R.id.imgOverflow); imgOverflow.setOnClickListener(this);
-        imgDp = findViewById(R.id.imgDp); imgDp.setOnClickListener(this);
-        CircleImageView imgMyDp = findViewById(R.id.imgMyDp);
-        imgLike = findViewById(R.id.imgLike); imgLike.setOnClickListener(this);
-        imgDislike = findViewById(R.id.imgDislike); imgDislike.setOnClickListener(this);
-        ImageView imgRepost = findViewById(R.id.imgRepost);
-        imgRepost.setOnClickListener(this);
-        imgStatus = findViewById(R.id.imgStatus);
-        prgPost = findViewById(R.id.prgPost); prgPost.setVisibility(View.VISIBLE);
-        lnrFullPost = findViewById(R.id.container_post);
-        lnrFullPost.setVisibility(View.GONE);
-        lnrChildPost = findViewById(R.id.container_child_post);
-        lnrChildPost.setVisibility(View.GONE);
-        requestOptions.placeholder(R.drawable.ic_person_outline_black_24dp);
+        init();
 
         calculations = new Calculations(getApplicationContext());
         storageReference = FirebaseStorage.getInstance().getReference().child("profile_images");
-        final FirebaseUser user = FirebaseUtil.getFirebaseAuthentication().getCurrentUser();
-        userId = user.getUid();
-        username = user.getDisplayName();
+        user = FirebaseUtil.getFirebaseAuthentication().getCurrentUser();
+        if(user==null)
+            userId=Calculations.GUEST;
+        else{
+            userId = user.getUid();
+            username = user.getDisplayName();
+        }
 
         commentsList = findViewById(R.id.listComments);
         if(savedInstanceState!=null)
@@ -154,7 +135,11 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
         edtComment.setAdapter(club_adapter);
         edtComment.setTokenizer(new SpaceTokenizer());
         edtComment.setThreshold(4);
-        GlideApp.with(getApplicationContext())
+        CircleImageView imgMyDp = findViewById(R.id.imgMyDp);
+        if(userId.equals(Calculations.GUEST))
+            imgMyDp.setImageResource(R.drawable.dummy);
+        else
+            GlideApp.with(getApplicationContext())
                 .setDefaultRequestOptions(requestOptions)
                 .load(storageReference.child(userId))
                 .signature(new ObjectKey(userId+"_"+Reusable.getSignature()))
@@ -163,6 +148,33 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
         listener();
         loadComment();
 
+    }
+
+    private void init() {
+        mpost = findViewById(R.id.txtPost);
+        mUsername = findViewById(R.id.txtUsername); mUsername.setOnClickListener(this);
+        mTime = findViewById(R.id.txtTime);
+        mLikes = findViewById(R.id.txtLike);
+        mDislikes = findViewById(R.id.txtDislike);
+        mComment = findViewById(R.id.txtComment);
+        mCode = findViewById(R.id.txtCode);
+        mType = findViewById(R.id.txtPostType);
+        fabPost = findViewById(R.id.fabPost); fabPost.setOnClickListener(this);
+        edtComment = findViewById(R.id.edtComment); edtComment.addTextChangedListener(this);
+
+        imgOverflow = findViewById(R.id.imgOverflow); imgOverflow.setOnClickListener(this);
+        imgDp = findViewById(R.id.imgDp); imgDp.setOnClickListener(this);
+        imgLike = findViewById(R.id.imgLike); imgLike.setOnClickListener(this);
+        imgDislike = findViewById(R.id.imgDislike); imgDislike.setOnClickListener(this);
+        ImageView imgRepost = findViewById(R.id.imgRepost);
+        imgRepost.setOnClickListener(this);
+        imgStatus = findViewById(R.id.imgStatus);
+        prgPost = findViewById(R.id.prgPost); prgPost.setVisibility(View.VISIBLE);
+        lnrFullPost = findViewById(R.id.container_post);
+        lnrFullPost.setVisibility(View.GONE);
+        lnrChildPost = findViewById(R.id.container_child_post);
+        lnrChildPost.setVisibility(View.GONE);
+        requestOptions.placeholder(R.drawable.ic_person_outline_black_24dp);
     }
 
     //listen for changes in likesCount, dislikesCount and update
@@ -386,6 +398,10 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
         });
 
         btnFollow.setOnClickListener(v -> {
+            if (userId.equals(Calculations.GUEST)) {
+                loginPrompt();
+                return;
+            }
             if(btnFollow.getText().equals("FOLLOW")){
                 calculations.followMember(imgOverflow, userId, model.getUserId());
             }
@@ -394,6 +410,24 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
             }
             dialog.cancel();
         });
+    }
+
+    private void loginPrompt() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(FullPostActivity.this,
+                R.style.Theme_AppCompat_Light_Dialog_Alert);
+        builder.setMessage("You have to login first")
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {}
+                })
+                .setPositiveButton("Login", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        startActivity(new Intent(FullPostActivity.this, LoginActivity.class));
+                        finish();
+                    }
+                })
+                .show();
     }
 
     private void loadComment() {
@@ -405,6 +439,21 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
         if(commentAdapter !=null){
             commentAdapter.startListening();
         }
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        user = FirebaseUtil.getFirebaseAuthentication().getCurrentUser();
+        if(user==null)
+            userId=Calculations.GUEST;
+        else{
+            userId = user.getUid();
+            username = user.getDisplayName();
+        }
+        if(commentAdapter!=null)
+            commentAdapter.setUserId(userId);
     }
 
     @Override
@@ -448,22 +497,38 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
                 startActivity(intent);
                 break;
             case R.id.imgLike:
+                if (userId.equals(Calculations.GUEST)) {
+                    loginPrompt();
+                    return;
+                }
                 onLike();
                  substring = model.getContent().substring(0, Math.min(model.getContent().length(), 90));
                 calculations.onLike(postId, userId, model.getUserId(), substring);
                 break;
             case R.id.imgDislike:
+                if (userId.equals(Calculations.GUEST)) {
+                    loginPrompt();
+                    return;
+                }
                 onDislike();
                 substring = model.getContent().substring(0, Math.min(model.getContent().length(), 90));
                 calculations.onDislike( postId, userId, model.getUserId(), substring);
                 break;
             case R.id.imgRepost:
+                if (userId.equals(Calculations.GUEST)) {
+                    loginPrompt();
+                    return;
+                }
                 intent = new Intent(FullPostActivity.this, RepostActivity.class);
                 intent.putExtra("postId", postId);
                 intent.putExtra("model", model);
                 startActivity(intent);
                 break;
             case R.id.fabPost:
+                if (userId.equals(Calculations.GUEST)) {
+                    loginPrompt();
+                    return;
+                }
                 increaseCommentCount();
                 break;
         }
