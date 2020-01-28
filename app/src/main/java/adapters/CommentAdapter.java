@@ -35,6 +35,7 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.Transaction;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.sqube.tipshub.LoginActivity;
 import com.sqube.tipshub.MemberProfileActivity;
 import com.sqube.tipshub.MyProfileActivity;
 import com.sqube.tipshub.R;
@@ -68,6 +69,10 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
         return repliedList;
     }
 
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
     public void resetRepliesList(){
         repliedList.clear();
     }
@@ -86,7 +91,7 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
         this.activity = activity;
         this.context = context;
         calculations = new Calculations(context);
-        this.userId = userID;
+        this.setUserId(userID);
         this.mainPostId = mainPostId;
         storageReference = FirebaseStorage.getInstance().getReference()
                 .child("profile_images");
@@ -166,82 +171,97 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
             }
         });
 
-        imgLikes.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.i(TAG, "onClick: Key is " + postId);
-                if(model.getDislikes().contains(userId)){
-                    holder.imgLikes.setColorFilter(context.getResources().getColor(R.color.likeGold));
-                    holder.imgDislike.setColorFilter(context.getResources().getColor(R.color.likeGrey));
-                    holder.mLikes.setText(String.valueOf(model.getLikesCount()+1));
-                    holder.mDislikes.setText(model.getDislikesCount()-1>0? String.valueOf(model.getDislikesCount()-1):"");
-                }
-                else{
-                    if(model.getLikes().contains(userId)){
-                        holder.imgLikes.setColorFilter(context.getResources().getColor(R.color.likeGrey));
-                        holder.mLikes.setText(model.getLikesCount()-1>0?String.valueOf(model.getLikesCount()-1):"");
-                    }
-                    else{
-                        holder.imgLikes.setColorFilter(context.getResources().getColor(R.color.likeGold));
-                        holder.mLikes.setText(String.valueOf(model.getLikesCount()+1));
-                    }
-                }
-                String substring = model.getContent().substring(0, Math.min(model.getContent().length(), 90));
-                calculations.onCommentLike(userId, model.getUserId(), postId, mainPostId, substring);
+        imgLikes.setOnClickListener(v -> {
+            Log.i(TAG, "onClick: Key is " + postId);
+            if (userId.equals(Calculations.GUEST)) {
+                loginPrompt(imgLikes);
+                return;
             }
-        });
-
-        imgReply.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                EditText edtComment = activity.findViewById(R.id.edtComment);
-                String comment = edtComment.getText().toString();
-                if(comment.isEmpty())
-                    edtComment.setText(String.format("@%s ", model.getUsername()));
-                else
-                    edtComment.setText(String.format("%s @%s ", comment.trim(), model.getUsername()));
-                edtComment.setSelection(edtComment.getText().length());
-                repliedList.add(new SnapId(model.getUserId(), model.getUsername()));
+            if(model.getDislikes().contains(userId)){
+                holder.imgLikes.setColorFilter(context.getResources().getColor(R.color.likeGold));
+                holder.imgDislike.setColorFilter(context.getResources().getColor(R.color.likeGrey));
+                holder.mLikes.setText(String.valueOf(model.getLikesCount()+1));
+                holder.mDislikes.setText(model.getDislikesCount()-1>0? String.valueOf(model.getDislikesCount()-1):"");
             }
-        });
-
-        imgDislikes.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.i(TAG, "onClick: Key is " + postId);
-
+            else{
                 if(model.getLikes().contains(userId)){
                     holder.imgLikes.setColorFilter(context.getResources().getColor(R.color.likeGrey));
-                    holder.imgDislike.setColorFilter(context.getResources().getColor(R.color.likeGold));
-                    holder.mLikes.setText(model.getLikesCount()-1>0? String.valueOf(model.getLikesCount()-1):"");
-                    holder.mDislikes.setText(String.valueOf(model.getDislikesCount()+1));
+                    holder.mLikes.setText(model.getLikesCount()-1>0?String.valueOf(model.getLikesCount()-1):"");
                 }
                 else{
-                    if(model.getDislikes().contains(userId)){
-                        holder.imgDislike.setColorFilter(context.getResources().getColor(R.color.likeGrey));
-                        holder.mDislikes.setText(model.getDislikesCount()-1>0? String.valueOf(model.getDislikesCount()-1): "");
-                    }
-                    else{
-                        holder.imgDislike.setColorFilter(context.getResources().getColor(R.color.likeGold));
-                        holder.mDislikes.setText(String.valueOf(model.getDislikesCount()+1));
-                    }
+                    holder.imgLikes.setColorFilter(context.getResources().getColor(R.color.likeGold));
+                    holder.mLikes.setText(String.valueOf(model.getLikesCount()+1));
                 }
-                String substring = model.getContent().substring(0, Math.min(model.getContent().length(), 90));
-                calculations.onCommentDislike(userId, model.getUserId(), postId, mainPostId, substring);
             }
+            String substring = model.getContent().substring(0, Math.min(model.getContent().length(), 90));
+            calculations.onCommentLike(userId, model.getUserId(), postId, mainPostId, substring);
         });
 
-        imgOverflow.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                displayOverflow(model, model.getUserId(), postId, holder.imgOverflow);
+        imgReply.setOnClickListener(v -> {
+            if (userId.equals(Calculations.GUEST)) {
+                loginPrompt(imgReply);
+                return;
             }
+            EditText edtComment = activity.findViewById(R.id.edtComment);
+            String comment = edtComment.getText().toString();
+            if(comment.isEmpty())
+                edtComment.setText(String.format("@%s ", model.getUsername()));
+            else
+                edtComment.setText(String.format("%s @%s ", comment.trim(), model.getUsername()));
+            edtComment.setSelection(edtComment.getText().length());
+            repliedList.add(new SnapId(model.getUserId(), model.getUsername()));
         });
+
+        imgDislikes.setOnClickListener(v -> {
+            Log.i(TAG, "onClick: Key is " + postId);
+            if (userId.equals(Calculations.GUEST)) {
+                loginPrompt(imgDislikes);
+                return;
+            }
+
+            if(model.getLikes().contains(userId)){
+                holder.imgLikes.setColorFilter(context.getResources().getColor(R.color.likeGrey));
+                holder.imgDislike.setColorFilter(context.getResources().getColor(R.color.likeGold));
+                holder.mLikes.setText(model.getLikesCount()-1>0? String.valueOf(model.getLikesCount()-1):"");
+                holder.mDislikes.setText(String.valueOf(model.getDislikesCount()+1));
+            }
+            else{
+                if(model.getDislikes().contains(userId)){
+                    holder.imgDislike.setColorFilter(context.getResources().getColor(R.color.likeGrey));
+                    holder.mDislikes.setText(model.getDislikesCount()-1>0? String.valueOf(model.getDislikesCount()-1): "");
+                }
+                else{
+                    holder.imgDislike.setColorFilter(context.getResources().getColor(R.color.likeGold));
+                    holder.mDislikes.setText(String.valueOf(model.getDislikesCount()+1));
+                }
+            }
+            String substring = model.getContent().substring(0, Math.min(model.getContent().length(), 90));
+            calculations.onCommentDislike(userId, model.getUserId(), postId, mainPostId, substring);
+        });
+
+        imgOverflow.setOnClickListener(v -> displayOverflow(model, model.getUserId(), postId, holder.imgOverflow));
+    }
+
+    private void loginPrompt(View view) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(view.getRootView().getContext(),
+                R.style.Theme_AppCompat_Light_Dialog_Alert);
+        builder.setMessage("You have to login first")
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {}
+                })
+                .setPositiveButton("Login", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        view.getRootView().getContext().startActivity(new Intent(view.getRootView().getContext(), LoginActivity.class));
+                    }
+                })
+                .show();
     }
 
     private void displayOverflow(Comment model, String commentUserId, String postId, ImageView imgOverflow) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        LayoutInflater inflater = activity.getLayoutInflater();
+        AlertDialog.Builder builder = new AlertDialog.Builder(imgOverflow.getRootView().getContext());
+        LayoutInflater inflater = LayoutInflater.from(imgOverflow.getContext());
         View dialogView;
         Reusable reusable = new Reusable();
         if(commentUserId.equals(this.userId))
@@ -266,18 +286,19 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
         else
             btnFollow.setText(UserNetwork.getFollowing().contains(commentUserId)? "UNFOLLOW": "FOLLOW");
 
-        btnShare.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                reusable.shareComment(activity, model.getUsername(), model.getContent());
-                dialog.cancel();
-            }
+        btnShare.setOnClickListener(v -> {
+            reusable.shareComment(btnShare.getRootView().getContext(), model.getUsername(), model.getContent());
+            dialog.cancel();
         });
 
         btnFollow.setOnClickListener(v -> {
             if(!Reusable.getNetworkAvailability(context)){
                 Snackbar.make(btnFollow, "No Internet connection", Snackbar.LENGTH_SHORT).show();
                 dialog.cancel();
+                return;
+            }
+            if (userId.equals(Calculations.GUEST)) {
+                loginPrompt(btnFollow);
                 return;
             }
             if(btnFollow.getText().equals("FOLLOW")){
@@ -288,12 +309,9 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
             dialog.cancel();
         });
 
-        btnDelete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                deleteComment(postId, imgOverflow);
-                dialog.cancel();
-            }
+        btnDelete.setOnClickListener(v -> {
+            deleteComment(postId, imgOverflow);
+            dialog.cancel();
         });
     }
 

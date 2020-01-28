@@ -17,13 +17,11 @@ import java.util.Locale;
 import java.util.Map;
 
 public class PerformanceAdapter extends RecyclerView.Adapter<PerformanceAdapter.ListNewsViewHolder>{
-    private Activity activity;
     private ArrayList<Map<String, Object>> performanceList;
     Map<String, Object> row = new HashMap<>();
     String TAG = "PerformanceAdapter";
 
-    public PerformanceAdapter(Activity a, ArrayList<Map<String, Object>> list) {
-        activity = a;
+    public PerformanceAdapter(ArrayList<Map<String, Object>> list) {
         performanceList = list;
         Log.i(TAG, "PerformanceAdapter: " + performanceList);
     }

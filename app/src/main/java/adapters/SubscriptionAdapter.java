@@ -24,6 +24,7 @@ import com.sqube.tipshub.R;
 import de.hdodenhof.circleimageview.CircleImageView;
 import models.Subscription;
 import services.GlideApp;
+import utils.Calculations;
 import utils.Reusable;
 
 public class SubscriptionAdapter extends FirestoreRecyclerAdapter<Subscription, SubscriptionAdapter.PostHolder>{
@@ -58,12 +59,19 @@ public class SubscriptionAdapter extends FirestoreRecyclerAdapter<Subscription, 
         holder.mEndDate.setText(Reusable.getNewDate(model.getDateEnd()));
         holder.mAmount.setText(Html.fromHtml(model.getAmount()));
         holder.mStatus.setText(model.isActive()? "active":"ended");
-        GlideApp.with(context)
-                .setDefaultRequestOptions(requestOptions)
+
+        if(model.getSubToId().equals(Calculations.TIPSHUB))
+            GlideApp.with(context).setDefaultRequestOptions(requestOptions)
+                    .load(R.drawable.icn_mid)
+                    .into(holder.imgDp);
+        else
+            GlideApp.with(context).setDefaultRequestOptions(requestOptions)
                 .load(storageReference.child(model.getSubToId()))
                 .into(holder.imgDp);
 
         holder.mUsername.setOnClickListener(v -> {
+            if(model.getSubToId().equals(Calculations.TIPSHUB))
+                return;
             Intent intent = new Intent(context, MemberProfileActivity.class);
             intent.putExtra("userId", model.getSubToId());
             context.startActivity(intent);
@@ -71,6 +79,8 @@ public class SubscriptionAdapter extends FirestoreRecyclerAdapter<Subscription, 
         holder.imgDp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(model.getSubToId().equals(Calculations.TIPSHUB))
+                    return;
                 Intent intent = new Intent(context, MemberProfileActivity.class);
                 intent.putExtra("userId", model.getSubToId());
                 context.startActivity(intent);

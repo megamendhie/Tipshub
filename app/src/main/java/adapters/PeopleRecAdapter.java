@@ -21,6 +21,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.sqube.tipshub.LoginActivity;
 import com.sqube.tipshub.MemberProfileActivity;
 import com.sqube.tipshub.MyProfileActivity;
 import com.sqube.tipshub.R;
@@ -36,16 +37,14 @@ import utils.FirebaseUtil;
 import utils.Reusable;
 
 public class PeopleRecAdapter extends RecyclerView.Adapter<PeopleRecAdapter.PostHolder> {
-    private final String TAG = "PplAdaper";
-    private Activity activity;
+    private final String TAG = "PplAdapter";
     private Context context;
     private String userId;
     private ArrayList<String> list;
     private RequestOptions requestOptions = new RequestOptions();
 
-    public PeopleRecAdapter(Activity activity, Context context, String userId,  ArrayList<String> list){
+    public PeopleRecAdapter(Context context, String userId,  ArrayList<String> list){
         Log.i(TAG, "PeopleRecAdapter: called");
-        this.activity =activity;
         this.context = context;
         this.userId = userId;
         this.list = list;
@@ -88,31 +87,30 @@ public class PeopleRecAdapter extends RecyclerView.Adapter<PeopleRecAdapter.Post
                 holder.mAccuracy.setText(String.format(Locale.getDefault(),"%.1f%%", (double) model.getE0c_WGP()));
                 holder.btnFollow.setText(UserNetwork.getFollowing()==null||!UserNetwork.getFollowing().contains(ref)? "FOLLOW": "FOLLOWING");
 
-                //load image
-                if (!activity.isDestroyed()) {
-                    Glide.with(activity)
-                            .setDefaultRequestOptions(requestOptions)
-                            .load(model.getB2_dpUrl())
-                            .into(holder.imgDp);
-                }
+                Glide.with(holder.imgDp.getContext())
+                        .setDefaultRequestOptions(requestOptions)
+                        .load(model.getB2_dpUrl())
+                        .into(holder.imgDp);
 
-                holder.lnrContainer.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if(ref.equals(userId)){
-                            context.startActivity(new Intent(context, MyProfileActivity.class));
-                        }
-                        else{
-                            Intent intent = new Intent(context, MemberProfileActivity.class);
-                            intent.putExtra("userId", ref);
-                            context.startActivity(intent);
-                        }
+                holder.lnrContainer.setOnClickListener(v -> {
+                    if(ref.equals(userId)){
+                        context.startActivity(new Intent(context, MyProfileActivity.class));
+                    }
+                    else{
+                        Intent intent = new Intent(context, MemberProfileActivity.class);
+                        intent.putExtra("userId", ref);
+                        context.startActivity(intent);
                     }
                 });
 
                 holder.btnFollow.setOnClickListener(v -> {
                     if(!Reusable.getNetworkAvailability(context)){
                         Snackbar.make(holder.btnFollow, "No Internet connection", Snackbar.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    if (userId.equals(Calculations.GUEST)) {
+                        loginPrompt(holder.btnFollow);
                         return;
                     }
                     if(holder.btnFollow.getText().toString().toUpperCase().equals("FOLLOW")){
@@ -125,6 +123,23 @@ public class PeopleRecAdapter extends RecyclerView.Adapter<PeopleRecAdapter.Post
                 });
             }
         });
+    }
+
+    private void loginPrompt(View view) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(view.getRootView().getContext(),
+                R.style.Theme_AppCompat_Light_Dialog_Alert);
+        builder.setMessage("You have to login first")
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {}
+                })
+                .setPositiveButton("Login", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        view.getRootView().getContext().startActivity(new Intent(view.getRootView().getContext(), LoginActivity.class));
+                    }
+                })
+                .show();
     }
 
     private void unfollowPrompt(Button btnFollow, String userID, String username){

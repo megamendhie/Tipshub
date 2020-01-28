@@ -1,7 +1,6 @@
 package adapters;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -28,11 +27,11 @@ import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.sqube.tipshub.FlagActivity;
 import com.sqube.tipshub.FullPostActivity;
+import com.sqube.tipshub.LoginActivity;
 import com.sqube.tipshub.MemberProfileActivity;
 import com.sqube.tipshub.MyProfileActivity;
 import com.sqube.tipshub.R;
@@ -50,8 +49,7 @@ import utils.FirebaseUtil;
 import utils.Reusable;
 
 public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.PostHolder>{
-    private final String TAG = "PostAdaper";
-    private Activity activity;
+    private final String TAG = "PostAdapter";
     private Context context;
     private String userId;
     private StorageReference storageReference;
@@ -62,20 +60,17 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
     private String[] code = {"1xBet", "Bet9ja", "Nairabet", "SportyBet", "BlackBet", "Bet365"};
     private String[] type = {"3-5 odds", "6-10 odds", "11-50 odds", "50+ odds", "Draws", "Banker tip"};
 
-    public PostAdapter(Query query, String userID, Activity activity, Context context) {
+    public PostAdapter(FirestoreRecyclerOptions<Post> response, String userID, Context context) {
         /*
         Configure recycler adapter options:
         query defines the request made to Firestore
         Post.class instructs the adapter to convert each DocumentSnapshot to a Post object
         */
-        super(new FirestoreRecyclerOptions.Builder<Post>()
-                .setQuery(query, Post.class)
-                .build());
+        super(response);
 
         Log.i(TAG, "PostAdapter: created");
-        this.activity = activity;
         this.context = context;
-        this.userId = userID;
+        this.setUserId(userID);
         this.calculations = new Calculations(context);
         requestOptions.placeholder(R.drawable.ic_person_outline_black_24dp);
         storageReference = FirebaseStorage.getInstance().getReference().child("profile_images");
@@ -118,11 +113,13 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
             holder.mType.setText(type[model.getType()-1]);
         }
 
+
         GlideApp.with(context)
                 .setDefaultRequestOptions(requestOptions)
                 .load(storageReference.child(model.getUserId()))
                 .signature(new ObjectKey(model.getUserId()+"_"+Reusable.getSignature()))
                 .into(holder.imgDp);
+
         //listen to dp click and open user profile
         holder.imgDp.setOnClickListener(v -> {
             if(model.getUserId().equals(userId)){
@@ -161,6 +158,10 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
         holder.imgRepost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (userId.equals(Calculations.GUEST)) {
+                    loginPrompt(holder.imgRepost);
+                    return;
+                }
                 Intent intent = new Intent(context, RepostActivity.class);
                 intent.putExtra("postId", postId);
                 intent.putExtra("model", model);
@@ -188,6 +189,10 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
         holder.imgLikes.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (userId.equals(Calculations.GUEST)) {
+                loginPrompt(holder.imgLikes);
+                return;
+            }
                 if(model.getDislikes().contains(userId)){
                     holder.imgLikes.setColorFilter(context.getResources().getColor(R.color.likeGold));
                     holder.imgDislike.setColorFilter(context.getResources().getColor(R.color.likeGrey));
@@ -212,6 +217,10 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
         holder.imgDislike.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (userId.equals(Calculations.GUEST)) {
+                loginPrompt(holder.imgDislike);
+                return;
+            }
                 if(model.getLikes().contains(userId)){
                     holder.imgLikes.setColorFilter(context.getResources().getColor(R.color.likeGrey));
                     holder.imgDislike.setColorFilter(context.getResources().getColor(R.color.likeGold));
@@ -317,12 +326,29 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
         });
     }
 
+    private void loginPrompt(View view) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(view.getRootView().getContext(),
+                R.style.Theme_AppCompat_Light_Dialog_Alert);
+        builder.setMessage("You have to login first")
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {}
+                })
+                .setPositiveButton("Login", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        view.getRootView().getContext().startActivity(new Intent(view.getRootView().getContext(), LoginActivity.class));
+                    }
+                })
+                .show();
+    }
+
     /*
         Displays overflow containing options like follow, subscribe, disagree, etc.
      */
     private void displayOverflow(final Post model, String userID, final String postId, int status, int type, ImageView imgOverflow) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        LayoutInflater inflater = activity.getLayoutInflater();
+        AlertDialog.Builder builder = new AlertDialog.Builder(imgOverflow.getRootView().getContext());
+        LayoutInflater inflater = LayoutInflater.from(imgOverflow.getRootView().getContext());
         View dialogView;
         if(userID.equals(this.userId))
             dialogView = inflater.inflate(R.layout.dialog_mine, null);
@@ -414,7 +440,7 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
         btnShare.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Reusable.shareTips(activity, model.getUsername(), model.getContent());
+                Reusable.shareTips(btnShare.getRootView().getContext(), model.getUsername(), model.getContent());
                 dialog.cancel();
             }
         });
@@ -463,6 +489,10 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
         else
             view = LayoutInflater.from(parent.getContext()).inflate(R.layout.post_view, parent, false);
         return new PostHolder(view);
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     class PostHolder extends RecyclerView.ViewHolder {

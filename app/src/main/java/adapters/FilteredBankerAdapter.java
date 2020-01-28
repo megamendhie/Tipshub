@@ -44,7 +44,6 @@ import utils.Reusable;
 
 public class FilteredBankerAdapter extends RecyclerView.Adapter<BankerAdapter.PostHolder> {
     private final String TAG = "PostAdaper";
-    private Activity activity;
     private Context context;
     private String userId;
     private StorageReference storageReference;
@@ -56,9 +55,8 @@ public class FilteredBankerAdapter extends RecyclerView.Adapter<BankerAdapter.Po
     private String[] code = {"1xBet", "Bet9ja", "Nairabet", "SportyBet", "BlackBet", "Bet365"};
     private String[] type = {"3-5 odds", "6-10 odds", "11-50 odds", "50+ odds", "Draws", "Banker tip"};
 
-    public FilteredBankerAdapter(String userID, Activity activity, Context context, ArrayList<Post> postList, ArrayList<SnapId> snapIds) {
+    public FilteredBankerAdapter(String userID, Context context, ArrayList<Post> postList, ArrayList<SnapId> snapIds) {
         Log.i(TAG, "PostAdapter: created");
-        this.activity = activity;
         this.context = context;
         this.userId = userID;
         this.postList = postList;
@@ -78,8 +76,8 @@ public class FilteredBankerAdapter extends RecyclerView.Adapter<BankerAdapter.Po
      */
     private void displayOverflow(final Post model, String userID, final String postId, int status, int type, ImageView imgOverflow,
                                  final boolean makePublic) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        LayoutInflater inflater = activity.getLayoutInflater();
+        AlertDialog.Builder builder = new AlertDialog.Builder(imgOverflow.getRootView().getContext());
+        LayoutInflater inflater = LayoutInflater.from(imgOverflow.getRootView().getContext());
         View dialogView;
         if(userID.equals(this.userId))
             dialogView = inflater.inflate(R.layout.dialog_mine, null);
@@ -145,7 +143,7 @@ public class FilteredBankerAdapter extends RecyclerView.Adapter<BankerAdapter.Po
         btnShare.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Reusable.shareTips(activity, model.getUsername(), model.getContent());
+                Reusable.shareTips(btnShare.getRootView().getContext(), model.getUsername(), model.getContent());
                 dialog.cancel();
             }
         });

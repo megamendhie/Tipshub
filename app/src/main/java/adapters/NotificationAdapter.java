@@ -53,8 +53,6 @@ public class NotificationAdapter extends FirestoreRecyclerAdapter<Notification, 
         Log.i(TAG, "PostAdapter: created");
         this.context = context;
         this.userId = userID;
-        Calculations calculations = new Calculations(context);
-        FirebaseFirestore database = FirebaseFirestore.getInstance();
         requestOptions.placeholder(R.drawable.dummy);
         storageReference = FirebaseStorage.getInstance().getReference().child("profile_images");
     }
@@ -63,7 +61,6 @@ public class NotificationAdapter extends FirestoreRecyclerAdapter<Notification, 
     @Override
     protected void onBindViewHolder(@NonNull PostHolder holder, final int position, @NonNull final Notification model) {
         Log.i(TAG, "onBindViewHolder: executed");
-        final String notificationId = getSnapshots().getSnapshot(position).getId();
 
         final LinearLayout lnrContainer = holder.lnrContainer;
         final ImageView imgType = holder.imgType;
@@ -78,50 +75,63 @@ public class NotificationAdapter extends FirestoreRecyclerAdapter<Notification, 
         mMessage.setText(model.getMessage());
 
         imgType.setVisibility(View.VISIBLE);
-        if (model.getAction().equals("liked"))
+        switch (model.getAction()) {
+            case "liked":
                 Glide.with(context).load(R.drawable.ic_thumb_up_color_24dp).into(imgType);
-        else if(model.getAction().equals("disliked"))
+                break;
+            case "disliked":
                 Glide.with(context).load(R.drawable.ic_thumb_down_color_24dp).into(imgType);
-        else if(model.getAction().equals("reposted"))
+                break;
+            case "reposted":
                 Glide.with(context).load(R.drawable.ic_retweet_color).into(imgType);
-        else if(model.getAction().equals("subEnd") || model.getAction().equals("subscribed"))
+                break;
+            case "subEnd":
+            case "subscribed":
                 Glide.with(context).load(R.drawable.ic_favorite_color_24dp).into(imgType);
-        else
-            imgType.setVisibility(View.INVISIBLE);
+                break;
+            default:
+                imgType.setVisibility(View.INVISIBLE);
+                break;
+        }
 
-        GlideApp.with(context)
-                .setDefaultRequestOptions(requestOptions)
+        if(model.getSentFrom().equals(Calculations.TIPSHUB))
+            GlideApp.with(context).setDefaultRequestOptions(requestOptions)
+                    .load(R.drawable.icn_mid)
+                    .into(imgDp);
+        else
+            GlideApp.with(context).setDefaultRequestOptions(requestOptions)
                 .load(storageReference.child(model.getSentFrom()))
                 .signature(new ObjectKey(model.getSentFrom()+"_"+Reusable.getSignature()))
                 .into(imgDp);
 
-        lnrContainer.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = null;
-                switch (model.getType()){
-                    case "comment":
-                    case "post":
-                        intent = new Intent(context, FullPostActivity.class);
-                        intent.putExtra("postId", intentUrl);
+        lnrContainer.setOnClickListener(v -> {
+            if(model.getIntentUrl().equals(Calculations.TIPSHUB))
+                return;
+            Intent intent = null;
+            switch (model.getType()){
+                case "comment":
+                case "post":
+                    intent = new Intent(context, FullPostActivity.class);
+                    intent.putExtra("postId", intentUrl);
+                    context.startActivity(intent);
+                    break;
+                case "following":
+                case "subscription":
+                    if(model.getSentFrom().equals(userId)){
+                        context.startActivity(new Intent(context, MyProfileActivity.class));
+                    }
+                    else{
+                        intent = new Intent(context, MemberProfileActivity.class);
+                        intent.putExtra("userId", model.getSentFrom());
                         context.startActivity(intent);
-                        break;
-                    case "following":
-                    case "subscription":
-                        if(model.getSentFrom().equals(userId)){
-                            context.startActivity(new Intent(context, MyProfileActivity.class));
-                        }
-                        else{
-                            intent = new Intent(context, MemberProfileActivity.class);
-                            intent.putExtra("userId", model.getSentFrom());
-                            context.startActivity(intent);
-                        }
-                        break;
-                }
+                    }
+                    break;
             }
         });
 
         imgDp.setOnClickListener(v -> {
+            if(model.getSentFrom().equals(Calculations.TIPSHUB))
+                return;
             if(model.getSentFrom().equals(userId)){
                 context.startActivity(new Intent(context, MyProfileActivity.class));
             }

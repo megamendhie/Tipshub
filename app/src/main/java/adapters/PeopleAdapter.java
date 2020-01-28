@@ -1,6 +1,5 @@
 package adapters;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -8,11 +7,12 @@ import android.content.Intent;
 import androidx.annotation.NonNull;
 import com.google.android.material.snackbar.Snackbar;
 import androidx.recyclerview.widget.RecyclerView;
+
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -21,6 +21,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.sqube.tipshub.LoginActivity;
 import com.sqube.tipshub.MemberProfileActivity;
 import com.sqube.tipshub.MyProfileActivity;
 import com.sqube.tipshub.R;
@@ -36,16 +37,14 @@ import utils.FirebaseUtil;
 import utils.Reusable;
 
 public class PeopleAdapter extends RecyclerView.Adapter<PeopleAdapter.PostHolder> {
-    private Activity activity;
     private Context context;
     private String userId;
     private ArrayList<String> list;
     private RequestOptions requestOptions = new RequestOptions();
 
-    public PeopleAdapter(Activity activity, Context context, String userId, ArrayList<String> list){
-        this.activity =activity;
+    public PeopleAdapter(Context context, String userId, ArrayList<String> list){
         this.context = context;
-        this.userId = userId;
+        this.setUserId(userId);
         this.list = list;
         requestOptions.placeholder(R.drawable.dummy);
     }
@@ -65,64 +64,80 @@ public class PeopleAdapter extends RecyclerView.Adapter<PeopleAdapter.PostHolder
     @Override
     public void onBindViewHolder(@NonNull PostHolder holder, int i) {
         String ref = list.get(i);
-        FirebaseUtil.getFirebaseFirestore().collection("profiles").document(ref).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if(!task.isSuccessful()||task.isCanceled() || !task.getResult().exists()){
-                    list.remove(i);
-                    PeopleAdapter.this.notifyDataSetChanged();
+        FirebaseUtil.getFirebaseFirestore().collection("profiles").document(ref).get().addOnCompleteListener(task -> {
+            if(!task.isSuccessful()||task.isCanceled() || !task.getResult().exists()){
+                list.remove(i);
+                PeopleAdapter.this.notifyDataSetChanged();
+                return;
+            }
+            ProfileShort model = task.getResult().toObject(ProfileShort.class);
+            holder.mUsername.setText(model.getA2_username());
+            String tips = model.getE0a_NOG()>1? "tips": "tip";
+            holder.mPost.setText(String.format(Locale.getDefault(),"%d  %s  • ", model.getE0a_NOG(), tips));
+            holder.mAccuracy.setText(String.format(Locale.getDefault(),"%.1f%%", (double) model.getE0c_WGP()));
+            holder.btnFollow.setText(UserNetwork.getFollowing()==null||!UserNetwork.getFollowing().contains(ref)? "FOLLOW": "FOLLOWING");
+            if(ref.equals(userId))
+                holder.btnFollow.setVisibility(View.GONE);
+
+            try {
+                Glide.with(context).setDefaultRequestOptions(requestOptions)
+                        .load(model.getB2_dpUrl()).into(holder.imgDp);
+            }
+            catch (Exception e){
+                Log.w("{PeopleAdapter", "onBindViewHolder: " + e.getMessage());
+            }
+
+            holder.lnrContainer.setOnClickListener(v -> {
+                if(ref.equals(userId)){
+                    context.startActivity(new Intent(context, MyProfileActivity.class));
+                }
+                else{
+                    Intent intent = new Intent(context, MemberProfileActivity.class);
+                    intent.putExtra("userId", ref);
+                    context.startActivity(intent);
+                }
+            });
+
+            holder.btnFollow.setOnClickListener(v -> {
+                if(!Reusable.getNetworkAvailability(context)){
+                    Snackbar.make(holder.btnFollow, "No Internet connection", Snackbar.LENGTH_SHORT).show();
                     return;
                 }
-                ProfileShort model = task.getResult().toObject(ProfileShort.class);
-                holder.mUsername.setText(model.getA2_username());
-                String tips = model.getE0a_NOG()>1? "tips": "tip";
-                holder.mPost.setText(String.format(Locale.getDefault(),"%d  %s  • ", model.getE0a_NOG(), tips));
-                holder.mAccuracy.setText(String.format(Locale.getDefault(),"%.1f%%", (double) model.getE0c_WGP()));
-                holder.btnFollow.setText(UserNetwork.getFollowing()==null||!UserNetwork.getFollowing().contains(ref)? "FOLLOW": "FOLLOWING");
-                if(ref.equals(userId))
-                    holder.btnFollow.setVisibility(View.GONE);
 
-                //load image
-                if (!activity.isDestroyed()) {
-                    Glide.with(activity)
-                            .setDefaultRequestOptions(requestOptions)
-                            .load(model.getB2_dpUrl())
-                            .into(holder.imgDp);
+                if (userId.equals(Calculations.GUEST)) {
+                    loginPrompt(holder.btnFollow);
+                    return;
                 }
-
-                holder.lnrContainer.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if(ref.equals(userId)){
-                            context.startActivity(new Intent(context, MyProfileActivity.class));
-                        }
-                        else{
-                            Intent intent = new Intent(context, MemberProfileActivity.class);
-                            intent.putExtra("userId", ref);
-                            context.startActivity(intent);
-                        }
-                    }
-                });
-
-                holder.btnFollow.setOnClickListener(v -> {
-                    if(!Reusable.getNetworkAvailability(context)){
-                        Snackbar.make(holder.btnFollow, "No Internet connection", Snackbar.LENGTH_SHORT).show();
-                        return;
-                    }
-                    if(holder.btnFollow.getText().toString().toUpperCase().equals("FOLLOW")){
-                        Calculations calculations= new Calculations(context);
-                        calculations.followMember(holder.imgDp, userId, ref);
-                        holder.btnFollow.setText("FOLLOWING");
-                    }
-                    else
-                        unfollowPrompt(holder.btnFollow, ref, model.getA2_username());
-                });
-            }
+                if(holder.btnFollow.getText().toString().toUpperCase().equals("FOLLOW")){
+                    Calculations calculations= new Calculations(context);
+                    calculations.followMember(holder.imgDp, userId, ref);
+                    holder.btnFollow.setText("FOLLOWING");
+                }
+                else
+                    unfollowPrompt(holder.btnFollow, ref, model.getA2_username());
+            });
         });
     }
 
+    private void loginPrompt(View view) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(view.getRootView().getContext(),
+                R.style.Theme_AppCompat_Light_Dialog_Alert);
+        builder.setMessage("You have to login first")
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {}
+                })
+                .setPositiveButton("Login", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        view.getRootView().getContext().startActivity(new Intent(view.getRootView().getContext(), LoginActivity.class));
+                    }
+                })
+                .show();
+    }
+
     private void unfollowPrompt(Button btnFollow, String userID, String username){
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity,
+        AlertDialog.Builder builder = new AlertDialog.Builder(btnFollow.getRootView().getContext(),
                 R.style.Theme_AppCompat_Light_Dialog_Alert);
         builder.setMessage(String.format("Do you want to unfollow %s?", username))
                 .setTitle("Unfollow")
@@ -146,6 +161,10 @@ public class PeopleAdapter extends RecyclerView.Adapter<PeopleAdapter.PostHolder
     @Override
     public int getItemCount() {
         return list.size();
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     class PostHolder extends RecyclerView.ViewHolder {

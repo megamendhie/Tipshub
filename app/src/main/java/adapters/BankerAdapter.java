@@ -1,7 +1,6 @@
 package adapters;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -31,6 +30,7 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.storage.StorageReference;
 import com.sqube.tipshub.FlagActivity;
 import com.sqube.tipshub.FullPostActivity;
+import com.sqube.tipshub.LoginActivity;
 import com.sqube.tipshub.MemberProfileActivity;
 import com.sqube.tipshub.MyProfileActivity;
 import com.sqube.tipshub.R;
@@ -49,7 +49,6 @@ import utils.Reusable;
 
 public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.PostHolder>{
     private final String TAG = "BankerAdaper";
-    private Activity activity;
     private Context context;
     private String userId;
     private Calculations calculations;
@@ -58,7 +57,7 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
     private String[] code = {"1xBet", "Bet9ja", "Nairabet", "SportyBet", "BlackBet", "Bet365"};
     private String[] type = {"3-5 odds", "6-10 odds", "11-50 odds", "50+ odds", "Draws", "Banker tip"};
 
-    public BankerAdapter(Query query, String userID, Activity activity, Context context) {
+    public BankerAdapter(Query query, String userID, Context context) {
         /*
         Configure recycler adapter options:
         query defines the request made to Firestore
@@ -69,9 +68,8 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
                 .build());
 
         Log.i(TAG, "BankerAdapter: created");
-        this.activity = activity;
         this.context = context;
-        this.userId = userID;
+        this.setUserId(userID);
         this.calculations = new Calculations(context);
         requestOptions.placeholder(R.drawable.ic_person_outline_black_24dp);
         storageReference = FirebaseUtil.getFirebaseStorage().getReference().child("profile_images");
@@ -182,6 +180,11 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
         imgRepost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (userId.equals(Calculations.GUEST)) {
+                    loginPrompt(imgRepost);
+                    return;
+                }
+
                 if(!finalMakePublic) {
                     Snackbar.make(mComment, "You can't repost yet", Snackbar.LENGTH_SHORT).show();
                     return;
@@ -242,6 +245,11 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
         imgLikes.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (userId.equals(Calculations.GUEST)) {
+                    loginPrompt(imgLikes);
+                    return;
+                }
+
                 model.getDislikes().contains(userId);
                 if(model.getDislikes().contains(userId)){
                     imgLikes.setColorFilter(context.getResources().getColor(R.color.likeGold));
@@ -267,6 +275,10 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
         imgDislikes.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (userId.equals(Calculations.GUEST)) {
+                    loginPrompt(imgDislikes);
+                    return;
+                }
                 if(model.getLikes().contains(userId)){
                     imgLikes.setColorFilter(context.getResources().getColor(R.color.likeGrey));
                     imgDislikes.setColorFilter(context.getResources().getColor(R.color.likeGold));
@@ -298,8 +310,8 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
 
     private void displayOverflow(final Post model, String userID, final String postId, int status, int type, ImageView imgOverflow,
                                  final boolean makePublic) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        LayoutInflater inflater = activity.getLayoutInflater();
+        AlertDialog.Builder builder = new AlertDialog.Builder(imgOverflow.getRootView().getContext());
+        LayoutInflater inflater = LayoutInflater.from(imgOverflow.getRootView().getContext());
         View dialogView;
         if(userID.equals(this.userId))
             dialogView = inflater.inflate(R.layout.dialog_mine, null);
@@ -395,7 +407,7 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
         btnShare.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Reusable.shareTips(activity, model.getUsername(), model.getContent());
+                Reusable.shareTips(btnShare.getRootView().getContext(), model.getUsername(), model.getContent());
                 dialog.cancel();
             }
         });
@@ -406,6 +418,11 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
                 dialog.cancel();
                 return;
             }
+
+            if (userId.equals(Calculations.GUEST)) {
+                loginPrompt(btnFollow);
+                return;
+            }
             if(btnFollow.getText().equals("FOLLOW")){
                 calculations.followMember(imgOverflow, userId, userID);
             }
@@ -413,6 +430,15 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
                 unfollowPrompt(imgOverflow, userID, model.getUsername());
             dialog.cancel();
         });
+    }
+
+    private void loginPrompt(View view) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(view.getRootView().getContext(),
+                R.style.Theme_AppCompat_Light_Dialog_Alert);
+        builder.setMessage("You have to login first")
+                .setNegativeButton("Cancel", (dialogInterface, i) -> {})
+                .setPositiveButton("Login", (dialogInterface, i) -> view.getRootView().getContext().startActivity(new Intent(view.getRootView().getContext(), LoginActivity.class)))
+                .show();
     }
 
     private void unfollowPrompt(ImageView imgOverflow, String userID, String username){
@@ -439,6 +465,10 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerAdapter.
     public PostHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.post_view_banker, parent, false);
         return new PostHolder(view);
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     static class PostHolder extends RecyclerView.ViewHolder {
