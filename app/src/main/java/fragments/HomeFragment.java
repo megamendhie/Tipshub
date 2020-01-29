@@ -1,14 +1,16 @@
 package fragments;
 
-
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -20,8 +22,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.facebook.shimmer.ShimmerFrameLayout;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -33,9 +37,15 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.gson.Gson;
+import com.sqube.tipshub.FullViewActivity;
 import com.sqube.tipshub.PostActivity;
 import com.sqube.tipshub.R;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -45,16 +55,27 @@ import java.util.List;
 import java.util.Locale;
 
 import adapters.FilteredPostAdapter;
+import adapters.PosidonAdapter;
 import adapters.PostAdapter;
+import adapters.TipsAdapter;
+import models.GameTip;
 import models.Post;
 import models.ProfileMedium;
 import models.SnapId;
 import models.UserNetwork;
+import utils.CacheHelper;
+import utils.Calculations;
+import utils.DatabaseHelper;
 import utils.FirebaseUtil;
+import utils.HttpConFunction;
+
+import static utils.Calculations.CLASSIC;
+import static utils.Calculations.targetUrl;
 
 public class HomeFragment extends Fragment{
     private String TAG = "HomeFrag", HOME_FEED_STATE = "homeFeedState";
-    private ShimmerFrameLayout shimmerLayout;
+    private ShimmerFrameLayout shimmerLayoutTips;
+    private ShimmerFrameLayout shimmerLayoutPosts;
     private Gson gson = new Gson();
     private SharedPreferences prefs;
     private boolean fromEverybody = true;
@@ -63,10 +84,23 @@ public class HomeFragment extends Fragment{
     private String userId, username;
     private PostAdapter postAdapter;
     private FilteredPostAdapter fAdapter;
+    private PosidonAdapter posidonAdapter;
     private FloatingActionMenu fabMenu;
-    private RecyclerView homeFeed;
+    private RecyclerView homeFeed, tipsFeed;
     private Intent intent;
-    private SwipeRefreshLayout refresher;
+    //private SwipeRefreshLayout refresher;
+    private JSONObject flagsJson;
+    private ArrayList<GameTip> homepageTips = new ArrayList<>();
+    private TipsAdapter tipsAdapter;
+    private CardView crdTips, crdPosts;
+    private TextView txtOpenFull;
+
+    private String json;
+    private ProfileMedium myProfile;
+    private boolean subscriber;
+
+    private DatabaseHelper dbHelper;
+    private SQLiteDatabase db;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -78,6 +112,14 @@ public class HomeFragment extends Fragment{
         FirebaseUser user = FirebaseUtil.getFirebaseAuthentication().getCurrentUser();
         userId = user.getUid();
         username = user.getDisplayName();
+
+        prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+        json = prefs.getString("profile", "");
+        myProfile = (json.equals("")) ? null : gson.fromJson(json, ProfileMedium.class);
+        subscriber = myProfile != null && myProfile.isD4_vipSubscriber();
+
+        dbHelper = new DatabaseHelper(getContext());
+        db = dbHelper.getReadableDatabase();
     }
 
     @Override
@@ -88,63 +130,88 @@ public class HomeFragment extends Fragment{
         View rootView=inflater.inflate(R.layout.fragment_home, container, false);
         intent = new Intent(getContext(), PostActivity.class);
         homeFeed = rootView.findViewById(R.id.testList);
-        shimmerLayout = rootView.findViewById(R.id.shimmer);
-        homeFeed.setLayoutManager(new LinearLayoutManager(getActivity()));
+        tipsFeed = rootView.findViewById(R.id.tipsList);
+        shimmerLayoutTips = rootView.findViewById(R.id.shimmerTips);
+        shimmerLayoutPosts = rootView.findViewById(R.id.shimmerPosts);
+        crdTips = rootView.findViewById(R.id.crdTips);
+        crdPosts = rootView.findViewById(R.id.crdPosts);
+        homeFeed.setLayoutManager(new LinearLayoutManager(getContext()));
+        tipsFeed.setLayoutManager(new LinearLayoutManager(getContext()));
         ((DefaultItemAnimator) homeFeed.getItemAnimator()).setSupportsChangeAnimations(false);
         fabMenu = rootView.findViewById(R.id.fabMenu);
         FloatingActionButton fabNormal = rootView.findViewById(R.id.fabNormal);
         FloatingActionButton fabTip = rootView.findViewById(R.id.fabPost);
-        refresher = rootView.findViewById(R.id.refresher);
-        refresher.setColorSchemeResources(R.color.colorPrimary);
-        prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
-        shimmerLayout.startShimmer();
+        //refresher = rootView.findViewById(R.id.refresher);
+        //refresher.setColorSchemeResources(R.color.colorPrimary);
 
+        txtOpenFull = rootView.findViewById(R.id.txtOpenFull);
+        txtOpenFull.setOnClickListener(view ->
+                getContext().startActivity(new Intent(getContext(), FullViewActivity.class)));
+        if(homepageTips.isEmpty())
+            shimmerLayoutTips.startShimmer();
+        else{
+            txtOpenFull.setVisibility(View.VISIBLE);
+            shimmerLayoutTips.stopShimmer();
+            shimmerLayoutTips.setVisibility(View.GONE);
+            crdTips.setVisibility(View.VISIBLE);
+        }
+        shimmerLayoutPosts.startShimmer();
+        /*
         refresher.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 selectPostToLoad(savedInstanceState);
             }
         });
+        */
 
-        fabTip.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                fabMenu.close(false);
-                if(hasReachedMax()){
-                    popUp();
-                    return;
-                }
-                intent.putExtra("type", "tip");
-                startActivity(intent);
+        fabTip.setOnClickListener(v -> {
+            fabMenu.close(false);
+            if(hasReachedMax()){
+                popUp();
+                return;
             }
+            intent.putExtra("type", "tip");
+            startActivity(intent);
         });
 
-        fabNormal.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                fabMenu.close(false);
-                intent.putExtra("type", "normal");
-                startActivity(intent);
-            }
+        fabNormal.setOnClickListener(v -> {
+            fabMenu.close(false);
+            intent.putExtra("type", "normal");
+            startActivity(intent);
         });
 
         //confirm if user is seeing everybody's post
         fromEverybody = prefs.getBoolean("fromEverybody", true);
 
-        fAdapter = new FilteredPostAdapter(true, userId, getActivity(), getContext(), postList, snapIds);
+        fAdapter = new FilteredPostAdapter(true, userId, getContext(), postList, snapIds);
+        posidonAdapter = new PosidonAdapter(true, userId, getContext(), postList, snapIds);
         homeFeed.setAdapter(fAdapter);
+        flagsJson = HttpConFunction.getFlags(getContext().getResources().openRawResource(R.raw.flags));
         selectPostToLoad(savedInstanceState);
+        loadTips();
         Log.i(TAG, "onCreateView: ");
         return rootView;
     }
 
+    private void loadTips() {
+        tipsAdapter = new TipsAdapter(homepageTips, subscriber);
+        tipsFeed.setAdapter(tipsAdapter);
+        GetTips getTips = new GetTips();
+        getTips.execute();
+    }
+
     private void selectPostToLoad(Bundle savedInstanceState) {
-        refresher.setRefreshing(true);
-        if(fromEverybody)
-            loadPost();
+        //refresher.setRefreshing(true);
+        if(fromEverybody){
+            homeFeed.setAdapter(posidonAdapter);
+            //loadPost();
+            loadPostFbAdapter();
+        }
         else{
             loadMerged();
         }
+
         if(savedInstanceState!=null){
             Parcelable homeFeedState = savedInstanceState.getParcelable(HOME_FEED_STATE);
             homeFeed.getLayoutManager().onRestoreInstanceState(homeFeedState);
@@ -180,8 +247,8 @@ public class HomeFragment extends Fragment{
 
     //method checks if user has reached max post for the day
     private boolean hasReachedMax(){
-        String json = prefs.getString("profile", "");
-        ProfileMedium myProfile = (json.equals("")) ? null : gson.fromJson(json, ProfileMedium.class);
+        json = prefs.getString("profile", "");
+        myProfile = (json.equals("")) ? null : gson.fromJson(json, ProfileMedium.class);
         if(myProfile ==null)
             return true;
 
@@ -203,15 +270,62 @@ public class HomeFragment extends Fragment{
     private void loadPost() {
         Query query = FirebaseUtil.getFirebaseFirestore().collection("posts")
                 .orderBy("time", Query.Direction.DESCENDING);
-        postAdapter = new PostAdapter(query, userId, getActivity(), getContext());
+
+        query.limit(200).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if(!task.isSuccessful())
+                    return;
+
+                postList.clear();
+                snapIds.clear();
+                QuerySnapshot snapshots = task.getResult();
+                for(DocumentSnapshot snapshot: snapshots.getDocuments()){
+                    Post post = snapshot.toObject(Post.class);
+                    if(post.getType()==6 && post.getStatus()!=2)
+                        continue;
+                    postList.add(post);
+                    snapIds.add(new SnapId(snapshot.getId(), post.getTime()));
+                }
+                posidonAdapter.notifyDataSetChanged();
+                shimmerLayoutPosts.stopShimmer();
+                shimmerLayoutPosts.setVisibility(View.GONE);
+                crdPosts.setVisibility(View.VISIBLE);
+            }
+        });
+
+        //refresher.setRefreshing(false);
+    }
+
+    private void loadPostFbAdapter() {
+        Query query = FirebaseUtil.getFirebaseFirestore().collection("posts")
+                .orderBy("time", Query.Direction.DESCENDING).limit(40);
+        FirestoreRecyclerOptions<Post> response = new FirestoreRecyclerOptions.Builder<Post>()
+                .setQuery(query, Post.class)
+                .build();
+        postAdapter = new PostAdapter(response, userId, getContext());
         homeFeed.setAdapter(postAdapter);
         if(postAdapter!=null){
             Log.i(TAG, "loadPost: started listening");
             postAdapter.startListening();
-            shimmerLayout.stopShimmer();
-            shimmerLayout.setVisibility(View.GONE);
+            shimmerLayoutPosts.stopShimmer();
+            shimmerLayoutPosts.setVisibility(View.GONE);
+            crdPosts.setVisibility(View.VISIBLE);
         }
-        refresher.setRefreshing(false);
+        //refresher.setRefreshing(false);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        json = prefs.getString("profile", "");
+        myProfile = (json.equals("")) ? null : gson.fromJson(json, ProfileMedium.class);
+        boolean subscriber = myProfile != null && myProfile.isD4_vipSubscriber();
+        if(subscriber && !this.subscriber ){
+            this.subscriber = true;
+            loadTips();
+        }
     }
 
     private void loadMerged(){
@@ -220,18 +334,18 @@ public class HomeFragment extends Fragment{
         if(UserNetwork.getFollowing()==null){
             FirebaseUtil.getFirebaseFirestore().collection("followings").document(userId).get()
                     .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    if(task.isSuccessful() && task.getResult().contains("list"))
-                        loadList((ArrayList<String>) task.getResult().get("list"));
-                    else
-                        loadList(null);
-                }
-            });
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            if(task.isSuccessful() && task.getResult().contains("list"))
+                                loadList((ArrayList<String>) task.getResult().get("list"));
+                            else
+                                loadList(null);
+                        }
+                    });
         }
         else
             loadList(UserNetwork.getFollowing());
-        refresher.setRefreshing(false);
+        //refresher.setRefreshing(false);
     }
 
     private void loadList(ArrayList<String> ids){
@@ -276,11 +390,17 @@ public class HomeFragment extends Fragment{
                     Collections.sort(snapIds);
                 }
                 fAdapter.notifyDataSetChanged();
-                shimmerLayout.stopShimmer();
-                shimmerLayout.setVisibility(View.GONE);
+                shimmerLayoutPosts.stopShimmer();
+                shimmerLayoutPosts.setVisibility(View.GONE);
+                crdPosts.setVisibility(View.VISIBLE);
             }
         });
 
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
     }
 
     @Override
@@ -289,5 +409,94 @@ public class HomeFragment extends Fragment{
         Parcelable homeFeedState = homeFeed.getLayoutManager().onSaveInstanceState();
         outState.putParcelable(HOME_FEED_STATE, homeFeedState);
         super.onSaveInstanceState(outState);
+    }
+
+    private class GetTips extends AsyncTask<String, Void, ArrayList<GameTip>>{
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            String xml = dbHelper.getTip(db, CLASSIC);
+            if(xml!=null && !xml.isEmpty())
+                onPostExecute(getTips(xml));
+        }
+
+        @Override
+        protected ArrayList<GameTip> doInBackground(String... strings) {
+            final Date today = new Date();
+            final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            final String todayDate = sdf.format(today.getTime());
+
+            HttpConFunction httpConnection = new HttpConFunction();
+            String s = httpConnection.executeGet(targetUrl+ "iso_date="+todayDate, "HOME");
+
+            if(s!=null && s.length() >= 10)
+                dbHelper.updateTip(db, CLASSIC, s);
+            return getTips(s);
+        }
+
+        private ArrayList<GameTip> getTips(String s) {
+            ArrayList<GameTip> tips = new ArrayList<>();
+            if(s==null)
+                return tips;
+
+            try {
+                JSONObject jsonObject = new JSONObject(s);
+                JSONArray data = jsonObject.getJSONArray("data");
+
+                for(int i=0; i < data.length(); i++){
+                    JSONObject tipJSON = data.getJSONObject(i);
+                    GameTip gameTip = new GameTip();
+                    gameTip.set_id(tipJSON.optString("id"));
+                    gameTip.setAwayTeam(tipJSON.optString("away_team"));
+                    gameTip.setHomeTeam(tipJSON.optString("home_team"));
+                    String region = tipJSON.optString("competition_cluster");
+                    gameTip.setRegion(flagsJson==null? region : flagsJson.optString(region.trim())+" "+region);
+                    gameTip.setLeague(tipJSON.optString("competition_name"));
+                    gameTip.setPrediction(tipJSON.optString("prediction"));
+                    gameTip.setTime(tipJSON.optString("start_date"));
+                    gameTip.setResult(tipJSON.optString("result"));
+                    gameTip.setStatus(tipJSON.optString("status"));
+
+                    if(tipJSON.has("probabilities")){
+                        JSONObject probabilities = tipJSON.optJSONObject("probabilities");
+                        gameTip.setProbability(probabilities.optDouble(gameTip.getPrediction()));
+                        Log.i(TAG, "getTips: "+ probabilities.optDouble(gameTip.getPrediction()));
+                    }
+                    else
+                        Log.i(TAG, "getTips: null");
+
+                    JSONObject oddJSON = tipJSON.getJSONObject("odds");
+                    if(oddJSON != null){
+                        gameTip.setOdd(oddJSON.optDouble(gameTip.getPrediction()));
+                    }
+                    tips.add(gameTip);
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return tips;
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<GameTip> tips) {
+            Log.i("GETTIPS", "onPostExecute: "+ tips);
+            if(tips.isEmpty())
+                return;
+            homepageTips.clear();
+            Calculations.setFreeGameTips(tips); //save all the tips
+            int k = 0;
+            for(GameTip tip: tips){
+                homepageTips.add(tip);
+                k++;
+                if (k>=3) break;
+            }
+            tipsAdapter.notifyDataSetChanged();
+            txtOpenFull.setVisibility(View.VISIBLE);
+            shimmerLayoutTips.stopShimmer();
+            shimmerLayoutTips.setVisibility(View.GONE);
+            crdTips.setVisibility(View.VISIBLE);
+
+        }
     }
 }
