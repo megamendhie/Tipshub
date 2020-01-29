@@ -17,12 +17,14 @@ import com.google.firebase.firestore.Query;
 import com.sqube.tipshub.R;
 
 import adapters.BankerAdapter;
+import utils.Calculations;
 import utils.FirebaseUtil;
 
 public class BankersFragment extends Fragment {
     private String userId, myId;
     private BankerAdapter postAdapter;
     private RecyclerView recyclerView;
+    private FirebaseUser user;
 
     public BankersFragment() {
         // Required empty public constructor
@@ -41,8 +43,11 @@ public class BankersFragment extends Fragment {
         View rootView=inflater.inflate(R.layout.fragment_bankers, container, false);
         recyclerView = rootView.findViewById(R.id.postList);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        FirebaseUser user = FirebaseUtil.getFirebaseAuthentication().getCurrentUser();
-        myId = user.getUid();
+        user = FirebaseUtil.getFirebaseAuthentication().getCurrentUser();
+        if(user==null)
+            myId= Calculations.GUEST;
+        else
+            myId = user.getUid();
         userId = getArguments().getString("userId");
         loadPost();
         return rootView;
@@ -53,11 +58,24 @@ public class BankersFragment extends Fragment {
         Log.i(TAG, "loadPost: ");
         Query query = FirebaseUtil.getFirebaseFirestore().collection("posts").orderBy("time", Query.Direction.DESCENDING)
                 .whereEqualTo("userId", userId).whereEqualTo("type", 6);
-        postAdapter = new BankerAdapter(query, myId, getActivity(), getContext());
+        postAdapter = new BankerAdapter(query, myId, getContext());
         recyclerView.setAdapter(postAdapter);
         if(postAdapter!=null){
             Log.i(TAG, "loadPost: started listening");
             postAdapter.startListening();
         }
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        user = FirebaseUtil.getFirebaseAuthentication().getCurrentUser();
+        if(user==null)
+            myId= Calculations.GUEST;
+        else
+            myId = user.getUid();
+        if(postAdapter!=null)
+            postAdapter.setUserId(myId);
+    }
+
 }

@@ -62,11 +62,9 @@ public class BankerFragment extends Fragment {
     private SharedPreferences prefs;
     private TextView txtNotice;
     private String userId;
-    BankerAdapter latestAdapter, winAdapter;
-    FloatingActionButton fabPost;
-    RecyclerView subscribedList, latestList, winningsList;
+    private RecyclerView subscribedList, latestList, winningsList;
     private final String TAG = "BankerFragment";
-    Intent intent;
+    private Intent intent;
 
     public BankerFragment() {
         // Required empty public constructor
@@ -81,8 +79,9 @@ public class BankerFragment extends Fragment {
         subscribedList = rootView.findViewById(R.id.subscribedList);
         latestList = rootView.findViewById(R.id.latestList);
         winningsList = rootView.findViewById(R.id.winningsList);
-        fabPost = rootView.findViewById(R.id.fabPost);
+        FloatingActionButton fabPost = rootView.findViewById(R.id.fabPost);
         txtNotice = rootView.findViewById(R.id.txtNotice);
+
         ((DefaultItemAnimator) subscribedList.getItemAnimator()).setSupportsChangeAnimations(false);
         ((DefaultItemAnimator) winningsList.getItemAnimator()).setSupportsChangeAnimations(false);
         ((DefaultItemAnimator) latestList.getItemAnimator()).setSupportsChangeAnimations(false);
@@ -191,7 +190,7 @@ public class BankerFragment extends Fragment {
                     txtNotice.setVisibility(View.GONE);
                 Collections.sort(posts);
                 Collections.sort(snapIds);
-                subscribedList.setAdapter(new FilteredBankerAdapter(userId, getActivity(), getContext(), posts, snapIds));
+                subscribedList.setAdapter(new FilteredBankerAdapter(userId, getContext(), posts, snapIds));
             }
         });
 
@@ -199,19 +198,19 @@ public class BankerFragment extends Fragment {
 
     private void loadLatest() {
         Log.i(TAG, "loadPost: ");
-        latestAdapter = new BankerAdapter(FirebaseUtil.getFirebaseFirestore().collection("posts").orderBy("time", Query.Direction.DESCENDING)
-                .whereEqualTo("type", 6).limit(8), userId, getActivity(), getContext());
+        BankerAdapter latestAdapter = new BankerAdapter(FirebaseUtil.getFirebaseFirestore().collection("posts").orderBy("time", Query.Direction.DESCENDING)
+                .whereEqualTo("type", 6).limit(8), userId, getContext());
         latestList.setAdapter(latestAdapter);
-        if(latestAdapter!=null)
+        if(latestAdapter !=null)
             latestAdapter.startListening();
     }
 
     private void loadWinning() {
         Log.i(TAG, "loadWinning: ");
-        winAdapter = new BankerAdapter(FirebaseUtil.getFirebaseFirestore().collection("posts").orderBy("time", Query.Direction.DESCENDING)
-                .whereEqualTo("type", 6).whereEqualTo("status", 2).limit(8), userId, getActivity(), getContext());
+        BankerAdapter winAdapter = new BankerAdapter(FirebaseUtil.getFirebaseFirestore().collection("posts").orderBy("time", Query.Direction.DESCENDING)
+                .whereEqualTo("type", 6).whereEqualTo("status", 2).limit(8), userId, getContext());
         winningsList.setAdapter(winAdapter);
-        if(winAdapter!=null)
+        if(winAdapter !=null)
             winAdapter.startListening();
     }
 

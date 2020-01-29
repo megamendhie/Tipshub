@@ -1,6 +1,7 @@
 package fragments;
 
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
@@ -30,7 +31,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -48,10 +48,12 @@ import adapters.PeopleRecAdapter;
 import models.Post;
 import models.SnapId;
 import models.UserNetwork;
-import utils.CacheHelper;
+import utils.DatabaseHelper;
 import utils.FirebaseUtil;
-import utils.NewsFunction;
+import utils.HttpConFunction;
 import utils.Reusable;
+
+import static utils.Calculations.NEWS;
 
 public class RecommendedFragment extends Fragment implements View.OnClickListener {
     private String userId;
@@ -63,7 +65,9 @@ public class RecommendedFragment extends Fragment implements View.OnClickListene
     private ArrayList<SnapId> snapIds= new ArrayList<>();
     private FilteredPostAdapter fAdapter;
 
-    ArrayList<HashMap<String, String>> dataList = new ArrayList<HashMap<String, String>>();
+    private DatabaseHelper dbHelper;
+    private SQLiteDatabase db;
+    private ArrayList<HashMap<String, String>> dataList = new ArrayList<HashMap<String, String>>();
 
     public RecommendedFragment() {
         // Required empty public   constructor
@@ -72,6 +76,9 @@ public class RecommendedFragment extends Fragment implements View.OnClickListene
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        dbHelper = new DatabaseHelper(getContext());
+        db = dbHelper.getReadableDatabase();
     }
 
     @Override
@@ -93,7 +100,7 @@ public class RecommendedFragment extends Fragment implements View.OnClickListene
 
         FirebaseUser user = FirebaseUtil.getFirebaseAuthentication().getCurrentUser();
         userId = user.getUid();
-        fAdapter = new FilteredPostAdapter(false, userId, getActivity(), getContext(), postList, snapIds);
+        fAdapter = new FilteredPostAdapter(false, userId, getContext(), postList, snapIds);
         trendingList.setAdapter(fAdapter);
         alreadyLoaded = false;
         loadNews();
@@ -139,7 +146,7 @@ public class RecommendedFragment extends Fragment implements View.OnClickListene
                         list.add(snapshot.getId());
                     }
                     Collections.shuffle(list);
-                    peopleList.setAdapter(new PeopleRecAdapter(getActivity(), getContext(), userId, list));
+                    peopleList.setAdapter(new PeopleRecAdapter(getContext(), userId, list));
                 } else
                     loadPeopleFromProfile();
             }
@@ -164,7 +171,7 @@ public class RecommendedFragment extends Fragment implements View.OnClickListene
                         list.add(ref);
                     }
                     Collections.shuffle(list);
-                    peopleList.setAdapter( new PeopleRecAdapter(getActivity(), getContext(), userId, list));
+                    peopleList.setAdapter( new PeopleRecAdapter(getContext(), userId, list));
                 }
             }
         });
@@ -173,7 +180,7 @@ public class RecommendedFragment extends Fragment implements View.OnClickListene
 
     private void loadPost() {
         FirebaseUtil.getFirebaseFirestore().collection("posts")
-                .orderBy("timeRelevance", Query.Direction.DESCENDING).limit(15).get()
+                .orderBy("timeRelevance", Query.Direction.DESCENDING).limit(9).get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot result) {
@@ -240,19 +247,15 @@ public class RecommendedFragment extends Fragment implements View.OnClickListene
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            String xml = CacheHelper.retrieve(getContext(),"TipshubNews");
-            if(xml==null||xml.equals("")){}
-            else{
+            String xml = dbHelper.getTip(db, NEWS);
+            if (xml != null && !xml.isEmpty())
                 onPostExecute(xml);
-            }
-
         }
-        protected String doInBackground(String... args) {
-            String xml = "";
 
-            String urlParameters = "";
-            xml = NewsFunction.excuteGet("https://newsapi.org/v2/everything?domains=espnfc.com&language=en&pageSize=15&apiKey="+ myAPI_Key, urlParameters);
-            return  xml;
+        protected String doInBackground(String... args) {
+            HttpConFunction httpConnection = new HttpConFunction();
+            return httpConnection.executeGet("https://newsapi.org/v2/everything?domains=espnfc.com&language=en&pageSize=15&apiKey="
+                    + myAPI_Key, "RECOMMEND");
         }
         @Override
         protected void onPostExecute(String xml) {
@@ -289,10 +292,8 @@ public class RecommendedFragment extends Fragment implements View.OnClickListene
                         dataList.add(map);
                     }
 
-                    //Delete previous cache and cache new info for later use
-                    File cache = new File(getContext() + "/TipshubNews.srl");
-                    cache.delete();
-                    CacheHelper.save(getContext(), "TipshubNews", xml);
+                    //Save news to database
+                    dbHelper.updateTip(db, NEWS, xml);
                 } catch (JSONException | ParseException e) {
                     Log.i(TAG, "onPostExecute: "+ e.getMessage());
                     Toast.makeText(getContext(), "Unexpected error", Toast.LENGTH_SHORT).show();
