@@ -1,5 +1,9 @@
 package utils;
 
+import android.util.Log;
+
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -8,7 +12,7 @@ import java.net.URL;
 
 public class HttpConFunction {
 
-    public static String excuteGet(String targetURL, String requestingFragment) {
+    public String executeGet(String targetURL, String requestingFragment) {
         URL url;
         HttpURLConnection connection = null;
         try {
@@ -51,6 +55,7 @@ public class HttpConFunction {
             return response.toString();
 
         } catch (Exception e) {
+            Log.i("HttpConFunction", "exception: " + e.getMessage());
             return null;
 
         } finally {
@@ -59,5 +64,25 @@ public class HttpConFunction {
                 connection.disconnect();
             }
         }
+    }
+
+    public static JSONObject getFlags(InputStream inputStream){
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+        String eachLine;
+        StringBuffer response = new StringBuffer();
+        JSONObject flagsJSONObject = null;
+
+        try {
+            while ((eachLine = reader.readLine()) != null) {
+                response.append(eachLine);
+                response.append('\r');
+            }
+            reader.close();
+            flagsJSONObject = new JSONObject(response.toString());
+        }
+        catch (Exception e){
+            Log.i("getStream", "exception: " + e.getMessage());
+        }
+        return flagsJSONObject;
     }
 }
