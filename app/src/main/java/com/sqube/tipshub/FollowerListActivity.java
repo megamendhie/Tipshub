@@ -10,16 +10,21 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import com.google.firebase.auth.FirebaseUser;
+
 import java.util.ArrayList;
 
 import adapters.PeopleAdapter;
+import utils.Calculations;
 import utils.FirebaseUtil;
 
 public class FollowerListActivity extends AppCompatActivity {
     private RecyclerView peopleList;
     private TextView txtNote;
-    ArrayList<String> listOfPeople = new ArrayList<>();
-    String userId;
+    private ArrayList<String> listOfPeople = new ArrayList<>();
+    private String userId;
+    private FirebaseUser user;
+    private PeopleAdapter peopleAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +41,12 @@ public class FollowerListActivity extends AppCompatActivity {
         txtNote = findViewById(R.id.txtNote);
         peopleList = findViewById(R.id.peopleList);
         peopleList.setLayoutManager(new LinearLayoutManager(FollowerListActivity.this));
-        userId = FirebaseUtil.getFirebaseAuthentication().getCurrentUser().getUid();
+
+        user = FirebaseUtil.getFirebaseAuthentication().getCurrentUser();
+        if(user==null)
+            userId= Calculations.GUEST;
+        else
+            userId = user.getUid();
 
         FirebaseUtil.getFirebaseFirestore().collection(searchType).document(personId).get()
                 .addOnCompleteListener(task -> {
@@ -46,12 +56,26 @@ public class FollowerListActivity extends AppCompatActivity {
                     }
                     if(task.getResult().contains("list")){
                         listOfPeople = (ArrayList<String>) task.getResult().get("list");
-                        peopleList.setAdapter(new PeopleAdapter(FollowerListActivity.this,
-                                getApplicationContext(),userId, listOfPeople));
+                        peopleAdapter = new PeopleAdapter(getApplicationContext(),userId, listOfPeople);
+                        peopleList.setAdapter(peopleAdapter);
                     }
                 })
                 .addOnFailureListener(e -> txtNote.setVisibility(View.VISIBLE));
     }
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        user = FirebaseUtil.getFirebaseAuthentication().getCurrentUser();
+        if(user==null)
+            userId= Calculations.GUEST;
+        else
+            userId = user.getUid();
+        if(peopleAdapter!=null)
+            peopleAdapter.setUserId(userId);
+    }
+
 
     private String getTitle(String searchType){
         switch (searchType){
