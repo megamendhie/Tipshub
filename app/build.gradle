@@ -6,8 +6,8 @@ android {
         applicationId "com.sqube.tipshub"
         minSdkVersion 19
         targetSdkVersion 28
-        versionCode 9
-        versionName "1.0.9"
+        versionCode 11
+        versionName "2.0.2"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
         vectorDrawables.useSupportLibrary = true;
@@ -33,9 +33,9 @@ dependencies {
     implementation 'com.google.firebase:firebase-messaging:20.0.1'  //Messaging
     implementation 'com.google.firebase:firebase-database:19.2.0' //RT database
     implementation 'com.google.firebase:firebase-config:19.0.3'    //Remote Config
-    implementation 'com.firebaseui:firebase-ui-storage:4.2.0'
-    implementation 'com.firebaseui:firebase-ui-firestore:4.2.1'
-    implementation 'com.firebaseui:firebase-ui-auth:4.2.1'
+    implementation 'com.firebaseui:firebase-ui-storage:6.2.0'
+    implementation 'com.firebaseui:firebase-ui-firestore:6.2.0'
+    implementation 'com.firebaseui:firebase-ui-auth:6.2.0'
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'com.algolia:algoliasearch-android:3.+'
     implementation 'com.hbb20:ccp:2.2.9'
@@ -45,15 +45,19 @@ dependencies {
     implementation 'androidx.arch.core:core-runtime:2.1.0'
     implementation 'com.github.clans:fab:1.6.4'
     implementation 'de.hdodenhof:circleimageview:2.2.0'
-    implementation 'com.github.Flutterwave:rave-android:1.0.45.1'
+    implementation 'com.github.Flutterwave:rave-android:1.0.48'
+    implementation 'co.paystack.android.design.widget:pinpad:1.0.1'
+    implementation 'co.paystack.android:paystack:3.0.10'
     implementation 'com.theartofdev.edmodo:android-image-cropper:2.7.+'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'com.facebook.shimmer:shimmer:0.4.0'
     implementation 'com.github.bumptech.glide:glide:4.10.0'
+    //debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.5.4'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.10.0'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 }
 
+//apply plugin: 'realm-android'
 apply plugin: 'com.google.gms.google-services'
