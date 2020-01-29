@@ -67,14 +67,15 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private String provider;
     private Uri filePath = null;
     private SharedPreferences.Editor editor;
+    private boolean openMainActivity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        ShimmerFrameLayout shimmerLayout = findViewById(R.id.shimmer);
-        TextView txtForgotPassword = findViewById(R.id.txtForgetPassword);
+        openMainActivity = getIntent().getBooleanExtra("openMainActivity", false);
+
         btnLogin = findViewById(R.id.btnLogin); btnLogin.setOnClickListener(this);
         Button btnSignup = findViewById(R.id.btnSignup);
         btnSignup.setOnClickListener(this);
@@ -96,7 +97,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             edtEmail.setText(prefs.getString("EMAIL","email@domain.com"));
             edtPassword.setText(prefs.getString("PASSWORD", "X%p8kznAA1"));
         }
-        shimmerLayout.startShimmer();
     }
 
     @Override
@@ -113,7 +113,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 signInWithEmail();
                 break;
             case R.id.btnSignup:
-                startActivity(new Intent(LoginActivity.this, SignupActivity.class));
+                Intent intent = new Intent(LoginActivity.this, SignupActivity.class);
+                intent.putExtra("openMainActivity", openMainActivity);
+                startActivity(intent);
+                finish();
                 break;
             case R.id.gSignIn:
                 edtPassword.setEnabled(false);
@@ -189,7 +192,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                             Snackbar.make(btnLogin, "Login successful", Snackbar.LENGTH_SHORT).show();
                             user = FirebaseUtil.getFirebaseAuthentication().getCurrentUser();
                             finish();
-                            startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                            if(openMainActivity)
+                                startActivity(new Intent(LoginActivity.this, MainActivity.class));
                         }
                     }
                 })
@@ -232,7 +236,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                                         }
                                         else{
                                             finish();
-                                            startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                                            if(openMainActivity)
+                                                startActivity(new Intent(LoginActivity.this, MainActivity.class));
                                         }
                                     }
                                 });
@@ -403,7 +408,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
                         dialog.cancel();
                         finish();
-                        startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                        if(openMainActivity)
+                            startActivity(new Intent(LoginActivity.this, MainActivity.class));
                         Intent intent = new Intent(LoginActivity.this, AboutActivity.class);
                         intent.putExtra("showCongratsImage", true);
                         startActivity(intent);

@@ -63,6 +63,7 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
     private GoogleSignInClient mGoogleSignInClient;
     private Uri filePath = null;
     private Button btnSignup;
+    private boolean openMainActivity;
     SharedPreferences.Editor editor;
     EditText edtFirstName, edtLastName, edtEmail, edtConfirmEmail, edtPassword;
     private String userId, firstName, lastName, email, confirmEmail, password, provider;
@@ -72,6 +73,9 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
         ActionBar actionBar = getSupportActionBar();
+
+        Intent callingIntent = getIntent();
+        openMainActivity = callingIntent.getBooleanExtra("openMainActivity", false);
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setTitle("Sign Up");
@@ -135,6 +139,13 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        startActivity(new Intent(SignupActivity.this, LoginActivity.class));
+        finish();
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.nav_contact:
@@ -144,6 +155,7 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
                 startActivity(new Intent(SignupActivity.this, GuideActivity.class));
                 break;
             default:
+                startActivity(new Intent(SignupActivity.this, LoginActivity.class));
                 finish();
                 break;
         }
@@ -258,7 +270,8 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
                                 }
                                 else{
                                     finish();
-                                    startActivity(new Intent(SignupActivity.this, MainActivity.class));
+                                    if(openMainActivity)
+                                        startActivity(new Intent(SignupActivity.this, MainActivity.class));
                                 }
                             }
                         });
@@ -441,7 +454,8 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
 
                         dialog.cancel();
                         finish();
-                        startActivity(new Intent(SignupActivity.this, MainActivity.class));
+                        if(openMainActivity)
+                            startActivity(new Intent(SignupActivity.this, MainActivity.class));
                         Intent intent = new Intent(SignupActivity.this, AboutActivity.class);
                         intent.putExtra("showCongratsImage", true);
                         startActivity(intent);
