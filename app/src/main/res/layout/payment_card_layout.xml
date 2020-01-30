@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@color/white"
+    android:focusableInTouchMode="true"
+    android:padding="16dp">
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="20dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/tipshub_logo_land" />
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Enter Card Details"
+        android:layout_marginBottom="10dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+        android:textColor="@color/color_oxblood" />
+
+    <EditText
+        android:id="@+id/card_number"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="15dp"
+        android:hint="Card Number"
+        android:maxLength="20"
+        android:drawablePadding="4dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+        android:background="@android:drawable/editbox_background_normal"
+        android:drawableLeft="@drawable/ic_credit_card_color_24dp"
+        android:inputType="number"
+        android:padding="10dp"
+        android:textColorHint="#D3D3D3" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/month"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="15dp"
+            android:layout_weight="1"
+            android:maxLength="2"
+            android:background="@android:drawable/editbox_background_normal"
+            android:hint="Expiry Month"
+            android:inputType="number"
+            android:padding="10dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+            android:textColorHint="#D3D3D3" />
+
+        <EditText
+            android:id="@+id/year"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="15dp"
+            android:layout_weight="1"
+            android:maxLength="2"
+            android:background="@android:drawable/editbox_background_normal"
+            android:hint="Expiry Year"
+            android:inputType="number"
+            android:padding="10dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+            android:textColorHint="#D3D3D3" />
+
+    </LinearLayout>
+
+    <EditText
+        android:id="@+id/cvc"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:hint="CVV"
+        android:maxLength="3"
+        android:background="@android:drawable/editbox_background_normal"
+        android:inputType="number"
+        android:padding="10dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+        android:textColorHint="#D3D3D3" />
+
+    <Button
+        android:id="@+id/btnPay"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/CustomButtonPayment"
+        android:onClick="pay"
+        android:text="Make Payment"
+        android:textColor="#FFFFFF" />
+
+</LinearLayout>
