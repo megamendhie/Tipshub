@@ -975,6 +975,7 @@
     <string name="title_activity_land">LandActivity</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
-    <string name="txt_subscription">Subscription gives you full access to VIP, Over 2.5, and BTTS</string>
-    <string name="txt_view_now">View now</string>
+    <string name="txt_subscription">Subscription gives you access to VIP, Over 2.5, BTTS, and weekend draws</string>
+    <string name="txt_view_now">SUBSCRIBE</string>
+    <string name="txt_sub_notice">Get all our tips by becoming a subscriber</string>
 </resources>
