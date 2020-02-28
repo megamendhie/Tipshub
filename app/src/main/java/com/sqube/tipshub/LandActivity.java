@@ -43,14 +43,11 @@ import static utils.Calculations.targetUrl;
 public class LandActivity extends AppCompatActivity {
     private static final String TAG = "LandActivityTAG";
 
-    private final String classic = "classic";
-    private final String won = "won";
-
     private ArrayList<GameTip> classicTips = new ArrayList<>();
     private ArrayList<GameTip> wonTips = new ArrayList<>();
 
-    private TipsAdapter classicAdapter = new TipsAdapter(classicTips, true);
-    private TipsAdapter wonAdapter = new TipsAdapter(wonTips, true);
+    private TipsAdapter classicAdapter = new TipsAdapter(classicTips);
+    private TipsAdapter wonAdapter = new TipsAdapter(wonTips);
     private JSONObject flagsJson;
 
     private DatabaseHelper dbHelper;
@@ -92,12 +89,11 @@ public class LandActivity extends AppCompatActivity {
 
         flagsJson = HttpConFunction.getFlags(getResources().openRawResource(R.raw.flags));
 
-        GetTips getClassicTips = new GetTips(classic);
+        GetTips getClassicTips = new GetTips(CLASSIC);
         getClassicTips.execute();
 
-        GetTips getWonTips = new GetTips(won);
+        GetTips getWonTips = new GetTips(WONGAMES);
         getWonTips.execute();
-
     }
 
     public void goToLogin(View v){
@@ -161,9 +157,9 @@ public class LandActivity extends AppCompatActivity {
             String xml = null;
 
             switch (market){
-                case classic:
+                case CLASSIC:
                     xml = dbHelper.getTip(db, CLASSIC); break;
-                case won:
+                case WONGAMES:
                     xml = dbHelper.getTip(db, WONGAMES); break;
             }
 
@@ -178,7 +174,7 @@ public class LandActivity extends AppCompatActivity {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
             switch (market){
-                case classic:
+                case CLASSIC:
                     Date today = new Date();
                     String todaysDate = sdf.format(today.getTime());
 
@@ -186,7 +182,7 @@ public class LandActivity extends AppCompatActivity {
                     if(s!=null && s.length() >= 10)
                         dbHelper.updateTip(db, CLASSIC, s);
                     break;
-                case won:
+                case WONGAMES:
                     Calendar c = Calendar.getInstance();
                     c.add(Calendar.DAY_OF_MONTH, -1);
                     String yesterdaysDate = sdf.format(c.getTime());
@@ -211,7 +207,7 @@ public class LandActivity extends AppCompatActivity {
                 for(int i=0; i < data.length(); i++){
                     JSONObject tipJSON = data.getJSONObject(i);
                     GameTip gameTip = new GameTip();
-                    if(market.equals(won) && !tipJSON.optString("status").equals("won"))
+                    if(market.equals(WONGAMES) && !tipJSON.optString("status").equals("won"))
                         continue;
                     gameTip.set_id(tipJSON.optString("id"));
                     gameTip.setAwayTeam(tipJSON.optString("away_team"));
@@ -248,7 +244,7 @@ public class LandActivity extends AppCompatActivity {
                 return;
 
             switch (market){
-                case classic:
+                case CLASSIC:
                     classicTips.clear();
                     for(GameTip tip: tips){
                         classicTips.add(tip);
@@ -260,7 +256,7 @@ public class LandActivity extends AppCompatActivity {
                     shimmerLandingTip.stopShimmer();
                     shimmerLandingTip.setVisibility(View.GONE);
                     break;
-                case won:
+                case WONGAMES:
                     wonTips.clear();
                     Collections.sort(tips);
                     for(GameTip tip: tips){

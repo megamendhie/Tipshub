@@ -1,5 +1,6 @@
 package com.sqube.tipshub;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -15,8 +16,14 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.facebook.shimmer.ShimmerFrameLayout;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
 
 import org.json.JSONArray;
@@ -25,54 +32,58 @@ import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 
+import adapters.DrawAdapter;
 import adapters.TipsAdapter;
+import models.Draw;
 import models.GameTip;
 import models.ProfileMedium;
 import utils.Calculations;
 import utils.DatabaseHelper;
+import utils.FirebaseUtil;
 import utils.HttpConFunction;
 
 import static utils.Calculations.BTTS;
 import static utils.Calculations.CLASSIC;
 import static utils.Calculations.OVER;
+import static utils.Calculations.WONGAMES;
 import static utils.Calculations.targetUrl;
 
 public class FullViewActivity extends AppCompatActivity {
 
-    RecyclerView listClassic, listVIP, listOver, listBts;
+    RecyclerView listClassic, listVIP, listOver, listBts, listDraw, listWon;
     private JSONObject flagsJson;
     private Gson gson = new Gson();
 
     private ArrayList<GameTip> classicTips = new ArrayList<>();
-    private ArrayList<GameTip> sortedClassicTips = new ArrayList<>();
     private ArrayList<GameTip> vipTips = new ArrayList<>();
     private ArrayList<GameTip> overTips = new ArrayList<>();
     private ArrayList<GameTip> bttTips = new ArrayList<>();
+    private ArrayList<GameTip> wonTips = new ArrayList<>();
+    private TextView txtDate, txtWeek, btnSeeAll;
 
     private TipsAdapter classicAdapter;
     private TipsAdapter vipAdapter;
     private TipsAdapter overAdapter;
     private TipsAdapter bttsAdapter;
+    private TipsAdapter wonAdapter;
+    private DrawAdapter drawAdapter = new DrawAdapter();
 
-    private ShimmerFrameLayout shimmerClassicTips, shimmerVipTips, shimmerOverTips, shimmerBtsTips;
-
-    private final String classic = "classic";
-    private final String over = "over";
-    private final String btts = "btts";
+    private ShimmerFrameLayout shimmerClassicTips, shimmerVipTips, shimmerOverTips, shimmerBtsTips, shimmerDrawTips, shimmerWonTips;
 
     private SharedPreferences prefs;
 
-    private RelativeLayout lnrVip, lnrOver, lnrBts;
+    private RelativeLayout lnrVip, lnrOver, lnrBts, lnrDraw;
     private boolean subscriber;
-    private int cutOff = 7;
+    private int cutOff = 5;
 
     private DatabaseHelper dbHelper;
     private SQLiteDatabase db;
 
-    GetTips getClassicTips, getOverTips, getBttsTips;
+    GetTips getClassicTips, getOverTips, getBttsTips, getWonTips;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,20 +97,31 @@ public class FullViewActivity extends AppCompatActivity {
         listVIP = findViewById(R.id.listVIP);
         listOver = findViewById(R.id.listOver);
         listBts = findViewById(R.id.listBts);
+        listDraw = findViewById(R.id.listDraw);
+        listWon = findViewById(R.id.listWon);
 
         lnrVip = findViewById(R.id.lnrVip);
         lnrOver = findViewById(R.id.lnrOver);
         lnrBts = findViewById(R.id.lnrBts);
+        lnrDraw = findViewById(R.id.lnrDraw);
+
+        txtDate = findViewById(R.id.txtDate);
+        txtWeek = findViewById(R.id.txtWeek);
+        btnSeeAll = findViewById(R.id.btnSeeAll);
 
         listClassic.setLayoutManager(new LinearLayoutManager(this));
         listVIP.setLayoutManager(new LinearLayoutManager(this));
         listOver.setLayoutManager(new LinearLayoutManager(this));
         listBts.setLayoutManager(new LinearLayoutManager(this));
+        listDraw.setLayoutManager(new LinearLayoutManager(this));
+        listWon.setLayoutManager(new LinearLayoutManager(this));
 
         shimmerClassicTips = findViewById(R.id.shimmerClassicTips); shimmerClassicTips.startShimmer();
         shimmerVipTips = findViewById(R.id.shimmerVipTips); shimmerVipTips.startShimmer();
         shimmerOverTips = findViewById(R.id.shimmerOverTips); shimmerOverTips.startShimmer();
         shimmerBtsTips = findViewById(R.id.shimmerBtsTips); shimmerBtsTips.startShimmer();
+        shimmerDrawTips = findViewById(R.id.shimmerDrawTips); shimmerDrawTips.startShimmer();
+        shimmerWonTips = findViewById(R.id.shimmerWonTips); shimmerWonTips.startShimmer();
 
         prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         String json = prefs.getString("profile", "");
@@ -112,9 +134,10 @@ public class FullViewActivity extends AppCompatActivity {
         setLayoutVisibility();
 
         flagsJson = HttpConFunction.getFlags(this.getResources().openRawResource(R.raw.flags));
-        getClassicTips = new GetTips(classic);
-        getOverTips = new GetTips(over);
-        getBttsTips = new GetTips(btts);
+        getClassicTips = new GetTips(CLASSIC);
+        getOverTips = new GetTips(OVER);
+        getBttsTips = new GetTips(BTTS);
+        getWonTips = new GetTips(WONGAMES);
         loadTips(false);
     }
 
@@ -133,18 +156,25 @@ public class FullViewActivity extends AppCompatActivity {
     }
 
     private void loadTips(boolean refreshed) {
-        classicAdapter = new TipsAdapter(classicTips, subscriber);
-        vipAdapter = new TipsAdapter(vipTips, subscriber);
-        overAdapter = new TipsAdapter(overTips, subscriber);
-        bttsAdapter = new TipsAdapter(bttTips, subscriber);
+        if(subscriber)
+            btnSeeAll.setVisibility(View.GONE);
+        classicAdapter = new TipsAdapter(classicTips);
+        vipAdapter = new TipsAdapter(vipTips);
+        overAdapter = new TipsAdapter(overTips);
+        bttsAdapter = new TipsAdapter(bttTips);
+        wonAdapter = new TipsAdapter(wonTips);
 
         listClassic.setAdapter(classicAdapter);
         listVIP.setAdapter(vipAdapter);
         listOver.setAdapter(overAdapter);
         listBts.setAdapter(bttsAdapter);
-
+        listDraw.setAdapter(drawAdapter);
+        listWon.setAdapter(wonAdapter);
         if(refreshed) {
+            classicTips.clear();
+            wonTips.clear();
             getClassicTips.execute();
+            getWonTips.execute();
         }
         else{
             classicTips.clear();
@@ -160,12 +190,53 @@ public class FullViewActivity extends AppCompatActivity {
             }
             if(subscriber)
                 setVip(classicTips);
+
+            getWonTips.execute();
         }
 
         if(subscriber){
             getOverTips.execute();
             getBttsTips.execute();
+            getDrawTips();
         }
+    }
+
+    private void getDrawTips() {
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("SystemConfig").child("draws_vip");
+        ref.keepSynced(true);
+        ref.limitToFirst(1).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dSnap) {
+                if(!dSnap.hasChildren())
+                    return;
+                DataSnapshot dataSnapshot  = null;
+                for(DataSnapshot snap: dSnap.getChildren()){
+                    dataSnapshot = snap;
+                }
+                ArrayList<Draw> drawList = new ArrayList<>();
+                String date = dataSnapshot.child("date").getValue(String.class);
+                String week = dataSnapshot.child("week").getValue(String.class);
+                //String key = dataSnapshot.child("key").getValue(String.class);
+                String colorCode = dataSnapshot.child("colorCode").getValue(String.class);
+
+                txtDate.setText(date); txtDate.setVisibility(View.VISIBLE);
+                txtWeek.setText(week); txtWeek.setVisibility(View.VISIBLE);
+                DataSnapshot games = dataSnapshot.child("games");
+                for(DataSnapshot snapshot: games.getChildren()){
+                    Draw draw = snapshot.getValue(Draw.class);
+                    drawList.add(draw);
+                }
+
+                drawAdapter.setList(drawList, colorCode);
+                shimmerDrawTips.stopShimmer();
+                shimmerDrawTips.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 
     private void setLayoutVisibility() {
@@ -173,25 +244,33 @@ public class FullViewActivity extends AppCompatActivity {
             lnrVip.setVisibility(View.GONE);
             lnrOver.setVisibility(View.GONE);
             lnrBts.setVisibility(View.GONE);
+            lnrDraw.setVisibility(View.GONE);
+
             shimmerVipTips.setVisibility(View.VISIBLE);
             shimmerOverTips.setVisibility(View.VISIBLE);
             shimmerBtsTips.setVisibility(View.VISIBLE);
+            shimmerDrawTips.setVisibility(View.VISIBLE);
             listVIP.setVisibility(View.VISIBLE);
             listOver.setVisibility(View.VISIBLE);
             listBts.setVisibility(View.VISIBLE);
+            listDraw.setVisibility(View.VISIBLE);
             cutOff = 12;
         }
         else{
             lnrVip.setVisibility(View.VISIBLE);
             lnrOver.setVisibility(View.VISIBLE);
             lnrBts.setVisibility(View.VISIBLE);
+            lnrDraw.setVisibility(View.VISIBLE);
+
             shimmerVipTips.setVisibility(View.GONE);
             shimmerOverTips.setVisibility(View.GONE);
             shimmerBtsTips.setVisibility(View.GONE);
+            shimmerDrawTips.setVisibility(View.GONE);
             listVIP.setVisibility(View.GONE);
             listOver.setVisibility(View.GONE);
             listBts.setVisibility(View.GONE);
-            cutOff = 7;
+            listDraw.setVisibility(View.GONE);
+            cutOff = 5;
         }
     }
 
@@ -202,10 +281,8 @@ public class FullViewActivity extends AppCompatActivity {
     }
 
     private void setVip(ArrayList<GameTip> tips) {
-        sortedClassicTips.addAll(tips);
-        Collections.sort(sortedClassicTips);
         vipTips.clear();
-        for(GameTip tip: sortedClassicTips){
+        for(GameTip tip: tips){
             vipTips.add(tip);
             if (vipTips.size()>=4)
                 break;
@@ -228,12 +305,14 @@ public class FullViewActivity extends AppCompatActivity {
             String xml = null;
 
             switch (market){
-                case classic:
+                case CLASSIC:
                     xml = dbHelper.getTip(db, CLASSIC); break;
-                case over:
+                case OVER:
                     xml = dbHelper.getTip(db, OVER); break;
-                case btts:
+                case BTTS:
                     xml = dbHelper.getTip(db, BTTS); break;
+                case WONGAMES:
+                    xml = dbHelper.getTip(db, WONGAMES); break;
             }
 
             if(xml!=null && !xml.isEmpty())
@@ -250,20 +329,29 @@ public class FullViewActivity extends AppCompatActivity {
             final String todayDate = sdf.format(today.getTime());
 
             switch (market){
-                case classic:
+                case CLASSIC:
                     s = httpConnection.executeGet( targetUrl+ "iso_date="+todayDate, "HOME");
                     if(s!=null && s.length() >= 10)
                         dbHelper.updateTip(db, CLASSIC, s);
                     break;
-                case over:
+                case OVER:
                     s = httpConnection.executeGet(targetUrl + "iso_date="+todayDate+"&market=over_25", "HOME");
                     if(s!=null && s.length() >= 10)
                         dbHelper.updateTip(db, OVER, s);
                     break;
-                case btts:
+                case BTTS:
                     s = httpConnection.executeGet(targetUrl + "iso_date="+todayDate+"&market=btts", "HOME");
                     if(s!=null && s.length() >= 10)
                         dbHelper.updateTip(db, BTTS, s);
+                    break;
+                case WONGAMES:
+                    Calendar c = Calendar.getInstance();
+                    c.add(Calendar.DAY_OF_MONTH, -1);
+                    String yesterdaysDate = sdf.format(c.getTime());
+
+                    s = httpConnection.executeGet( targetUrl+ "iso_date="+yesterdaysDate, "HOME");
+                    if(s!=null && s.length() >= 10)
+                        dbHelper.updateTip(db, WONGAMES, s);
                     break;
             }
             return getTips(s);
@@ -281,6 +369,8 @@ public class FullViewActivity extends AppCompatActivity {
                 for(int i=0; i < data.length(); i++){
                     JSONObject tipJSON = data.getJSONObject(i);
                     GameTip gameTip = new GameTip();
+                    if(market.equals(WONGAMES) && !tipJSON.optString("status").equals("won"))
+                        continue;
                     gameTip.set_id(tipJSON.optString("id"));
                     gameTip.setAwayTeam(tipJSON.optString("away_team"));
                     gameTip.setHomeTeam(tipJSON.optString("home_team"));
@@ -316,7 +406,7 @@ public class FullViewActivity extends AppCompatActivity {
                 return;
 
             switch (market){
-                case classic:
+                case CLASSIC:
                     classicTips.clear();
                     for(GameTip tip: tips){
                         classicTips.add(tip);
@@ -328,7 +418,7 @@ public class FullViewActivity extends AppCompatActivity {
                     shimmerClassicTips.setVisibility(View.GONE);
                     setVip(tips);
                     break;
-                case over:
+                case OVER:
                     overTips.clear();
                     Collections.sort(tips);
                     for(GameTip tip: tips){
@@ -340,17 +430,29 @@ public class FullViewActivity extends AppCompatActivity {
                     shimmerOverTips.stopShimmer();
                     shimmerOverTips.setVisibility(View.GONE);
                     break;
-                case btts:
+                case BTTS:
                     bttTips.clear();
                     Collections.sort(tips);
                     for(GameTip tip: tips){
                         bttTips.add(tip);
-                        if (bttTips.size()>=5)
+                        if (bttTips.size()>=4)
                             break;
                     }
                     bttsAdapter.notifyDataSetChanged();
                     shimmerBtsTips.stopShimmer();
                     shimmerBtsTips.setVisibility(View.GONE);
+                    break;
+                case WONGAMES:
+                    wonTips.clear();
+                    Collections.sort(tips);
+                    for(GameTip tip: tips){
+                        wonTips.add(tip);
+                        if (wonTips.size()>=6)
+                            break;
+                    }
+                    wonAdapter.notifyDataSetChanged();
+                    shimmerWonTips.stopShimmer();
+                    shimmerWonTips.setVisibility(View.GONE);
                     break;
             }
         }
