@@ -42,7 +42,7 @@
               android:drawableLeft="@drawable/ic_check_circle_green_24dp"
               android:layout_marginTop="4dp"
               android:drawablePadding="5dp"
-              android:text="7 classic tips"
+              android:text="5 classic tips"
               android:textAppearance="@style/TextAppearance.AppCompat.Body2" />
         </LinearLayout>
       </androidx.cardview.widget.CardView>
@@ -74,7 +74,7 @@
               android:layout_marginTop="4dp"
               android:drawablePadding="5dp"
               android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-              android:text="All classic tips"/>
+              android:text="12 classic tips"/>
 
           <TextView
               android:layout_width="wrap_content"
@@ -107,7 +107,7 @@
               android:layout_marginTop="4dp"
               android:drawablePadding="5dp"
               android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-              android:text="See tips probability"/>
+              android:text="3 draws every weekend"/>
 
           <TextView
               android:layout_width="wrap_content"
@@ -164,7 +164,7 @@
               android:paddingStart="20dp"
               android:paddingEnd="20dp"
               android:textSize="18sp"
-              android:text="Subscribe"/>
+              android:text="PAY"/>
         </LinearLayout>
       </androidx.cardview.widget.CardView>
 

@@ -3,14 +3,17 @@
     android:id="@+id/cardView"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:layout_marginBottom="4dp"
+    android:layout_marginTop="2dp"
+    android:layout_marginBottom="2dp"
+    android:layout_marginStart="4dp"
+    android:layout_marginEnd="4dp"
+    app:cardCornerRadius="6dp"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
   <LinearLayout
       android:id="@+id/container_post"
       android:orientation="vertical"
-      android:background="@drawable/container_bg"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:padding="@dimen/vertical_padding">
@@ -215,13 +218,10 @@
           android:orientation="horizontal"
           android:layout_weight="3"
           android:gravity="center_vertical">
-        <ImageView
+        <views.LikeButton
             android:id="@+id/imgLike"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:clickable="true"
-            android:background="@drawable/img_like_bg"
-            app:srcCompat="@drawable/ic_thumb_up_black_24dp"/>
+            android:layout_height="wrap_content"/>
         <TextView
             android:id="@+id/txtLike"
             android:layout_width="wrap_content"
@@ -235,13 +235,10 @@
           android:orientation="horizontal"
           android:layout_weight="3"
           android:gravity="center_vertical">
-        <ImageView
+        <views.DislikeButton
             android:id="@+id/imgDislike"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:clickable="true"
-            android:background="@drawable/img_like_bg"
-            app:srcCompat="@drawable/ic_thumb_down_black_24dp"/>
+            android:layout_height="wrap_content"/>
         <TextView
             android:id="@+id/txtDislike"
             android:layout_width="wrap_content"
