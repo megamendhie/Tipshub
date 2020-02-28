@@ -1,6 +1,5 @@
 package adapters;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -10,7 +9,6 @@ import android.graphics.drawable.ColorDrawable;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.material.snackbar.Snackbar;
-import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 import android.text.Html;
 import android.util.Log;
@@ -19,7 +17,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.request.RequestOptions;
@@ -53,9 +50,13 @@ import utils.Calculations;
 import utils.FirebaseUtil;
 import utils.Reusable;
 
-public class FilteredPostAdapter extends RecyclerView.Adapter<FilteredPostAdapter.PostHolder> {
-    private final String TAG = "PostAdaper";
-    private Activity activity;
+import static views.DislikeButton.DISLIKED;
+import static views.DislikeButton.NOT_DISLIKED;
+import static views.LikeButton.LIKED;
+import static views.LikeButton.NOT_LIKED;
+
+public class FilteredPostAdapter extends RecyclerView.Adapter<PostHolder> {
+    private final String TAG = "PostAdapter";
     private Context context;
     private String userId;
     private ListenerRegistration listener;
@@ -67,11 +68,10 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<FilteredPostAdapte
     private String[] code = {"1xBet", "Bet9ja", "Nairabet", "SportyBet", "BlackBet", "Bet365"};
     private String[] type = {"3-5 odds", "6-10 odds", "11-50 odds", "50+ odds", "Draws", "Banker tip"};
 
-    public FilteredPostAdapter(boolean search, String userID, Activity activity, Context context, ArrayList<Post> postList,
+    public FilteredPostAdapter(boolean search, String userID, Context context, ArrayList<Post> postList,
                                ArrayList<SnapId> snapIds) {
         Log.i(TAG, "PostAdapter: created");
         this.search = search;
-        this.activity = activity;
         this.context = context;
         this.userId = userID;
         this.postList = postList;
@@ -193,8 +193,8 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<FilteredPostAdapte
         Displays overflow containing options like follow, subscribe, disagree, etc.
      */
     private void displayOverflow(final Post model, String userID, final String postId, int status, int type, ImageView imgOverflow) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        LayoutInflater inflater = activity.getLayoutInflater();
+        AlertDialog.Builder builder = new AlertDialog.Builder(imgOverflow.getRootView().getContext());
+        LayoutInflater inflater = LayoutInflater.from(imgOverflow.getRootView().getContext());
         View dialogView;
         if(userID.equals(this.userId))
             dialogView = inflater.inflate(R.layout.dialog_mine, null);
@@ -285,7 +285,7 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<FilteredPostAdapte
         btnShare.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Reusable.shareTips(activity, model.getUsername(), model.getContent());
+                Reusable.shareTips(btnShare.getRootView().getContext(), model.getUsername(), model.getContent());
                 dialog.cancel();
             }
         });
@@ -355,11 +355,8 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<FilteredPostAdapte
                             Post model = documentSnapshot.toObject(Post.class);
                             holder.imgStatus.setVisibility(model.getStatus()==1? View.GONE: View.VISIBLE);
 
-                            holder.imgLikes.setColorFilter(model.getLikes().contains(userId)?
-                                    context.getResources().getColor(R.color.likeGold): context.getResources().getColor(R.color.likeGrey));
-
-                            holder.imgDislike.setColorFilter(model.getDislikes().contains(userId)?
-                                    context.getResources().getColor(R.color.likeGold): context.getResources().getColor(R.color.likeGrey));
+                            holder.imgLikes.setState(model.getLikes().contains(userId)? LIKED: NOT_LIKED);
+                            holder.imgDislike.setState(model.getDislikes().contains(userId)? DISLIKED: NOT_DISLIKED);
 
                             holder.mComment.setText(model.getCommentsCount()==0? "":String.valueOf(model.getCommentsCount()));
 
@@ -374,11 +371,8 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<FilteredPostAdapte
 
         holder.imgStatus.setVisibility(model.getStatus()==1? View.GONE: View.VISIBLE);
 
-        holder.imgLikes.setColorFilter(model.getLikes().contains(userId)?
-                context.getResources().getColor(R.color.likeGold): context.getResources().getColor(R.color.likeGrey));
-
-        holder.imgDislike.setColorFilter(model.getDislikes().contains(userId)?
-                context.getResources().getColor(R.color.likeGold): context.getResources().getColor(R.color.likeGrey));
+        holder.imgLikes.setState(model.getLikes().contains(userId)? LIKED: NOT_LIKED);
+        holder.imgDislike.setState(model.getDislikes().contains(userId)? DISLIKED: NOT_DISLIKED);
 
         holder.mComment.setText(model.getCommentsCount()==0? "":String.valueOf(model.getCommentsCount()));
 
@@ -476,11 +470,10 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<FilteredPostAdapte
             public void onClick(View v) {
                 List<String> l = model.getLikes();
                 if(model.getDislikes().contains(userId)){
-                    holder.imgLikes.setColorFilter(context.getResources().getColor(R.color.likeGold));
-                    holder.imgDislike.setColorFilter(context.getResources().getColor(R.color.likeGrey));
+                    holder.imgLikes.setState(LIKED);
+                    holder.imgDislike.setState(NOT_DISLIKED);
                     holder.mLikes.setText(String.valueOf(model.getLikesCount()+1));
                     holder.mDislikes.setText(model.getDislikesCount()-1>0? String.valueOf(model.getDislikesCount()-1):"");
-
 
                     //get list of userIds that disliked
                     List<String> dl = model.getDislikes();
@@ -494,14 +487,14 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<FilteredPostAdapte
                 else{
                     //get list of userIds that liked
                     if(model.getLikes().contains(userId)){
-                        holder.imgLikes.setColorFilter(context.getResources().getColor(R.color.likeGrey));
+                        holder.imgLikes.setState(NOT_LIKED);
                         holder.mLikes.setText(model.getLikesCount()-1>0?String.valueOf(model.getLikesCount()-1):"");
 
                         l.remove(userId);
                         model.setLikesCount(model.getLikesCount()-1);
                     }
                     else{
-                        holder.imgLikes.setColorFilter(context.getResources().getColor(R.color.likeGold));
+                        holder.imgLikes.setState(LIKED);
                         holder.mLikes.setText(String.valueOf(model.getLikesCount()+1));
 
                         l.add(userId);
@@ -519,11 +512,10 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<FilteredPostAdapte
             public void onClick(View v) {
                 List<String> dl = model.getDislikes();
                 if(model.getLikes().contains(userId)){
-                    holder.imgLikes.setColorFilter(context.getResources().getColor(R.color.likeGrey));
-                    holder.imgDislike.setColorFilter(context.getResources().getColor(R.color.likeGold));
+                    holder.imgLikes.setState(NOT_LIKED);
+                    holder.imgDislike.setState(DISLIKED);
                     holder.mLikes.setText(model.getLikesCount()-1>0? String.valueOf(model.getLikesCount()-1):"");
                     holder.mDislikes.setText(String.valueOf(model.getDislikesCount()+1));
-
 
                     //get list of userIds that liked
                     List<String> l = model.getLikes();
@@ -538,14 +530,14 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<FilteredPostAdapte
                 else{
                     //get list of userIds that disliked
                     if(model.getDislikes().contains(userId)){
-                        holder.imgDislike.setColorFilter(context.getResources().getColor(R.color.likeGrey));
+                        holder.imgDislike.setState(NOT_DISLIKED);
                         holder.mDislikes.setText(model.getDislikesCount()-1>0? String.valueOf(model.getDislikesCount()-1): "");
 
                         dl.remove(userId);
                         model.setDislikesCount(model.getDislikesCount()-1);
                     }
                     else{
-                        holder.imgDislike.setColorFilter(context.getResources().getColor(R.color.likeGold));
+                        holder.imgDislike.setColorFilter(DISLIKED);
                         holder.mDislikes.setText(String.valueOf(model.getDislikesCount()+1));
 
                         dl.add(userId);
@@ -568,61 +560,6 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<FilteredPostAdapte
         if(model.isHasChild()){
             displayChildContent(model, holder);
         }
-    }
-
-
-    class PostHolder extends RecyclerView.ViewHolder {
-        String postId;
-        CircleImageView imgDp, childDp;
-        LinearLayout lnrChildContainer;
-        CardView crdChildPost;
-        TextView mpost, childPost;
-        TextView mUsername, childUsername;
-        TextView mTime;
-        TextView mLikes, mDislikes, mComment, mCode, mType, childCode, childType;
-        ImageView imgOverflow;
-        ImageView imgLikes, imgDislike, imgComment, imgRepost, imgStatus, imgChildStatus;
-        PostHolder(View itemView) {
-            super(itemView);
-            imgDp = itemView.findViewById(R.id.imgDp);
-            childDp = itemView.findViewById(R.id.childDp);
-            crdChildPost = itemView.findViewById(R.id.crdChildPost);
-            lnrChildContainer = itemView.findViewById(R.id.container_child_post);
-
-            mpost = itemView.findViewById(R.id.txtPost);
-            childPost = itemView.findViewById(R.id.txtChildPost);
-            mUsername = itemView.findViewById(R.id.txtUsername);
-            childUsername = itemView.findViewById(R.id.txtChildUsername);
-            mTime = itemView.findViewById(R.id.txtTime);
-
-            mLikes = itemView.findViewById(R.id.txtLike);
-            mDislikes = itemView.findViewById(R.id.txtDislike);
-            mComment = itemView.findViewById(R.id.txtComment);
-            mCode = itemView.findViewById(R.id.txtCode);
-            mType = itemView.findViewById(R.id.txtPostType);
-            childCode = itemView.findViewById(R.id.txtChildCode);
-            childType = itemView.findViewById(R.id.txtChildType);
-
-            imgLikes = itemView.findViewById(R.id.imgLike);
-            imgDislike = itemView.findViewById(R.id.imgDislike);
-            imgComment = itemView.findViewById(R.id.imgComment);
-            imgRepost = itemView.findViewById(R.id.imgRepost);
-            imgStatus = itemView.findViewById(R.id.imgStatus);
-            imgOverflow = itemView.findViewById(R.id.imgOverflow);
-            imgChildStatus = itemView.findViewById(R.id.imgChildStatus);
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent intent = new Intent(context, FullPostActivity.class);
-                    intent.putExtra("postId", postId);
-                    context.startActivity(intent);
-                    }
-                });
-            }
-
-            private void setPostId(String postId){
-                this.postId = postId;
-            }
     }
 
 }

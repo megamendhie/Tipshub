@@ -27,11 +27,9 @@ import models.GameTip;
 
 public class TipsAdapter extends RecyclerView.Adapter<TipsAdapter.TipsHolder> {
     private ArrayList<GameTip> tips;
-    private boolean subscriber;
 
-    public TipsAdapter(ArrayList<GameTip> tips, boolean subscriber){
+    public TipsAdapter(ArrayList<GameTip> tips){
         this.tips = tips;
-        this.subscriber = subscriber;
     }
 
     @NonNull
@@ -69,24 +67,6 @@ public class TipsAdapter extends RecyclerView.Adapter<TipsAdapter.TipsHolder> {
             imgStatus = itemView.findViewById(R.id.imgStatus);
         }
 
-        private void showPrompt(){
-            AlertDialog.Builder builder = new AlertDialog.Builder(txtPrediction.getRootView().getContext(),
-                    R.style.Theme_AppCompat_Light_Dialog_Alert);
-            builder.setMessage("Tip probability shows only for subscribers.\n\n")
-                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {}
-                    })
-                    .setPositiveButton("See price", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            txtPrediction.getRootView().getContext()
-                                    .startActivity(new Intent(txtPrediction.getRootView().getContext(), VipSubActivity.class));
-                        }
-                    })
-                    .show();
-        }
-
         private void bindItems(GameTip tip){
             txtLeague.setText(tip.getLeague());
             String region = tip.getRegion() + "  -";
@@ -95,11 +75,7 @@ public class TipsAdapter extends RecyclerView.Adapter<TipsAdapter.TipsHolder> {
             txtHomeTeam.setText(tip.getHomeTeam());
             txtAwayTeam.setText(tip.getAwayTeam());
             txtResult.setText(tip.getResult().isEmpty()? "vs": tip.getResult());
-            txtProbabity.setText(subscriber?String.format(Locale.getDefault(),"P: %.2f%%", 100*tip.getProbability()): "see probability");
-            txtProbabity.setOnClickListener(view -> {
-                if(!subscriber)
-                    showPrompt();
-            });
+            txtProbabity.setText(String.format(Locale.getDefault(),"A: %.2f%%", 100*tip.getProbability()));
             txtTime.setText(getFormattedTime(tip.getTime()));
             if(tip.getStatus().equals("lost"))
                 imgStatus.setVisibility(View.INVISIBLE);

@@ -7,10 +7,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import androidx.annotation.NonNull;
-import com.google.android.material.snackbar.Snackbar;
-import androidx.cardview.widget.CardView;
-import androidx.recyclerview.widget.RecyclerView;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,11 +17,16 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.signature.ObjectKey;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -47,8 +48,15 @@ import services.GlideApp;
 import utils.Calculations;
 import utils.FirebaseUtil;
 import utils.Reusable;
+import views.DislikeButton;
+import views.LikeButton;
 
-public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.PostHolder>{
+import static views.DislikeButton.DISLIKED;
+import static views.DislikeButton.NOT_DISLIKED;
+import static views.LikeButton.LIKED;
+import static views.LikeButton.NOT_LIKED;
+
+public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostHolder>{
     private final String TAG = "PostAdapter";
     private Context context;
     private String userId;
@@ -145,108 +153,88 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
         holder.mpost.setText(model.getContent());
         Reusable.applyLinkfy(context, model.getContent(), holder.mpost);
         holder.mTime.setText(Reusable.getTime(model.getTime()));
-        holder.imgLikes.setColorFilter(model.getLikes().contains(userId)?
-                context.getResources().getColor(R.color.likeGold): context.getResources().getColor(R.color.likeGrey));
-
-        holder.imgDislike.setColorFilter(model.getDislikes().contains(userId)?
-                context.getResources().getColor(R.color.likeGold): context.getResources().getColor(R.color.likeGrey));
+        holder.imgLikes.setState(model.getLikes().contains(userId)? LIKED: NOT_LIKED);
+        holder.imgDislike.setState(model.getDislikes().contains(userId)? DISLIKED: NOT_DISLIKED);
 
         holder.mComment.setText(model.getCommentsCount()==0? "":String.valueOf(model.getCommentsCount()));
         holder.mLikes.setText(model.getLikesCount()==0? "":String.valueOf(model.getLikesCount()));
         holder.mDislikes.setText(model.getDislikesCount()==0? "":String.valueOf(model.getDislikesCount()));
 
-        holder.imgRepost.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (userId.equals(Calculations.GUEST)) {
-                    loginPrompt(holder.imgRepost);
-                    return;
-                }
-                Intent intent = new Intent(context, RepostActivity.class);
-                intent.putExtra("postId", postId);
-                intent.putExtra("model", model);
-                context.startActivity(intent);
+        holder.imgRepost.setOnClickListener(v -> {
+            if (userId.equals(Calculations.GUEST)) {
+                loginPrompt(holder.imgRepost);
+                return;
             }
+            Intent intent = new Intent(context, RepostActivity.class);
+            intent.putExtra("postId", postId);
+            intent.putExtra("model", model);
+            context.startActivity(intent);
         });
 
-        holder.mpost.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(context, FullPostActivity.class);
-                intent.putExtra("postId", postId);
-                context.startActivity(intent);
-            }
+        holder.mpost.setOnClickListener(v -> {
+            Intent intent = new Intent(context, FullPostActivity.class);
+            intent.putExtra("postId", postId);
+            context.startActivity(intent);
         });
 
-        holder.imgComment.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(context, FullPostActivity.class);
-                intent.putExtra("postId", postId);
-                context.startActivity(intent);
-            }
+        holder.imgComment.setOnClickListener(v -> {
+            Intent intent = new Intent(context, FullPostActivity.class);
+            intent.putExtra("postId", postId);
+            context.startActivity(intent);
         });
-        holder.imgLikes.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (userId.equals(Calculations.GUEST)) {
+
+        holder.imgLikes.setOnClickListener(v -> {
+            if (userId.equals(Calculations.GUEST)) {
                 loginPrompt(holder.imgLikes);
                 return;
             }
-                if(model.getDislikes().contains(userId)){
-                    holder.imgLikes.setColorFilter(context.getResources().getColor(R.color.likeGold));
-                    holder.imgDislike.setColorFilter(context.getResources().getColor(R.color.likeGrey));
-                    holder.mLikes.setText(String.valueOf(model.getLikesCount()+1));
-                    holder.mDislikes.setText(model.getDislikesCount()-1>0? String.valueOf(model.getDislikesCount()-1):"");
+            if(model.getDislikes().contains(userId)){
+                holder.imgLikes.setState(LIKED);
+                holder.imgDislike.setState(NOT_DISLIKED);
+                holder.mLikes.setText(String.valueOf(model.getLikesCount()+1));
+                holder.mDislikes.setText(model.getDislikesCount()-1>0? String.valueOf(model.getDislikesCount()-1):"");
+            }
+            else{
+                if(model.getLikes().contains(userId)){
+                    holder.imgLikes.setState(NOT_LIKED);
+                    holder.mLikes.setText(model.getLikesCount()-1>0?String.valueOf(model.getLikesCount()-1):"");
                 }
                 else{
-                    if(model.getLikes().contains(userId)){
-                        holder.imgLikes.setColorFilter(context.getResources().getColor(R.color.likeGrey));
-                        holder.mLikes.setText(model.getLikesCount()-1>0?String.valueOf(model.getLikesCount()-1):"");
-                    }
-                    else{
-                        holder.imgLikes.setColorFilter(context.getResources().getColor(R.color.likeGold));
-                        holder.mLikes.setText(String.valueOf(model.getLikesCount()+1));
-                    }
+                    holder.imgLikes.setState(LIKED);
+                    holder.mLikes.setText(String.valueOf(model.getLikesCount()+1));
                 }
-                String substring = model.getContent().substring(0, Math.min(model.getContent().length(), 90));
-                calculations.onLike(postId, userId, model.getUserId(), substring);
             }
+            String substring = model.getContent().substring(0, Math.min(model.getContent().length(), 90));
+            calculations.onLike(postId, userId, model.getUserId(), substring);
         });
 
-        holder.imgDislike.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (userId.equals(Calculations.GUEST)) {
+        holder.imgDislike.setOnClickListener(v -> {
+            if (userId.equals(Calculations.GUEST)) {
                 loginPrompt(holder.imgDislike);
                 return;
             }
-                if(model.getLikes().contains(userId)){
-                    holder.imgLikes.setColorFilter(context.getResources().getColor(R.color.likeGrey));
-                    holder.imgDislike.setColorFilter(context.getResources().getColor(R.color.likeGold));
-                    holder.mLikes.setText(model.getLikesCount()-1>0? String.valueOf(model.getLikesCount()-1):"");
-                    holder.mDislikes.setText(String.valueOf(model.getDislikesCount()+1));
+            if(model.getLikes().contains(userId)){
+                holder.imgLikes.setState(NOT_LIKED);
+                holder.imgDislike.setState(DISLIKED);
+                holder.mLikes.setText(model.getLikesCount()-1>0? String.valueOf(model.getLikesCount()-1):"");
+                holder.mDislikes.setText(String.valueOf(model.getDislikesCount()+1));
+            }
+            else{
+                if(model.getDislikes().contains(userId)){
+                    holder.imgDislike.setState(NOT_DISLIKED);
+                    holder.mDislikes.setText(model.getDislikesCount()-1>0? String.valueOf(model.getDislikesCount()-1): "");
                 }
                 else{
-                    if(model.getDislikes().contains(userId)){
-                        holder.imgDislike.setColorFilter(context.getResources().getColor(R.color.likeGrey));
-                        holder.mDislikes.setText(model.getDislikesCount()-1>0? String.valueOf(model.getDislikesCount()-1): "");
-                    }
-                    else{
-                        holder.imgDislike.setColorFilter(context.getResources().getColor(R.color.likeGold));
-                        holder.mDislikes.setText(String.valueOf(model.getDislikesCount()+1));
-                    }
+                    holder.imgDislike.setState(DISLIKED);
+                    holder.mDislikes.setText(String.valueOf(model.getDislikesCount()+1));
                 }
-                String substring = model.getContent().substring(0, Math.min(model.getContent().length(), 90));
-                calculations.onDislike( postId, userId, model.getUserId(), substring);
             }
+            String substring = model.getContent().substring(0, Math.min(model.getContent().length(), 90));
+            calculations.onDislike( postId, userId, model.getUserId(), substring);
         });
-        holder.imgOverflow.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                displayOverflow(model, model.getUserId(), postId, model.getStatus(), model.getType(), holder.imgOverflow);
-            }
-        });
+
+        holder.imgOverflow.setOnClickListener(v -> {
+            displayOverflow(model, model.getUserId(), postId, model.getStatus(), model.getType(), holder.imgOverflow);});
 
         if(model.isHasChild()){
             displayChildContent(model, holder);
@@ -281,13 +269,13 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
         Reusable.applyLinkfy(context, model.getChildContent(), childPost);
         FirebaseUtil.getFirebaseFirestore().collection("posts").document(model.getChildLink()).get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                if(!documentSnapshot.exists())
-                    return;
-                holder.imgChildStatus.setVisibility(documentSnapshot.toObject(Post.class).getStatus()==1? View.INVISIBLE: View.VISIBLE);
-            }
-        });
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        if(!documentSnapshot.exists())
+                            return;
+                        holder.imgChildStatus.setVisibility(documentSnapshot.toObject(Post.class).getStatus()==1? View.INVISIBLE: View.VISIBLE);
+                    }
+                });
 
 
         GlideApp.with(context)
@@ -495,60 +483,5 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostAdapter.Post
         this.userId = userId;
     }
 
-    class PostHolder extends RecyclerView.ViewHolder {
-        String postId;
-        CircleImageView imgDp, childDp;
-        LinearLayout lnrChildContainer;
-        CardView crdChildPost;
-        TextView mpost, childPost;
-        TextView mUsername, childUsername;
-        TextView mTime;
-        TextView mLikes, mDislikes, mComment, mCode, mType, childCode, childType;
-        ImageView imgOverflow;
-        ImageView imgLikes, imgDislike, imgComment, imgRepost, imgStatus, imgChildStatus;
-
-        PostHolder(View itemView) {
-            super(itemView);
-            imgDp = itemView.findViewById(R.id.imgDp);
-            childDp = itemView.findViewById(R.id.childDp);
-            crdChildPost = itemView.findViewById(R.id.crdChildPost);
-            lnrChildContainer = itemView.findViewById(R.id.container_child_post);
-
-            mpost = itemView.findViewById(R.id.txtPost);
-            childPost = itemView.findViewById(R.id.txtChildPost);
-            mUsername = itemView.findViewById(R.id.txtUsername);
-            childUsername = itemView.findViewById(R.id.txtChildUsername);
-            mTime = itemView.findViewById(R.id.txtTime);
-
-            mLikes = itemView.findViewById(R.id.txtLike);
-            mDislikes = itemView.findViewById(R.id.txtDislike);
-            mComment = itemView.findViewById(R.id.txtComment);
-            mCode = itemView.findViewById(R.id.txtCode);
-            mType = itemView.findViewById(R.id.txtPostType);
-            childCode = itemView.findViewById(R.id.txtChildCode);
-            childType = itemView.findViewById(R.id.txtChildType);
-
-            imgLikes = itemView.findViewById(R.id.imgLike);
-            imgDislike = itemView.findViewById(R.id.imgDislike);
-            imgComment = itemView.findViewById(R.id.imgComment);
-            imgRepost = itemView.findViewById(R.id.imgRepost);
-            imgStatus = itemView.findViewById(R.id.imgStatus);
-            imgOverflow = itemView.findViewById(R.id.imgOverflow);
-            imgChildStatus = itemView.findViewById(R.id.imgChildStatus);
-
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent intent = new Intent(context, FullPostActivity.class);
-                    intent.putExtra("postId", postId);
-                    context.startActivity(intent);
-                }
-            });
-        }
-
-        private void setPostId(String postId){
-            this.postId = postId;
-        }
-    }
 
 }

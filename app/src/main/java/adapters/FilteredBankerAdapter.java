@@ -1,6 +1,5 @@
 package adapters;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -42,8 +41,13 @@ import utils.Calculations;
 import utils.FirebaseUtil;
 import utils.Reusable;
 
-public class FilteredBankerAdapter extends RecyclerView.Adapter<BankerAdapter.PostHolder> {
-    private final String TAG = "PostAdaper";
+import static views.DislikeButton.DISLIKED;
+import static views.DislikeButton.NOT_DISLIKED;
+import static views.LikeButton.LIKED;
+import static views.LikeButton.NOT_LIKED;
+
+public class FilteredBankerAdapter extends RecyclerView.Adapter<BankerPostHolder> {
+    private final String TAG = "PostAdapter";
     private Context context;
     private String userId;
     private StorageReference storageReference;
@@ -184,17 +188,15 @@ public class FilteredBankerAdapter extends RecyclerView.Adapter<BankerAdapter.Po
     }
 
     @Override
-    public BankerAdapter.PostHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public BankerPostHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.post_view, parent, false);
-        return new BankerAdapter.PostHolder(view);
+        return new BankerPostHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull BankerAdapter.PostHolder holder, int i) {
+    public void onBindViewHolder(@NonNull BankerPostHolder holder, int i) {
         final int position = holder.getAdapterPosition();
         Post model = postList.get(position);
-        Log.i(TAG, model.getUsername()+" "+ model.getContent());
-        Log.i(TAG, "onBindViewHolder: executed");
         final String postId = snapIds.get(position).getId();
 
         holder.mUsername.setText(model.getUsername());
@@ -254,123 +256,102 @@ public class FilteredBankerAdapter extends RecyclerView.Adapter<BankerAdapter.Po
         holder.mpost.setText(model.getContent());
         Reusable.applyLinkfy(context, model.getContent(), holder.mpost);
         holder.mTime.setText(Reusable.getTime(model.getTime()));
-        holder.imgLikes.setColorFilter(model.getLikes().contains(userId)?
-                context.getResources().getColor(R.color.likeGold): context.getResources().getColor(R.color.likeGrey));
+        holder.imgLikes.setState(model.getLikes().contains(userId)? LIKED: NOT_LIKED);
 
-        holder.imgDislike.setColorFilter(model.getDislikes().contains(userId)?
-                context.getResources().getColor(R.color.likeGold): context.getResources().getColor(R.color.likeGrey));
+        holder.imgDislike.setState(model.getDislikes().contains(userId)? DISLIKED: NOT_DISLIKED);
 
         holder.mComment.setText(model.getCommentsCount()==0? "":String.valueOf(model.getCommentsCount()));
         holder.mLikes.setText(model.getLikesCount()==0? "":String.valueOf(model.getLikesCount()));
         holder.mDislikes.setText(model.getDislikesCount()==0? "":String.valueOf(model.getDislikesCount()));
 
         final boolean finalMakePublic = (model.getStatus()==2 || (new Date().getTime() - model.getTime()) >(18*60*60*1000));
-        holder.imgRepost.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(!finalMakePublic) {
-                    Snackbar.make(holder.mComment, "You can't repost yet", Snackbar.LENGTH_SHORT).show();
-                    return;
+
+        holder.imgRepost.setOnClickListener(v -> {
+            if(!finalMakePublic) {
+                Snackbar.make(holder.mComment, "You can't repost yet", Snackbar.LENGTH_SHORT).show();
+                return;
+            }
+            Intent intent = new Intent(context, RepostActivity.class);
+            intent.putExtra("postId", postId);
+            intent.putExtra("model", model);
+            context.startActivity(intent);
+        });
+
+        holder.lnrContainer.setOnClickListener(v -> {
+            Intent intent = new Intent(context, FullPostActivity.class);
+            intent.putExtra("postId", postId);
+            context.startActivity(intent);
+        });
+
+        holder.imgComment.setOnClickListener(v -> {
+            Intent intent = new Intent(context, FullPostActivity.class);
+            intent.putExtra("postId", postId);
+            context.startActivity(intent);
+        });
+
+        holder.imgLikes.setOnClickListener(v -> {
+            if(!Reusable.getNetworkAvailability(context))
+                return;
+            List<String> l = model.getLikes();
+            if(model.getDislikes().contains(userId)){
+                //get list of userIds that disliked
+                List<String> dl = model.getDislikes();
+                dl.remove(userId);
+                l.add(userId);
+                postList.get(position).setDislikes(dl);
+                postList.get(position).setLikes(l);
+                postList.get(position).setLikesCount(model.getLikesCount()+1);
+                postList.get(position).setDislikesCount(model.getDislikesCount()-1);
+            }
+            else{
+                //get list of userIds that liked
+                if(model.getLikes().contains(userId)){
+                    l.remove(userId);
+                    postList.get(position).setLikesCount(model.getLikesCount()-1);
                 }
-                Intent intent = new Intent(context, RepostActivity.class);
-                intent.putExtra("postId", postId);
-                intent.putExtra("model", model);
-                context.startActivity(intent);
-            }
-        });
-
-        holder.lnrContainer.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(context, FullPostActivity.class);
-                intent.putExtra("postId", postId);
-                context.startActivity(intent);
-            }
-        });
-
-        holder.imgComment.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(context, FullPostActivity.class);
-                intent.putExtra("postId", postId);
-                context.startActivity(intent);
-            }
-        });
-
-        holder.imgLikes.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(!Reusable.getNetworkAvailability(context))
-                    return;
-                List<String> l = model.getLikes();
-                if(model.getDislikes().contains(userId)){
-                    //get list of userIds that disliked
-                    List<String> dl = model.getDislikes();
-                    dl.remove(userId);
+                else{
                     l.add(userId);
-                    postList.get(position).setDislikes(dl);
-                    postList.get(position).setLikes(l);
                     postList.get(position).setLikesCount(model.getLikesCount()+1);
+                }
+                postList.get(position).setLikes(l);
+            }
+            FilteredBankerAdapter.this.notifyDataSetChanged();
+            String substring = model.getContent().substring(0, Math.min(model.getContent().length(), 90));
+            calculations.onLike(postId, userId, model.getUserId(), substring);
+        });
+
+        holder.imgDislike.setOnClickListener(v -> {
+            if(!Reusable.getNetworkAvailability(context))
+                return;
+            List<String> dl = model.getDislikes();
+            if(model.getLikes().contains(userId)){
+                //get list of userIds that liked
+                List<String> l = model.getLikes();
+                l.remove(userId);
+                dl.add(userId);
+                postList.get(position).setLikes(l);
+                postList.get(position).setDislikes(dl);
+                postList.get(position).setLikesCount(model.getLikesCount()-1);
+                postList.get(position).setDislikesCount(model.getDislikesCount()+1);
+            }
+            else{
+                //get list of userIds that disliked
+                if(model.getDislikes().contains(userId)){
+                    dl.remove(userId);
                     postList.get(position).setDislikesCount(model.getDislikesCount()-1);
                 }
                 else{
-                    //get list of userIds that liked
-                    if(model.getLikes().contains(userId)){
-                        l.remove(userId);
-                        postList.get(position).setLikesCount(model.getLikesCount()-1);
-                    }
-                    else{
-                        l.add(userId);
-                        postList.get(position).setLikesCount(model.getLikesCount()+1);
-                    }
-                    postList.get(position).setLikes(l);
-                }
-                FilteredBankerAdapter.this.notifyDataSetChanged();
-                String substring = model.getContent().substring(0, Math.min(model.getContent().length(), 90));
-                calculations.onLike(postId, userId, model.getUserId(), substring);
-            }
-        });
-
-        holder.imgDislike.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(!Reusable.getNetworkAvailability(context))
-                    return;
-                List<String> dl = model.getDislikes();
-                if(model.getLikes().contains(userId)){
-                    //get list of userIds that liked
-                    List<String> l = model.getLikes();
-                    l.remove(userId);
                     dl.add(userId);
-                    postList.get(position).setLikes(l);
-                    postList.get(position).setDislikes(dl);
-                    postList.get(position).setLikesCount(model.getLikesCount()-1);
                     postList.get(position).setDislikesCount(model.getDislikesCount()+1);
                 }
-                else{
-                    //get list of userIds that disliked
-                    if(model.getDislikes().contains(userId)){
-                        dl.remove(userId);
-                        postList.get(position).setDislikesCount(model.getDislikesCount()-1);
-                    }
-                    else{
-                        dl.add(userId);
-                        postList.get(position).setDislikesCount(model.getDislikesCount()+1);
-                    }
-                    postList.get(position).setDislikes(dl);
-                }
-                FilteredBankerAdapter.this.notifyDataSetChanged();
-                String substring = model.getContent().substring(0, Math.min(model.getContent().length(), 90));
-                calculations.onDislike( postId, userId, model.getUserId(), substring);
+                postList.get(position).setDislikes(dl);
             }
+            FilteredBankerAdapter.this.notifyDataSetChanged();
+            String substring = model.getContent().substring(0, Math.min(model.getContent().length(), 90));
+            calculations.onDislike( postId, userId, model.getUserId(), substring);
         });
 
-        holder.imgOverflow.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                displayOverflow(model, model.getUserId(), postId, model.getStatus(), model.getType(), holder.imgOverflow, finalMakePublic);
-            }
-        });
+        holder.imgOverflow.setOnClickListener(v -> displayOverflow(model, model.getUserId(), postId, model.getStatus(), model.getType(), holder.imgOverflow, finalMakePublic));
     }
 
 }
