@@ -35,7 +35,8 @@ public class ProfileMedium {
     private String d1_referralCode = "";
     private int d2_referralCount;
     private long d3_bankerPostTime;
-  private boolean d4_vipSubscriber;
+    private boolean d4_vipSubscriber;
+    private boolean d5_allowChat;
 
     //values for overall No Of Games, Won Games, and Won Games Percentage
     private long e0a_NOG;
@@ -468,5 +469,13 @@ public class ProfileMedium {
 
     public void setD4_vipSubscriber(boolean d4_vipSubscriber) {
       this.d4_vipSubscriber = d4_vipSubscriber;
+    }
+
+    public boolean isD5_allowChat() {
+        return d5_allowChat;
+    }
+
+    public void setD5_allowChat(boolean d5_allowChat) {
+        this.d5_allowChat = d5_allowChat;
     }
 }
