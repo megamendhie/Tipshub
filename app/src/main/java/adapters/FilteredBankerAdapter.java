@@ -92,10 +92,10 @@ public class FilteredBankerAdapter extends RecyclerView.Adapter<BankerPostHolder
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.show();
 
-        Button btnSubmit, btnDelete, btnShare, btnFollow;
+        Button btnSubmit, btnDelete, btnRepost, btnFollow;
         btnSubmit = dialog.findViewById(R.id.btnSubmit);
         btnDelete = dialog.findViewById(R.id.btnDelete);
-        btnShare = dialog.findViewById(R.id.btnShare);
+        btnRepost = dialog.findViewById(R.id.btnRepost);
         btnFollow = dialog.findViewById(R.id.btnFollow);
 
         long timeDifference = new Date().getTime() - model.getTime();
@@ -113,7 +113,7 @@ public class FilteredBankerAdapter extends RecyclerView.Adapter<BankerPostHolder
         }
 
         if(!makePublic){
-            btnShare.setVisibility(View.GONE);
+            btnRepost.setVisibility(View.GONE);
         }
 
         if(UserNetwork.getFollowing()==null)
@@ -121,35 +121,32 @@ public class FilteredBankerAdapter extends RecyclerView.Adapter<BankerPostHolder
         else
             btnFollow.setText(UserNetwork.getFollowing().contains(userID)? "UNFOLLOW": "FOLLOW");
 
-        btnDelete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(btnDelete.getText().toString().toLowerCase().equals("flag")){
-                    Intent intent = new Intent(context, FlagActivity.class);
-                    intent.putExtra("postId", postId);
-                    intent.putExtra("reportedUsername", model.getUsername());
-                    intent.putExtra("reportedUserId", userID);
-                    context.startActivity(intent);
-                    dialog.cancel();
-                }
-                else{
-                    if(model.getType()>0)
-                        calculations.onDeletePost(imgOverflow, postId, userId,status==2, type);
-                    else {
-                        FirebaseUtil.getFirebaseFirestore().collection("posts").document(postId).delete();
-                        Snackbar.make(imgOverflow, "Deleted", Snackbar.LENGTH_SHORT).show();
-                    }
-                }
+        btnDelete.setOnClickListener(v -> {
+            if(btnDelete.getText().toString().toLowerCase().equals("flag")){
+                Intent intent = new Intent(context, FlagActivity.class);
+                intent.putExtra("postId", postId);
+                intent.putExtra("reportedUsername", model.getUsername());
+                intent.putExtra("reportedUserId", userID);
+                context.startActivity(intent);
                 dialog.cancel();
             }
+            else{
+                if(model.getType()>0)
+                    calculations.onDeletePost(imgOverflow, postId, userId,status==2, type);
+                else {
+                    FirebaseUtil.getFirebaseFirestore().collection("posts").document(postId).delete();
+                    Snackbar.make(imgOverflow, "Deleted", Snackbar.LENGTH_SHORT).show();
+                }
+            }
+            dialog.cancel();
         });
 
-        btnShare.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Reusable.shareTips(btnShare.getRootView().getContext(), model.getUsername(), model.getContent());
-                dialog.cancel();
-            }
+        btnRepost.setOnClickListener(v -> {
+            Intent intent = new Intent(context, RepostActivity.class);
+            intent.putExtra("postId", postId);
+            intent.putExtra("model", model);
+            btnRepost.getContext().startActivity(intent);
+            dialog.cancel();
         });
 
         btnFollow.setOnClickListener(v -> {
@@ -266,15 +263,12 @@ public class FilteredBankerAdapter extends RecyclerView.Adapter<BankerPostHolder
 
         final boolean finalMakePublic = (model.getStatus()==2 || (new Date().getTime() - model.getTime()) >(18*60*60*1000));
 
-        holder.imgRepost.setOnClickListener(v -> {
+        holder.imgShare.setOnClickListener(v -> {
             if(!finalMakePublic) {
-                Snackbar.make(holder.mComment, "You can't repost yet", Snackbar.LENGTH_SHORT).show();
+                Snackbar.make(holder.mComment, holder.imgShare.getContext().getResources().getString(R.string.str_cannot_share_post), Snackbar.LENGTH_SHORT).show();
                 return;
             }
-            Intent intent = new Intent(context, RepostActivity.class);
-            intent.putExtra("postId", postId);
-            intent.putExtra("model", model);
-            context.startActivity(intent);
+            Reusable.shareTips(holder.imgShare.getContext(), model.getUsername(), model.getContent());
         });
 
         holder.lnrContainer.setOnClickListener(v -> {

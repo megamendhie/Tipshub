@@ -25,8 +25,7 @@ class PostHolder extends RecyclerView.ViewHolder {
     TextView mUsername, childUsername;
     TextView mTime;
     TextView mLikes, mDislikes, mComment, mCode, mType, childCode, childType;
-    ImageView imgOverflow;
-    ImageView imgComment, imgRepost, imgStatus, imgChildStatus;
+    ImageView imgComment, imgShare, imgStatus, imgChildStatus, imgOverflow;
     LikeButton imgLikes;
     DislikeButton imgDislike;
 
@@ -54,15 +53,15 @@ class PostHolder extends RecyclerView.ViewHolder {
         imgLikes = itemView.findViewById(R.id.imgLike);
         imgDislike = itemView.findViewById(R.id.imgDislike);
         imgComment = itemView.findViewById(R.id.imgComment);
-        imgRepost = itemView.findViewById(R.id.imgRepost);
+        imgShare = itemView.findViewById(R.id.imgShare);
         imgStatus = itemView.findViewById(R.id.imgStatus);
         imgOverflow = itemView.findViewById(R.id.imgOverflow);
         imgChildStatus = itemView.findViewById(R.id.imgChildStatus);
 
         itemView.setOnClickListener(view -> {
-            Intent intent = new Intent(itemView.getRootView().getContext(), FullPostActivity.class);
+            Intent intent = new Intent(itemView.getContext(), FullPostActivity.class);
             intent.putExtra("postId", postId);
-            itemView.getRootView().getContext().startActivity(intent);
+            itemView.getContext().startActivity(intent);
         });
     }
 

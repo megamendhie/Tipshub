@@ -246,28 +246,20 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
         AlertDialog.Builder builder = new AlertDialog.Builder(view.getRootView().getContext(),
                 R.style.Theme_AppCompat_Light_Dialog_Alert);
         builder.setMessage("You have to login first")
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {}
-                })
-                .setPositiveButton("Login", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        view.getRootView().getContext().startActivity(new Intent(view.getRootView().getContext(), LoginActivity.class));
-                    }
-                })
+                .setNegativeButton("Cancel", (dialogInterface, i) -> {})
+                .setPositiveButton("Login", (dialogInterface, i) -> view.getContext().startActivity(new Intent(view.getContext(), LoginActivity.class)))
                 .show();
     }
 
     private void displayOverflow(Comment model, String commentUserId, String postId, ImageView imgOverflow) {
         AlertDialog.Builder builder = new AlertDialog.Builder(imgOverflow.getRootView().getContext());
-        LayoutInflater inflater = LayoutInflater.from(imgOverflow.getContext());
+        LayoutInflater inflater = LayoutInflater.from(imgOverflow.getRootView().getContext());
         View dialogView;
         Reusable reusable = new Reusable();
         if(commentUserId.equals(this.userId))
-            dialogView = inflater.inflate(R.layout.dialog_mine, null);
+            dialogView = inflater.inflate(R.layout.dialog_mine_comment, null);
         else
-            dialogView = inflater.inflate(R.layout.dialog_member, null);
+            dialogView = inflater.inflate(R.layout.dialog_member_comment, null);
         builder.setView(dialogView);
         final AlertDialog dialog= builder.create();
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
@@ -287,7 +279,7 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
             btnFollow.setText(UserNetwork.getFollowing().contains(commentUserId)? "UNFOLLOW": "FOLLOW");
 
         btnShare.setOnClickListener(v -> {
-            reusable.shareComment(btnShare.getRootView().getContext(), model.getUsername(), model.getContent());
+            reusable.shareComment(btnShare.getContext(), model.getUsername(), model.getContent());
             dialog.cancel();
         });
 

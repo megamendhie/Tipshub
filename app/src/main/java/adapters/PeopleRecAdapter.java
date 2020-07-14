@@ -136,7 +136,7 @@ public class PeopleRecAdapter extends RecyclerView.Adapter<PeopleRecAdapter.Post
                 .setPositiveButton("Login", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        view.getRootView().getContext().startActivity(new Intent(view.getRootView().getContext(), LoginActivity.class));
+                        view.getContext().startActivity(new Intent(view.getContext(), LoginActivity.class));
                     }
                 })
                 .show();

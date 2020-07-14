@@ -31,18 +31,27 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ListNewsViewHo
     @NonNull
     @Override
     public ListNewsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        Log.i("News started", "onCreateViewHolder: started");
-        View convertView =  LayoutInflater.from(parent.getContext()).inflate(
+        View convertView =  null;
+        if(viewType==0)
+            convertView = LayoutInflater.from(parent.getContext()).inflate(
                     R.layout.news_container, parent, false);
+        else
+            convertView = LayoutInflater.from(parent.getContext()).inflate(
+                    R.layout.news_container_small, parent, false);
+
         return new ListNewsViewHolder(convertView);
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        return (position % 4);
+    }
 
     @Override
     public void onBindViewHolder(@NonNull ListNewsViewHolder holder, int position) {
         HashMap<String, String> news = data.get(position);
         try{
-            holder.author.setText(news.get("author"));
+            holder.description.setText(news.get("description"));
             holder.title.setText(news.get("title"));
             holder.time.setText(news.get("publishedAt"));
 
@@ -51,14 +60,11 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ListNewsViewHo
                         .load(news.get("urlToImage"))
                         .into(holder.galleryImage);
 
-            holder.crdContainer.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent i = new Intent(activity.getApplicationContext(), NewsStoryActivity.class);
-                    i.putExtra("url", news.get("url"));
-                    activity.startActivity(i);
-                    activity.overridePendingTransition(R.anim.slide_right_in, R.anim.slide_left_out);
-                }
+            holder.crdContainer.setOnClickListener(v -> {
+                Intent i = new Intent(activity.getApplicationContext(), NewsStoryActivity.class);
+                i.putExtra("url", news.get("url"));
+                activity.startActivity(i);
+                activity.overridePendingTransition(R.anim.slide_right_in, R.anim.slide_left_out);
             });
         }catch(Exception e) {}
 
@@ -72,12 +78,12 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ListNewsViewHo
     class ListNewsViewHolder extends RecyclerView.ViewHolder {
         CardView crdContainer;
         ImageView galleryImage;
-        TextView author, title, time;
+        TextView description, title, time;
         ListNewsViewHolder(View itemView) {
             super(itemView);
             crdContainer = itemView.findViewById(R.id.crdContainer);
             galleryImage = itemView.findViewById(R.id.galleryImage);
-            author = itemView.findViewById(R.id.author);
+            description = itemView.findViewById(R.id.txtDescription);
             title = itemView.findViewById(R.id.title);
             time = itemView.findViewById(R.id.time);
         }

@@ -14,12 +14,12 @@ import com.sqube.tipshub.R;
 import de.hdodenhof.circleimageview.CircleImageView;
 import models.ProfileShort;
 
-public class BankerTipsterViewHolder extends RecyclerView.ViewHolder {
+public class BankerTipsterHolder extends RecyclerView.ViewHolder {
     CircleImageView imgDp;
     TextView txtUsername;
     private RequestOptions requestOptions = new RequestOptions();
 
-    public BankerTipsterViewHolder(@NonNull View itemView) {
+    public BankerTipsterHolder(@NonNull View itemView) {
         super(itemView);
         imgDp = itemView.findViewById(R.id.imgDp);
         txtUsername = itemView.findViewById(R.id.txtUsername);
@@ -29,7 +29,7 @@ public class BankerTipsterViewHolder extends RecyclerView.ViewHolder {
     public void setDisplay(ProfileShort profile){
         txtUsername.setText(profile.getA2_username());
         try {
-            Glide.with(imgDp.getRootView().getContext()).setDefaultRequestOptions(requestOptions)
+            Glide.with(imgDp.getContext()).setDefaultRequestOptions(requestOptions)
                     .load(profile.getB2_dpUrl()).into(imgDp);
         }
         catch (Exception e){

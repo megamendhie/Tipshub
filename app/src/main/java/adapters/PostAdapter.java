@@ -14,12 +14,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.cardview.widget.CardView;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.signature.ObjectKey;
@@ -48,8 +45,6 @@ import services.GlideApp;
 import utils.Calculations;
 import utils.FirebaseUtil;
 import utils.Reusable;
-import views.DislikeButton;
-import views.LikeButton;
 
 import static views.DislikeButton.DISLIKED;
 import static views.DislikeButton.NOT_DISLIKED;
@@ -160,15 +155,8 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostHolder>{
         holder.mLikes.setText(model.getLikesCount()==0? "":String.valueOf(model.getLikesCount()));
         holder.mDislikes.setText(model.getDislikesCount()==0? "":String.valueOf(model.getDislikesCount()));
 
-        holder.imgRepost.setOnClickListener(v -> {
-            if (userId.equals(Calculations.GUEST)) {
-                loginPrompt(holder.imgRepost);
-                return;
-            }
-            Intent intent = new Intent(context, RepostActivity.class);
-            intent.putExtra("postId", postId);
-            intent.putExtra("model", model);
-            context.startActivity(intent);
+        holder.imgShare.setOnClickListener(v -> {
+            Reusable.shareTips( holder.imgShare.getContext(), model.getUsername(), model.getContent());
         });
 
         holder.mpost.setOnClickListener(v -> {
@@ -325,7 +313,7 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostHolder>{
                 .setPositiveButton("Login", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        view.getRootView().getContext().startActivity(new Intent(view.getRootView().getContext(), LoginActivity.class));
+                        view.getContext().startActivity(new Intent(view.getContext(), LoginActivity.class));
                     }
                 })
                 .show();
@@ -347,10 +335,10 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostHolder>{
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.show();
 
-        Button btnSubmit, btnDelete, btnShare, btnFollow;
+        Button btnSubmit, btnDelete, btnRepost, btnFollow;
         btnSubmit = dialog.findViewById(R.id.btnSubmit);
         btnDelete = dialog.findViewById(R.id.btnDelete);
-        btnShare = dialog.findViewById(R.id.btnShare);
+        btnRepost = dialog.findViewById(R.id.btnRepost);
         btnFollow = dialog.findViewById(R.id.btnFollow);
 
         long timeDifference = new Date().getTime() - model.getTime();
@@ -367,27 +355,24 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostHolder>{
                 btnSubmit.setVisibility(View.GONE);
         }
 
-        btnDelete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(btnDelete.getText().toString().toLowerCase().equals("flag")){
-                    Intent intent = new Intent(context, FlagActivity.class);
-                    intent.putExtra("postId", postId);
-                    intent.putExtra("reportedUsername", model.getUsername());
-                    intent.putExtra("reportedUserId", userID);
-                    context.startActivity(intent);
-                    dialog.cancel();
+        btnDelete.setOnClickListener(v -> {
+            if(btnDelete.getText().toString().toLowerCase().equals("flag")){
+                Intent intent = new Intent(context, FlagActivity.class);
+                intent.putExtra("postId", postId);
+                intent.putExtra("reportedUsername", model.getUsername());
+                intent.putExtra("reportedUserId", userID);
+                context.startActivity(intent);
+                dialog.cancel();
+            }
+            else{
+                Log.i(TAG, "onClick: "+ model.getType());
+                if(model.getType()>0)
+                    calculations.onDeletePost(imgOverflow, postId, userId,status==2, type);
+                else {
+                    FirebaseUtil.getFirebaseFirestore().collection("posts").document(postId).delete();
+                    Snackbar.make(imgOverflow, "Deleted", Snackbar.LENGTH_SHORT).show();
                 }
-                else{
-                    Log.i(TAG, "onClick: "+ model.getType());
-                    if(model.getType()>0)
-                        calculations.onDeletePost(imgOverflow, postId, userId,status==2, type);
-                    else {
-                        FirebaseUtil.getFirebaseFirestore().collection("posts").document(postId).delete();
-                        Snackbar.make(imgOverflow, "Deleted", Snackbar.LENGTH_SHORT).show();
-                    }
-                    dialog.cancel();
-                }
+                dialog.cancel();
             }
         });
 
@@ -425,12 +410,17 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostHolder>{
         else
             btnFollow.setText(UserNetwork.getFollowing().contains(userID)? "UNFOLLOW": "FOLLOW");
 
-        btnShare.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Reusable.shareTips(btnShare.getRootView().getContext(), model.getUsername(), model.getContent());
+        btnRepost.setOnClickListener(v -> {
+            if (userId.equals(Calculations.GUEST)) {
                 dialog.cancel();
+                loginPrompt(btnRepost);
+                return;
             }
+            Intent intent = new Intent(context, RepostActivity.class);
+            intent.putExtra("postId", postId);
+            intent.putExtra("model", model);
+            context.startActivity(intent);
+            dialog.cancel();
         });
 
         btnFollow.setOnClickListener(v -> {
@@ -482,6 +472,5 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostHolder>{
     public void setUserId(String userId) {
         this.userId = userId;
     }
-
 
 }
