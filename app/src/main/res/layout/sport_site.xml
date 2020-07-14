@@ -5,17 +5,21 @@
     android:padding="2dp"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-
-    <ImageView
-        android:id="@+id/imgIcon"
+    <FrameLayout
+        android:id="@+id/frmIcon"
         android:layout_width="70dp"
         android:layout_height="70dp"
         android:background="@drawable/circle_grey"
-        android:src="@drawable/padlock"
-        android:scaleType="center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/imgIcon"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:layout_gravity="center"/>
+    </FrameLayout>
 
 
 
@@ -23,7 +27,7 @@
         android:id="@+id/txtName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/imgIcon"
+        app:layout_constraintTop_toBottomOf="@id/frmIcon"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginTop="4dp"

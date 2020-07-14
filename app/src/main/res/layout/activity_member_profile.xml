@@ -60,23 +60,30 @@
                                     android:layout_height="1dp"
                                     android:layout_weight="10"/>
 
-                                <Button
+                                <TextView
                                     android:id="@+id/btnFollow"
                                     android:layout_marginBottom="8dp"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
+                                    android:padding="10dp"
+                                    android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                                    android:text="FOLLOW"
                                     android:background="@drawable/btn_bg"/>
-                                <Button
+
+                                <TextView
                                     android:id="@+id/btnSubscribe"
-                                    android:layout_marginBottom="8dp"
-                                    android:layout_marginStart="5dp"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:background="@drawable/btn_bg"
+                                    android:layout_marginStart="5dp"
+                                    android:layout_marginBottom="8dp"
+                                    android:padding="10dp"
                                     android:visibility="gone"
-                                    android:text="Subscribe"/>
+                                    android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                                    android:background="@drawable/btn_bg"
+                                    android:text="SUBSCRIBE"/>
 
                             </LinearLayout>
+
                         </FrameLayout>
 
                         <RelativeLayout
@@ -105,6 +112,22 @@
                                 android:layout_marginTop="2dp"
                                 android:textSize="16sp"
                                 android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+
+                            <TextView
+                                android:id="@+id/txtWhatsapp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_below="@id/txtBio"
+                                android:layout_marginTop="2dp"
+                                android:onClick="startChat"
+                                android:gravity="center_vertical"
+                                android:padding="4dp"
+                                android:visibility="gone"
+                                android:drawableEnd="@drawable/ic_whatsapp"
+                                android:drawablePadding="4dp"
+                                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                                android:text="CHAT"
+                                android:background="@drawable/txt_bg"/>
                         </RelativeLayout>
                         <View
                             android:layout_width="match_parent"

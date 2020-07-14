@@ -6,6 +6,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context="fragments.BankerFragment">
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/nestBanker"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -26,7 +27,6 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/crdSubscription" />
-
 
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardView"
@@ -61,9 +61,41 @@
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
+                android:id="@+id/crdBankers"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_margin="4dp"
+                app:cardCornerRadius="6dp"
+                app:layout_constraintTop_toBottomOf="@id/cardView">
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp">
+
+                    <TextView
+                        android:id="@+id/txtCrdBankers"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="20sp"
+                        android:text="Top Banker Tipsters"
+                        android:layout_alignParentStart="true"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                        android:textStyle="bold" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/bankersList"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/txtCrdBankers"
+                        android:layout_marginTop="4dp"/>
+
+                </RelativeLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
                 android:id="@+id/crdSubscription"
                 android:layout_marginTop="10dp"
-                app:layout_constraintTop_toBottomOf="@id/cardView"
+                app:layout_constraintTop_toBottomOf="@id/crdBankers"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 

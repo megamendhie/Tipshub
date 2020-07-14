@@ -26,7 +26,7 @@
         android:id="@+id/btnSubmit"
         android:layout_width="180dp"
         android:layout_height="wrap_content"
-        android:drawableLeft="@drawable/ic_check_circle_green_24dp"
+        android:drawableStart="@drawable/ic_check_circle_green_24dp"
         android:text="TIPS WON"/>
 
     <Button
@@ -34,25 +34,22 @@
         android:layout_width="180dp"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        android:drawableLeft="@drawable/ic_follower"
-        android:drawableTint="@color/colorPrimary"
-        android:text="FOLLOW" />
+        android:drawableStart="@drawable/ic_follower"
+        android:text="@string/txt_follow" />
 
     <Button
-        android:id="@+id/btnShare"
+        android:id="@+id/btnRepost"
         android:layout_width="180dp"
         android:layout_height="wrap_content"
-        android:drawableTint="@color/colorPrimary"
-        android:drawableLeft="@drawable/ic_share_black_24dp"
-        android:text="Share"/>
+        android:drawableStart="@drawable/ic_retweet_color"
+        android:text="@string/txt_repost"/>
 
     <Button
         android:id="@+id/btnDelete"
         android:layout_width="180dp"
         android:layout_height="wrap_content"
-        android:drawableLeft="@drawable/ic_delete_black_24dp"
-        android:drawableTint="@android:color/holo_red_light"
-        android:text="Delete"/>
+        android:drawableStart="@drawable/ic_delete_color_24dp"
+        android:text="@string/txt_delete"/>
 
   </LinearLayout>
 </androidx.cardview.widget.CardView>

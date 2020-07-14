@@ -7,6 +7,7 @@
     tools:context="fragments.HomeFragment">
 
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/nestHome"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:isScrollContainer="true"
@@ -14,7 +15,8 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:paddingBottom="4dp">
 
             <androidx.cardview.widget.CardView
                 android:id="@+id/crdTips"
@@ -48,6 +50,8 @@
                 android:id="@+id/tipsList"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/shimmerTips" />
 
             <TextView
@@ -95,19 +99,128 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="vertical">
-
                     <include layout="@layout/placeholder" />
-
                     <include layout="@layout/placeholder" />
-
                     <include layout="@layout/placeholder" />
                 </LinearLayout>
             </com.facebook.shimmer.ShimmerFrameLayout>
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/testList"
+                android:id="@+id/postList"
                 app:layout_constraintTop_toBottomOf="@id/shimmerPosts"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:minHeight="20dp"
                 android:nestedScrollingEnabled="false"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <TextView
+                android:id="@+id/txtOpenFullPost"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:drawableRight="@drawable/ic_keyboard_arrow_right_color_24dp"
+                android:gravity="center_vertical|end"
+                android:text="See more posts"
+                android:textSize="18sp"
+                android:layout_marginBottom="6dp"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                android:textColor="@color/colorPrimaryDark"
+                app:layout_constraintTop_toBottomOf="@id/postList" />
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/crdBankers"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_margin="4dp"
+                app:cardCornerRadius="6dp"
+                app:layout_constraintTop_toBottomOf="@id/txtOpenFullPost">
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp">
+
+                    <TextView
+                        android:id="@+id/txtCrdBankers"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="20sp"
+                        android:text="Top Banker Tipsters"
+                        android:layout_alignParentStart="true"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                        android:textStyle="bold" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/bankersList"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/txtCrdBankers"
+                        android:layout_marginTop="4dp"/>
+
+                </RelativeLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/crdSportSites"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginTop="6dp"
+                android:layout_marginEnd="4dp"
+                android:layout_marginStart="4dp"
+                android:layout_marginBottom="6dp"
+                app:cardCornerRadius="6dp"
+                app:layout_constraintTop_toBottomOf="@id/crdBankers">
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp">
+
+                    <TextView
+                        android:id="@+id/txtCrdSportSites"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="20sp"
+                        android:text="Sports Sites"
+                        android:layout_alignParentStart="true"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                        android:textStyle="bold" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/sportSitesList"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/txtCrdSportSites"
+                        android:layout_marginTop="4dp"/>
+
+                </RelativeLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/txtCrdPopular"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                app:layout_constraintTop_toBottomOf="@id/crdSportSites"
+                android:paddingTop="3dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="6dp"
+                    android:paddingBottom="6dp"
+                    android:paddingStart="10dp"
+                    android:textSize="20sp"
+                    android:gravity="center_vertical"
+                    android:text="Popular Posts"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                    android:textStyle="bold" />
+            </androidx.cardview.widget.CardView>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/trendingList"
+                android:nestedScrollingEnabled="false"
+                android:layout_marginTop="@dimen/img_padding"
+                app:layout_constraintTop_toBottomOf="@id/txtCrdPopular"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
 

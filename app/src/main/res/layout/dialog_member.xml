@@ -35,22 +35,19 @@
         android:id="@+id/btnFollow"
         android:layout_width="180dp"
         android:layout_height="wrap_content"
-        android:drawableStart="@drawable/ic_follower"
-        android:drawableTint="@color/colorPrimary" />
+        android:drawableStart="@drawable/ic_follower" />
     <Button
-        android:id="@+id/btnShare"
+        android:id="@+id/btnRepost"
         android:layout_width="180dp"
         android:layout_height="wrap_content"
-        android:drawableTint="@color/colorPrimary"
-        android:drawableStart="@drawable/ic_share_black_24dp"
-        android:text="Share"/>
+        android:drawableStart="@drawable/ic_retweet_color"
+        android:text="@string/txt_repost"/>
 
     <Button
         android:id="@+id/btnDelete"
         android:layout_width="180dp"
         android:layout_height="wrap_content"
-        android:drawableStart="@drawable/ic_flag_black_24dp"
-        android:drawableTint="@android:color/holo_red_light"
+        android:drawableStart="@drawable/ic_flag_color_24dp"
         android:text="Flag"/>
 
   </LinearLayout>
