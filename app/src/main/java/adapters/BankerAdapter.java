@@ -7,7 +7,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import androidx.annotation.NonNull;
 import com.google.android.material.snackbar.Snackbar;
-import androidx.recyclerview.widget.RecyclerView;
 
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -18,9 +17,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.signature.ObjectKey;
@@ -39,7 +35,6 @@ import com.sqube.tipshub.SubscriptionActivity;
 
 import java.util.Date;
 
-import de.hdodenhof.circleimageview.CircleImageView;
 import models.Post;
 import models.UserNetwork;
 import services.GlideApp;
@@ -159,20 +154,12 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerPostHold
 
         final boolean finalMakePublic = makePublic;
         final boolean finalMakeVisible = makeVisible;
-        holder.imgRepost.setOnClickListener(v -> {
-            if (userId.equals(Calculations.GUEST)) {
-                loginPrompt(holder.imgRepost);
-                return;
-            }
-
+        holder.imgShare.setOnClickListener(v -> {
             if(!finalMakePublic) {
-                Snackbar.make(holder.mComment, "You can't repost yet", Snackbar.LENGTH_SHORT).show();
+                Snackbar.make(holder.mComment, context.getResources().getString(R.string.str_cannot_share_post), Snackbar.LENGTH_SHORT).show();
                 return;
             }
-            Intent intent = new Intent(context, RepostActivity.class);
-            intent.putExtra("postId", postId);
-            intent.putExtra("model", model);
-            context.startActivity(intent);
+            Reusable.shareTips(holder.imgShare.getContext(), model.getUsername(), model.getContent());
         });
 
         holder.mpost.setOnClickListener(v -> {
@@ -281,10 +268,10 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerPostHold
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.show();
 
-        Button btnSubmit, btnDelete, btnShare, btnFollow;
+        Button btnSubmit, btnDelete, btnRepost, btnFollow;
         btnSubmit = dialog.findViewById(R.id.btnSubmit);
         btnDelete = dialog.findViewById(R.id.btnDelete);
-        btnShare = dialog.findViewById(R.id.btnShare);
+        btnRepost = dialog.findViewById(R.id.btnRepost);
         btnFollow = dialog.findViewById(R.id.btnFollow);
 
         long timeDifference = new Date().getTime() - model.getTime();
@@ -302,7 +289,7 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerPostHold
         }
 
         if(!makePublic){
-            btnShare.setVisibility(View.GONE);
+            btnRepost.setVisibility(View.GONE);
         }
 
         if(UserNetwork.getFollowing()==null)
@@ -340,35 +327,39 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerPostHold
             }
         });
 
-        btnDelete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(btnDelete.getText().toString().toLowerCase().equals("flag")){
-                    Intent intent = new Intent(context, FlagActivity.class);
-                    intent.putExtra("postId", postId);
-                    intent.putExtra("reportedUsername", model.getUsername());
-                    intent.putExtra("reportedUserId", userID);
-                    context.startActivity(intent);
-                    dialog.cancel();
-                }
-                else{
-                    if(model.getType()>0)
-                        calculations.onDeletePost(imgOverflow, postId, userId,status==2, type);
-                    else {
-                        FirebaseUtil.getFirebaseFirestore().collection("posts").document(postId).delete();
-                        Snackbar.make(imgOverflow, "Deleted", Snackbar.LENGTH_SHORT).show();
-                    }
-                }
+        btnDelete.setOnClickListener(v -> {
+            if(btnDelete.getText().toString().toLowerCase().equals("flag")){
+                Intent intent = new Intent(context, FlagActivity.class);
+                intent.putExtra("postId", postId);
+                intent.putExtra("reportedUsername", model.getUsername());
+                intent.putExtra("reportedUserId", userID);
+                context.startActivity(intent);
                 dialog.cancel();
             }
+            else{
+                if(model.getType()>0)
+                    calculations.onDeletePost(imgOverflow, postId, userId,status==2, type);
+                else {
+                    FirebaseUtil.getFirebaseFirestore().collection("posts").document(postId).delete();
+                    Snackbar.make(imgOverflow, "Deleted", Snackbar.LENGTH_SHORT).show();
+                }
+            }
+            dialog.cancel();
         });
 
-        btnShare.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Reusable.shareTips(btnShare.getRootView().getContext(), model.getUsername(), model.getContent());
+        btnRepost.setOnClickListener(v -> {
+            if (userId.equals(Calculations.GUEST)) {
                 dialog.cancel();
+                loginPrompt(btnRepost);
+                return;
             }
+            Intent intent = new Intent(context, RepostActivity.class);
+            intent.putExtra("postId", postId);
+            intent.putExtra("model", model);
+            context.startActivity(intent);
+
+            Reusable.shareTips(btnRepost.getContext(), model.getUsername(), model.getContent());
+            dialog.cancel();
         });
 
         btnFollow.setOnClickListener(v -> {
@@ -392,11 +383,11 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerPostHold
     }
 
     private void loginPrompt(View view) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(view.getRootView().getContext(),
+        AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext(),
                 R.style.Theme_AppCompat_Light_Dialog_Alert);
         builder.setMessage("You have to login first")
                 .setNegativeButton("Cancel", (dialogInterface, i) -> {})
-                .setPositiveButton("Login", (dialogInterface, i) -> view.getRootView().getContext().startActivity(new Intent(view.getRootView().getContext(), LoginActivity.class)))
+                .setPositiveButton("Login", (dialogInterface, i) -> view.getContext().startActivity(new Intent(view.getContext(), LoginActivity.class)))
                 .show();
     }
 

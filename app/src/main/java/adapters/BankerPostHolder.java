@@ -21,8 +21,7 @@ class BankerPostHolder extends RecyclerView.ViewHolder {
     LinearLayout lnrContainer;
     TextView mpost, mUsername, mTime;
     TextView mLikes, mDislikes, mComment, mCode, mType, mSub;
-    ImageView imgOverflow;
-    ImageView imgComment, imgRepost, imgStatus;
+    ImageView imgComment, imgShare, imgStatus, imgOverflow;
     LikeButton imgLikes;
     DislikeButton imgDislike;
 
@@ -46,7 +45,7 @@ class BankerPostHolder extends RecyclerView.ViewHolder {
         imgLikes = itemView.findViewById(R.id.imgLike);
         imgDislike = itemView.findViewById(R.id.imgDislike);
         imgComment = itemView.findViewById(R.id.imgComment);
-        imgRepost = itemView.findViewById(R.id.imgRepost);
+        imgShare = itemView.findViewById(R.id.imgShare);
         imgStatus = itemView.findViewById(R.id.imgStatus);
         imgOverflow = itemView.findViewById(R.id.imgOverflow);
     }
