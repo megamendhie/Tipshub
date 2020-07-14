@@ -6,17 +6,15 @@
           android:endColor="#cde2ef"
           android:angle="270" />
       <corners android:radius="2dp"/>
-      <stroke android:width="2.5dp" android:color="@color/colorAccent" />
     </shape>
   </item>
 
   <item>
     <shape android:shape="rectangle">
-      <gradient android:startColor="#ffffff"
-          android:endColor="#F1EEEE"
+      <gradient android:startColor="#25D366"
+          android:endColor="#25D366"
           android:angle="270" />
       <corners android:radius="6dp"/>
-      <stroke android:width="2dp" android:color="@color/colorAccent" />
     </shape>
   </item>
 </selector>
