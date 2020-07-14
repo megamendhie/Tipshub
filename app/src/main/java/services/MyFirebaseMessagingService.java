@@ -30,39 +30,41 @@ import java.util.Random;
 import models.UserNetwork;
 import utils.FirebaseUtil;
 
+import static android.app.Notification.DEFAULT_ALL;
+import static androidx.core.app.NotificationCompat.PRIORITY_DEFAULT;
+
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
-    private final String ADMIN_CHANNEL_ID ="admin_channel";
+    private final String CHANNEL_ID ="admin_channel";
     private static final String SUBSCRIBE_TO = "tipshub_admin";
     private static final String TAG = "FbMessagingService";
-    FirebaseMessaging FCM;
-
 
     @Override
     public void onNewToken(String token) {
         super.onNewToken(token);
         Log.i(TAG, "onTokenRefresh completed with token: " + token);
-        FCM = FirebaseMessaging.getInstance();
+        FirebaseMessaging FCM = FirebaseMessaging.getInstance();
 
         // Once the token is generated, subscribe to topic with the userId
         FCM.subscribeToTopic(SUBSCRIBE_TO);
 
         FirebaseUser user = FirebaseUtil.getFirebaseAuthentication().getCurrentUser();
-
         if(user == null)
             return;
 
         FCM.subscribeToTopic(user.getUid());
         ArrayList<String> subscriptionList = UserNetwork.getSubscribed();
         if(subscriptionList!=null && !subscriptionList.isEmpty()){
-            for(String s: subscriptionList){
-                FCM.subscribeToTopic("sub_"+s);
+            for(String subed: subscriptionList){
+                FCM.subscribeToTopic("sub_"+subed);
             }
         }
     }
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
+        final String COMMENT = "comment", POST = "post", FOLLOWING = "following", SUBSCRIPTION = "subscription";
+
         Intent intent = new Intent(this, MainActivity.class);
         NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
         int notificationID = new Random().nextInt(3000);
@@ -71,9 +73,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Apps targeting SDK 26 or above (Android O) must implement notification channels and add its notifications
         to at least one of them. Therefore, confirm if version is Oreo or higher, then setup notification channel
       */
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            setupChannels(notificationManager);
-        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            createNoificationChannel(notificationManager);
 
         Log.i(TAG, "onMessageReceived: "+ remoteMessage.getData());
         String received_intent = remoteMessage.getData().get("type");
@@ -81,13 +82,13 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             received_intent="main";
         }
         switch (received_intent){
-            case "comment":
-            case "post":
+            case COMMENT:
+            case POST:
                 intent = new Intent(this, FullPostActivity.class);
                 intent.putExtra("postId", remoteMessage.getData().get("intentUrl"));
                 break;
-            case "following":
-            case "subscription":
+            case FOLLOWING:
+            case SUBSCRIPTION:
                 intent = new Intent(this, MemberProfileActivity.class);
                 intent.putExtra("userId", remoteMessage.getData().get("sentFrom"));
                 break;
@@ -101,14 +102,15 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 R.drawable.icn_medium);
 
         Uri notificationSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, ADMIN_CHANNEL_ID)
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.drawable.icon_svg)
                 .setLargeIcon(largeIcon)
                 .setContentTitle(remoteMessage.getData().get("title"))
                 .setContentText(remoteMessage.getData().get("message"))
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(remoteMessage.getData().get("message")))
                 .setAutoCancel(true)
-                .setSound(notificationSoundUri)
+                .setPriority(PRIORITY_DEFAULT)
+                .setDefaults(DEFAULT_ALL)
                 .setContentIntent(pendingIntent);
 
         //Set notification color to match your app color template
@@ -119,19 +121,16 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    private void setupChannels(NotificationManager notificationManager){
-        CharSequence adminChannelName = "New notification";
-        String adminChannelDescription = "Device to devie notification";
+    private void createNoificationChannel(NotificationManager notificationManager){
+        final CharSequence CHANNEL_NAME = "Tipshub notification";
+        final String CHANNEL_DESCRIPTION = "Notifications from Tipshub";
 
-        NotificationChannel adminChannel;
-        adminChannel = new NotificationChannel(ADMIN_CHANNEL_ID, adminChannelName, NotificationManager.IMPORTANCE_HIGH);
-        adminChannel.setDescription(adminChannelDescription);
-        adminChannel.enableLights(true);
-        adminChannel.setLightColor(Color.RED);
-        adminChannel.enableVibration(true);
-        if (notificationManager != null) {
-            notificationManager.createNotificationChannel(adminChannel);
-        }
+        NotificationChannel channel = new NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH);
+        channel.setDescription(CHANNEL_DESCRIPTION);
+        channel.enableLights(true);
+        channel.setLightColor(Color.RED);
+        channel.enableVibration(true);
+        notificationManager.createNotificationChannel(channel);
     }
 
 }

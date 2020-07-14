@@ -2,7 +2,9 @@ package services;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
@@ -15,6 +17,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.Query;
+import com.sqube.tipshub.MainActivity;
 import com.sqube.tipshub.R;
 
 import java.util.Random;
@@ -25,10 +28,10 @@ import utils.FirebaseUtil;
 import static android.app.Notification.DEFAULT_ALL;
 import static androidx.core.app.NotificationCompat.PRIORITY_DEFAULT;
 
-public class TestWorker extends Worker {
+public class DailyNotificationWorker extends Worker {
     private String username;
 
-    public TestWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
+    public DailyNotificationWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
     }
 
@@ -39,28 +42,16 @@ public class TestWorker extends Worker {
         if(user ==null)
             return Result.success();
         username = user.getDisplayName();
-
-        String userId = user.getUid();
-        FirebaseUtil.getFirebaseFirestore().collection("notifications")
-                .orderBy("time", Query.Direction.DESCENDING)
-                .whereEqualTo("sendTo", userId).whereEqualTo("seen", false).get().addOnSuccessListener(queryDocumentSnapshots -> {
-
-                    if(queryDocumentSnapshots!=null && !queryDocumentSnapshots.isEmpty()){
-                        for(DocumentSnapshot snapshot: queryDocumentSnapshots.getDocuments()){
-                            Notification notification = snapshot.toObject(Notification.class);
-                            showNotification(notification);
-                        }
-                    }
-                });
-
+        showNotification();
         Data dataOutput = new Data.Builder().putString("Work Result", "Job finished").build();
         return Result.success(dataOutput);
     }
 
-    private void showNotification(Notification notification) {
+    private void showNotification() {
         NotificationManager manager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
-
+        int notificationID = new Random().nextInt(3000);
         String channelId = "admin_channel";
+
         if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.O){
             String channelName = "Tipshub notification";
             String channelDescription = "Notifications from Tipshub";
@@ -73,6 +64,11 @@ public class TestWorker extends Worker {
             manager.createNotificationChannel(channel);
         }
 
+        Intent notificationIntent = new Intent(getApplicationContext(), MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), notificationID, notificationIntent,
+                PendingIntent.FLAG_ONE_SHOT);
+
+        Notification notification = getNotification(new Random().nextInt(5));
         NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), channelId)
                 .setContentTitle(notification.getTitle())
                 .setContentText(notification.getMessage())
@@ -81,9 +77,9 @@ public class TestWorker extends Worker {
                 .setSmallIcon(R.drawable.icon_svg)
                 .setPriority(PRIORITY_DEFAULT)
                 .setDefaults(DEFAULT_ALL)
+                .setContentIntent(pendingIntent)
                 .setAutoCancel(true);
 
-        int notificationID = new Random().nextInt(3000);
         manager.notify(notificationID, builder.build());
     }
 
@@ -91,11 +87,11 @@ public class TestWorker extends Worker {
         Notification notification = new Notification();
         switch (i){
             case 1:
-                notification.setTitle("Latest updates");
-                notification.setMessage("See all the new updates from your favourites");
+                notification.setTitle("Recommended for you");
+                notification.setMessage("See all the new tips from your favourite tipsters");
                 break;
             case 2:
-                notification.setTitle("We think you missed this some banker tips");
+                notification.setTitle("You missed some banker tips");
                 notification.setMessage("We have some new banker tips on the app");
                 break;
             case 3:
@@ -104,13 +100,13 @@ public class TestWorker extends Worker {
                 break;
             case 4:
                 notification.setTitle("Hello "+ username);
-                notification.setMessage("We just wanted to check up you. We hope you're having a great day");
+                notification.setMessage("We just wanted to check up you");
                 break;
             default:
-                notification.setTitle("All the latest sports news for this week");
-                notification.setMessage("15 latest sports news updated on app.");
+                notification.setTitle("Latest sports news for this week");
+                notification.setMessage("See the top 15 sports news for this week");
                 break;
         }
-        return  null;
+        return  notification;
     }
 }

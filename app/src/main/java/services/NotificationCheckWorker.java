@@ -17,7 +17,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.Query;
+import com.sqube.tipshub.FullPostActivity;
 import com.sqube.tipshub.MainActivity;
+import com.sqube.tipshub.MemberProfileActivity;
 import com.sqube.tipshub.R;
 
 import java.util.Random;
@@ -29,8 +31,6 @@ import static android.app.Notification.DEFAULT_ALL;
 import static androidx.core.app.NotificationCompat.PRIORITY_DEFAULT;
 
 public class NotificationCheckWorker extends Worker {
-    private String username;
-
     public NotificationCheckWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
     }
@@ -41,13 +41,11 @@ public class NotificationCheckWorker extends Worker {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if(user ==null)
             return Result.success();
-        username = user.getDisplayName();
 
         String userId = user.getUid();
-        FirebaseUtil.getFirebaseFirestore().collection("notifications")
-                .orderBy("time", Query.Direction.DESCENDING)
-                .whereEqualTo("sendTo", userId).whereEqualTo("seen", false).get().addOnSuccessListener(queryDocumentSnapshots -> {
-
+        FirebaseUtil.getFirebaseFirestore().collection("notifications").orderBy("time", Query.Direction.DESCENDING)
+                .whereEqualTo("sendTo", userId).whereEqualTo("seen", false).get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
                     if(queryDocumentSnapshots!=null && !queryDocumentSnapshots.isEmpty()){
                         for(DocumentSnapshot snapshot: queryDocumentSnapshots.getDocuments()){
                             Notification notification = snapshot.toObject(Notification.class);
@@ -77,7 +75,28 @@ public class NotificationCheckWorker extends Worker {
             manager.createNotificationChannel(channel);
         }
 
-        Intent notificationIntent = new Intent(getApplicationContext(), MainActivity.class);
+        new Intent(getApplicationContext(), MainActivity.class);
+        Intent notificationIntent;
+        final String COMMENT = "comment", POST = "post", FOLLOWING = "following", SUBSCRIPTION = "subscription";
+
+        String received_intent = notification.getType();
+        switch (received_intent){
+            case COMMENT:
+            case POST:
+                notificationIntent = new Intent(getApplicationContext(), FullPostActivity.class);
+                notificationIntent.putExtra("postId", notification.getIntentUrl());
+                break;
+            case FOLLOWING:
+            case SUBSCRIPTION:
+                notificationIntent = new Intent(getApplicationContext(), MemberProfileActivity.class);
+                notificationIntent.putExtra("userId", notification.getSentFrom());
+                break;
+            default:
+                notificationIntent = new Intent(getApplicationContext(), MainActivity.class);
+                break;
+
+        }
+
         PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), notificationID, notificationIntent,
                 PendingIntent.FLAG_ONE_SHOT);
 
