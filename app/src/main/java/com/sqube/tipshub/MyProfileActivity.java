@@ -85,13 +85,8 @@ public class MyProfileActivity extends AppCompatActivity implements View.OnClick
             l.setOnClickListener(this);
         recyclerView = findViewById(R.id.performanceList);
         LinearLayoutManager lm = new LinearLayoutManager(getApplicationContext());
-        Button btnEdit = findViewById(R.id.btnEdit);
-        btnEdit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-             startActivity(new Intent(MyProfileActivity.this, SettingsActivity.class));
-            }
-        });
+        TextView btnEdit = findViewById(R.id.btnEdit);
+        btnEdit.setOnClickListener(v -> startActivity(new Intent(MyProfileActivity.this, SettingsActivity.class)));
         recyclerView.setLayoutManager(lm);
         FirebaseUser user = FirebaseUtil.getFirebaseAuthentication().getCurrentUser();
         userId = user.getUid();

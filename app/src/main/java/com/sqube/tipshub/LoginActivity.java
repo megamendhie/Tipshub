@@ -434,19 +434,14 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         progressDialog.setTitle("Uploading...");
         progressDialog.show();
         FirebaseUtil.getFirebaseStorage().getReference().child("profile_images").child(userId).putFile(filePath)
-                .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                        taskSnapshot.getMetadata().getReference().getDownloadUrl()
-                                .addOnSuccessListener(uri -> {
-                                    String url = uri.toString();
-                                    FirebaseUtil.getFirebaseFirestore().collection("profiles").document(userId).update("b2_dpUrl", url);
-                                    progressDialog.dismiss();
-                                    Toast.makeText(LoginActivity.this, "Image uploaded", Toast.LENGTH_SHORT).show();
-                                    imgDp.setImageURI(filePath);
-                                });
-                    }
-                })
+                .addOnSuccessListener(taskSnapshot -> taskSnapshot.getMetadata().getReference().getDownloadUrl()
+                        .addOnSuccessListener(uri -> {
+                            String url = uri.toString();
+                            FirebaseUtil.getFirebaseFirestore().collection("profiles").document(userId).update("b2_dpUrl", url);
+                            progressDialog.dismiss();
+                            Toast.makeText(LoginActivity.this, "Image uploaded", Toast.LENGTH_SHORT).show();
+                            imgDp.setImageURI(filePath);
+                        }))
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {

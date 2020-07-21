@@ -33,10 +33,8 @@ import android.widget.Toast;
 
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.signature.ObjectKey;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -76,7 +74,7 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
     private TextView mpost, mUsername, mTime;
     private TextView mLikes, mDislikes, mComment, mCode, mType;
     private CircleImageView imgDp, imgChildDp;
-    private ImageView imgOverflow;
+    private ImageView imgOverflow, imgShare;
     private ImageView imgLike;
     private ImageView imgDislike;
     private ImageView imgStatus;
@@ -163,11 +161,10 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
         edtComment = findViewById(R.id.edtComment); edtComment.addTextChangedListener(this);
 
         imgOverflow = findViewById(R.id.imgOverflow); imgOverflow.setOnClickListener(this);
+        imgShare = findViewById(R.id.imgShare); imgShare.setOnClickListener(this);
         imgDp = findViewById(R.id.imgDp); imgDp.setOnClickListener(this);
         imgLike = findViewById(R.id.imgLike); imgLike.setOnClickListener(this);
         imgDislike = findViewById(R.id.imgDislike); imgDislike.setOnClickListener(this);
-        ImageView imgRepost = findViewById(R.id.imgRepost);
-        imgRepost.setOnClickListener(this);
         imgStatus = findViewById(R.id.imgStatus);
         prgPost = findViewById(R.id.prgPost); prgPost.setVisibility(View.VISIBLE);
         lnrFullPost = findViewById(R.id.container_post);
@@ -311,10 +308,10 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.show();
 
-        Button btnSubmit, btnDelete, btnShare, btnFollow;
+        Button btnSubmit, btnDelete, btnRepost, btnFollow;
         btnSubmit = dialog.findViewById(R.id.btnSubmit);
         btnDelete = dialog.findViewById(R.id.btnDelete);
-        btnShare = dialog.findViewById(R.id.btnShare);
+        btnRepost = dialog.findViewById(R.id.btnRepost);
         btnFollow = dialog.findViewById(R.id.btnFollow);
 
         long timeDifference = new Date().getTime() - model.getTime();
@@ -331,27 +328,24 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
                 btnSubmit.setVisibility(View.GONE);
         }
 
-        btnDelete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(btnDelete.getText().toString().toLowerCase().equals("flag")){
-                    intent = new Intent(FullPostActivity.this, FlagActivity.class);
-                    intent.putExtra("postId", postId);
-                    intent.putExtra("reportedUsername", model.getUsername());
-                    intent.putExtra("reportedUserId", model.getUserId());
-                    startActivity(intent);
-                    dialog.cancel();
+        btnDelete.setOnClickListener(v -> {
+            if(btnDelete.getText().toString().toLowerCase().equals("flag")){
+                intent = new Intent(FullPostActivity.this, FlagActivity.class);
+                intent.putExtra("postId", postId);
+                intent.putExtra("reportedUsername", model.getUsername());
+                intent.putExtra("reportedUserId", model.getUserId());
+                startActivity(intent);
+                dialog.cancel();
+            }
+            else{
+                Log.i(TAG, "onClick: "+ model.getType());
+                if(model.getType()>0)
+                    calculations.onDeletePost(imgOverflow, postId, userId,model.getStatus()==2, model.getType());
+                else {
+                    FirebaseUtil.getFirebaseFirestore().collection("posts").document(postId).delete();
+                    Snackbar.make(imgOverflow, "Deleted", Snackbar.LENGTH_SHORT).show();
                 }
-                else{
-                    Log.i(TAG, "onClick: "+ model.getType());
-                    if(model.getType()>0)
-                        calculations.onDeletePost(imgOverflow, postId, userId,model.getStatus()==2, model.getType());
-                    else {
-                        FirebaseUtil.getFirebaseFirestore().collection("posts").document(postId).delete();
-                        Snackbar.make(imgOverflow, "Deleted", Snackbar.LENGTH_SHORT).show();
-                    }
-                    dialog.cancel();
-                }
+                dialog.cancel();
             }
         });
 
@@ -389,12 +383,16 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
         else
             btnFollow.setText(UserNetwork.getFollowing().contains(model.getUserId())? "UNFOLLOW": "FOLLOW");
 
-        btnShare.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Reusable.shareTips(FullPostActivity.this, model.getUsername(), model.getContent());
-                dialog.cancel();
+        btnRepost.setOnClickListener(v -> {
+            if (userId.equals(Calculations.GUEST)) {
+                loginPrompt();
+                return;
             }
+            intent = new Intent(FullPostActivity.this, RepostActivity.class);
+            intent.putExtra("postId", postId);
+            intent.putExtra("model", model);
+            startActivity(intent);
+            dialog.cancel();
         });
 
         btnFollow.setOnClickListener(v -> {
@@ -514,15 +512,8 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
                 substring = model.getContent().substring(0, Math.min(model.getContent().length(), 90));
                 calculations.onDislike( postId, userId, model.getUserId(), substring);
                 break;
-            case R.id.imgRepost:
-                if (userId.equals(Calculations.GUEST)) {
-                    loginPrompt();
-                    return;
-                }
-                intent = new Intent(FullPostActivity.this, RepostActivity.class);
-                intent.putExtra("postId", postId);
-                intent.putExtra("model", model);
-                startActivity(intent);
+            case R.id.imgShare:
+                Reusable.shareTips(FullPostActivity.this, model.getUsername(), model.getContent());
                 break;
             case R.id.fabPost:
                 if (userId.equals(Calculations.GUEST)) {

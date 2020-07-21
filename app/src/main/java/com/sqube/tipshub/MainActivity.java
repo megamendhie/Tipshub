@@ -22,6 +22,9 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
+
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -30,7 +33,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,24 +42,21 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.google.gson.Gson;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nullable;
@@ -70,10 +69,13 @@ import fragments.RecommendedFragment;
 import models.ProfileMedium;
 import models.ProfileShort;
 import models.UserNetwork;
+import services.DailyNotificationWorker;
+import services.NotificationCheckWorker;
 import services.UserDataFetcher;
-import utils.Calculations;
 import utils.FirebaseUtil;
-import utils.Reusable;
+
+import static utils.Calculations.NOTIFICATION_WORKER_ID;
+import static utils.Calculations.WORKER_ACTIVATED;
 
 public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener,
         View.OnClickListener, NavigationView.OnNavigationItemSelectedListener {
@@ -83,8 +85,8 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     private FirebaseUser user;
     private Intent serviceIntent;
     private ArrayList<String> unseenNotList = new ArrayList<>();
-    SharedPreferences prefs;
-    SharedPreferences.Editor editor;
+    private SharedPreferences prefs;
+    private SharedPreferences.Editor editor;
     private Gson gson = new Gson();
 
     final int versionCode = BuildConfig.VERSION_CODE;
@@ -94,15 +96,14 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     final String FB_RC_KEY_LATEST_VERSION = "latest_version";
     final HashMap<String, Object> defaultMap = new HashMap<>();
 
-    ActionBar actionBar;
-    BottomNavigationView btmNav;
+    private ActionBar actionBar;
+    private BottomNavigationView btmNav;
     final Fragment fragmentH  = new HomeFragment();
     final Fragment fragmentR = new RecommendedFragment();
     final Fragment fragmentB = new BankerFragment();
     final Fragment fragmentN = new NotificationFragment();
-    Fragment fragmentActive = fragmentH;
-    FragmentManager fragmentManager = getSupportFragmentManager();
-    FragmentTransaction fragmentTransaction;
+    private Fragment fragmentActive = fragmentH;
+    private FragmentManager fragmentManager = getSupportFragmentManager();
 
     private DrawerLayout mDrawerLayout;
     private CircleImageView imgDp;
@@ -160,7 +161,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         mGoogleSignInClient = GoogleSignIn.getClient(MainActivity.this, gso);
 
         if(FirebaseUtil.getFirebaseAuthentication().getCurrentUser()==null){
-            startActivity(new Intent(MainActivity.this, LandingActivity.class));
+            startActivity(new Intent(MainActivity.this, LandActivity.class));
             finish();
             return;
         }
@@ -168,13 +169,12 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         serviceIntent = new Intent(MainActivity.this, UserDataFetcher.class);
         startService(serviceIntent);
 
-        FirebaseUtil.getFirebaseAuthentication().addAuthStateListener(new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                if(FirebaseUtil.getFirebaseAuthentication().getCurrentUser()==null){
-                    finish();
-                    startActivity(new Intent(MainActivity.this, LoginActivity.class));
-                }
+        FirebaseUtil.getFirebaseAuthentication().addAuthStateListener(firebaseAuth -> {
+            if(FirebaseUtil.getFirebaseAuthentication().getCurrentUser()==null){
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                intent.putExtra("openMainActivity", true);
+                finish();
+                startActivity(intent);
             }
         });
 
@@ -187,19 +187,44 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
             popUp();
         setBadge();
         loadFragment();
-
-        aSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked)
-                    editor.putBoolean("fromEverybody", true);
-                else
-                    editor.putBoolean("fromEverybody", false);
-                editor.apply();
-                fragmentManager.beginTransaction().detach(fragmentH).attach(fragmentH).commit();
-                mDrawerLayout.closeDrawer(GravityCompat.START);
-            }
+        aSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if(isChecked)
+                editor.putBoolean("fromEverybody", true);
+            else
+                editor.putBoolean("fromEverybody", false);
+            editor.apply();
+            fragmentManager.beginTransaction().detach(fragmentH).attach(fragmentH).commit();
+            mDrawerLayout.closeDrawer(GravityCompat.START);
         });
+        setWorkManager();
+    }
+
+    private void setWorkManager() {
+        WorkManager workManager = WorkManager.getInstance(MainActivity.this);
+        if(!prefs.getBoolean(WORKER_ACTIVATED, false)){
+            PeriodicWorkRequest workRequest = new PeriodicWorkRequest.Builder(NotificationCheckWorker.class, 30, TimeUnit.MINUTES)
+                    .build();
+            workManager.enqueue(workRequest);
+
+            PeriodicWorkRequest workRequestDaily = new PeriodicWorkRequest.Builder(DailyNotificationWorker.class, 20, TimeUnit.HOURS)
+                    .setInitialDelay(6, TimeUnit.HOURS).build();
+            workManager.enqueue(workRequestDaily);
+
+            String uuid = workRequest.getId().toString();
+            editor.putBoolean(WORKER_ACTIVATED, true);
+            editor.putString(NOTIFICATION_WORKER_ID, uuid);
+            editor.apply();
+        }
+        else{
+            UUID id = UUID.fromString(prefs.getString(NOTIFICATION_WORKER_ID, ""));
+            workManager.getWorkInfoByIdLiveData(id).observe(this, workInfo -> {
+                if (workInfo==null){
+                    Log.i("WorkManager", "setWorkManager: Worker is null");
+                    Snackbar.make(imgDp, "Worker is null", Snackbar.LENGTH_SHORT).show();
+                }
+            });
+        }
+
     }
 
     @Override
@@ -221,23 +246,18 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         FirebaseUtil.getFirebaseFirestore().collection("notifications")
                 .orderBy("time", Query.Direction.DESCENDING)
                 .whereEqualTo("sendTo", userId).whereEqualTo("seen", false)
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
-                    @Override
-                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
-                        Log.i("MainActivity", "onEvent: noyefired");
-                        if(queryDocumentSnapshots!=null && !queryDocumentSnapshots.isEmpty()){
-                            Log.i("MainActivity", "onEvent: noyefired suc");
-                            int count = queryDocumentSnapshots.size();
-                            txtBadge.setText(count>=9? count+"+" : String.valueOf(count));
-                            notificationBadge.setVisibility(View.VISIBLE);
-                            unseenNotList.clear();
-                            for(DocumentSnapshot snap : queryDocumentSnapshots.getDocuments())
-                                unseenNotList.add(snap.getId());
-                        }
-                        else
-                            notificationBadge.setVisibility(View.GONE);
-
+                .addSnapshotListener((queryDocumentSnapshots, e) -> {
+                    if(queryDocumentSnapshots!=null && !queryDocumentSnapshots.isEmpty()){
+                        int count = queryDocumentSnapshots.size();
+                        txtBadge.setText(count>=9? count+"+" : String.valueOf(count));
+                        notificationBadge.setVisibility(View.VISIBLE);
+                        unseenNotList.clear();
+                        for(DocumentSnapshot snap : queryDocumentSnapshots.getDocuments())
+                            unseenNotList.add(snap.getId());
                     }
+                    else
+                        notificationBadge.setVisibility(View.GONE);
+
                 });
     }
 
@@ -407,7 +427,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     }
 
     private void loadFragment() {
-        fragmentTransaction = fragmentManager.beginTransaction();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.add(R.id.main_container,fragmentN, "fragmentN").hide(fragmentN);
         fragmentTransaction.add(R.id.main_container,fragmentB, "fragmentB").hide(fragmentB);
         fragmentTransaction.add(R.id.main_container,fragmentR, "fragmentN").hide(fragmentR);
@@ -435,19 +455,15 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     }
 
     public void Logout(){
-        FirebaseMessaging.getInstance().unsubscribeFromTopic(userId);
+        FirebaseMessaging FCM = FirebaseMessaging.getInstance();
+        FCM.unsubscribeFromTopic(userId);
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    FirebaseInstanceId.getInstance().deleteInstanceId();
-                } catch (IOException e) {
-                    Log.i("FbMessagingService", "Logout: "+ e.getMessage());
-                    e.printStackTrace();
-                }
+        ArrayList<String> sub_to = UserNetwork.getSubscribed();
+        if(sub_to!=null && !sub_to.isEmpty()){
+            for(String s: sub_to){
+                FCM.unsubscribeFromTopic("sub_"+s);
             }
-        }).start();
+        }
 
         clearCache();
         if(user.getProviderData().get(1).getProviderId().equals("google.com")){

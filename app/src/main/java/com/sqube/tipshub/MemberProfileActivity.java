@@ -3,6 +3,8 @@ package com.sqube.tipshub;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 
 import com.google.android.material.snackbar.Snackbar;
@@ -24,6 +26,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -58,13 +61,13 @@ public class MemberProfileActivity extends AppCompatActivity implements View.OnC
     private FirebaseUser user;
     private CircleImageView imgDp;
     private LinearLayout[] lnrLayout = new LinearLayout[4];
-    private Button btnFollow, btnSubscribe;
     private ProfileMedium profile;
     private RecyclerView recyclerView;
     PerformanceAdapter adapter;
     private String myID, imgUrl;
     Fragment postFragment, bankerFragment, reviewFragment;
     ArrayList<Map<String, Object>> performanceList = new ArrayList<>();
+    private TextView btnFollow, btnSubscribe, txtWhatsapp;
     private TextView txtName, txtUsername, txtBio;
     private TextView txtPost, txtWon, txtAccuracy;
     private TextView txtFollowers, txtFollowing, txtSubscribers, txtSubscriptions;
@@ -83,6 +86,7 @@ public class MemberProfileActivity extends AppCompatActivity implements View.OnC
         TabLayout tabLayout = findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
         imgDp = findViewById(R.id.imgDp);
+        txtWhatsapp = findViewById(R.id.txtWhatsapp);
         txtName = findViewById(R.id.txtFullName);
         txtUsername = findViewById(R.id.txtUsername);
         txtBio = findViewById(R.id.txtBio);
@@ -137,51 +141,51 @@ public class MemberProfileActivity extends AppCompatActivity implements View.OnC
     protected void onPostResume() {
         super.onPostResume();
         database.collection("profiles").document(userId).get()
-                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        if(documentSnapshot==null||!documentSnapshot.exists())
-                            return;
-                        profile = documentSnapshot.toObject(ProfileMedium.class);
-                        imgUrl = profile.getB2_dpUrl();
-                        if(!imgUrl.isEmpty())
-                            imgDp.setOnClickListener(MemberProfileActivity.this);
-                        String name = String.format(Locale.getDefault(),"%s %s", profile.getA0_firstName(),profile.getA1_lastName());
-                        actionBar.setTitle(name);
-                        txtName.setText(name);
-                        txtUsername.setText(String.format(Locale.getDefault(),"@%s",profile.getA2_username()));
-                        txtBio.setText(profile.getA5_bio());
-                        Reusable.applyLinkfy(MemberProfileActivity.this, profile.getA5_bio(), txtBio);
-                        txtFollowers.setText(String.valueOf(profile.getC4_followers()));
-                        txtFollowing.setText(String.valueOf(profile.getC5_following()));
-                        txtSubscribers.setText(String.valueOf(profile.getC6_subscribers()));
-                        txtSubscriptions.setText(String.valueOf(profile.getC7_subscriptions()));
-                        String tips = profile.getE0a_NOG()>1? "tips": "tip";
-                        txtPost.setText(String.format(Locale.getDefault(),"%d  %s  • ", profile.getE0a_NOG(), tips));
-                        txtWon.setText(String.format(Locale.getDefault(),"%d  won  • ", profile.getE0b_WG()));
-                        txtAccuracy.setText(String.format(Locale.getDefault(),"%.1f%%", (double) profile.getE0c_WGP()));
+                .addOnSuccessListener(documentSnapshot -> {
+                    if(documentSnapshot==null||!documentSnapshot.exists())
+                        return;
+                    profile = documentSnapshot.toObject(ProfileMedium.class);
+                    imgUrl = profile.getB2_dpUrl();
+                    if(!imgUrl.isEmpty())
+                        imgDp.setOnClickListener(MemberProfileActivity.this);
+                    String name = String.format(Locale.getDefault(),"%s %s", profile.getA0_firstName(),profile.getA1_lastName());
+                    actionBar.setTitle(name);
+                    txtName.setText(name);
+                    txtUsername.setText(String.format(Locale.getDefault(),"@%s",profile.getA2_username()));
+                    txtBio.setText(profile.getA5_bio());
+                    txtBio.setVisibility(profile.getA5_bio().isEmpty()?View.GONE:View.VISIBLE);
+                    Reusable.applyLinkfy(MemberProfileActivity.this, profile.getA5_bio(), txtBio);
+                    if(profile.isD5_allowChat())
+                        txtWhatsapp.setVisibility(View.VISIBLE);
+                    txtFollowers.setText(String.valueOf(profile.getC4_followers()));
+                    txtFollowing.setText(String.valueOf(profile.getC5_following()));
+                    txtSubscribers.setText(String.valueOf(profile.getC6_subscribers()));
+                    txtSubscriptions.setText(String.valueOf(profile.getC7_subscriptions()));
+                    String tips = profile.getE0a_NOG()>1? "tips": "tip";
+                    txtPost.setText(String.format(Locale.getDefault(),"%d  %s  • ", profile.getE0a_NOG(), tips));
+                    txtWon.setText(String.format(Locale.getDefault(),"%d  won  • ", profile.getE0b_WG()));
+                    txtAccuracy.setText(String.format(Locale.getDefault(),"%.1f%%", (double) profile.getE0c_WGP()));
 
-                        if(UserNetwork.getSubscribed()!=null && profile.isC1_banker()
-                                && !UserNetwork.getSubscribed().contains(userId))
-                            btnSubscribe.setVisibility(View.VISIBLE);
+                    if(UserNetwork.getSubscribed()!=null && profile.isC1_banker()
+                            && !UserNetwork.getSubscribed().contains(userId))
+                        btnSubscribe.setVisibility(View.VISIBLE);
 
-                        //set Display picture
-                        Glide.with(getApplicationContext())
-                                .setDefaultRequestOptions(requestOptions)
-                                .load(profile.getB2_dpUrl())
-                                .into(imgDp);
+                    //set Display picture
+                    Glide.with(getApplicationContext())
+                            .setDefaultRequestOptions(requestOptions)
+                            .load(profile.getB2_dpUrl())
+                            .into(imgDp);
 
-                        if(!performanceList.isEmpty())
-                            return;
+                    if(!performanceList.isEmpty())
+                        return;
 
-                        if(profile.getE0a_NOG()>0){
-                            for(int i=1; i<=6; i++){
-                                Map<String, Object> row = getRow(i);
-                                if(!row.isEmpty())
-                                    performanceList.add(row);
-                            }
-                            recyclerView.setAdapter(adapter);
+                    if(profile.getE0a_NOG()>0){
+                        for(int i=1; i<=6; i++){
+                            Map<String, Object> row = getRow(i);
+                            if(!row.isEmpty())
+                                performanceList.add(row);
                         }
+                        recyclerView.setAdapter(adapter);
                     }
                 });
 
@@ -336,6 +340,33 @@ public class MemberProfileActivity extends AppCompatActivity implements View.OnC
                 startActivity(intentSub);
                 break;
         }
+    }
+
+    public void startChat(View view) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(MemberProfileActivity.this,
+                R.style.Theme_AppCompat_Light_Dialog_Alert);
+        builder.setMessage(String.format("Do you want to chat with %s?", profile.getA2_username()))
+                .setTitle("Start chat")
+                .setNegativeButton("No", (dialogInterface, i) -> {
+                    //do nothing
+                })
+                .setPositiveButton("Yes", (dialogInterface, i) -> {
+                    PackageManager pkMgt = getPackageManager();
+                    String toNumber = profile.getB1_phone();
+                    Uri uri = Uri.parse("http://api.whatsapp.com/send?phone="+toNumber +"&text=");
+                    try {
+                        Intent whatsApp = new Intent(Intent.ACTION_VIEW);
+                        whatsApp.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY |
+                                Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+                        whatsApp.setData(uri);
+                        pkMgt.getPackageInfo("com.whatsapp", PackageManager.GET_META_DATA);
+                        startActivity(whatsApp);
+                    }
+                    catch (PackageManager.NameNotFoundException e){
+                        Toast.makeText(MemberProfileActivity.this, "No WhatApp installed", Toast.LENGTH_LONG).show();
+                    }
+                })
+                .show();
     }
 
     private void loginPrompt() {
