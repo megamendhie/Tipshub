@@ -11,6 +11,8 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import androidx.annotation.NonNull;
+
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
@@ -45,9 +47,11 @@ import java.util.List;
 import java.util.Locale;
 
 import adapters.BankerAdapter;
+import adapters.BankerTipsterAdapter;
 import adapters.FilteredBankerAdapter;
 import models.Post;
 import models.ProfileMedium;
+import models.ProfileShort;
 import models.SnapId;
 import models.UserNetwork;
 import utils.FirebaseUtil;
@@ -62,7 +66,7 @@ public class BankerFragment extends Fragment {
     private SharedPreferences prefs;
     private TextView txtNotice;
     private String userId;
-    private RecyclerView subscribedList, latestList, winningsList;
+    private RecyclerView subscribedList, latestList, winningsList, bankersList;
     private final String TAG = "BankerFragment";
     private Intent intent;
 
@@ -79,6 +83,7 @@ public class BankerFragment extends Fragment {
         subscribedList = rootView.findViewById(R.id.subscribedList);
         latestList = rootView.findViewById(R.id.latestList);
         winningsList = rootView.findViewById(R.id.winningsList);
+        bankersList = rootView.findViewById(R.id.bankersList);
         FloatingActionButton fabPost = rootView.findViewById(R.id.fabPost);
         txtNotice = rootView.findViewById(R.id.txtNotice);
 
@@ -89,43 +94,42 @@ public class BankerFragment extends Fragment {
         subscribedList.setLayoutManager(new LinearLayoutManager(getActivity()));
         latestList.setLayoutManager(new LinearLayoutManager(getActivity()));
         winningsList.setLayoutManager(new LinearLayoutManager(getActivity()));
+        bankersList.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false));
 
-        intent = new Intent(getActivity().getApplicationContext(), PostActivity.class);
+        intent = new Intent(getContext(), PostActivity.class);
         FirebaseUser user = FirebaseUtil.getFirebaseAuthentication().getCurrentUser();
         userId = user.getUid();
 
-        fabPost.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                json = prefs.getString("profile", "");
-                myProfile = (json.equals(""))? null: gson.fromJson(json, ProfileMedium.class);
-                if(myProfile==null){
-                    Toast.makeText(getContext(), "Something went wrong", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                if(!myProfile.isC1_banker()){
-                    popUp();
-                    return;
-                }
-                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH);
-                String currentTime = sdf.format(new Date().getTime());
-                String lastBankerTime = sdf.format(new Date(myProfile.getD3_bankerPostTime()));
+        fabPost.setOnClickListener(v -> {
+            json = prefs.getString("profile", "");
+            myProfile = (json.equals(""))? null: gson.fromJson(json, ProfileMedium.class);
+            if(myProfile==null){
+                Toast.makeText(getContext(), "Something went wrong", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if(!myProfile.isC1_banker()){
+                popUp();
+                return;
+            }
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH);
+            String currentTime = sdf.format(new Date().getTime());
+            String lastBankerTime = sdf.format(new Date(myProfile.getD3_bankerPostTime()));
 
-                try {
-                    Date currentDate = sdf.parse(currentTime);
-                    Date lastPostDate = sdf.parse(lastBankerTime);
-                    if(currentDate.equals(lastPostDate)){
-                        popUp2();
-                        return;
-                    }
-                    intent.putExtra("type", "banker");
-                    startActivity(intent);
-                } catch (ParseException e) {
-                    e.printStackTrace();
+            try {
+                Date currentDate = sdf.parse(currentTime);
+                Date lastPostDate = sdf.parse(lastBankerTime);
+                if(currentDate.equals(lastPostDate)){
+                    popUp2();
+                    return;
                 }
+                intent.putExtra("type", "banker");
+                startActivity(intent);
+            } catch (ParseException e) {
+                e.printStackTrace();
             }
         });
 
+        loadBankerTipsters();
         loadLatest();
         loadWinning();
         loadSub();
@@ -194,6 +198,17 @@ public class BankerFragment extends Fragment {
             }
         });
 
+    }
+
+    private void loadBankerTipsters() {
+        Query query = FirebaseUtil.getFirebaseFirestore().collection("profiles").orderBy("e6c_WGP",
+                Query.Direction.DESCENDING).whereEqualTo("c1_banker", true).limit(10);
+        FirestoreRecyclerOptions<ProfileShort> options = new FirestoreRecyclerOptions.Builder<ProfileShort>()
+                .setQuery(query, ProfileShort.class)
+                .build();
+        BankerTipsterAdapter bankerTipsterAdapter = new BankerTipsterAdapter(options);
+        bankersList.setAdapter(bankerTipsterAdapter);
+        bankerTipsterAdapter.startListening();
     }
 
     private void loadLatest() {

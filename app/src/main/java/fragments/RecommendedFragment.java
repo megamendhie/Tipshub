@@ -58,12 +58,11 @@ import static utils.Calculations.NEWS;
 public class RecommendedFragment extends Fragment implements View.OnClickListener {
     private String userId;
     private Timer timer = new Timer();
-    private RecyclerView peopleList, trendingList, newsList;
+    private RecyclerView peopleList, newsList;
     private final String TAG = "RecFragment";
     private boolean alreadyLoaded;
     private ArrayList<Post> postList = new ArrayList<>();
     private ArrayList<SnapId> snapIds= new ArrayList<>();
-    private FilteredPostAdapter fAdapter;
 
     private DatabaseHelper dbHelper;
     private SQLiteDatabase db;
@@ -88,9 +87,6 @@ public class RecommendedFragment extends Fragment implements View.OnClickListene
         View rootView=inflater.inflate(R.layout.fragment_recommended, container, false);
         peopleList = rootView.findViewById(R.id.peopleList);
         peopleList.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false));
-        trendingList = rootView.findViewById(R.id.trendingList);
-        trendingList.setLayoutManager(new LinearLayoutManager(getActivity()));
-        ((DefaultItemAnimator) trendingList.getItemAnimator()).setSupportsChangeAnimations(false);
 
         newsList = rootView.findViewById(R.id.newsList);
         newsList.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -100,17 +96,9 @@ public class RecommendedFragment extends Fragment implements View.OnClickListene
 
         FirebaseUser user = FirebaseUtil.getFirebaseAuthentication().getCurrentUser();
         userId = user.getUid();
-        fAdapter = new FilteredPostAdapter(false, userId, getContext(), postList, snapIds);
-        trendingList.setAdapter(fAdapter);
         alreadyLoaded = false;
         loadNews();
         return rootView;
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        trendingList.setAdapter(null);
     }
 
     @Override
@@ -119,12 +107,6 @@ public class RecommendedFragment extends Fragment implements View.OnClickListene
         if(alreadyLoaded)
             return;
         loadPeople();
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                loadPost();
-            }
-        }, 0, 300000);
         alreadyLoaded=true;
     }
 
@@ -176,28 +158,6 @@ public class RecommendedFragment extends Fragment implements View.OnClickListene
             }
         });
 
-    }
-
-    private void loadPost() {
-        FirebaseUtil.getFirebaseFirestore().collection("posts")
-                .orderBy("timeRelevance", Query.Direction.DESCENDING).limit(9).get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot result) {
-                        if(result==null|| result.isEmpty())
-                            return;
-                        snapIds.clear();
-                        postList.clear();
-                        for(DocumentSnapshot snapshot: result.getDocuments()){
-                            Post post = snapshot.toObject(Post.class);
-                            if(post.getType()==6 && post.getStatus()!=2)
-                                continue;
-                            postList.add(post);
-                            snapIds.add(new SnapId(snapshot.getId(), post.getTime()));
-                        }
-                        fAdapter.notifyDataSetChanged();
-                    }
-                });
     }
 
     private void loadNews(){
@@ -254,7 +214,7 @@ public class RecommendedFragment extends Fragment implements View.OnClickListene
 
         protected String doInBackground(String... args) {
             HttpConFunction httpConnection = new HttpConFunction();
-            return httpConnection.executeGet("https://newsapi.org/v2/everything?domains=espnfc.com&language=en&pageSize=15&apiKey="
+            return httpConnection.executeGet("https://newsapi.org/v2/everything?domains=espnfc.com&language=en&pageSize=25&apiKey="
                     + myAPI_Key, "RECOMMEND");
         }
         @Override

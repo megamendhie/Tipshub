@@ -7,7 +7,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,7 +35,7 @@ public class NotificationFragment extends Fragment {
 
         // Inflate the layout for this fragment
         View rootView=inflater.inflate(R.layout.fragment_notification, container, false);
-        RecyclerView notificationList = rootView.findViewById(R.id.testList);
+        RecyclerView notificationList = rootView.findViewById(R.id.postList);
         notificationList.setLayoutManager(new LinearLayoutManager(getActivity()));
         SwipeRefreshLayout refresher = rootView.findViewById(R.id.refresher);
         refresher.setColorSchemeResources(R.color.colorPrimary);
@@ -44,22 +43,19 @@ public class NotificationFragment extends Fragment {
         FirebaseUser user = FirebaseUtil.getFirebaseAuthentication().getCurrentUser();
         String userId = user.getUid();
         Query query = FirebaseUtil.getFirebaseFirestore().collection("notifications")
-                .orderBy("time", Query.Direction.DESCENDING).whereEqualTo("sendTo", userId);
+                .orderBy("time", Query.Direction.DESCENDING).whereEqualTo("sendTo", userId).limit(40);
 
         NotificationAdapter notificationAdapter = new NotificationAdapter(query, userId, getContext());
         notificationList.setAdapter(notificationAdapter);
         notificationAdapter.startListening();
 
-        refresher.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                refresher.setRefreshing(true);
-                if(notificationAdapter !=null) {
-                    notificationAdapter.stopListening();
-                    notificationAdapter.startListening();
-                }
-                refresher.setRefreshing(false);
+        refresher.setOnRefreshListener(() -> {
+            refresher.setRefreshing(true);
+            if(notificationAdapter !=null) {
+                notificationAdapter.stopListening();
+                notificationAdapter.startListening();
             }
+            refresher.setRefreshing(false);
         });
         return rootView;
     }
