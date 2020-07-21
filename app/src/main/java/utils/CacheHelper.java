@@ -14,7 +14,7 @@ public class CacheHelper {
 
     static int cacheLifeHour = 7 * 24;
 
-    public static String getCacheDirectory(Context context){
+    private static String getCacheDirectory(Context context){
 
         return context.getCacheDir().getPath();
     }

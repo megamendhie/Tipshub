@@ -123,17 +123,16 @@ public final class Reusable {
         textView.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
-    public static void shareTips(Activity activity, String username, String post){
-        String output = "@"+username+"'s post on Tipshub:\n\n"+ post + "\n\nApp link: http://bit.ly/tipshub" ;
+    public static void shareTips(Context context, String username, String post){
+        String output = "@"+username+"'s post on Tipshub:\n\n"+ post + "\n\nDownload Tipshub: http://bit.ly/tipshub" ;
 
         Intent share = new Intent(Intent.ACTION_SEND);share.setType("text/plain");
         share.putExtra(Intent.EXTRA_TEXT, output);
         share.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY |
                 Intent.FLAG_ACTIVITY_NEW_DOCUMENT |
                 Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
-        activity.startActivity(Intent.createChooser(share, "Share via:"));
+        context.startActivity(Intent.createChooser(share, "Share via:"));
     }
-
     public static String getNewDate(String oldDate){
         try {
             Date date= new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).parse(oldDate);
@@ -144,15 +143,15 @@ public final class Reusable {
         return "";
     }
 
-    public void shareComment(Activity activity, String username, String post){
-        String output = "@"+username+"'s comment on Tipshub:\n\n"+ post + "\n\nApp link: http://bit.ly/tipshub" ;
+    public void shareComment(Context context, String username, String post){
+        String output = "@"+username+"'s comment on Tipshub:\n\n"+ post + "\n\nDownload Tipshub: http://bit.ly/tipshub" ;
 
         Intent share = new Intent(Intent.ACTION_SEND);share.setType("text/plain");
         share.putExtra(Intent.EXTRA_TEXT, output);
         share.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY |
                 Intent.FLAG_ACTIVITY_NEW_DOCUMENT |
                 Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
-        activity.startActivity(Intent.createChooser(share, "Share via:"));
+        context.startActivity(Intent.createChooser(share, "Share via:"));
     }
 
     public  static  boolean getNetworkAvailability(Context context){

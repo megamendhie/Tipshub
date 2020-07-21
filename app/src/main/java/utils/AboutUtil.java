@@ -15,11 +15,15 @@ public class AboutUtil {
                 "  \"about\": [\n" +
                 "    {\n" +
                 "      \"heading\": \"Welcome to Tipshub\",\n" +
-                "      \"body\": \"Tipshub is a social network for tipsters and all sports fans. It is an interactive platform where sports fans discuss on trending sports events and good tipsters share their predictions with their followers and subscribers.\"\n" +
+                "      \"body\": \"Tipshub is a social network for sports fans. It is an interactive platform where users discuss on trending sports events and good tipsters share their predictions with their followers and subscribers.\"\n" +
                 "    },\n" +
                 "    {\n" +
                 "      \"heading\": \"What can you do on Tipshub?\",\n" +
-                "      \"body\": \"<ul><li>You can discuss on any sports event</li><li>Share your predictions with others</li><li>Follow people you like to get their tips.</li><li>Subscribe to the best tipsters for their Banker tips.</li><li>Get the latest sports news.</li></ul>\"\n" +
+                "      \"body\": \"<ul><li>Get latest and accurate prediction from Tipshub</li><li>Discuss any sports event</li><li>Share your predictions with others</li><li>Follow people you like to see their tips.</li><li>Subscribe to good tipsters for their Banker tips.</li><li>Get the latest sports news.</li></ul>\"\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"heading\": \"How does Tipshub predict games?\",\n" +
+                "      \"body\": \"<p>We use high quality machine learning software to produce accurate predictions based on the teams' current stats, their h2h, players lineup, and winning capability.</p>\"\n" +
                 "    },\n" +
                 "    {\n" +
                 "      \"heading\": \"What kind of post is allowed on Tipshub?\",\n" +
