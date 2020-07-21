@@ -963,14 +963,14 @@
     <string name="nothing_to_display">Nothing to display</string>
     <string name="txt_follow">Follow</string>
     <string name="txt_sub_title">How much do you want to charge your subscribers for 2 weeks?</string>
-    <string name="txt_notice_dp"><![CDATA[>Profile picture is important]]></string>
+    <string name="txt_notice_dp"><![CDATA[>Update your picture, username, and phone no.]]></string>
     <string name="txt_later">LATER</string>
     <string name="txt_update">UPDATE NOW</string>
     <string name="text_post_status">post status</string>
     <string name="text_overflow">more_options</string>
     <string name="text_post_code">post code</string>
     <string name="txt_search">search</string>
-    <string name="txt_contact_notice"><u>If you have any issue with payment, click here to contact Tipshub Admin</u></string>
+    <string name="txt_contact_notice"><u>If you have issue with payment, contact us here.</u></string>
 
     <string name="title_activity_land">LandActivity</string>
     <string name="dummy_button">Dummy Button</string>
@@ -978,4 +978,7 @@
     <string name="txt_subscription">Subscription gives you access to VIP, Over 2.5, BTTS, and weekend draws</string>
     <string name="txt_view_now">SUBSCRIBE</string>
     <string name="txt_sub_notice">Get all our tips by becoming a subscriber</string>
+    <string name="txt_repost">Repost</string>
+    <string name="txt_delete">Delete</string>
+    <string name="str_cannot_share_post">You can\'t share this post yet</string>
 </resources>
