@@ -31,7 +31,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.signature.ObjectKey;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -67,6 +66,8 @@ import utils.FirebaseUtil;
 import utils.Reusable;
 import utils.SpaceTokenizer;
 
+import static utils.Reusable.getPlaceholderImage;
+
 public class FullPostActivity extends AppCompatActivity implements View.OnClickListener, TextWatcher {
     private CollectionReference commentReference;
     private DocumentReference postReference;
@@ -85,7 +86,6 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
     private CommentAdapter commentAdapter;
     private Post model;
 
-    private RequestOptions requestOptions = new RequestOptions();
     private Intent intent = null;
 
     private String POST_ID = "postId";
@@ -137,9 +137,9 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
         if(userId.equals(Calculations.GUEST))
             imgMyDp.setImageResource(R.drawable.dummy);
         else
-            GlideApp.with(getApplicationContext())
-                .setDefaultRequestOptions(requestOptions)
-                .load(storageReference.child(userId))
+            GlideApp.with(getApplicationContext()).load(storageReference.child(userId))
+                    .placeholder(R.drawable.dummy)
+                    .error(getPlaceholderImage(userId.charAt(0)))
                 .signature(new ObjectKey(userId+"_"+Reusable.getSignature()))
                 .into(imgMyDp);
 
@@ -171,7 +171,6 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
         lnrFullPost.setVisibility(View.GONE);
         lnrChildPost = findViewById(R.id.container_child_post);
         lnrChildPost.setVisibility(View.GONE);
-        requestOptions.placeholder(R.drawable.ic_person_outline_black_24dp);
     }
 
     //listen for changes in likesCount, dislikesCount and update
@@ -222,9 +221,9 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
                     mComment.setText(model.getCommentsCount()==0? "":String.valueOf(model.getCommentsCount()));
                     mLikes.setText(model.getLikesCount()==0? "":String.valueOf(model.getLikesCount()));
                     mDislikes.setText(model.getDislikesCount()==0? "":String.valueOf(model.getDislikesCount()));
-                    GlideApp.with(getApplicationContext())
-                            .setDefaultRequestOptions(requestOptions)
-                            .load(storageReference.child(model.getUserId()))
+                    GlideApp.with(getApplicationContext()).load(storageReference.child(model.getUserId()))
+                            .placeholder(R.drawable.dummy)
+                            .error(getPlaceholderImage(model.getUserId().charAt(0)))
                             .signature(new ObjectKey(model.getUserId()+"_"+Reusable.getSignature()))
                             .into(imgDp);
                     if(model.isHasChild()){
@@ -283,9 +282,9 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
                     childUsername.setText(childModel.getUsername());
                     childPost.setText(childModel.getContent());
                     Reusable.applyLinkfy(getApplicationContext(), childModel.getContent(), childPost);
-                    GlideApp.with(getApplicationContext())
-                            .setDefaultRequestOptions(requestOptions)
-                            .load(storageReference.child(childModel.getUserId()))
+                    GlideApp.with(getApplicationContext()).load(storageReference.child(childModel.getUserId()))
+                            .placeholder(R.drawable.dummy)
+                            .error(getPlaceholderImage(childModel.getUserId().charAt(0)))
                             .signature(new ObjectKey(childModel.getUserId()+"_"+Reusable.getSignature()))
                             .into(imgChildDp);
                     lnrChildPost.setVisibility(View.VISIBLE); //display child layout if child post exists

@@ -1,6 +1,5 @@
 package adapters;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -17,7 +16,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -36,19 +34,19 @@ import utils.Calculations;
 import utils.FirebaseUtil;
 import utils.Reusable;
 
+import static utils.Reusable.getPlaceholderImage;
+
 public class PeopleRecAdapter extends RecyclerView.Adapter<PeopleRecAdapter.PostHolder> {
     private final String TAG = "PplAdapter";
     private Context context;
     private String userId;
     private ArrayList<String> list;
-    private RequestOptions requestOptions = new RequestOptions();
 
     public PeopleRecAdapter(Context context, String userId,  ArrayList<String> list){
         Log.i(TAG, "PeopleRecAdapter: called");
         this.context = context;
         this.userId = userId;
         this.list = list;
-        requestOptions.placeholder(R.drawable.dummy);
     }
 
     @NonNull
@@ -87,9 +85,9 @@ public class PeopleRecAdapter extends RecyclerView.Adapter<PeopleRecAdapter.Post
                 holder.mAccuracy.setText(String.format(Locale.getDefault(),"%.1f%%", (double) model.getE0c_WGP()));
                 holder.btnFollow.setText(UserNetwork.getFollowing()==null||!UserNetwork.getFollowing().contains(ref)? "FOLLOW": "FOLLOWING");
 
-                Glide.with(holder.imgDp.getContext())
-                        .setDefaultRequestOptions(requestOptions)
-                        .load(model.getB2_dpUrl())
+                Glide.with(holder.imgDp.getContext()).load(model.getB2_dpUrl())
+                        .placeholder(R.drawable.dummy)
+                        .error(getPlaceholderImage(ref.charAt(0)))
                         .into(holder.imgDp);
 
                 holder.lnrContainer.setOnClickListener(v -> {

@@ -12,7 +12,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.firestore.Query;
@@ -27,11 +26,12 @@ import services.GlideApp;
 import utils.Calculations;
 import utils.Reusable;
 
+import static utils.Reusable.getPlaceholderImage;
+
 public class SubscriptionAdapter extends FirestoreRecyclerAdapter<Subscription, SubscriptionAdapter.PostHolder>{
     private final String TAG = "PostAdaper";
     private Context context;
     private StorageReference storageReference;
-    private RequestOptions requestOptions = new RequestOptions();
 
     public SubscriptionAdapter(Query query, Context context) {
         /*
@@ -45,7 +45,6 @@ public class SubscriptionAdapter extends FirestoreRecyclerAdapter<Subscription, 
 
         Log.i(TAG, "PostAdapter: created");
         this.context = context;
-        requestOptions.placeholder(R.drawable.dummy);
         storageReference = FirebaseStorage.getInstance().getReference().child("profile_images");
         int i = getItemCount();
         Log.i(TAG, "SubscriptionAdapter: i =" + i);
@@ -61,12 +60,11 @@ public class SubscriptionAdapter extends FirestoreRecyclerAdapter<Subscription, 
         holder.mStatus.setText(model.isActive()? "active":"ended");
 
         if(model.getSubToId().equals(Calculations.TIPSHUB))
-            GlideApp.with(context).setDefaultRequestOptions(requestOptions)
-                    .load(R.drawable.icn_mid)
-                    .into(holder.imgDp);
+            GlideApp.with(context).load(R.drawable.icn_mid).into(holder.imgDp);
         else
-            GlideApp.with(context).setDefaultRequestOptions(requestOptions)
-                .load(storageReference.child(model.getSubToId()))
+            GlideApp.with(context).load(storageReference.child(model.getSubToId()))
+                    .placeholder(R.drawable.dummy)
+                    .error(getPlaceholderImage(model.getSubToId().charAt(0)))
                 .into(holder.imgDp);
 
         holder.mUsername.setOnClickListener(v -> {

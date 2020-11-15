@@ -14,11 +14,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.signature.ObjectKey;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -33,12 +31,13 @@ import services.GlideApp;
 import utils.Calculations;
 import utils.Reusable;
 
+import static utils.Reusable.getPlaceholderImage;
+
 public class NotificationAdapter extends FirestoreRecyclerAdapter<Notification, NotificationAdapter.PostHolder>{
     private final String TAG = "PostAdaper";
     private Context context;
     private String userId;
     private StorageReference storageReference;
-    private RequestOptions requestOptions = new RequestOptions();
 
     public NotificationAdapter(Query query, String userID, Context context) {
         /*
@@ -53,7 +52,6 @@ public class NotificationAdapter extends FirestoreRecyclerAdapter<Notification, 
         Log.i(TAG, "PostAdapter: created");
         this.context = context;
         this.userId = userID;
-        requestOptions.placeholder(R.drawable.dummy);
         storageReference = FirebaseStorage.getInstance().getReference().child("profile_images");
     }
 
@@ -95,12 +93,11 @@ public class NotificationAdapter extends FirestoreRecyclerAdapter<Notification, 
         }
 
         if(model.getSentFrom().equals(Calculations.TIPSHUB))
-            GlideApp.with(context).setDefaultRequestOptions(requestOptions)
-                    .load(R.drawable.icn_mid)
-                    .into(imgDp);
+            GlideApp.with(context).load(R.drawable.icn_mid).into(imgDp);
         else
-            GlideApp.with(context).setDefaultRequestOptions(requestOptions)
-                .load(storageReference.child(model.getSentFrom()))
+            GlideApp.with(context).load(storageReference.child(model.getSentFrom()))
+                    .placeholder(R.drawable.dummy)
+                    .error(getPlaceholderImage(model.getSentFrom().charAt(0)))
                 .signature(new ObjectKey(model.getSentFrom()+"_"+Reusable.getSignature()))
                 .into(imgDp);
 

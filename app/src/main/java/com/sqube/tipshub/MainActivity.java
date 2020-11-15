@@ -45,8 +45,6 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
@@ -58,8 +56,6 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-
-import javax.annotation.Nullable;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import fragments.BankerFragment;
@@ -74,6 +70,11 @@ import services.NotificationCheckWorker;
 import services.UserDataFetcher;
 import utils.FirebaseUtil;
 
+import static utils.Calculations.FRAG_BANKER;
+import static utils.Calculations.FRAG_HOME;
+import static utils.Calculations.FRAG_NOTIFICATION;
+import static utils.Calculations.FRAG_REC;
+import static utils.Calculations.LAST_FRAGMENT;
 import static utils.Calculations.NOTIFICATION_WORKER_ID;
 import static utils.Calculations.WORKER_ACTIVATED;
 
@@ -98,11 +99,11 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
     private ActionBar actionBar;
     private BottomNavigationView btmNav;
-    final Fragment fragmentH  = new HomeFragment();
-    final Fragment fragmentR = new RecommendedFragment();
-    final Fragment fragmentB = new BankerFragment();
-    final Fragment fragmentN = new NotificationFragment();
-    private Fragment fragmentActive = fragmentH;
+    final Fragment fragmentHome = new HomeFragment();
+    final Fragment fragmentRec = new RecommendedFragment();
+    final Fragment fragmentBanker = new BankerFragment();
+    final Fragment fragmentNot = new NotificationFragment();
+    private Fragment fragmentActive = fragmentHome;
     private FragmentManager fragmentManager = getSupportFragmentManager();
 
     private DrawerLayout mDrawerLayout;
@@ -186,14 +187,38 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         if(!timeIsValid())
             popUp();
         setBadge();
-        loadFragment();
+
+        if(savedInstanceState!=null){
+            String tag = savedInstanceState.getString(LAST_FRAGMENT);
+            switch (tag){
+                case FRAG_HOME:
+                    getSupportFragmentManager().beginTransaction().hide(fragmentActive).show(fragmentHome).commit();
+                    fragmentActive = fragmentHome;
+                    break;
+                case FRAG_REC:
+                    getSupportFragmentManager().beginTransaction().hide(fragmentActive).show(fragmentRec).commit();
+                    fragmentActive = fragmentRec;
+                    break;
+                case FRAG_BANKER:
+                    getSupportFragmentManager().beginTransaction().hide(fragmentActive).show(fragmentBanker).commit();
+                    fragmentActive = fragmentBanker;
+                    break;
+                case FRAG_NOTIFICATION:
+                    getSupportFragmentManager().beginTransaction().hide(fragmentActive).show(fragmentNot).commit();
+                    fragmentActive = fragmentNot;
+                    break;
+            }
+        }
+        else
+            loadFragment();
+
         aSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if(isChecked)
                 editor.putBoolean("fromEverybody", true);
             else
                 editor.putBoolean("fromEverybody", false);
             editor.apply();
-            fragmentManager.beginTransaction().detach(fragmentH).attach(fragmentH).commit();
+            fragmentManager.beginTransaction().detach(fragmentHome).attach(fragmentHome).commit();
             mDrawerLayout.closeDrawer(GravityCompat.START);
         });
         setWorkManager();
@@ -321,38 +346,38 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         int id = item.getItemId();
         switch (id) {
             case R.id.nav_home:
-                if (fragmentActive == fragmentH) {
-                    fragmentManager.beginTransaction().detach(fragmentH).attach(fragmentH).commit();
+                if (fragmentActive == fragmentHome) {
+                    fragmentManager.beginTransaction().detach(fragmentHome).attach(fragmentHome).commit();
                     return true;
                 }
                 actionBar.setTitle("Home");
-                fragmentManager.beginTransaction().hide(fragmentActive).show(fragmentH).commit();
-                fragmentActive = fragmentH;
+                fragmentManager.beginTransaction().hide(fragmentActive).show(fragmentHome).commit();
+                fragmentActive = fragmentHome;
                 return true;
             case R.id.nav_recommended:
-                if (fragmentActive != fragmentR) {
+                if (fragmentActive != fragmentRec) {
                     actionBar.setTitle("Recommended");
-                    fragmentManager.beginTransaction().hide(fragmentActive).show(fragmentR).commit();
-                    fragmentActive = fragmentR;
+                    fragmentManager.beginTransaction().hide(fragmentActive).show(fragmentRec).commit();
+                    fragmentActive = fragmentRec;
                 }
                 return true;
             case R.id.nav_banker:
-                if(fragmentActive==fragmentB){
-                    fragmentManager.beginTransaction().detach(fragmentB).attach(fragmentB).commit();
+                if(fragmentActive== fragmentBanker){
+                    fragmentManager.beginTransaction().detach(fragmentBanker).attach(fragmentBanker).commit();
                     return true;
                 }
                 actionBar.setTitle("Sure Banker");
-                fragmentManager.beginTransaction().hide(fragmentActive).show(fragmentB).commit();
-                fragmentActive = fragmentB;
+                fragmentManager.beginTransaction().hide(fragmentActive).show(fragmentBanker).commit();
+                fragmentActive = fragmentBanker;
                 return true;
             case R.id.nav_notification:
-                if(fragmentActive==fragmentN){
-                    fragmentManager.beginTransaction().detach(fragmentN).attach(fragmentN).commit();
+                if(fragmentActive== fragmentNot){
+                    fragmentManager.beginTransaction().detach(fragmentNot).attach(fragmentNot).commit();
                     return true;
                 }
                 actionBar.setTitle("Notifications");
-                fragmentManager.beginTransaction().hide(fragmentActive).show(fragmentN).commit();
-                fragmentActive = fragmentN;
+                fragmentManager.beginTransaction().hide(fragmentActive).show(fragmentNot).commit();
+                fragmentActive = fragmentNot;
                 clearNotification();
                 return true;
             case R.id.nav_profile:
@@ -428,30 +453,27 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
     private void loadFragment() {
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.add(R.id.main_container,fragmentN, "fragmentN").hide(fragmentN);
-        fragmentTransaction.add(R.id.main_container,fragmentB, "fragmentB").hide(fragmentB);
-        fragmentTransaction.add(R.id.main_container,fragmentR, "fragmentN").hide(fragmentR);
-        fragmentTransaction.add(R.id.main_container,fragmentH, "fragmentN").commit();
+        fragmentTransaction.add(R.id.main_container, fragmentNot, FRAG_NOTIFICATION).hide(fragmentNot);
+        fragmentTransaction.add(R.id.main_container, fragmentBanker, FRAG_BANKER).hide(fragmentBanker);
+        fragmentTransaction.add(R.id.main_container, fragmentRec, FRAG_REC).hide(fragmentRec);
+        fragmentTransaction.add(R.id.main_container, fragmentHome, FRAG_HOME).commit();
     }
 
     public void setHeader(){
         FirebaseUtil.getFirebaseFirestore().collection("profiles").document(userId)
-                .addSnapshotListener(MainActivity.this, new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-                if(documentSnapshot!=null && documentSnapshot.exists()){
-                    ProfileShort profile = documentSnapshot.toObject(ProfileShort.class);
-                    txtName.setText(String.format(Locale.getDefault(), "%s %s",profile.getA0_firstName(),profile.getA1_lastName()));
-                    txtUsername.setText(profile.getA2_username());
-                    txtTips.setText(profile.getE0a_NOG()>1? profile.getE0a_NOG()+ " tips": profile.getE0a_NOG()+ " tip");
-                    txtFollowers.setText(String.valueOf(profile.getC4_followers()));
-                    txtFollowing.setText(String.valueOf(profile.getC5_following()));
-                    Glide.with(MainActivity.this)
-                            .load(profile.getB2_dpUrl())
-                            .into(imgDp);
-                }
-            }
-        });
+                .addSnapshotListener(MainActivity.this, (documentSnapshot, e) -> {
+                    if(documentSnapshot!=null && documentSnapshot.exists()){
+                        ProfileShort profile = documentSnapshot.toObject(ProfileShort.class);
+                        txtName.setText(String.format(Locale.getDefault(), "%s %s",profile.getA0_firstName(),profile.getA1_lastName()));
+                        txtUsername.setText(profile.getA2_username());
+                        txtTips.setText(profile.getE0a_NOG()>1? profile.getE0a_NOG()+ " tips": profile.getE0a_NOG()+ " tip");
+                        txtFollowers.setText(String.valueOf(profile.getC4_followers()));
+                        txtFollowing.setText(String.valueOf(profile.getC5_following()));
+                        Glide.with(MainActivity.this)
+                                .load(profile.getB2_dpUrl())
+                                .into(imgDp);
+                    }
+                });
     }
 
     public void Logout(){

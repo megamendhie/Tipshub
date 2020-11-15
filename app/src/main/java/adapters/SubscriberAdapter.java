@@ -10,7 +10,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.firestore.Query;
@@ -23,11 +22,12 @@ import models.Subscription;
 import services.GlideApp;
 import utils.Reusable;
 
+import static utils.Reusable.getPlaceholderImage;
+
 public class SubscriberAdapter extends FirestoreRecyclerAdapter<Subscription, SubscriptionAdapter.PostHolder>{
     private final String TAG = "PostAdaper";
     private Context context;
     private StorageReference storageReference;
-    private RequestOptions requestOptions = new RequestOptions();
     private String[] status = {"", "pending", "PAID"};
 
     public SubscriberAdapter(Query query, Context context) {
@@ -42,7 +42,6 @@ public class SubscriberAdapter extends FirestoreRecyclerAdapter<Subscription, Su
 
         Log.i(TAG, "PostAdapter: created");
         this.context = context;
-        requestOptions.placeholder(R.drawable.dummy);
         storageReference = FirebaseStorage.getInstance().getReference().child("profile_images");
         int i = getItemCount();
         Log.i(TAG, "SubscriberAdapter: i =" + i);
@@ -57,9 +56,10 @@ public class SubscriberAdapter extends FirestoreRecyclerAdapter<Subscription, Su
         holder.mAmount.setText(Html.fromHtml(model.getTipsterAmount()));
         if(model.getStatus() < status.length)
             holder.mStatus.setText(status[model.getStatus()]);
-        GlideApp.with(context)
-                .setDefaultRequestOptions(requestOptions)
-                .load(storageReference.child(model.getSubFromId()))
+
+        GlideApp.with(context).load(storageReference.child(model.getSubFromId()))
+                .placeholder(R.drawable.dummy)
+                .error(getPlaceholderImage(model.getSubFromId().charAt(0)))
                 .into(holder.imgDp);
 
         holder.mUsername.setOnClickListener(v -> {

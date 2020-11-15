@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import com.google.android.material.snackbar.Snackbar;
 import androidx.recyclerview.widget.RecyclerView;
 import android.text.Html;
@@ -19,16 +18,12 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.signature.ObjectKey;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.sqube.tipshub.FlagActivity;
 import com.sqube.tipshub.FullPostActivity;
 import com.sqube.tipshub.MemberProfileActivity;
@@ -50,6 +45,7 @@ import utils.Calculations;
 import utils.FirebaseUtil;
 import utils.Reusable;
 
+import static utils.Reusable.getPlaceholderImage;
 import static views.DislikeButton.DISLIKED;
 import static views.DislikeButton.NOT_DISLIKED;
 import static views.LikeButton.LIKED;
@@ -62,7 +58,6 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<PostHolder> {
     private ListenerRegistration listener;
     private boolean search;
     private Calculations calculations;
-    private RequestOptions requestOptions = new RequestOptions();
     private ArrayList<Post> postList;
     private ArrayList<SnapId> snapIds;
     private String[] code = {"1xBet", "Bet9ja", "Nairabet", "SportyBet", "BlackBet", "Bet365"};
@@ -77,7 +72,6 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<PostHolder> {
         this.postList = postList;
         this.snapIds = snapIds;
         this.calculations = new Calculations(context);
-        requestOptions.placeholder(R.drawable.ic_person_outline_black_24dp);
         CollectionReference collectionReference = FirebaseUtil.getFirebaseFirestore().collection("posts");
         long time = new Date().getTime();
 
@@ -149,10 +143,10 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<PostHolder> {
             }
         });
 
-
         GlideApp.with(context)
-                .setDefaultRequestOptions(requestOptions)
                 .load(FirebaseUtil.getStorageReference().child(model.getChildUserId()))
+                .placeholder(R.drawable.dummy)
+                .error(getPlaceholderImage(model.getChildUserId().charAt(0)))
                 .signature(new ObjectKey(model.getChildUserId()+"_"+Reusable.getSignature()))
                 .into(childDp);
 
@@ -390,8 +384,9 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<PostHolder> {
         }
 
         GlideApp.with(context)
-                .setDefaultRequestOptions(requestOptions)
                 .load(FirebaseUtil.getStorageReference().child(model.getUserId()))
+                .placeholder(R.drawable.dummy)
+                .error(getPlaceholderImage(model.getUserId().charAt(0)))
                 .signature(new ObjectKey(model.getUserId()+"_"+Reusable.getSignature()))
                 .into(holder.imgDp);
 

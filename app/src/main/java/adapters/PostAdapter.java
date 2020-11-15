@@ -18,7 +18,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
-import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.signature.ObjectKey;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
@@ -46,6 +45,7 @@ import utils.Calculations;
 import utils.FirebaseUtil;
 import utils.Reusable;
 
+import static utils.Reusable.getPlaceholderImage;
 import static views.DislikeButton.DISLIKED;
 import static views.DislikeButton.NOT_DISLIKED;
 import static views.LikeButton.LIKED;
@@ -58,7 +58,6 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostHolder>{
     private StorageReference storageReference;
     private Calculations calculations;
     private final int NORMAL_POST=1, BANKER_POST = 0;
-    private RequestOptions requestOptions = new RequestOptions();
 
     private String[] code = {"1xBet", "Bet9ja", "Nairabet", "SportyBet", "BlackBet", "Bet365"};
     private String[] type = {"3-5 odds", "6-10 odds", "11-50 odds", "50+ odds", "Draws", "Banker tip"};
@@ -75,7 +74,6 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostHolder>{
         this.context = context;
         this.setUserId(userID);
         this.calculations = new Calculations(context);
-        requestOptions.placeholder(R.drawable.ic_person_outline_black_24dp);
         storageReference = FirebaseStorage.getInstance().getReference().child("profile_images");
     }
 
@@ -116,10 +114,9 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostHolder>{
             holder.mType.setText(type[model.getType()-1]);
         }
 
-
-        GlideApp.with(context)
-                .setDefaultRequestOptions(requestOptions)
-                .load(storageReference.child(model.getUserId()))
+        GlideApp.with(context).load(storageReference.child(model.getUserId()))
+                .placeholder(R.drawable.dummy)
+                .error(getPlaceholderImage(model.getUserId().charAt(0)))
                 .signature(new ObjectKey(model.getUserId()+"_"+Reusable.getSignature()))
                 .into(holder.imgDp);
 
@@ -265,10 +262,9 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostHolder>{
                     }
                 });
 
-
-        GlideApp.with(context)
-                .setDefaultRequestOptions(requestOptions)
-                .load(storageReference.child(model.getChildUserId()))
+        GlideApp.with(context).load(storageReference.child(model.getChildUserId()))
+                .placeholder(R.drawable.dummy)
+                .error(getPlaceholderImage(model.getChildUserId().charAt(0)))
                 .signature(new ObjectKey(model.getChildUserId()+"_"+Reusable.getSignature()))
                 .into(childDp);
 

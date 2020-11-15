@@ -17,10 +17,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.sqube.tipshub.LoginActivity;
 import com.sqube.tipshub.MemberProfileActivity;
 import com.sqube.tipshub.MyProfileActivity;
@@ -36,17 +32,17 @@ import utils.Calculations;
 import utils.FirebaseUtil;
 import utils.Reusable;
 
+import static utils.Reusable.getPlaceholderImage;
+
 public class PeopleAdapter extends RecyclerView.Adapter<PeopleAdapter.PostHolder> {
     private Context context;
     private String userId;
     private ArrayList<String> list;
-    private RequestOptions requestOptions = new RequestOptions();
 
     public PeopleAdapter(Context context, String userId, ArrayList<String> list){
         this.context = context;
         this.setUserId(userId);
         this.list = list;
-        requestOptions.placeholder(R.drawable.dummy);
     }
 
     @NonNull
@@ -80,8 +76,10 @@ public class PeopleAdapter extends RecyclerView.Adapter<PeopleAdapter.PostHolder
                 holder.btnFollow.setVisibility(View.GONE);
 
             try {
-                Glide.with(context).setDefaultRequestOptions(requestOptions)
-                        .load(model.getB2_dpUrl()).into(holder.imgDp);
+                Glide.with(context).load(model.getB2_dpUrl())
+                        .placeholder(R.drawable.dummy)
+                        .error(getPlaceholderImage(ref.charAt(0)))
+                        .into(holder.imgDp);
             }
             catch (Exception e){
                 Log.w("{PeopleAdapter", "onBindViewHolder: " + e.getMessage());

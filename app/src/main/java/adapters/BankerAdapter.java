@@ -18,7 +18,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 
-import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.signature.ObjectKey;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
@@ -42,6 +41,7 @@ import utils.Calculations;
 import utils.FirebaseUtil;
 import utils.Reusable;
 
+import static utils.Reusable.getPlaceholderImage;
 import static views.DislikeButton.DISLIKED;
 import static views.DislikeButton.NOT_DISLIKED;
 import static views.LikeButton.LIKED;
@@ -53,7 +53,6 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerPostHold
     private String userId;
     private Calculations calculations;
     private StorageReference storageReference;
-    private RequestOptions requestOptions = new RequestOptions();
     private String[] code = {"1xBet", "Bet9ja", "Nairabet", "SportyBet", "BlackBet", "Bet365"};
     private String[] type = {"3-5 odds", "6-10 odds", "11-50 odds", "50+ odds", "Draws", "Banker tip"};
 
@@ -71,7 +70,6 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerPostHold
         this.context = context;
         this.setUserId(userID);
         this.calculations = new Calculations(context);
-        requestOptions.placeholder(R.drawable.ic_person_outline_black_24dp);
         storageReference = FirebaseUtil.getFirebaseStorage().getReference().child("profile_images");
     }
 
@@ -113,8 +111,9 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerPostHold
 
         }
         GlideApp.with(context)
-                .setDefaultRequestOptions(requestOptions)
                 .load(storageReference.child(model.getUserId()))
+                .placeholder(R.drawable.dummy)
+                .error(getPlaceholderImage(model.getUserId().charAt(0)))
                 .signature(new ObjectKey(model.getUserId()+"_"+Reusable.getSignature()))
                 .into(holder.imgDp);
 

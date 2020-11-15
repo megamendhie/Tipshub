@@ -29,6 +29,7 @@ public class BankerTipsterAdapter extends FirestoreRecyclerAdapter<ProfileShort,
     @Override
     protected void onBindViewHolder(@NonNull BankerTipsterHolder holder, int position, @NonNull ProfileShort model) {
         String userId = getSnapshots().getSnapshot(position).getId();
+        model.setA_userId(userId);
         holder.setDisplay(model);
         holder.imgDp.setOnClickListener(v -> {
             if(myUserId.equals(userId)){

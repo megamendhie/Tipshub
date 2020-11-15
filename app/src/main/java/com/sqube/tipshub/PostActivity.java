@@ -25,6 +25,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.signature.ObjectKey;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
@@ -49,6 +50,8 @@ import utils.FirebaseUtil;
 import utils.Reusable;
 import utils.SpaceTokenizer;
 
+import static utils.Reusable.getPlaceholderImage;
+
 public class PostActivity extends AppCompatActivity implements View.OnClickListener {
     private TextView btnAdd;
     private MultiAutoCompleteTextView edtPost;
@@ -56,7 +59,6 @@ public class PostActivity extends AppCompatActivity implements View.OnClickListe
     private SharedPreferences prefs;
     FirebaseUser user;
     CollectionReference postReference;
-    private RequestOptions requestOptions = new RequestOptions();
 
     private String username;
     private String userId;
@@ -89,7 +91,6 @@ public class PostActivity extends AppCompatActivity implements View.OnClickListe
         prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         user = FirebaseUtil.getFirebaseAuthentication().getCurrentUser();
         postReference = FirebaseUtil.getFirebaseFirestore().collection("posts");
-        requestOptions.placeholder(R.drawable.ic_person_outline_black_24dp);
         edtPost = findViewById(R.id.edtPost);
         TextView txtNormal = findViewById(R.id.txtNormal);
         Spinner spnType = findViewById(R.id.spnPostType);
@@ -136,8 +137,10 @@ public class PostActivity extends AppCompatActivity implements View.OnClickListe
 
         //set Display picture
         GlideApp.with(getApplicationContext())
-                .setDefaultRequestOptions(requestOptions)
                 .load(FirebaseStorage.getInstance().getReference().child("profile_images").child(userId))
+                .placeholder(R.drawable.dummy)
+                .error(getPlaceholderImage(userId.charAt(0)))
+                .signature(new ObjectKey(userId+"_"+Reusable.getSignature()))
                 .into(imgDp);
         edtPost.addTextChangedListener(new TextWatcher() {
             @Override

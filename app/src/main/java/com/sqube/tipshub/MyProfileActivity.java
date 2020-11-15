@@ -15,13 +15,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -41,10 +39,11 @@ import models.ProfileMedium;
 import utils.FirebaseUtil;
 import utils.Reusable;
 
+import static utils.Reusable.getPlaceholderImage;
+
 public class MyProfileActivity extends AppCompatActivity implements View.OnClickListener {
     private ActionBar actionBar;
     private String userId, imgUrl;
-    private RequestOptions requestOptions = new RequestOptions();
     private CircleImageView imgDp;
     private LinearLayout[] lnrLayout = new LinearLayout[4];
     ProfileMedium profile;
@@ -90,7 +89,6 @@ public class MyProfileActivity extends AppCompatActivity implements View.OnClick
         recyclerView.setLayoutManager(lm);
         FirebaseUser user = FirebaseUtil.getFirebaseAuthentication().getCurrentUser();
         userId = user.getUid();
-        requestOptions.placeholder(R.drawable.dummy);
         setupViewPager(viewPager); //set up view pager with fragments
     }
 
@@ -205,9 +203,9 @@ public class MyProfileActivity extends AppCompatActivity implements View.OnClick
         dialog.show();
         ImageView imgProfile = dialog.findViewById(R.id.imgDp);
         //set Display picture
-        Glide.with(getApplicationContext())
-                .setDefaultRequestOptions(requestOptions)
-                .load(profile.getB2_dpUrl())
+        Glide.with(getApplicationContext()).load(profile.getB2_dpUrl())
+                .placeholder(R.drawable.dummy)
+                .error(getPlaceholderImage(userId.charAt(0)))
                 .into(imgProfile);
     }
     @Override
@@ -239,9 +237,9 @@ public class MyProfileActivity extends AppCompatActivity implements View.OnClick
                 txtAccuracy.setText(String.format(Locale.getDefault(),"%.1f%%", (double) profile.getE0c_WGP()));
 
                 //set Display picture
-                Glide.with(getApplicationContext())
-                        .setDefaultRequestOptions(requestOptions)
-                        .load(profile.getB2_dpUrl())
+                Glide.with(getApplicationContext()).load(profile.getB2_dpUrl())
+                        .placeholder(R.drawable.dummy)
+                        .error(getPlaceholderImage(userId.charAt(0)))
                         .into(imgDp);
 
                 if(!performanceList.isEmpty())

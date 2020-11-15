@@ -8,28 +8,23 @@ import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
 import com.google.android.material.snackbar.Snackbar;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.text.Html;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -37,7 +32,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
@@ -54,6 +48,8 @@ import models.Profile;
 import utils.FirebaseUtil;
 import utils.Reusable;
 
+import static utils.Reusable.getPlaceholderImage;
+
 public class SettingsActivity extends AppCompatActivity {
     private CircleImageView imgDp;
     private EditText edtFirstName, edtLastName, edtUsername, edtEmail, edtBio, edtCarrierNumber, edtBankDetails;
@@ -62,9 +58,8 @@ public class SettingsActivity extends AppCompatActivity {
     RadioButton rdMale, rdFemale, rdSub0, rdSub1, rdSub2, rdSub3;
     private Profile profile;
     private ProgressDialog progressDialog;
-    private FirebaseUser user;
     private DatabaseReference dbRef;
-    private String userId, username;
+    private String userId;
     private Uri filePath = null;
     private int[] amount = {0,0,0,0};
     private boolean numberValid;
@@ -147,12 +142,7 @@ public class SettingsActivity extends AppCompatActivity {
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
-        imgDp = findViewById(R.id.imgDp); imgDp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                grabImage();
-            }
-        });
+        imgDp = findViewById(R.id.imgDp); imgDp.setOnClickListener(v -> grabImage());
         edtFirstName = findViewById(R.id.edtFirstName);
         edtLastName = findViewById(R.id.edtLastName);
         edtUsername = findViewById(R.id.edtUsername);
@@ -171,9 +161,8 @@ public class SettingsActivity extends AppCompatActivity {
         rdSub2 = findViewById(R.id.rdbSub2);
         rdSub3 = findViewById(R.id.rdbSub3);
         progressDialog = new ProgressDialog(this);
-        user = FirebaseAuth.getInstance().getCurrentUser();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         userId = user.getUid();
-        username = user.getDisplayName();
 
         dbRef = FirebaseDatabase.getInstance().getReference().child("SystemConfig").child("Subscription");
         dbRef.keepSynced(true);
@@ -195,8 +184,9 @@ public class SettingsActivity extends AppCompatActivity {
                     ccp.setFullNumber(profile.getB1_phone());
 
                     //set Display picture
-                    Glide.with(getApplicationContext())
-                            .load(profile.getB2_dpUrl())
+                    Glide.with(getApplicationContext()).load(profile.getB2_dpUrl())
+                            .placeholder(R.drawable.dummy)
+                            .error(getPlaceholderImage(userId.charAt(0)))
                             .into(imgDp);
                     switch (profile.getA4_gender()) {
                         case "male":

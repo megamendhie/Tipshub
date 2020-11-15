@@ -41,6 +41,7 @@ import utils.Calculations;
 import utils.FirebaseUtil;
 import utils.Reusable;
 
+import static utils.Reusable.getPlaceholderImage;
 import static views.DislikeButton.DISLIKED;
 import static views.DislikeButton.NOT_DISLIKED;
 import static views.LikeButton.LIKED;
@@ -52,7 +53,6 @@ public class FilteredBankerAdapter extends RecyclerView.Adapter<BankerPostHolder
     private String userId;
     private StorageReference storageReference;
     private Calculations calculations;
-    private RequestOptions requestOptions = new RequestOptions();
     private ArrayList<Post> postList;
     private ArrayList<SnapId> snapIds;
 
@@ -66,7 +66,6 @@ public class FilteredBankerAdapter extends RecyclerView.Adapter<BankerPostHolder
         this.postList = postList;
         this.snapIds = snapIds;
         this.calculations = new Calculations(context);
-        requestOptions.placeholder(R.drawable.ic_person_outline_black_24dp);
         storageReference = FirebaseStorage.getInstance().getReference().child("profile_images");
     }
 
@@ -215,8 +214,9 @@ public class FilteredBankerAdapter extends RecyclerView.Adapter<BankerPostHolder
         }
 
         GlideApp.with(context)
-                .setDefaultRequestOptions(requestOptions)
                 .load(storageReference.child(model.getUserId()))
+                .placeholder(R.drawable.dummy)
+                .error(getPlaceholderImage(model.getUserId().charAt(0)))
                 .signature(new ObjectKey(model.getUserId()+"_"+Reusable.getSignature()))
                 .into(holder.imgDp);
 

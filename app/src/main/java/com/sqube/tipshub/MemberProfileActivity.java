@@ -18,21 +18,16 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
@@ -52,11 +47,12 @@ import utils.Calculations;
 import utils.FirebaseUtil;
 import utils.Reusable;
 
+import static utils.Reusable.getPlaceholderImage;
+
 public class MemberProfileActivity extends AppCompatActivity implements View.OnClickListener {
     private ActionBar actionBar;
     private String userId;
     private String USER_ID = "userId";
-    private RequestOptions requestOptions = new RequestOptions();
     private FirebaseFirestore database;
     private FirebaseUser user;
     private CircleImageView imgDp;
@@ -123,7 +119,6 @@ public class MemberProfileActivity extends AppCompatActivity implements View.OnC
             btnFollow.setText(UserNetwork.getFollowing().contains(userId)? "FOLLOWING": "FOLLOW");
 
         database = FirebaseFirestore.getInstance();
-        requestOptions.placeholder(R.drawable.dummy);
         setupViewPager(viewPager); //set up view pager with fragments
     }
 
@@ -171,9 +166,9 @@ public class MemberProfileActivity extends AppCompatActivity implements View.OnC
                         btnSubscribe.setVisibility(View.VISIBLE);
 
                     //set Display picture
-                    Glide.with(getApplicationContext())
-                            .setDefaultRequestOptions(requestOptions)
-                            .load(profile.getB2_dpUrl())
+                    Glide.with(getApplicationContext()).load(profile.getB2_dpUrl())
+                            .placeholder(R.drawable.dummy)
+                            .error(getPlaceholderImage(userId.charAt(0)))
                             .into(imgDp);
 
                     if(!performanceList.isEmpty())
@@ -273,9 +268,9 @@ public class MemberProfileActivity extends AppCompatActivity implements View.OnC
         dialog.show();
         ImageView imgProfile = dialog.findViewById(R.id.imgDp);
         //set Display picture
-        Glide.with(getApplicationContext())
-                .setDefaultRequestOptions(requestOptions)
-                .load(profile.getB2_dpUrl())
+        Glide.with(getApplicationContext()).load(profile.getB2_dpUrl())
+                .placeholder(R.drawable.dummy)
+                .error(getPlaceholderImage(userId.charAt(0)))
                 .into(imgProfile);
     }
 

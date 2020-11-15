@@ -18,7 +18,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.signature.ObjectKey;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -39,17 +39,21 @@ import models.Post;
 import services.GlideApp;
 import utils.Calculations;
 import utils.FirebaseUtil;
+import utils.Reusable;
+
+import static utils.Reusable.getPlaceholderImage;
 
 public class RepostActivity extends AppCompatActivity implements View.OnClickListener {
     ActionBar actionBar;
     Button btnPost;
     private MultiAutoCompleteTextView edtPost;
     private ProgressBar prgBar;
-    private TextView btnClose, txtPost, txtChildUsername, txtChildType;
+    private TextView txtPost;
+    private TextView txtChildUsername;
+    private TextView txtChildType;
     private ImageView imgStatus;
     private CircleImageView childDp;
     Post model;
-    private RequestOptions requestOptions = new RequestOptions();
 
     FirebaseUser user;
     DocumentReference postReference;
@@ -80,7 +84,8 @@ public class RepostActivity extends AppCompatActivity implements View.OnClickLis
         username = user.getDisplayName();
 
         btnPost = findViewById(R.id.btnPost); btnPost.setOnClickListener(this);
-        btnClose = findViewById(R.id.btnClose); btnClose.setOnClickListener(this);
+        TextView btnClose = findViewById(R.id.btnClose);
+        btnClose.setOnClickListener(this);
         prgBar = findViewById(R.id.prgLogin);
 
         CircleImageView imgDp = findViewById(R.id.imgDp);
@@ -90,7 +95,6 @@ public class RepostActivity extends AppCompatActivity implements View.OnClickLis
         imgStatus = findViewById(R.id.imgStatus);
         txtChildType = findViewById(R.id.txtChildType);
         txtChildUsername = findViewById(R.id.txtChildUsername);
-        requestOptions.placeholder(R.drawable.ic_person_outline_black_24dp);
         childLink = getIntent().getStringExtra("postId");
         postReference = FirebaseUtil.getFirebaseFirestore().collection("posts").document(childLink);
 
@@ -114,9 +118,10 @@ public class RepostActivity extends AppCompatActivity implements View.OnClickLis
         });
 
         //set Display picture
-        GlideApp.with(getApplicationContext())
-                .setDefaultRequestOptions(requestOptions)
-                .load(FirebaseStorage.getInstance().getReference().child("profile_images").child(userId))
+        GlideApp.with(getApplicationContext()).load(FirebaseStorage.getInstance().getReference().child("profile_images").child(userId))
+                .placeholder(R.drawable.dummy)
+                .error(getPlaceholderImage(userId.charAt(0)))
+                .signature(new ObjectKey(userId+"_"+ Reusable.getSignature()))
                 .into(imgDp);
         loadPost(savedInstanceState);
     }
@@ -146,8 +151,10 @@ public class RepostActivity extends AppCompatActivity implements View.OnClickLis
 
         //set Display picture
         GlideApp.with(getApplicationContext())
-                .setDefaultRequestOptions(requestOptions)
                 .load(FirebaseStorage.getInstance().getReference().child("profile_images").child(model.getUserId()))
+                .placeholder(R.drawable.dummy)
+                .error(getPlaceholderImage(model.getUserId().charAt(0)))
+                .signature(new ObjectKey(model.getUserId()+"_"+Reusable.getSignature()))
                 .into(childDp);
     }
 

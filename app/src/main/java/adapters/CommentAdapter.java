@@ -22,7 +22,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.signature.ObjectKey;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
@@ -54,6 +53,8 @@ import utils.Calculations;
 import utils.FirebaseUtil;
 import utils.Reusable;
 
+import static utils.Reusable.getPlaceholderImage;
+
 public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAdapter.CommentHolder>{
     private final String TAG = "CommentAdapter";
     private Activity activity;
@@ -61,7 +62,6 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
     private String userId;
     private String mainPostId;
     private Calculations calculations;
-    private RequestOptions requestOptions = new RequestOptions();
     private StorageReference storageReference;
     private ArrayList<SnapId> repliedList = new ArrayList<>();
 
@@ -95,7 +95,6 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
         this.mainPostId = mainPostId;
         storageReference = FirebaseStorage.getInstance().getReference()
                 .child("profile_images");
-        requestOptions.placeholder(R.drawable.dummy);
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -136,8 +135,9 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
         mDislikesCount.setText(model.getDislikesCount()==0? "":String.valueOf(model.getDislikesCount()));
 
         GlideApp.with(context)
-                .setDefaultRequestOptions(requestOptions)
                 .load(storageReference.child(model.getUserId()))
+                .placeholder(R.drawable.dummy)
+                .error(getPlaceholderImage(model.getUserId().charAt(0)))
                 .signature(new ObjectKey(model.getUserId()+"_"+Reusable.getSignature()))
                 .into(imgDp);
 
