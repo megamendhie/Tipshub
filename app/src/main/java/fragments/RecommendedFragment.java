@@ -2,6 +2,7 @@ package fragments;
 
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
@@ -17,6 +18,11 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -53,16 +59,14 @@ import utils.FirebaseUtil;
 import utils.HttpConFunction;
 import utils.Reusable;
 
+import static com.android.volley.Request.Method.GET;
 import static utils.Calculations.NEWS;
 
 public class RecommendedFragment extends Fragment implements View.OnClickListener {
     private String userId;
-    private Timer timer = new Timer();
     private RecyclerView peopleList, newsList;
     private final String TAG = "RecFragment";
     private boolean alreadyLoaded;
-    private ArrayList<Post> postList = new ArrayList<>();
-    private ArrayList<SnapId> snapIds= new ArrayList<>();
 
     private DatabaseHelper dbHelper;
     private SQLiteDatabase db;
@@ -98,6 +102,7 @@ public class RecommendedFragment extends Fragment implements View.OnClickListene
         userId = user.getUid();
         alreadyLoaded = false;
         loadNews();
+        //execute();
         return rootView;
     }
 
@@ -162,7 +167,7 @@ public class RecommendedFragment extends Fragment implements View.OnClickListene
 
     private void loadNews(){
         DownloadNews newsTask = new DownloadNews();
-        if(!Reusable.getNetworkAvailability(getActivity()))
+        if(!Reusable.getNetworkAvailability(getContext().getApplicationContext()))
             Toast.makeText(getContext(), "No Internet Connection", Toast.LENGTH_LONG).show();
         newsTask.execute();
     }
@@ -204,18 +209,31 @@ public class RecommendedFragment extends Fragment implements View.OnClickListene
         String KEY_URLTOIMAGE = "urlToImage";
         String KEY_PUBLISHEDAT = "publishedAt";
 
+        String BASE_URL = "https://newsapi.org/v2/everything?";
+        String DOMAIN_NAME = "domains";
+        String LANGUAGE = "language";
+        String PAGE_SIZE = "pageSize";
+        String API_KEY = "apiKey";
+
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
             String xml = dbHelper.getTip(db, NEWS);
-            if (xml != null && !xml.isEmpty())
-                onPostExecute(xml);
+            //if (xml != null && !xml.isEmpty())
+            //    onPostExecute(xml);
         }
 
         protected String doInBackground(String... args) {
             HttpConFunction httpConnection = new HttpConFunction();
-            return httpConnection.executeGet("https://newsapi.org/v2/everything?domains=espnfc.com&language=en&pageSize=25&apiKey="
-                    + myAPI_Key, "RECOMMEND");
+
+            Uri builtURI = Uri.parse(BASE_URL).buildUpon()
+                    .appendQueryParameter(DOMAIN_NAME, "goal.com")
+                    .appendQueryParameter(LANGUAGE, "en")
+                    .appendQueryParameter(PAGE_SIZE, "25")
+                    .appendQueryParameter(API_KEY, myAPI_Key)
+                    .build();
+
+            return httpConnection.executeGet(builtURI.toString(), "RECOMMEND");
         }
         @Override
         protected void onPostExecute(String xml) {

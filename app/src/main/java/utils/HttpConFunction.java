@@ -19,50 +19,52 @@ public class HttpConFunction {
             //Create connection
             url = new URL(targetURL);
             connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestProperty("content-type", "application/json;  charset=utf-8");
 
             if(requestingFragment.equals("HOME")){
                 connection.setRequestMethod("GET");
+                connection.setRequestProperty("Content-Type", "application/json;  charset=utf-8");
                 connection.setRequestProperty("x-rapidapi-host",  "football-prediction-api.p.rapidapi.com");
                 connection.setRequestProperty("x-rapidapi-key", "894508aa72msha7ba8fc97347ac4p13bc3djsn981a951e01ff");
             }
-            else
-                connection.setRequestProperty("Content-Language", "en-US");
-
+            else{
+                connection.setRequestMethod("GET");
+                connection.setRequestProperty("Content-Type", "application/json;  charset=utf-8");
+                connection.addRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)");
+            }
 
             //connection.setUseCaches(true);
             connection.setDoInput(true);
             connection.setDoOutput(false);
+            InputStream inputStream;
 
-            InputStream is;
-
-            int status = connection.getResponseCode();
-
-            if (status != HttpURLConnection.HTTP_OK)
-                is = connection.getErrorStream();
+            Log.i("HttpConFunction", "ResponseCode: " + connection.getResponseCode());
+            if (connection.getResponseCode() == HttpURLConnection.HTTP_OK)
+                inputStream = connection.getInputStream();
             else
-                is = connection.getInputStream();
+                inputStream = connection.getErrorStream();
 
-
-            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
             String line;
-            StringBuffer response = new StringBuffer();
+            StringBuilder response = new StringBuilder();
             while ((line = reader.readLine()) != null) {
                 response.append(line);
-                response.append('\r');
+                response.append("\n");
             }
             reader.close();
-            return response.toString();
+            Log.i("HttpConFunction", response.toString());
+            if(response.length()==0)
+                return null;
+            else
+                return response.toString();
 
         } catch (Exception e) {
             Log.i("HttpConFunction", "exception: " + e.getMessage());
+            e.printStackTrace();
             return null;
 
         } finally {
-
-            if (connection != null) {
+            if (connection != null)
                 connection.disconnect();
-            }
         }
     }
 
