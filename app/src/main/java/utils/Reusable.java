@@ -25,6 +25,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.UploadTask;
+import com.sqube.tipshub.R;
 
 import org.json.JSONObject;
 
@@ -84,6 +85,26 @@ public final class Reusable {
             Signature = "a";
         }
         return Signature;
+    }
+
+    public static int getPlaceholderImage(char symbol){
+        if((symbol >= 'a' && symbol <= 'e')||(symbol >= 'A' && symbol <= 'E')||(symbol >= '0' && symbol <= '1')){
+            return R.drawable.pic_a;
+        }
+        else if((symbol >= 'f' && symbol <= 'j')||(symbol >= 'F' && symbol <= 'J')||(symbol >= '2' && symbol <= '3')){
+            return R.drawable.pic_b;
+        }
+        else if((symbol >= 'k' && symbol <= 'o')||(symbol >= 'K' && symbol <= 'O')||(symbol >= '4' && symbol <= '5')){
+            return R.drawable.pic_c;
+        }
+        else if((symbol >= 'p' && symbol <= 't')||(symbol >= 'P' && symbol <= 'T')||(symbol >= '6' && symbol <= '7')){
+            return R.drawable.pic_d;
+        }
+        else if((symbol >= 'u' && symbol <= 'z')||(symbol >= 'U' && symbol <= 'Z')||(symbol >= '8' && symbol <= '9')){
+            return R.drawable.pic_e;
+        }
+
+        return R.drawable.pic_a;
     }
 
     public static void applyLinkfy(Context context, String a, TextView textView) {
