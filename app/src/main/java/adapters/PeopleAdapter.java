@@ -34,7 +34,7 @@ import utils.Reusable;
 
 import static utils.Reusable.getPlaceholderImage;
 
-public class PeopleAdapter extends RecyclerView.Adapter<PeopleAdapter.PostHolder> {
+public class PeopleAdapter extends RecyclerView.Adapter<PeopleAdapter.PeopleHolder> {
     private Context context;
     private String userId;
     private ArrayList<String> list;
@@ -47,9 +47,9 @@ public class PeopleAdapter extends RecyclerView.Adapter<PeopleAdapter.PostHolder
 
     @NonNull
     @Override
-    public PostHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public PeopleHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.user_view_land, parent, false);
-        return new PostHolder(view);
+        return new PeopleHolder(view);
     }
 
     @Override
@@ -58,7 +58,7 @@ public class PeopleAdapter extends RecyclerView.Adapter<PeopleAdapter.PostHolder
     }
 
     @Override
-    public void onBindViewHolder(@NonNull PostHolder holder, int i) {
+    public void onBindViewHolder(@NonNull PeopleHolder holder, int i) {
         String ref = list.get(i);
         FirebaseUtil.getFirebaseFirestore().collection("profiles").document(ref).get().addOnCompleteListener(task -> {
             if(!task.isSuccessful()||task.isCanceled() || !task.getResult().exists()){
@@ -87,12 +87,12 @@ public class PeopleAdapter extends RecyclerView.Adapter<PeopleAdapter.PostHolder
 
             holder.lnrContainer.setOnClickListener(v -> {
                 if(ref.equals(userId)){
-                    context.startActivity(new Intent(context, MyProfileActivity.class));
+                    holder.lnrContainer.getContext().startActivity(new Intent(context, MyProfileActivity.class));
                 }
                 else{
                     Intent intent = new Intent(context, MemberProfileActivity.class);
                     intent.putExtra("userId", ref);
-                    context.startActivity(intent);
+                    holder.lnrContainer.getContext().startActivity(intent);
                 }
             });
 
@@ -134,7 +134,7 @@ public class PeopleAdapter extends RecyclerView.Adapter<PeopleAdapter.PostHolder
                 .show();
     }
 
-    private void unfollowPrompt(Button btnFollow, String userID, String username){
+    private void unfollowPrompt(TextView btnFollow, String userID, String username){
         AlertDialog.Builder builder = new AlertDialog.Builder(btnFollow.getRootView().getContext(),
                 R.style.Theme_AppCompat_Light_Dialog_Alert);
         builder.setMessage(String.format("Do you want to unfollow %s?", username))
@@ -165,12 +165,12 @@ public class PeopleAdapter extends RecyclerView.Adapter<PeopleAdapter.PostHolder
         this.userId = userId;
     }
 
-    class PostHolder extends RecyclerView.ViewHolder {
+    class PeopleHolder extends RecyclerView.ViewHolder {
         CircleImageView imgDp;
         LinearLayout lnrContainer;
         TextView mUsername, mPost, mAccuracy;
-        Button btnFollow;
-        PostHolder(View itemView) {
+        TextView btnFollow;
+        PeopleHolder(View itemView) {
             super(itemView);
             imgDp = itemView.findViewById(R.id.imgDp);
             lnrContainer = itemView.findViewById(R.id.lnrContainer);
