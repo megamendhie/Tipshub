@@ -55,25 +55,24 @@
                                     android:layout_width="100dp"
                                     android:layout_height="100dp"
                                     android:layout_marginTop="20dp"/>
-                                <View
-                                    android:layout_width="0dp"
-                                    android:layout_height="1dp"
-                                    android:layout_weight="10"/>
-
-                                <TextView
-                                    android:id="@+id/btnEdit"
-                                    android:layout_marginBottom="8dp"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="Edit"
-                                    android:paddingStart="18dp"
-                                    android:paddingEnd="18dp"
-                                    android:paddingTop="10dp"
-                                    android:paddingBottom="10dp"
-                                    android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-                                    android:background="@drawable/btn_bg"/>
 
                             </LinearLayout>
+
+
+                            <TextView
+                                android:id="@+id/btnEdit"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Edit"
+                                android:layout_marginTop="74dp"
+                                android:layout_marginRight="10dp"
+                                android:layout_gravity="right"
+                                android:paddingStart="16dp"
+                                android:paddingEnd="16dp"
+                                android:paddingTop="6dp"
+                                android:paddingBottom="6dp"
+                                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                                android:background="@drawable/btn_bg"/>
                         </FrameLayout>
 
                         <RelativeLayout

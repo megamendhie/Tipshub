@@ -47,14 +47,16 @@
                                 android:background="@color/colorPrimary"/>
                             <LinearLayout
                                 android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:gravity="bottom"
-                                android:padding="10dp">
+                                android:layout_height="140dp"
+                                android:padding="10dp"
+                                android:weightSum="10"
+                                android:orientation="horizontal">
                                 <de.hdodenhof.circleimageview.CircleImageView
                                     android:id="@+id/imgDp"
                                     android:layout_width="100dp"
                                     android:layout_height="100dp"
                                     android:layout_marginTop="20dp"/>
+
                                 <View
                                     android:layout_width="0dp"
                                     android:layout_height="1dp"
@@ -62,26 +64,33 @@
 
                                 <TextView
                                     android:id="@+id/btnFollow"
-                                    android:layout_marginBottom="8dp"
-                                    android:layout_width="wrap_content"
+                                    android:layout_width="100dp"
                                     android:layout_height="wrap_content"
-                                    android:padding="10dp"
-                                    android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-                                    android:text="FOLLOW"
-                                    android:background="@drawable/btn_bg"/>
+                                    android:layout_marginTop="64dp"
+                                    android:background="@drawable/btn_bg"
+                                    android:gravity="center"
+                                    android:paddingStart="6dp"
+                                    android:paddingTop="8dp"
+                                    android:paddingEnd="6dp"
+                                    android:paddingBottom="8dp"
+                                    android:text="@string/txt_follow"
+                                    android:textAppearance="@style/TextAppearance.AppCompat.Body2"/>
 
                                 <TextView
                                     android:id="@+id/btnSubscribe"
-                                    android:layout_width="wrap_content"
+                                    android:layout_width="100dp"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginStart="5dp"
-                                    android:layout_marginBottom="8dp"
-                                    android:padding="10dp"
-                                    android:visibility="gone"
-                                    android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                                    android:layout_marginTop="64dp"
+                                    android:layout_marginLeft="5dp"
                                     android:background="@drawable/btn_bg"
-                                    android:text="SUBSCRIBE"/>
-
+                                    android:gravity="center"
+                                    android:paddingStart="6dp"
+                                    android:paddingTop="8dp"
+                                    android:paddingEnd="6dp"
+                                    android:paddingBottom="8dp"
+                                    android:text="SUBSCRIBE"
+                                    android:visibility="gone"
+                                    android:textAppearance="@style/TextAppearance.AppCompat.Body2" />
                             </LinearLayout>
 
                         </FrameLayout>
