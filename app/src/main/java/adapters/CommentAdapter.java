@@ -146,12 +146,12 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
             @Override
             public void onClick(View v) {
                 if(model.getUserId().equals(userId)){
-                    context.startActivity(new Intent(context, MyProfileActivity.class));
+                    imgDp.getContext().startActivity(new Intent(context, MyProfileActivity.class));
                 }
                 else{
                     Intent intent = new Intent(context, MemberProfileActivity.class);
                     intent.putExtra("userId", model.getUserId());
-                    context.startActivity(intent);
+                    imgDp.getContext().startActivity(intent);
                 }
             }
         });
@@ -161,12 +161,12 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
             @Override
             public void onClick(View v) {
                 if(model.getUserId().equals(userId)){
-                    context.startActivity(new Intent(context, MyProfileActivity.class));
+                    mUsername.getContext().startActivity(new Intent(context, MyProfileActivity.class));
                 }
                 else{
                     Intent intent = new Intent(context, MemberProfileActivity.class);
                     intent.putExtra("userId", model.getUserId());
-                    context.startActivity(intent);
+                    mUsername.getContext().startActivity(intent);
                 }
             }
         });

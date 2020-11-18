@@ -17,9 +17,9 @@ import static utils.Reusable.getPlaceholderImage;
 
 public class BankerTipsterHolder extends RecyclerView.ViewHolder {
     CircleImageView imgDp;
-    TextView txtUsername;
+    private TextView txtUsername;
 
-    public BankerTipsterHolder(@NonNull View itemView) {
+    BankerTipsterHolder(@NonNull View itemView) {
         super(itemView);
         imgDp = itemView.findViewById(R.id.imgDp);
         txtUsername = itemView.findViewById(R.id.txtUsername);

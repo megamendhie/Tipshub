@@ -287,7 +287,7 @@ public class FilteredBankerAdapter extends RecyclerView.Adapter<BankerPostHolder
             if(!Reusable.getNetworkAvailability(context))
                 return;
             List<String> l = model.getLikes();
-            if(model.getDislikes().contains(userId)){
+            if(holder.imgDislike.getState()==DISLIKED){
                 //get list of userIds that disliked
                 List<String> dl = model.getDislikes();
                 dl.remove(userId);
@@ -299,7 +299,7 @@ public class FilteredBankerAdapter extends RecyclerView.Adapter<BankerPostHolder
             }
             else{
                 //get list of userIds that liked
-                if(model.getLikes().contains(userId)){
+                if(holder.imgLikes.getState()==LIKED){
                     l.remove(userId);
                     postList.get(position).setLikesCount(model.getLikesCount()-1);
                 }
@@ -318,7 +318,7 @@ public class FilteredBankerAdapter extends RecyclerView.Adapter<BankerPostHolder
             if(!Reusable.getNetworkAvailability(context))
                 return;
             List<String> dl = model.getDislikes();
-            if(model.getLikes().contains(userId)){
+            if(holder.imgLikes.getState()==LIKED){
                 //get list of userIds that liked
                 List<String> l = model.getLikes();
                 l.remove(userId);
@@ -330,7 +330,7 @@ public class FilteredBankerAdapter extends RecyclerView.Adapter<BankerPostHolder
             }
             else{
                 //get list of userIds that disliked
-                if(model.getDislikes().contains(userId)){
+                if(holder.imgDislike.getState()==DISLIKED){
                     dl.remove(userId);
                     postList.get(position).setDislikesCount(model.getDislikesCount()-1);
                 }

@@ -145,7 +145,7 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<PostHolder> {
 
         GlideApp.with(context)
                 .load(FirebaseUtil.getStorageReference().child(model.getChildUserId()))
-                .placeholder(R.drawable.dummy)
+                .placeholder(getPlaceholderImage(model.getChildUserId().charAt(0)))
                 .error(getPlaceholderImage(model.getChildUserId().charAt(0)))
                 .signature(new ObjectKey(model.getChildUserId()+"_"+Reusable.getSignature()))
                 .into(childDp);
@@ -385,7 +385,7 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<PostHolder> {
 
         GlideApp.with(context)
                 .load(FirebaseUtil.getStorageReference().child(model.getUserId()))
-                .placeholder(R.drawable.dummy)
+                .placeholder(getPlaceholderImage(model.getUserId().charAt(0)))
                 .error(getPlaceholderImage(model.getUserId().charAt(0)))
                 .signature(new ObjectKey(model.getUserId()+"_"+Reusable.getSignature()))
                 .into(holder.imgDp);
@@ -435,7 +435,7 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<PostHolder> {
 
         holder.imgLikes.setOnClickListener(v -> {
             List<String> l = model.getLikes();
-            if(model.getDislikes().contains(userId)){
+            if(holder.imgDislike.getState()==DISLIKED){
                 holder.imgLikes.setState(LIKED);
                 holder.imgDislike.setState(NOT_DISLIKED);
                 holder.mLikes.setText(String.valueOf(model.getLikesCount()+1));
@@ -452,7 +452,7 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<PostHolder> {
             }
             else{
                 //get list of userIds that liked
-                if(model.getLikes().contains(userId)){
+                if(holder.imgLikes.getState()==LIKED){
                     holder.imgLikes.setState(NOT_LIKED);
                     holder.mLikes.setText(model.getLikesCount()-1>0?String.valueOf(model.getLikesCount()-1):"");
 
@@ -474,7 +474,7 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<PostHolder> {
 
         holder.imgDislike.setOnClickListener(v -> {
             List<String> dl = model.getDislikes();
-            if(model.getLikes().contains(userId)){
+            if(holder.imgLikes.getState()==LIKED){
                 holder.imgLikes.setState(NOT_LIKED);
                 holder.imgDislike.setState(DISLIKED);
                 holder.mLikes.setText(model.getLikesCount()-1>0? String.valueOf(model.getLikesCount()-1):"");
@@ -492,7 +492,7 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<PostHolder> {
             }
             else{
                 //get list of userIds that disliked
-                if(model.getDislikes().contains(userId)){
+                if(holder.imgDislike.getState()==DISLIKED){
                     holder.imgDislike.setState(NOT_DISLIKED);
                     holder.mDislikes.setText(model.getDislikesCount()-1>0? String.valueOf(model.getDislikesCount()-1): "");
 

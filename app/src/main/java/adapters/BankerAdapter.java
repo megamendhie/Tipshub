@@ -204,15 +204,14 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerPostHold
                 return;
             }
 
-            model.getDislikes().contains(userId);
-            if(model.getDislikes().contains(userId)){
+            if(holder.imgDislike.getState()==DISLIKED){
                 holder.imgLikes.setState(LIKED);
                 holder.imgDislike.setState(NOT_LIKED);
                 holder.mLikes.setText(String.valueOf(model.getLikesCount()+1));
                 holder.mDislikes.setText(model.getDislikesCount()-1>0? String.valueOf(model.getDislikesCount()-1):"");
             }
             else{
-                if(model.getLikes().contains(userId)){
+                if(holder.imgLikes.getState()==LIKED){
                     holder.imgLikes.setState(NOT_LIKED);
                     holder.mLikes.setText(model.getLikesCount()-1>0?String.valueOf(model.getLikesCount()-1):"");
                 }
@@ -230,14 +229,14 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerPostHold
                 loginPrompt(holder.imgDislike);
                 return;
             }
-            if(model.getLikes().contains(userId)){
+            if(holder.imgLikes.getState()==LIKED){
                 holder.imgLikes.setState(NOT_LIKED);
                 holder.imgDislike.setState(DISLIKED);
                 holder.mLikes.setText(model.getLikesCount()-1>0? String.valueOf(model.getLikesCount()-1):"");
                 holder.mDislikes.setText(String.valueOf(model.getDislikesCount()+1));
             }
             else{
-                if(model.getDislikes().contains(userId)){
+                if(holder.imgDislike.getState()==DISLIKED){
                     holder.imgDislike.setState(NOT_DISLIKED);
                     holder.mDislikes.setText(model.getDislikesCount()-1>0? String.valueOf(model.getDislikesCount()-1): "");
                 }

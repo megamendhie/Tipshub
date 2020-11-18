@@ -10,6 +10,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -115,7 +116,7 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostHolder>{
         }
 
         GlideApp.with(context).load(storageReference.child(model.getUserId()))
-                .placeholder(R.drawable.dummy)
+                .placeholder(getPlaceholderImage(model.getUserId().charAt(0)))
                 .error(getPlaceholderImage(model.getUserId().charAt(0)))
                 .signature(new ObjectKey(model.getUserId()+"_"+Reusable.getSignature()))
                 .into(holder.imgDp);
@@ -168,19 +169,19 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostHolder>{
             context.startActivity(intent);
         });
 
-        holder.imgLikes.setOnClickListener(v -> {
+        holder.imgLikes.setOnClickListener(view -> {
             if (userId.equals(Calculations.GUEST)) {
                 loginPrompt(holder.imgLikes);
                 return;
             }
-            if(model.getDislikes().contains(userId)){
+            if(holder.imgDislike.getState()==DISLIKED){
                 holder.imgLikes.setState(LIKED);
                 holder.imgDislike.setState(NOT_DISLIKED);
                 holder.mLikes.setText(String.valueOf(model.getLikesCount()+1));
                 holder.mDislikes.setText(model.getDislikesCount()-1>0? String.valueOf(model.getDislikesCount()-1):"");
             }
             else{
-                if(model.getLikes().contains(userId)){
+                if(holder.imgLikes.getState()==LIKED){
                     holder.imgLikes.setState(NOT_LIKED);
                     holder.mLikes.setText(model.getLikesCount()-1>0?String.valueOf(model.getLikesCount()-1):"");
                 }
@@ -198,14 +199,14 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostHolder>{
                 loginPrompt(holder.imgDislike);
                 return;
             }
-            if(model.getLikes().contains(userId)){
+            if(holder.imgLikes.getState()==LIKED){
                 holder.imgLikes.setState(NOT_LIKED);
                 holder.imgDislike.setState(DISLIKED);
                 holder.mLikes.setText(model.getLikesCount()-1>0? String.valueOf(model.getLikesCount()-1):"");
                 holder.mDislikes.setText(String.valueOf(model.getDislikesCount()+1));
             }
             else{
-                if(model.getDislikes().contains(userId)){
+                if(holder.imgDislike.getState()==DISLIKED){
                     holder.imgDislike.setState(NOT_DISLIKED);
                     holder.mDislikes.setText(model.getDislikesCount()-1>0? String.valueOf(model.getDislikesCount()-1): "");
                 }
@@ -253,17 +254,15 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostHolder>{
         childPost.setText(model.getChildContent());
         Reusable.applyLinkfy(context, model.getChildContent(), childPost);
         FirebaseUtil.getFirebaseFirestore().collection("posts").document(model.getChildLink()).get()
-                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        if(!documentSnapshot.exists())
-                            return;
-                        holder.imgChildStatus.setVisibility(documentSnapshot.toObject(Post.class).getStatus()==1? View.INVISIBLE: View.VISIBLE);
-                    }
+                .addOnSuccessListener(documentSnapshot -> {
+                    if(!documentSnapshot.exists())
+                        return;
+                    holder.imgChildStatus.setVisibility(documentSnapshot.toObject(Post.class).getStatus()==1?
+                            View.INVISIBLE: View.VISIBLE);
                 });
 
         GlideApp.with(context).load(storageReference.child(model.getChildUserId()))
-                .placeholder(R.drawable.dummy)
+                .placeholder(getPlaceholderImage(model.getChildUserId().charAt(0)))
                 .error(getPlaceholderImage(model.getChildUserId().charAt(0)))
                 .signature(new ObjectKey(model.getChildUserId()+"_"+Reusable.getSignature()))
                 .into(childDp);

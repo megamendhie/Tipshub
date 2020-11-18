@@ -19,7 +19,7 @@ import views.LikeButton;
 class PostHolder extends RecyclerView.ViewHolder {
     private String postId;
     CircleImageView imgDp, childDp;
-    LinearLayout lnrChildContainer;
+    private LinearLayout lnrChildContainer;
     CardView crdChildPost;
     TextView mpost, childPost;
     TextView mUsername, childUsername;

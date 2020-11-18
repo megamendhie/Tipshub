@@ -75,9 +75,6 @@ public class PeopleRecAdapter extends RecyclerView.Adapter<PeopleRecAdapter.Peop
                     }
                     Log.i(TAG, "onComplete: ");
                     ProfileShort model = task.getResult().toObject(ProfileShort.class);
-                    if(model.getA5_bio()!=null && !model.getA5_bio().isEmpty())
-                        Reusable.applyLinkfy(context,model.getA5_bio(), holder.mBio);
-                    holder.mBio.setText(model.getA5_bio());
                     holder.mUsername.setText(model.getA2_username());
 
                     String tips = model.getE0a_NOG()>1? "tips": "tip";
@@ -169,7 +166,7 @@ public class PeopleRecAdapter extends RecyclerView.Adapter<PeopleRecAdapter.Peop
     public class PeopleHolder extends RecyclerView.ViewHolder {
         CircleImageView imgDp;
         LinearLayout lnrContainer;
-        TextView mUsername, mPost, mAccuracy, mBio;
+        TextView mUsername, mPost, mAccuracy;
         TextView btnFollow;
         PeopleHolder(View itemView) {
             super(itemView);
@@ -178,7 +175,6 @@ public class PeopleRecAdapter extends RecyclerView.Adapter<PeopleRecAdapter.Peop
             mUsername = itemView.findViewById(R.id.txtUsername);
             mPost = itemView.findViewById(R.id.txtPost);
             mAccuracy = itemView.findViewById(R.id.txtAccuracy);
-            mBio = itemView.findViewById(R.id.txtBio);
             btnFollow = itemView.findViewById(R.id.btnFollow);
         }
     }
