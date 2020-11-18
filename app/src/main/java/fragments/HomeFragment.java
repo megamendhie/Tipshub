@@ -14,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -110,7 +111,6 @@ public class HomeFragment extends Fragment{
     private RecyclerView homeFeed, tipsFeed, bankerTipstersFeed, siteFeed, trendingFeed;
     private Intent intent;
     //private SwipeRefreshLayout refresher;
-    private JSONObject flagsJson;
     private ArrayList<GameTip> homepageTips = new ArrayList<>();
     private TipsAdapter tipsAdapter;
     private CardView crdTips, crdPosts;
@@ -127,6 +127,7 @@ public class HomeFragment extends Fragment{
 
     private CircleImageView imgDp;
 
+    private View rootView;
     public HomeFragment() {
         // Required empty public constructor
     }
@@ -151,8 +152,9 @@ public class HomeFragment extends Fragment{
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        // Inflate the layout for this fragment
-        View rootView=inflater.inflate(R.layout.fragment_home, container, false);
+        // Inflate the layout for this fragment only if its null
+        if(rootView==null)
+            rootView = inflater.inflate(R.layout.fragment_home, container, false);
         intent = new Intent(getContext(), PostActivity.class);
         homeFeed = rootView.findViewById(R.id.postList);
         tipsFeed = rootView.findViewById(R.id.tipsList);
@@ -171,7 +173,7 @@ public class HomeFragment extends Fragment{
         bankerTipstersFeed.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false));
         siteFeed.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false));
 
-        //((DefaultItemAnimator) homeFeed.getItemAnimator()).setSupportsChangeAnimations(false);
+        ((DefaultItemAnimator) homeFeed.getItemAnimator()).setSupportsChangeAnimations(false);
         //((DefaultItemAnimator) trendingFeed.getItemAnimator()).setSupportsChangeAnimations(false);
         fabMenu = rootView.findViewById(R.id.fabMenu);
         FloatingActionButton fabNormal = rootView.findViewById(R.id.fabNormal);
@@ -214,7 +216,6 @@ public class HomeFragment extends Fragment{
         //confirm if user is seeing everybody's post
         fromEverybody = prefs.getBoolean("fromEverybody", true);
 
-        flagsJson = HttpConFunction.getFlags(getContext().getResources().openRawResource(R.raw.flags));
         selectPostToLoad(savedInstanceState);
         loadTips();
         loadBankerTipsters();
@@ -674,8 +675,7 @@ public class HomeFragment extends Fragment{
                     gameTip.set_id(tipJSON.optString("id"));
                     gameTip.setAwayTeam(tipJSON.optString("away_team"));
                     gameTip.setHomeTeam(tipJSON.optString("home_team"));
-                    String region = tipJSON.optString("competition_cluster");
-                    gameTip.setRegion(flagsJson==null? region : flagsJson.optString(region.trim())+" "+region);
+                    gameTip.setRegion(tipJSON.optString("competition_cluster"));
                     gameTip.setLeague(tipJSON.optString("competition_name"));
                     gameTip.setPrediction(tipJSON.optString("prediction"));
                     gameTip.setTime(tipJSON.optString("start_date"));
