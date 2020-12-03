@@ -4,11 +4,15 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
+
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
@@ -35,6 +39,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 import adapters.PerformanceAdapter;
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -67,6 +72,7 @@ public class MemberProfileActivity extends AppCompatActivity implements View.OnC
     private TextView txtName, txtUsername, txtBio;
     private TextView txtPost, txtWon, txtAccuracy;
     private TextView txtFollowers, txtFollowing, txtSubscribers, txtSubscriptions;
+    private CardView crdWhatsApp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,6 +88,7 @@ public class MemberProfileActivity extends AppCompatActivity implements View.OnC
         TabLayout tabLayout = findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
         imgDp = findViewById(R.id.imgDp);
+        crdWhatsApp = findViewById(R.id.crdWhatsapp);
         txtWhatsapp = findViewById(R.id.txtWhatsapp);
         txtName = findViewById(R.id.txtFullName);
         txtUsername = findViewById(R.id.txtUsername);
@@ -150,8 +157,10 @@ public class MemberProfileActivity extends AppCompatActivity implements View.OnC
                     txtBio.setText(profile.getA5_bio());
                     txtBio.setVisibility(profile.getA5_bio().isEmpty()?View.GONE:View.VISIBLE);
                     Reusable.applyLinkfy(MemberProfileActivity.this, profile.getA5_bio(), txtBio);
-                    if(profile.isD5_allowChat())
-                        txtWhatsapp.setVisibility(View.VISIBLE);
+                    if(profile.isD5_allowChat()) {
+                        txtWhatsapp.setText(String.format("Chat with %s", profile.getA2_username()));
+                        crdWhatsApp.setVisibility(View.VISIBLE);
+                    }
                     txtFollowers.setText(String.valueOf(profile.getC4_followers()));
                     txtFollowing.setText(String.valueOf(profile.getC5_following()));
                     txtSubscribers.setText(String.valueOf(profile.getC6_subscribers()));
@@ -265,6 +274,7 @@ public class MemberProfileActivity extends AppCompatActivity implements View.OnC
         dialogView = inflater.inflate(R.layout.image_viewer, null);
         builder.setView(dialogView);
         final AlertDialog dialog= builder.create();
+        Objects.requireNonNull(dialog.getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.show();
         ImageView imgProfile = dialog.findViewById(R.id.imgDp);
         //set Display picture
@@ -317,7 +327,7 @@ public class MemberProfileActivity extends AppCompatActivity implements View.OnC
                 }
                 if(btnFollow.getText().equals("FOLLOW")){
                     Calculations calculations = new Calculations(MemberProfileActivity.this);
-                    calculations.followMember(btnFollow, myID, userId);
+                    calculations.followMember(btnFollow, myID, userId, false);
                     profile.setC4_followers(profile.getC4_followers()+1);
                     txtFollowers.setText(String.valueOf(profile.getC4_followers()));
                     btnFollow.setText("FOLLOWING");
@@ -387,21 +397,15 @@ public class MemberProfileActivity extends AppCompatActivity implements View.OnC
                 R.style.Theme_AppCompat_Light_Dialog_Alert);
         builder.setMessage(String.format("Do you want to unfollow %s?", profile.getA2_username()))
                 .setTitle("Unfollow")
-                .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        //do nothing
-                    }
+                .setNegativeButton("No", (dialogInterface, i) -> {
+                    //do nothing
                 })
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        Calculations calculations = new Calculations(MemberProfileActivity.this);
-                        calculations.unfollowMember(btnFollow, myID, userId);
-                        profile.setC4_followers(Math.max(0, profile.getC4_followers()-1));
-                        txtFollowers.setText(String.valueOf(profile.getC4_followers()));
-                        btnFollow.setText("FOLLOW");
-                    }
+                .setPositiveButton("Yes", (dialogInterface, i) -> {
+                    Calculations calculations = new Calculations(MemberProfileActivity.this);
+                    calculations.unfollowMember(btnFollow, myID, userId, false);
+                    profile.setC4_followers(Math.max(0, profile.getC4_followers()-1));
+                    txtFollowers.setText(String.valueOf(profile.getC4_followers()));
+                    btnFollow.setText("FOLLOW");
                 })
                 .show();
     }

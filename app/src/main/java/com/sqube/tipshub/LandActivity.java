@@ -48,7 +48,6 @@ public class LandActivity extends AppCompatActivity {
 
     private TipsAdapter classicAdapter = new TipsAdapter(classicTips);
     private TipsAdapter wonAdapter = new TipsAdapter(wonTips);
-    private JSONObject flagsJson;
 
     private DatabaseHelper dbHelper;
     private SQLiteDatabase db;
@@ -82,12 +81,10 @@ public class LandActivity extends AppCompatActivity {
                 .setQuery(query, Post.class)
                 .build();
 
-        PostAdapter postAdapter = new PostAdapter(response, GUEST, getApplicationContext());
+        PostAdapter postAdapter = new PostAdapter(response, GUEST, LandActivity.this, false);
         listLandingPost.setAdapter(postAdapter);
         Log.i(TAG, "loadPost: started listening");
         postAdapter.startListening();
-
-        flagsJson = HttpConFunction.getFlags(getResources().openRawResource(R.raw.flags));
 
         GetTips getClassicTips = new GetTips(CLASSIC);
         getClassicTips.execute();
@@ -212,8 +209,7 @@ public class LandActivity extends AppCompatActivity {
                     gameTip.set_id(tipJSON.optString("id"));
                     gameTip.setAwayTeam(tipJSON.optString("away_team"));
                     gameTip.setHomeTeam(tipJSON.optString("home_team"));
-                    String region = tipJSON.optString("competition_cluster");
-                    gameTip.setRegion(flagsJson==null? region : flagsJson.optString(region.trim())+" "+region);
+                    gameTip.setRegion(tipJSON.optString("competition_cluster"));
                     gameTip.setLeague(tipJSON.optString("competition_name"));
                     gameTip.setPrediction(tipJSON.optString("prediction"));
                     gameTip.setTime(tipJSON.optString("start_date"));
@@ -261,7 +257,7 @@ public class LandActivity extends AppCompatActivity {
                     Collections.sort(tips);
                     for(GameTip tip: tips){
                         wonTips.add(tip);
-                        if (wonTips.size()>=5)
+                        if (wonTips.size()>=6)
                             break;
                     }
                     Log.i(TAG, "onPostExecute: wonTips:"  + wonTips);

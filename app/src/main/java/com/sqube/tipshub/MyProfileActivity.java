@@ -2,6 +2,8 @@ package com.sqube.tipshub;
 
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import com.google.android.material.tabs.TabLayout;
 import androidx.fragment.app.Fragment;
@@ -20,15 +22,14 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 import adapters.PerformanceAdapter;
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -182,7 +183,7 @@ public class MyProfileActivity extends AppCompatActivity implements View.OnClick
             return mFragmentList.size();
         }
 
-        public void addFragment(Fragment fragment, String title) {
+        void addFragment(Fragment fragment, String title) {
             mFragmentList.add(fragment);
             mFragmentTitleList.add(title);
         }
@@ -200,6 +201,7 @@ public class MyProfileActivity extends AppCompatActivity implements View.OnClick
         dialogView = inflater.inflate(R.layout.image_viewer, null);
         builder.setView(dialogView);
         final AlertDialog dialog= builder.create();
+        Objects.requireNonNull(dialog.getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.show();
         ImageView imgProfile = dialog.findViewById(R.id.imgDp);
         //set Display picture
@@ -212,48 +214,45 @@ public class MyProfileActivity extends AppCompatActivity implements View.OnClick
     protected void onPostResume() {
         super.onPostResume();
         FirebaseUtil.getFirebaseFirestore().collection("profiles").document(userId).get()
-                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                if(documentSnapshot==null||!documentSnapshot.exists())
-                    return;
-                profile = documentSnapshot.toObject(ProfileMedium.class);
-                imgUrl = profile.getB2_dpUrl();
-                if(!imgUrl.isEmpty())
-                    imgDp.setOnClickListener(MyProfileActivity.this);
-                String name = String.format(Locale.getDefault(),"%s %s", profile.getA0_firstName(),profile.getA1_lastName());
-                actionBar.setTitle(name);
-                txtName.setText(name);
-                txtUsername.setText(String.format(Locale.getDefault(),"@%s",profile.getA2_username()));
-                txtBio.setText(profile.getA5_bio());
-                Reusable.applyLinkfy(MyProfileActivity.this, profile.getA5_bio(), txtBio);
-                txtFollowers.setText(String.valueOf(profile.getC4_followers()));
-                txtFollowing.setText(String.valueOf(profile.getC5_following()));
-                txtSubscribers.setText(String.valueOf(profile.getC6_subscribers()));
-                txtSubscriptions.setText(String.valueOf(profile.getC7_subscriptions()));
-                String tips = profile.getE0a_NOG()>1? "tips": "tip";
-                txtPost.setText(String.format(Locale.getDefault(),"%d  %s  • ", profile.getE0a_NOG(), tips));
-                txtWon.setText(String.format(Locale.getDefault(),"%d  won  • ", profile.getE0b_WG()));
-                txtAccuracy.setText(String.format(Locale.getDefault(),"%.1f%%", (double) profile.getE0c_WGP()));
+                .addOnSuccessListener(documentSnapshot -> {
+                    if(documentSnapshot==null||!documentSnapshot.exists())
+                        return;
+                    profile = documentSnapshot.toObject(ProfileMedium.class);
+                    imgUrl = profile.getB2_dpUrl();
+                    if(!imgUrl.isEmpty())
+                        imgDp.setOnClickListener(MyProfileActivity.this);
+                    String name = String.format(Locale.getDefault(),"%s %s", profile.getA0_firstName(),profile.getA1_lastName());
+                    actionBar.setTitle(name);
+                    txtName.setText(name);
+                    txtUsername.setText(String.format(Locale.getDefault(),"@%s",profile.getA2_username()));
+                    txtBio.setText(profile.getA5_bio());
+                    Reusable.applyLinkfy(MyProfileActivity.this, profile.getA5_bio(), txtBio);
+                    txtFollowers.setText(String.valueOf(profile.getC4_followers()));
+                    txtFollowing.setText(String.valueOf(profile.getC5_following()));
+                    txtSubscribers.setText(String.valueOf(profile.getC6_subscribers()));
+                    txtSubscriptions.setText(String.valueOf(profile.getC7_subscriptions()));
+                    String tips = profile.getE0a_NOG()>1? "tips": "tip";
+                    txtPost.setText(String.format(Locale.getDefault(),"%d  %s  • ", profile.getE0a_NOG(), tips));
+                    txtWon.setText(String.format(Locale.getDefault(),"%d  won  • ", profile.getE0b_WG()));
+                    txtAccuracy.setText(String.format(Locale.getDefault(),"%.1f%%", (double) profile.getE0c_WGP()));
 
-                //set Display picture
-                Glide.with(getApplicationContext()).load(profile.getB2_dpUrl())
-                        .placeholder(R.drawable.dummy)
-                        .error(getPlaceholderImage(userId.charAt(0)))
-                        .into(imgDp);
+                    //set Display picture
+                    Glide.with(getApplicationContext()).load(profile.getB2_dpUrl())
+                            .placeholder(R.drawable.dummy)
+                            .error(getPlaceholderImage(userId.charAt(0)))
+                            .into(imgDp);
 
-                if(!performanceList.isEmpty())
-                    return;
-                if(profile.getE0a_NOG()>0){
-                    for(int i=1; i<=6; i++){
-                        Map<String, Object> row = getRow(i);
-                        if(!row.isEmpty())
-                            performanceList.add(row);
+                    if(!performanceList.isEmpty())
+                        return;
+                    if(profile.getE0a_NOG()>0){
+                        for(int i=1; i<=6; i++){
+                            Map<String, Object> row = getRow(i);
+                            if(!row.isEmpty())
+                                performanceList.add(row);
+                        }
+                        recyclerView.setAdapter(new PerformanceAdapter(performanceList));
                     }
-                    recyclerView.setAdapter(new PerformanceAdapter(performanceList));
-                }
-            }
-        });
+                });
     }
 
     @Override
