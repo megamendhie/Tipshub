@@ -69,13 +69,15 @@
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="10dp">
+                    android:paddingTop="10dp"
+                    android:paddingBottom="10dp">
 
                     <TextView
                         android:id="@+id/txtCrdBankers"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:textSize="20sp"
+                        android:paddingStart="10dp"
                         android:text="Top Banker Tipsters"
                         android:layout_alignParentStart="true"
                         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
@@ -179,11 +181,12 @@
         android:id="@+id/fabPost"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        app:srcCompat="@drawable/ic_beta"
         android:layout_alignParentBottom="true"
+        app:backgroundTint="@color/colorAccent"
+        android:tint="@color/white"
         android:layout_alignParentEnd="true"
         android:layout_gravity="bottom|end"
-        android:layout_marginBottom="27dp"
-        android:layout_marginEnd="25dp"
-        android:tint="@android:color/white"
-        app:srcCompat="@drawable/ic_beta"/>
+        android:layout_marginBottom="37dp"
+        android:layout_marginEnd="25dp"/>
 </RelativeLayout>

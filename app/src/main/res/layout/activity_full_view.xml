@@ -84,7 +84,7 @@
             android:layout_width="match_parent"
             android:layout_height="220dp"
             android:layout_margin="5dp"
-            android:background="@color/bg_off_green_deeper"
+            android:background="@color/bg_off_green_deepest"
             android:visibility="visible"
             tools:layout_editor_absoluteX="5dp">
 
@@ -176,7 +176,7 @@
             android:layout_width="match_parent"
             android:layout_height="220dp"
             android:visibility="gone"
-            android:background="@color/bg_off_green_deeper"
+            android:background="@color/bg_off_green_deepest"
             android:layout_margin="5dp">
 
             <ImageView
@@ -267,7 +267,7 @@
             android:layout_width="match_parent"
             android:layout_height="220dp"
             android:visibility="gone"
-            android:background="@color/bg_off_green_deeper"
+            android:background="@color/bg_off_green_deepest"
             android:layout_margin="5dp">
 
             <ImageView
@@ -339,16 +339,32 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <TextView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingTop="6dp"
-                android:paddingBottom="6dp"
-                android:textSize="24sp"
-                android:gravity="center"
-                android:text="Weekend Draws(3 draws)"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                android:textStyle="bold|italic" />
+                android:orientation="horizontal"
+                android:gravity="center_horizontal|bottom">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="6dp"
+                    android:paddingBottom="6dp"
+                    android:textSize="24sp"
+                    android:text="3 Weekend Draws"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                    android:textStyle="bold|italic" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="6dp"
+                    android:paddingBottom="6dp"
+                    android:paddingStart="2dp"
+                    android:textSize="18sp"
+                    android:text="(35+ odds)"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                    android:textStyle="bold|italic" />
+            </LinearLayout>
         </androidx.cardview.widget.CardView>
 
         <RelativeLayout
@@ -356,7 +372,7 @@
             android:layout_width="match_parent"
             android:layout_height="220dp"
             android:visibility="gone"
-            android:background="@color/bg_off_green_deeper"
+            android:background="@color/bg_off_green_deepest"
             android:layout_margin="5dp">
 
             <ImageView

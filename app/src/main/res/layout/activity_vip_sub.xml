@@ -4,12 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="10dp"
     tools:context=".VipSubActivity">
   <androidx.core.widget.NestedScrollView
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:scrollbars="vertical"
+      android:paddingTop="10dp"
+      android:paddingStart="10dp"
+      android:paddingEnd="10dp"
       android:paddingBottom="30dp">
     <RelativeLayout
         android:layout_width="match_parent"
@@ -26,13 +28,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@color/bg_off_green_deep"
+            android:background="@color/bg_off_green_deepest"
             android:padding="12dp">
 
           <TextView
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
-              android:text="Free users have access to:"
+              android:text="What free users get:"
               android:textAppearance="@style/TextAppearance.AppCompat.Body2"
               android:textSize="24sp" />
 
@@ -42,7 +44,7 @@
               android:drawableLeft="@drawable/ic_check_circle_green_24dp"
               android:layout_marginTop="4dp"
               android:drawablePadding="5dp"
-              android:text="5 classic tips"
+              android:text="5 classic tips only"
               android:textAppearance="@style/TextAppearance.AppCompat.Body2" />
         </LinearLayout>
       </androidx.cardview.widget.CardView>
@@ -57,7 +59,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/bg_off_green_deep"
+            android:background="@color/bg_off_green_deepest"
             android:padding="12dp"
             android:orientation="vertical">
           <TextView
@@ -65,7 +67,7 @@
               android:layout_height="wrap_content"
               android:textSize="24sp"
               android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-              android:text="Subscribers have access to:"/>
+              android:text="What subscribers get:"/>
 
           <TextView
               android:layout_width="wrap_content"
@@ -83,7 +85,15 @@
               android:layout_marginTop="4dp"
               android:drawablePadding="5dp"
               android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-              android:text="VIP tips"/>
+              android:text="4 VIP tips daily"/>
+          <TextView
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:drawableLeft="@drawable/ic_check_circle_green_24dp"
+              android:layout_marginTop="4dp"
+              android:drawablePadding="5dp"
+              android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+              android:text="3 draws on weekends"/>
           <TextView
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
@@ -100,22 +110,14 @@
               android:drawablePadding="5dp"
               android:textAppearance="@style/TextAppearance.AppCompat.Body2"
               android:text="Both Teams To Score tips"/>
-          <TextView
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:drawableLeft="@drawable/ic_check_circle_green_24dp"
-              android:layout_marginTop="4dp"
-              android:drawablePadding="5dp"
-              android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-              android:text="3 draws every weekend"/>
 
           <TextView
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
-              android:layout_marginTop="14dp"
+              android:layout_marginTop="24dp"
               android:drawablePadding="5dp"
               android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-              android:text="Note: we provide tips with the highest probability to our subscribers."/>
+              android:text="Note: we provide tips with the highest accuracy to our subscribers."/>
 
 
           <LinearLayout
@@ -169,34 +171,6 @@
       </androidx.cardview.widget.CardView>
 
 
-      <LinearLayout
-          android:id="@+id/lnrSubscribers"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:layout_below="@id/crdSubscription"
-          android:layout_marginTop="30dp"
-          android:layout_marginBottom="30dp"
-          android:gravity="center"
-          android:orientation="horizontal">
-
-        <TextView
-            android:id="@+id/txtSubscribersCount"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="0+"
-            android:drawableStart="@drawable/ic_equalizer_black_24dp"
-            android:drawablePadding="5dp"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-            android:textSize="24sp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="6dp"
-            android:text="subscribers"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body2" />
-      </LinearLayout>
-
     </RelativeLayout>
   </androidx.core.widget.NestedScrollView>
 
@@ -206,6 +180,12 @@
       android:layout_height="wrap_content"
       android:background="@color/white"
       android:layout_gravity="bottom"
+      android:gravity="center"
+      android:paddingTop="6dp"
+      android:paddingStart="10dp"
+      android:paddingEnd="10dp"
+      android:paddingBottom="10dp"
+      android:textStyle="bold"
       android:textAppearance="@style/TextAppearance.AppCompat.Body2"
       android:textColor="@android:color/holo_red_dark"
       android:text="@string/txt_contact_notice"/>

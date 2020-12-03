@@ -5,111 +5,87 @@
     android:id="@+id/cardView"
     app:cardCornerRadius="10dp"
     android:layout_margin="4dp"
-    android:layout_width="210dp"
-    android:layout_height="180dp">
+    android:layout_width="170dp"
+    android:layout_height="wrap_content">
 
-    <FrameLayout
+    <LinearLayout
+        android:id="@+id/lnrContainer"
         android:layout_gravity="center"
+        android:gravity="center_horizontal"
         android:orientation="vertical"
+        android:padding="5dp"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:background="@color/greyBackground"/>
+        android:layout_height="wrap_content">
 
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/imgDp"
+            android:layout_width="76dp"
+            android:layout_height="76dp"
+            android:src="@drawable/dummy" />
         <LinearLayout
-            android:id="@+id/lnrContainer"
-            android:layout_gravity="center"
-            android:orientation="vertical"
-            android:padding="5dp"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <de.hdodenhof.circleimageview.CircleImageView
-                    android:id="@+id/imgDp"
-                    android:layout_width="76dp"
-                    android:layout_height="76dp"
-                    app:civ_border_width="2dp"
-                    android:src="@drawable/dummy"
-                    app:civ_border_color="@color/bg_off_green" />
-
-                <TextView
-                    android:id="@+id/btnFollow"
-                    android:layout_width="100dp"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    android:background="@drawable/btn_bg"
-                    android:gravity="center"
-                    android:paddingStart="6dp"
-                    android:paddingTop="8dp"
-                    android:paddingEnd="6dp"
-                    android:paddingBottom="8dp"
-                    android:text="@string/txt_follow"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Body2" />
-
-            </RelativeLayout>
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp">
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:layout_gravity="center_vertical"
-                    android:src="@drawable/symbol_at"
-                    android:contentDescription="at symbol" />
-
-                <TextView
-                    android:id="@+id/txtUsername"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textStyle="bold"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                    android:layout_marginStart="3dp"/>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="3dp">
-                <ImageView
-                    android:id="@+id/imgPointIcon"
-                    android:layout_width="18dp"
-                    android:layout_height="18dp"
-                    android:layout_marginTop="2dp"
-                    app:srcCompat="@android:drawable/btn_star_big_on" />
-
-                <TextView
-                    android:id="@+id/txtPost"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                    android:layout_marginStart="3dp"/>
-
-
-                <TextView
-                    android:id="@+id/txtAccuracy"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                    android:layout_marginStart="5dp"/>
-            </LinearLayout>
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp">
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/symbol_at"
+                android:contentDescription="at symbol" />
 
             <TextView
-                android:id="@+id/txtBio"
+                android:id="@+id/txtUsername"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:lines="1"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:layout_marginStart="3dp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="3dp">
+            <ImageView
+                android:id="@+id/imgPointIcon"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_marginTop="2dp"
+                app:srcCompat="@android:drawable/btn_star_big_on" />
+
+            <TextView
+                android:id="@+id/txtPost"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_marginTop="3dp"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
+                android:gravity="center"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:layout_marginStart="3dp"/>
 
+
+            <TextView
+                android:id="@+id/txtAccuracy"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:layout_marginStart="5dp"/>
         </LinearLayout>
-    </FrameLayout>
+
+        <TextView
+            android:id="@+id/btnFollow"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/btn_bg"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="10dp"
+            android:gravity="center"
+            android:paddingStart="6dp"
+            android:paddingTop="8dp"
+            android:paddingEnd="6dp"
+            android:paddingBottom="8dp"
+            android:text="@string/txt_follow"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body2" />
+
+    </LinearLayout>
 </androidx.cardview.widget.CardView>
