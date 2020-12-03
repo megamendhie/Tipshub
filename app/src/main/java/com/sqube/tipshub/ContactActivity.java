@@ -72,7 +72,7 @@ public class ContactActivity extends AppCompatActivity implements View.OnClickLi
 
     private void startWhatsapp() {
         String mssg = "Hello Tipshub";
-        String toNumber = "2348132014755";
+        String toNumber = "2349041463249";
         Uri uri = Uri.parse("http://api.whatsapp.com/send?phone="+toNumber +"&text="+mssg);
         try {
             Intent whatsApp = new Intent(Intent.ACTION_VIEW);
