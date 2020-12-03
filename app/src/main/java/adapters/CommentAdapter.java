@@ -64,6 +64,7 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
     private Calculations calculations;
     private StorageReference storageReference;
     private ArrayList<SnapId> repliedList = new ArrayList<>();
+    private boolean anchorSnackbar;
 
     public ArrayList<SnapId> getRepliedList() {
         return repliedList;
@@ -77,7 +78,7 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
         repliedList.clear();
     }
 
-    public CommentAdapter(String mainPostId, Query query, String userID, Activity activity, Context context) {
+    public CommentAdapter(String mainPostId, Query query, String userID, Activity activity, Context context, boolean anchorSnackbar) {
         /*
         Configure recycler adapter options:
         query defines the request made to Firestore
@@ -86,6 +87,7 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
         super(new FirestoreRecyclerOptions.Builder<Comment>()
                 .setQuery(query, Comment.class)
                 .build());
+        this.anchorSnackbar = anchorSnackbar;
 
         Log.i(TAG, "CommentAdapter: created");
         this.activity = activity;
@@ -294,7 +296,7 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
                 return;
             }
             if(btnFollow.getText().equals("FOLLOW")){
-                calculations.followMember(imgOverflow, userId, commentUserId);
+                calculations.followMember(imgOverflow, userId, commentUserId, anchorSnackbar);
             }
             else
                 unfollowPrompt(imgOverflow, commentUserId, model.getUsername());
@@ -312,18 +314,10 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
                 R.style.Theme_AppCompat_Light_Dialog_Alert);
         builder.setMessage(String.format("Do you want to unfollow %s?", username))
                 .setTitle("Unfollow")
-                .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        //do nothing
-                    }
+                .setNegativeButton("No", (dialogInterface, i) -> {
+                    //do nothing
                 })
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        calculations.unfollowMember(imgOverflow, userId, userID);
-                    }
-                })
+                .setPositiveButton("Yes", (dialogInterface, i) -> calculations.unfollowMember(imgOverflow, userId, userID, anchorSnackbar))
                 .show();
     }
 

@@ -131,7 +131,7 @@ public class FilteredBankerAdapter extends RecyclerView.Adapter<BankerPostHolder
             }
             else{
                 if(model.getType()>0)
-                    calculations.onDeletePost(imgOverflow, postId, userId,status==2, type);
+                    calculations.onDeletePost(imgOverflow, postId, userId,status==2, type, true);
                 else {
                     FirebaseUtil.getFirebaseFirestore().collection("posts").document(postId).delete();
                     Snackbar.make(imgOverflow, "Deleted", Snackbar.LENGTH_SHORT).show();
@@ -150,12 +150,13 @@ public class FilteredBankerAdapter extends RecyclerView.Adapter<BankerPostHolder
 
         btnFollow.setOnClickListener(v -> {
             if(!Reusable.getNetworkAvailability(context)){
-                Snackbar.make(btnFollow, "No Internet connection", Snackbar.LENGTH_SHORT).show();
+                Snackbar.make(btnFollow, "No Internet connection", Snackbar.LENGTH_SHORT)
+                        .setAnchorView(R.id.bottom_navigation).show();
                 dialog.cancel();
                 return;
             }
             if(btnFollow.getText().equals("FOLLOW")){
-                calculations.followMember(imgOverflow, userId, userID);
+                calculations.followMember(imgOverflow, userId, userID, true);
             }
             else
                 unfollowPrompt(imgOverflow, userID, model.getUsername());
@@ -168,18 +169,10 @@ public class FilteredBankerAdapter extends RecyclerView.Adapter<BankerPostHolder
                 R.style.Theme_AppCompat_Light_Dialog_Alert);
         builder.setMessage(String.format("Do you want to unfollow %s?", username))
                 .setTitle("Unfollow")
-                .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        //do nothing
-                    }
+                .setNegativeButton("No", (dialogInterface, i) -> {
+                    //do nothing
                 })
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        calculations.unfollowMember(imgOverflow, userId, userID);
-                    }
-                })
+                .setPositiveButton("Yes", (dialogInterface, i) -> calculations.unfollowMember(imgOverflow, userId, userID, true))
                 .show();
     }
 

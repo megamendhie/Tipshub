@@ -59,17 +59,19 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostHolder>{
     private StorageReference storageReference;
     private Calculations calculations;
     private final int NORMAL_POST=1, BANKER_POST = 0;
+    private boolean anchorSnackbar;
 
     private String[] code = {"1xBet", "Bet9ja", "Nairabet", "SportyBet", "BlackBet", "Bet365"};
     private String[] type = {"3-5 odds", "6-10 odds", "11-50 odds", "50+ odds", "Draws", "Banker tip"};
 
-    public PostAdapter(FirestoreRecyclerOptions<Post> response, String userID, Context context) {
+    public PostAdapter(FirestoreRecyclerOptions<Post> response, String userID, Context context, boolean anchorSnackbar) {
         /*
         Configure recycler adapter options:
         query defines the request made to Firestore
         Post.class instructs the adapter to convert each DocumentSnapshot to a Post object
         */
         super(response);
+        this.anchorSnackbar = anchorSnackbar;
 
         Log.i(TAG, "PostAdapter: created");
         this.context = context;
@@ -362,7 +364,7 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostHolder>{
             else{
                 Log.i(TAG, "onClick: "+ model.getType());
                 if(model.getType()>0)
-                    calculations.onDeletePost(imgOverflow, postId, userId,status==2, type);
+                    calculations.onDeletePost(imgOverflow, postId, userId,status==2, type, anchorSnackbar);
                 else {
                     FirebaseUtil.getFirebaseFirestore().collection("posts").document(postId).delete();
                     Snackbar.make(imgOverflow, "Deleted", Snackbar.LENGTH_SHORT).show();
@@ -384,17 +386,9 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostHolder>{
                         "<p>Your account may be suspended or terminated if that's not true.</p>";
                 AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.Theme_AppCompat_Light_Dialog_Alert);
                 builder.setMessage(Html.fromHtml(message))
-                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                calculations.onPostWon(imgOverflow, postId, userId, type);
-                            }
-                        })
-                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                //do nothing
-                            }
+                        .setPositiveButton("Yes", (dialogInterface, i) -> calculations.onPostWon(imgOverflow, postId, userId, type, anchorSnackbar))
+                        .setNegativeButton("Cancel", (dialogInterface, i) -> {
+                            //do nothing
                         })
                         .show();
             }
@@ -420,12 +414,16 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostHolder>{
 
         btnFollow.setOnClickListener(v -> {
             if(!Reusable.getNetworkAvailability(context)){
-                Snackbar.make(btnFollow, "No Internet connection", Snackbar.LENGTH_SHORT).show();
+                if(anchorSnackbar)
+                    Snackbar.make(btnFollow, "No Internet connection", Snackbar.LENGTH_SHORT)
+                            .setAnchorView(R.id.bottom_navigation).show();
+                else
+                    Snackbar.make(btnFollow, "No Internet connection", Snackbar.LENGTH_SHORT).show();
                 dialog.cancel();
                 return;
             }
             if(btnFollow.getText().equals("FOLLOW")){
-                calculations.followMember(imgOverflow, userId, userID);
+                calculations.followMember(imgOverflow, userId, userID, anchorSnackbar);
             }
             else
                 unfollowPrompt(imgOverflow, userID, model.getUsername());
@@ -439,18 +437,10 @@ public class PostAdapter extends FirestoreRecyclerAdapter<Post, PostHolder>{
                 R.style.Theme_AppCompat_Light_Dialog_Alert);
         builder.setMessage(String.format("Do you want to unfollow %s?", username))
                 .setTitle("Unfollow")
-                .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        //do nothing
-                    }
+                .setNegativeButton("No", (dialogInterface, i) -> {
+                    //do nothing
                 })
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        calculations.unfollowMember(imgOverflow, userId, userID);
-                    }
-                })
+                .setPositiveButton("Yes", (dialogInterface, i) -> calculations.unfollowMember(imgOverflow, userId, userID, anchorSnackbar))
                 .show();
     }
 

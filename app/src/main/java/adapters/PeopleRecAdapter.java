@@ -11,14 +11,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.sqube.tipshub.LoginActivity;
 import com.sqube.tipshub.MemberProfileActivity;
 import com.sqube.tipshub.MyProfileActivity;
@@ -100,7 +96,8 @@ public class PeopleRecAdapter extends RecyclerView.Adapter<PeopleRecAdapter.Peop
 
                     holder.btnFollow.setOnClickListener(v -> {
                         if(!Reusable.getNetworkAvailability(context)){
-                            Snackbar.make(holder.btnFollow, "No Internet connection", Snackbar.LENGTH_SHORT).show();
+                            Snackbar.make(holder.btnFollow, "No Internet connection", Snackbar.LENGTH_SHORT)
+                                    .setAnchorView(R.id.bottom_navigation).show();
                             return;
                         }
 
@@ -110,7 +107,7 @@ public class PeopleRecAdapter extends RecyclerView.Adapter<PeopleRecAdapter.Peop
                         }
                         if(holder.btnFollow.getText().toString().toUpperCase().equals("FOLLOW")){
                             Calculations calculations= new Calculations(context);
-                            calculations.followMember(holder.imgDp, userId, ref);
+                            calculations.followMember(holder.imgDp, userId, ref, true);
                             holder.btnFollow.setText("FOLLOWING");
                         }
                         else
@@ -141,19 +138,13 @@ public class PeopleRecAdapter extends RecyclerView.Adapter<PeopleRecAdapter.Peop
                 R.style.Theme_AppCompat_Light_Dialog_Alert);
         builder.setMessage(String.format("Do you want to unfollow %s?", username))
                 .setTitle("Unfollow")
-                .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        //do nothing
-                    }
+                .setNegativeButton("No", (dialogInterface, i) -> {
+                    //do nothing
                 })
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        Calculations calculations= new Calculations(context);
-                        calculations.unfollowMember(btnFollow, userId, userID);
-                        btnFollow.setText("FOLLOW");
-                    }
+                .setPositiveButton("Yes", (dialogInterface, i) -> {
+                    Calculations calculations= new Calculations(context);
+                    calculations.unfollowMember(btnFollow, userId, userID, true);
+                    btnFollow.setText("FOLLOW");
                 })
                 .show();
     }

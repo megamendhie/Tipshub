@@ -53,10 +53,11 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerPostHold
     private String userId;
     private Calculations calculations;
     private StorageReference storageReference;
+    private boolean anchorSnackbar;
     private String[] code = {"1xBet", "Bet9ja", "Nairabet", "SportyBet", "BlackBet", "Bet365"};
     private String[] type = {"3-5 odds", "6-10 odds", "11-50 odds", "50+ odds", "Draws", "Banker tip"};
 
-    public BankerAdapter(Query query, String userID, Context context) {
+    public BankerAdapter(Query query, String userID, Context context, boolean anchorSnackbar) {
         /*
         Configure recycler adapter options:
         query defines the request made to Firestore
@@ -65,6 +66,8 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerPostHold
         super(new FirestoreRecyclerOptions.Builder<Post>()
                 .setQuery(query, Post.class)
                 .build());
+
+        this.anchorSnackbar = anchorSnackbar;
 
         Log.i(TAG, "BankerAdapter: created");
         this.context = context;
@@ -312,7 +315,7 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerPostHold
                         .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
-                                calculations.onPostWon(imgOverflow, postId, userId, type);
+                                calculations.onPostWon(imgOverflow, postId, userId, type, anchorSnackbar);
                             }
                         })
                         .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -336,7 +339,7 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerPostHold
             }
             else{
                 if(model.getType()>0)
-                    calculations.onDeletePost(imgOverflow, postId, userId,status==2, type);
+                    calculations.onDeletePost(imgOverflow, postId, userId,status==2, type, anchorSnackbar);
                 else {
                     FirebaseUtil.getFirebaseFirestore().collection("posts").document(postId).delete();
                     Snackbar.make(imgOverflow, "Deleted", Snackbar.LENGTH_SHORT).show();
@@ -362,7 +365,11 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerPostHold
 
         btnFollow.setOnClickListener(v -> {
             if(!Reusable.getNetworkAvailability(context)){
-                Snackbar.make(btnFollow, "No Internet connection", Snackbar.LENGTH_SHORT).show();
+                if(anchorSnackbar)
+                    Snackbar.make(btnFollow, "No Internet connection", Snackbar.LENGTH_SHORT)
+                            .setAnchorView(R.id.bottom_navigation).show();
+                else
+                    Snackbar.make(btnFollow, "No Internet connection", Snackbar.LENGTH_SHORT).show();
                 dialog.cancel();
                 return;
             }
@@ -372,7 +379,7 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerPostHold
                 return;
             }
             if(btnFollow.getText().equals("FOLLOW")){
-                calculations.followMember(imgOverflow, userId, userID);
+                calculations.followMember(imgOverflow, userId, userID, anchorSnackbar);
             }
             else
                 unfollowPrompt(imgOverflow, userID, model.getUsername());
@@ -394,18 +401,10 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerPostHold
                 R.style.Theme_AppCompat_Light_Dialog_Alert);
         builder.setMessage(String.format("Do you want to unfollow %s?", username))
                 .setTitle("Unfollow")
-                .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        //do nothing
-                    }
+                .setNegativeButton("No", (dialogInterface, i) -> {
+                    //do nothing
                 })
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        calculations.unfollowMember(imgOverflow, userId, userID);
-                    }
-                })
+                .setPositiveButton("Yes", (dialogInterface, i) -> calculations.unfollowMember(imgOverflow, userId, userID, anchorSnackbar))
                 .show();
     }
 

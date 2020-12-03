@@ -66,6 +66,11 @@ public class TipsAdapter extends RecyclerView.Adapter<TipsAdapter.TipsHolder> {
 
         private void setFlag(String country) {
             switch (country) {
+                case "Champions League":
+                case "Europa League":
+                case "Nations League":
+                case "World Cup":
+                    imgFlag.setImageResource(R.drawable.flag_world); break;
                 case "Ascension Island":
                 case "Tristan da Cunha":
                 case "Diego Garcia":
@@ -81,7 +86,7 @@ public class TipsAdapter extends RecyclerView.Adapter<TipsAdapter.TipsHolder> {
                     imgFlag.setImageResource(R.drawable.flag_scotland); break;
                 case "Andorra":
                     imgFlag.setImageResource(R.drawable.flag_andorra); break;
-                case "United Arab Emirates":
+                case "UAE":
                     imgFlag.setImageResource(R.drawable.flag_uae); break;
                 case "Afghanistan":
                     imgFlag.setImageResource(R.drawable.flag_afghanistan); break;
@@ -199,7 +204,7 @@ public class TipsAdapter extends RecyclerView.Adapter<TipsAdapter.TipsHolder> {
                     imgFlag.setImageResource(R.drawable.flag_christmas_island); break;
                 case "Cyprus":
                     imgFlag.setImageResource(R.drawable.flag_cyprus); break;
-                case "Czechia":
+                case "Czech Republic":
                     imgFlag.setImageResource(R.drawable.flag_czech_republic); break;
                 case "Germany":
                     imgFlag.setImageResource(R.drawable.flag_germany); break;

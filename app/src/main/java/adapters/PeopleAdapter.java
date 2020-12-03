@@ -60,7 +60,8 @@ public class PeopleAdapter extends RecyclerView.Adapter<PeopleAdapter.PeopleHold
     @Override
     public void onBindViewHolder(@NonNull PeopleHolder holder, int i) {
         String ref = list.get(i);
-        FirebaseUtil.getFirebaseFirestore().collection("profiles").document(ref).get().addOnCompleteListener(task -> {
+        FirebaseUtil.getFirebaseFirestore().collection("profiles").document(ref).get()
+                .addOnCompleteListener(task -> {
             if(!task.isSuccessful()||task.isCanceled() || !task.getResult().exists()){
                 list.remove(i);
                 PeopleAdapter.this.notifyDataSetChanged();
@@ -108,7 +109,7 @@ public class PeopleAdapter extends RecyclerView.Adapter<PeopleAdapter.PeopleHold
                 }
                 if(holder.btnFollow.getText().toString().toUpperCase().equals("FOLLOW")){
                     Calculations calculations= new Calculations(context);
-                    calculations.followMember(holder.imgDp, userId, ref);
+                    calculations.followMember(holder.imgDp, userId, ref, false);
                     holder.btnFollow.setText("FOLLOWING");
                 }
                 else
@@ -139,19 +140,13 @@ public class PeopleAdapter extends RecyclerView.Adapter<PeopleAdapter.PeopleHold
                 R.style.Theme_AppCompat_Light_Dialog_Alert);
         builder.setMessage(String.format("Do you want to unfollow %s?", username))
                 .setTitle("Unfollow")
-                .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        //do nothing
-                    }
+                .setNegativeButton("No", (dialogInterface, i) -> {
+                    //do nothing
                 })
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        Calculations calculations= new Calculations(context);
-                        calculations.unfollowMember(btnFollow, userId, userID);
-                        btnFollow.setText("FOLLOW");
-                    }
+                .setPositiveButton("Yes", (dialogInterface, i) -> {
+                    Calculations calculations= new Calculations(context);
+                    calculations.unfollowMember(btnFollow, userId, userID, false);
+                    btnFollow.setText("FOLLOW");
                 })
                 .show();
     }

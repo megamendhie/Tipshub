@@ -227,7 +227,7 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<PostHolder> {
             }
             else{
                 if(model.getType()>0)
-                    calculations.onDeletePost(imgOverflow, postId, userId,status==2, type);
+                    calculations.onDeletePost(imgOverflow, postId, userId,status==2, type, true);
                 else {
                     FirebaseUtil.getFirebaseFirestore().collection("posts").document(postId).delete();
                     Snackbar.make(imgOverflow, "Deleted", Snackbar.LENGTH_SHORT).show();
@@ -249,17 +249,9 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<PostHolder> {
                         "<p>Your account may be suspended or terminated if that's not true.</p>";
                 AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.Theme_AppCompat_Light_Dialog_Alert);
                 builder.setMessage(Html.fromHtml(message))
-                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                calculations.onPostWon(imgOverflow, postId, userId, type);
-                            }
-                        })
-                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                //do nothing
-                            }
+                        .setPositiveButton("Yes", (dialogInterface, i) -> calculations.onPostWon(imgOverflow, postId, userId, type, true))
+                        .setNegativeButton("Cancel", (dialogInterface, i) -> {
+                            //do nothing
                         })
                         .show();
             }
@@ -280,12 +272,13 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<PostHolder> {
 
         btnFollow.setOnClickListener(v -> {
             if(!Reusable.getNetworkAvailability(context)){
-                Snackbar.make(btnFollow, "No Internet connection", Snackbar.LENGTH_SHORT).show();
+                Snackbar.make(btnFollow, "No Internet connection", Snackbar.LENGTH_SHORT)
+                        .setAnchorView(R.id.bottom_navigation).show();
                 dialog.cancel();
                 return;
             }
             if(btnFollow.getText().equals("FOLLOW")){
-                calculations.followMember(imgOverflow, userId, userID);
+                calculations.followMember(imgOverflow, userId, userID, true);
             }
             else
                 unfollowPrompt(imgOverflow, userID, model.getUsername());
@@ -298,18 +291,10 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<PostHolder> {
                 R.style.Theme_AppCompat_Light_Dialog_Alert);
         builder.setMessage(String.format("Do you want to unfollow %s?", username))
                 .setTitle("Unfollow")
-                .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        //do nothing
-                    }
+                .setNegativeButton("No", (dialogInterface, i) -> {
+                    //do nothing
                 })
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        calculations.unfollowMember(imgOverflow, userId, userID);
-                    }
-                })
+                .setPositiveButton("Yes", (dialogInterface, i) -> calculations.unfollowMember(imgOverflow, userId, userID, true))
                 .show();
     }
 
