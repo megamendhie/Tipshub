@@ -5,7 +5,6 @@ package fragments;
 
 
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -70,6 +69,7 @@ public class BankerFragment extends Fragment {
     private final String TAG = "BankerFragment";
     private Intent intent;
 
+    private View rootView;
     public BankerFragment() {
         // Required empty public constructor
     }
@@ -77,8 +77,10 @@ public class BankerFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        View rootView=inflater.inflate(R.layout.fragment_banker, container, false);
+
+        // Inflate the layout for this fragment only if its null
+        if(rootView==null)
+            rootView = inflater.inflate(R.layout.fragment_banker, container, false);
         prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
         subscribedList = rootView.findViewById(R.id.subscribedList);
         latestList = rootView.findViewById(R.id.latestList);
@@ -201,8 +203,8 @@ public class BankerFragment extends Fragment {
     }
 
     private void loadBankerTipsters() {
-        Query query = FirebaseUtil.getFirebaseFirestore().collection("profiles").orderBy("e6c_WGP",
-                Query.Direction.DESCENDING).whereEqualTo("c1_banker", true).limit(10);
+        Query query = FirebaseUtil.getFirebaseFirestore().collection("profiles").orderBy("e6c_WGP")
+                .whereEqualTo("c1_banker", true).limit(10);
         FirestoreRecyclerOptions<ProfileShort> options = new FirestoreRecyclerOptions.Builder<ProfileShort>()
                 .setQuery(query, ProfileShort.class)
                 .build();
@@ -214,7 +216,7 @@ public class BankerFragment extends Fragment {
     private void loadLatest() {
         Log.i(TAG, "loadPost: ");
         BankerAdapter latestAdapter = new BankerAdapter(FirebaseUtil.getFirebaseFirestore().collection("posts").orderBy("time", Query.Direction.DESCENDING)
-                .whereEqualTo("type", 6).limit(8), userId, getContext());
+                .whereEqualTo("type", 6).limit(8), userId, getContext(), true);
         latestList.setAdapter(latestAdapter);
         if(latestAdapter !=null)
             latestAdapter.startListening();
@@ -223,7 +225,7 @@ public class BankerFragment extends Fragment {
     private void loadWinning() {
         Log.i(TAG, "loadWinning: ");
         BankerAdapter winAdapter = new BankerAdapter(FirebaseUtil.getFirebaseFirestore().collection("posts").orderBy("time", Query.Direction.DESCENDING)
-                .whereEqualTo("type", 6).whereEqualTo("status", 2).limit(8), userId, getContext());
+                .whereEqualTo("type", 6).whereEqualTo("status", 2).limit(8), userId, getContext(), true);
         winningsList.setAdapter(winAdapter);
         if(winAdapter !=null)
             winAdapter.startListening();
@@ -238,13 +240,10 @@ public class BankerFragment extends Fragment {
                 "<li>Won at least 70% of them.</li>\n" +
                 "<li>Be very active on the app.</li>\n" +
                 "</ul>";
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.Theme_AppCompat_Light_Dialog_Alert);
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(getContext(), R.style.CustomMaterialAlertDialog);
         builder.setMessage(Html.fromHtml(message))
-                .setNegativeButton("Okay", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        //do nothing
-                    }
+                .setNegativeButton("Okay", (dialogInterface, i) -> {
+                    //do nothing
                 })
                 .show();
     }
@@ -252,13 +251,10 @@ public class BankerFragment extends Fragment {
     private void popUp2(){
         String message = "<p><span style=\"color: #F80051;\"><strong>You already predicted today</strong></span></p>\n" +
                 "<p>Sorry you cannot post any banker tip again for today. Give your subscribers your very surest tip for each day.</p>";
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.Theme_AppCompat_Light_Dialog_Alert);
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(getContext(), R.style.CustomMaterialAlertDialog);
         builder.setMessage(Html.fromHtml(message))
-                .setNegativeButton("Okay", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        //do nothing
-                    }
+                .setNegativeButton("Okay", (dialogInterface, i) -> {
+                    //do nothing
                 })
                 .show();
     }

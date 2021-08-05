@@ -182,12 +182,13 @@ public class RepostActivity extends AppCompatActivity implements View.OnClickLis
                 //retrieve likes, likesCount, dislikes, dislikesCount, and repostCount from snapshot
                 long likesCount = snapshot.getLong("likesCount");
                 long dislikesCount = snapshot.getLong("dislikesCount");
+                long commentsCount = snapshot.getLong("commentsCount");
                 long repostCount = snapshot.getLong("repostCount") + 1;
                 long time = snapshot.getLong("time");
                 Map<String, Object> upd = new HashMap<>();
 
                 //recalculate child post relevance
-                double postRelevance = calculations.getPostRelevance(likesCount, dislikesCount, repostCount);
+                double postRelevance = calculations.getPostRelevance(likesCount, dislikesCount, repostCount, commentsCount);
                 double timeRelevance = calculations.getTimeRelevance(postRelevance, time);
                 upd.put("repostCount", repostCount);
                 upd.put("relevance", postRelevance);

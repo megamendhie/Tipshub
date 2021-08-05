@@ -4,6 +4,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="16dp"
     tools:context=".AccountActivity">
 
   <LinearLayout
@@ -11,22 +12,326 @@
       android:layout_height="match_parent"
       android:orientation="vertical">
 
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/imgDp"
+        android:layout_width="30dp"
+        android:layout_height="30dp"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:gravity="bottom">
+      <TextView
+          android:id="@+id/txtWelcome"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+          android:textSize="20sp"
+          android:text="Welcome Mendhie"/>
+
+      <TextView
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+          android:layout_alignParentEnd="true"
+          android:layout_alignParentBottom="true"
+          android:text="Show Balance"/>
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal">
+
+      <androidx.cardview.widget.CardView
+          android:layout_width="0dp"
+          android:layout_height="match_parent"
+          app:cardCornerRadius="6dp"
+          android:layout_marginEnd="10dp"
+          android:layout_weight="1">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="8dp"
+            android:gravity="center_vertical"
+            android:background="@color/colorAccent"
+            android:orientation="vertical">
+          <TextView
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:textColor="@color/white"
+              android:textSize="12sp"
+              android:text="WALLET BALANCE"/>
+          <TextView
+              android:id="@+id/txtBalWallet"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:textColor="@color/white"
+              android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+              android:textStyle="bold"
+              android:text="N25,000"/>
+        </LinearLayout>
+      </androidx.cardview.widget.CardView>
+
+
+      <androidx.cardview.widget.CardView
+          android:layout_width="0dp"
+          android:layout_height="match_parent"
+          app:cardCornerRadius="6dp"
+          android:layout_weight="1">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="8dp"
+            android:gravity="center_vertical"
+            android:background="@color/dark_grey"
+            android:orientation="vertical">
+          <TextView
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:textColor="@color/white"
+              android:textSize="12sp"
+              android:text="FROM SUBSCRIBERS"/>
+          <TextView
+              android:id="@+id/txtBalSubs"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:textColor="@color/white"
+              android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+              android:textStyle="bold"
+              android:text="N74,000"/>
+        </LinearLayout>
+      </androidx.cardview.widget.CardView>
+    </LinearLayout>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="10dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginStart="1dp"
+        android:layout_marginEnd="1dp">
+      <LinearLayout
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:padding="6dp"
+          android:orientation="vertical">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+            android:textSize="18sp"
+            android:text="Quick Actions"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+          <androidx.cardview.widget.CardView
+              android:layout_width="0dp"
+              android:layout_height="80dp"
+              app:cardCornerRadius="6dp"
+              android:layout_margin="4dp"
+              android:layout_weight="1"
+              android:foreground="?android:attr/selectableItemBackground"
+              android:onClick="displayDepositDialog">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="vertical">
+              <ImageView
+                  android:layout_width="34dp"
+                  android:layout_height="34dp"
+                  android:background="@drawable/circle_light"
+                  app:srcCompat="@drawable/ic_add_black_24dp"/>
+              <TextView
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_marginTop="4dp"
+                  android:textSize="12sp"
+                  android:text="Fund Wallet"
+                  android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                  android:textStyle="bold"/>
+            </LinearLayout>
+          </androidx.cardview.widget.CardView>
+
+          <androidx.cardview.widget.CardView
+              android:layout_width="0dp"
+              android:layout_height="80dp"
+              app:cardCornerRadius="6dp"
+              android:layout_margin="4dp"
+              android:layout_weight="1"
+              android:foreground="?android:attr/selectableItemBackground"
+              android:onClick="displayWithdrawalDialog">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:gravity="center">
+                <ImageView
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
+                    android:scaleType="center"
+                    android:padding="2dp"
+                    android:background="@drawable/circle_light"
+                    app:srcCompat="@drawable/ic_atm"/>
+              <TextView
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_marginTop="4dp"
+                  android:textSize="12sp"
+                  android:text="Withdraw"
+                  android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                  android:textStyle="bold"/>
+            </LinearLayout>
+          </androidx.cardview.widget.CardView>
+
+          <androidx.cardview.widget.CardView
+              android:layout_width="0dp"
+              android:layout_height="80dp"
+              app:cardCornerRadius="6dp"
+              android:layout_margin="4dp"
+              android:layout_weight="1"
+              android:foreground="?android:attr/selectableItemBackground"
+              android:onClick="startWhatsapp">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:gravity="center">
+                <ImageView
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
+                    android:padding="4dp"
+                    android:background="@drawable/circle_light"
+                    app:srcCompat="@drawable/ic_chat_black_24dp"/>
+              <TextView
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_marginTop="4dp"
+                  android:textSize="12sp"
+                  android:text="Get Number"
+                  android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                  android:textStyle="bold"/>
+            </LinearLayout>
+          </androidx.cardview.widget.CardView>
+
+        </LinearLayout>
+
+      </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="10dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginStart="1dp"
+        android:layout_marginEnd="1dp">
+
+      <LinearLayout
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:orientation="vertical"
+          android:background="@color/bg_off_yello"
+          android:padding="6dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/ic_fiber_24dp"
+            android:drawablePadding="2dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textSize="14sp"
+            android:textColor="@color/navy_blue"
+            android:text="@string/txt_fund_wallet"/>
+
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/ic_fiber_24dp"
+            android:drawablePadding="2dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textSize="14sp"
+            android:textColor="@color/navy_blue"
+            android:layout_marginTop="4dp"
+            android:text="@string/txt_withdraw"/>
+
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/ic_fiber_24dp"
+            android:drawablePadding="2dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textSize="14sp"
+            android:textColor="@color/navy_blue"
+            android:layout_marginTop="4dp"
+            android:text="@string/txt_get_acc"/>
+
+      </LinearLayout>
+    </androidx.cardview.widget.CardView>
 
     <TextView
-        android:id="@+id/txtHeading2"
+        android:id="@+id/txtHeadTransaction"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Transactions"
+        android:textAlignment="center"
+        android:layout_marginTop="20dp"
+        android:padding="4dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:background="@drawable/curved_top_gr"
+        android:textSize="20sp"
+        android:textStyle="bold"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+      <androidx.recyclerview.widget.RecyclerView
+          android:id="@+id/listTransactions"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content" />
+
+      <TextView
+          android:id="@+id/txtDipsplay3"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_gravity="center_horizontal"
+          android:background="@android:drawable/editbox_background"
+          android:text="No transactions yet"
+          android:layout_marginTop="70dp"
+          android:visibility="gone"
+          android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+          android:textSize="16sp" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/txtHeadSubscriptions"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Your Subscriptions "
         android:padding="4dp"
+        android:layout_marginTop="40dp"
         android:textAlignment="center"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:background="@color/colorPrimaryLight"
+        android:background="@drawable/curved_top_gr"
         android:textSize="20sp"
         android:textStyle="bold"/>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical" >
+        android:orientation="vertical">
 
       <TableLayout
           android:layout_width="match_parent"
@@ -38,47 +343,47 @@
             android:weightSum="13">
 
           <TextView
-              android:layout_weight="5"
               android:layout_width="0dp"
               android:layout_height="wrap_content"
               android:layout_gravity="center_vertical"
+              android:layout_weight="5"
               android:paddingStart="10dp"
               android:text="User"
               android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
           <TextView
-              android:layout_weight="2"
               android:layout_width="0dp"
               android:layout_height="wrap_content"
               android:layout_gravity="center_vertical"
               android:layout_marginStart="5dp"
+              android:layout_weight="2"
               android:text="Starting"
               android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
           <TextView
-              android:layout_weight="2"
               android:layout_width="0dp"
               android:layout_height="wrap_content"
               android:layout_gravity="center_vertical"
               android:layout_marginStart="3dp"
+              android:layout_weight="2"
               android:text="Ending"
               android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
           <TextView
-              android:layout_weight="2"
               android:layout_width="0dp"
               android:layout_height="wrap_content"
               android:layout_gravity="center_vertical"
               android:layout_marginStart="5dp"
+              android:layout_weight="2"
               android:text="Amount"
               android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
           <TextView
-              android:layout_weight="2"
               android:layout_width="0dp"
               android:layout_height="wrap_content"
               android:layout_gravity="center_vertical"
               android:layout_marginStart="5dp"
+              android:layout_weight="2"
               android:text="Status"
               android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
         </TableRow>
@@ -88,20 +393,20 @@
           android:layout_width="match_parent"
           android:layout_height="1dp"
           android:layout_marginTop="1dp"
-          android:background="@color/black"/>
+          android:background="@color/black" />
 
       <androidx.recyclerview.widget.RecyclerView
           android:id="@+id/listSubscriptions"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:layout_marginTop="2dp"/>
+          android:layout_marginTop="2dp" />
 
       <TextView
           android:id="@+id/txtDipsplay2"
           android:layout_width="wrap_content"
-          android:layout_height="29dp"
+          android:layout_height="wrap_content"
           android:layout_gravity="center_horizontal"
-          android:layout_marginTop="60dp"
+          android:layout_marginTop="70dp"
           android:visibility="gone"
           android:background="@android:drawable/editbox_background"
           android:text="No subscriptions yet"
@@ -111,7 +416,7 @@
     </LinearLayout>
 
     <TextView
-        android:id="@+id/txtHeading1"
+        android:id="@+id/txtHeadSubscribers"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Your Subscribers"
@@ -119,7 +424,7 @@
         android:layout_marginTop="40dp"
         android:padding="4dp"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:background="@color/colorPrimaryLight"
+        android:background="@drawable/curved_top_gr"
         android:textSize="20sp"
         android:textStyle="bold"/>
 
@@ -190,25 +495,25 @@
           android:layout_width="match_parent"
           android:layout_height="1dp"
           android:layout_marginTop="1dp"
-          android:background="@color/black"/>
+          android:background="@color/black" />
 
       <androidx.recyclerview.widget.RecyclerView
           android:id="@+id/listSubscribers"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:layout_marginTop="2dp"/>
+          android:layout_marginTop="2dp" />
 
       <TextView
           android:id="@+id/txtDipsplay1"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:layout_gravity="center_horizontal"
-          android:layout_marginTop="80dp"
-          android:text="No subscribers yet"
-          android:visibility="gone"
-          android:textSize="16sp"
           android:background="@android:drawable/editbox_background"
-          android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+          android:text="No subscribers yet"
+          android:layout_marginTop="70dp"
+          android:visibility="gone"
+          android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+          android:textSize="16sp" />
     </LinearLayout>
 
   </LinearLayout>

@@ -89,7 +89,7 @@
                     android:tint="@color/placeholder_bg"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:srcCompat="@drawable/ic_thumb_up_black_24dp"/>
+                    app:srcCompat="@drawable/ic_thumbs_up_alt"/>
             </LinearLayout>
 
             <LinearLayout
@@ -102,7 +102,7 @@
                     android:tint="@color/placeholder_bg"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:srcCompat="@drawable/ic_thumb_down_black_24dp"/>
+                    app:srcCompat="@drawable/ic_thumbs_down_alt"/>
             </LinearLayout>
 
             <LinearLayout

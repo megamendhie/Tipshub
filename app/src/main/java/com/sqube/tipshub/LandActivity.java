@@ -5,7 +5,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
@@ -123,20 +122,13 @@ public class LandActivity extends AppCompatActivity {
     }
 
     private void showPrompt(Intent intent){
-        AlertDialog.Builder builder = new AlertDialog.Builder(LandActivity.this,
-                R.style.Theme_AppCompat_Light_Dialog_Alert);
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(LandActivity.this, R.style.CustomMaterialAlertDialog);
         builder.setMessage("You have to login first")
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {}
-                })
-                .setPositiveButton("Login", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        intent.putExtra("openMainActivity", true);
-                        startActivity(intent);
-                        finish();
-                    }
+                .setNegativeButton("Cancel", (dialogInterface, i) -> {})
+                .setPositiveButton("Login", (dialogInterface, i) -> {
+                    intent.putExtra("openMainActivity", true);
+                    startActivity(intent);
+                    finish();
                 })
                 .show();
     }
@@ -244,7 +236,7 @@ public class LandActivity extends AppCompatActivity {
                     classicTips.clear();
                     for(GameTip tip: tips){
                         classicTips.add(tip);
-                        if (classicTips.size()>=3)
+                        if (classicTips.size()>=4)
                             break;
                     }
                     Log.i(TAG, "onPostExecute: classicTips:"  + classicTips);

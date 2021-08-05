@@ -52,10 +52,11 @@
                     android:gravity="center"
                     android:padding="5dp"
                     android:orientation="vertical">
-                    <ImageView
-                        android:layout_width="40dp"
-                        android:layout_height="34dp"
-                        android:src="@drawable/ic_com"/>
+                        <ImageView
+                            android:layout_width="80dp"
+                            android:layout_height="65dp"
+                            android:adjustViewBounds="true"
+                            android:src="@drawable/px_celebrate"/>
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -70,6 +71,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
                         android:gravity="center"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                         android:text="With more people on Tipshub, you will get more accurate predictions as the community grows"
                         android:textSize="14sp" />
 

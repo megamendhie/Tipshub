@@ -1,7 +1,5 @@
 package fragments;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
@@ -17,6 +15,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.text.Html;
 import android.text.TextUtils;
@@ -52,7 +51,6 @@ import com.google.gson.Gson;
 import com.hbb20.CountryCodePicker;
 import com.sqube.tipshub.ExtendedHomeActivity;
 import com.sqube.tipshub.FullViewActivity;
-import com.sqube.tipshub.MainActivity;
 import com.sqube.tipshub.PostActivity;
 import com.sqube.tipshub.R;
 import com.theartofdev.edmodo.cropper.CropImage;
@@ -167,6 +165,9 @@ public class HomeFragment extends Fragment{
         crdTips = rootView.findViewById(R.id.crdTips);
         crdPosts = rootView.findViewById(R.id.crdPosts);
 
+        SwipeRefreshLayout refresher = rootView.findViewById(R.id.refresher);
+        refresher.setColorSchemeResources(R.color.colorPrimary);
+
         homeFeed.setLayoutManager(new LinearLayoutManager(getContext()));
         tipsFeed.setLayoutManager(new LinearLayoutManager(getContext()));
         trendingFeed.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -215,16 +216,28 @@ public class HomeFragment extends Fragment{
 
         //confirm if user is seeing everybody's post
         fromEverybody = prefs.getBoolean("fromEverybody", true);
+        tipsAdapter = new TipsAdapter(homepageTips);
+        tipsFeed.setAdapter(tipsAdapter);
 
-        selectPostToLoad(savedInstanceState);
-        loadTips();
+        onRefresh(savedInstanceState);
         loadBankerTipsters();
         loadSportSites();
-        loadTrendingPost();
 
         if(myProfile!=null && (myProfile.getA2_username().isEmpty()||myProfile.getB1_phone().isEmpty()))
                 promptForUsername();
+
+        refresher.setOnRefreshListener(() -> {
+            refresher.setRefreshing(true);
+            onRefresh(savedInstanceState);
+            refresher.setRefreshing(false);
+        });
         return rootView;
+    }
+
+    private void onRefresh(Bundle savedInstanceState) {
+        selectPostToLoad(savedInstanceState);
+        loadTips();
+        loadTrendingPost();
     }
 
     private void seeMore(){
@@ -260,8 +273,7 @@ public class HomeFragment extends Fragment{
     }
 
     private void loadBankerTipsters() {
-        Query query = FirebaseUtil.getFirebaseFirestore().collection("profiles").orderBy("e6c_WGP",
-                Query.Direction.DESCENDING).whereEqualTo("c1_banker", true).limit(10);
+        Query query = FirebaseUtil.getFirebaseFirestore().collection("profiles").orderBy("e6c_WGP").whereEqualTo("c1_banker", true).limit(10);
         FirestoreRecyclerOptions<ProfileShort> options = new FirestoreRecyclerOptions.Builder<ProfileShort>()
                 .setQuery(query, ProfileShort.class)
                 .build();
@@ -274,7 +286,7 @@ public class HomeFragment extends Fragment{
         trendingAdapter = new FilteredPostAdapter(false, userId, getContext(), trendingPostList, trendingSnapIds);
         trendingFeed.setAdapter(trendingAdapter);
         FirebaseUtil.getFirebaseFirestore().collection("posts")
-                .orderBy("timeRelevance", Query.Direction.DESCENDING).limit(20).get()
+                .orderBy("timeRelevance", Query.Direction.DESCENDING).limit(30).get()
                 .addOnSuccessListener(result -> {
                     if(result==null|| result.isEmpty())
                         return;
@@ -444,8 +456,6 @@ public class HomeFragment extends Fragment{
     }
 
     private void loadTips() {
-        tipsAdapter = new TipsAdapter(homepageTips);
-        tipsFeed.setAdapter(tipsAdapter);
         GetTips getTips = new GetTips();
         getTips.execute();
     }
@@ -482,13 +492,10 @@ public class HomeFragment extends Fragment{
                 "<p>Take it easy, "+username+". You have reached your tips limit for today.</p>\n" +
                 "<p>To prevent spam, each person can post tips only 4 times in a day.\n"+
                 "But there is no limit to normal post. Enjoy!</p>";
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.Theme_AppCompat_Light_Dialog_Alert);
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(getContext(), R.style.CustomMaterialAlertDialog);
         builder.setMessage(Html.fromHtml(message))
-                .setNegativeButton("Okay", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        //do nothing
-                    }
+                .setNegativeButton("Okay", (dialogInterface, i) -> {
+                    //do nothing
                 })
                 .show();
     }
@@ -521,7 +528,7 @@ public class HomeFragment extends Fragment{
         FirestoreRecyclerOptions<Post> response = new FirestoreRecyclerOptions.Builder<Post>()
                 .setQuery(query, Post.class)
                 .build();
-        postAdapter = new PostAdapter(response, userId, getContext());
+        postAdapter = new PostAdapter(response, userId, getContext(), true);
         homeFeed.setAdapter(postAdapter);
         if(postAdapter!=null){
             Log.i(TAG, "loadPost: started listening");
@@ -685,7 +692,6 @@ public class HomeFragment extends Fragment{
                     if(tipJSON.has("probabilities")){
                         JSONObject probabilities = tipJSON.optJSONObject("probabilities");
                         gameTip.setProbability(probabilities.optDouble(gameTip.getPrediction()));
-                        Log.i(TAG, "getTips: "+ probabilities.optDouble(gameTip.getPrediction()));
                     }
                     else
                         Log.i(TAG, "getTips: null");
@@ -704,13 +710,10 @@ public class HomeFragment extends Fragment{
 
         @Override
         protected void onPostExecute(ArrayList<GameTip> tips) {
-            Log.i("GETTIPS", "onPostExecute: "+ tips);
+            //Log.i("GETTIPS", "onPostExecute: "+ tips);
             if(tips.isEmpty())
                 return;
-            if(subscriber)
-                Collections.sort(tips);
             homepageTips.clear();
-            Calculations.setFreeGameTips(tips); //save all the tips
             int k = 0;
             for(GameTip tip: tips){
                 homepageTips.add(tip);

@@ -2,7 +2,6 @@ package adapters;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import androidx.annotation.NonNull;
 import com.google.android.material.snackbar.Snackbar;
@@ -17,7 +16,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 
-import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.signature.ObjectKey;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -165,8 +163,7 @@ public class FilteredBankerAdapter extends RecyclerView.Adapter<BankerPostHolder
     }
 
     private void unfollowPrompt(ImageView imgOverflow, String userID, String username){
-        AlertDialog.Builder builder = new AlertDialog.Builder(context,
-                R.style.Theme_AppCompat_Light_Dialog_Alert);
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(context, R.style.CustomMaterialAlertDialog);
         builder.setMessage(String.format("Do you want to unfollow %s?", username))
                 .setTitle("Unfollow")
                 .setNegativeButton("No", (dialogInterface, i) -> {
@@ -178,7 +175,7 @@ public class FilteredBankerAdapter extends RecyclerView.Adapter<BankerPostHolder
 
     @Override
     public BankerPostHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.post_view, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_post, parent, false);
         return new BankerPostHolder(view);
     }
 

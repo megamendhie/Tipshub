@@ -34,15 +34,14 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:background="@android:drawable/editbox_background_normal">
+                android:hint="First Name"
+                style="@style/CustomOutlinedBox2">
 
                 <EditText
                     android:id="@+id/edtFirstName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@null"
                     android:ems="10"
-                    android:hint="First Name"
                     android:inputType="textEmailAddress"
                     android:maxLength="15" />
             </com.google.android.material.textfield.TextInputLayout>
@@ -51,15 +50,15 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:background="@android:drawable/editbox_background_normal">
+                android:layout_marginStart="8dp"
+                android:hint="Last Name"
+                style="@style/CustomOutlinedBox2">
 
                 <EditText
                     android:id="@+id/edtLastName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@null"
                     android:ems="10"
-                    android:hint="Last Name"
                     android:inputType="textEmailAddress"
                     android:maxLength="15" />
             </com.google.android.material.textfield.TextInputLayout>
@@ -69,32 +68,32 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@android:drawable/editbox_background_normal">
+            android:hint="Enter your email"
+            android:layout_marginTop="5dp"
+            style="@style/CustomOutlinedBox2">
 
             <EditText
                 android:id="@+id/edtEmail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@null"
                 android:maxLength="40"
                 android:ems="10"
-                android:hint="Enter your email"
                 android:inputType="textEmailAddress" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@android:drawable/editbox_background_normal">
+            android:hint="Confirm your email"
+            android:layout_marginTop="5dp"
+            style="@style/CustomOutlinedBox2">
 
             <EditText
                 android:id="@+id/edtEmailAgain"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@null"
                 android:maxLength="40"
                 android:ems="10"
-                android:hint="Confirm your email"
                 android:inputType="textEmailAddress" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -102,8 +101,10 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@null"
-            app:passwordToggleEnabled="true">
+            app:passwordToggleEnabled="true"
+            android:hint="Enter password"
+            android:layout_marginTop="5dp"
+            style="@style/CustomOutlinedBox2">
 
             <EditText
                 android:id="@+id/edtPassword"
@@ -112,24 +113,23 @@
                 android:ems="10"
                 android:maxLength="12"
                 android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890"
-                android:inputType="textPassword"
-                android:background="@android:drawable/editbox_background_normal"
-                android:hint="Enter password" />
+                android:inputType="textPassword" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <Button
-            style="@style/Base.Widget.AppCompat.Button"
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnSignup"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
             android:textSize="18sp"
             android:textColor="@android:color/white"
             android:textStyle="bold"
-            android:background="@color/colorAccent"
             android:layout_marginTop="20dp"
             android:layout_marginStart="25dp"
             android:layout_marginEnd="25dp"
-            android:text="Sign up" />
+            android:text="SIGN UP" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -156,12 +156,19 @@
                 android:layout_weight="3"/>
         </LinearLayout>
 
-        <Button
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/gSignIn"
-            style="@style/FirebaseUI.Button.AccountChooser.GoogleButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:layout_marginTop="20dp"
+            android:textSize="18sp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+            app:backgroundTint="@color/white"
+            android:layout_marginStart="5dp"
             android:paddingStart="10dp"
             android:drawableLeft="@drawable/googleg_standard_color_18"
             android:textColor="@color/fui_bgEmail"

@@ -7,9 +7,9 @@
             android:icon="@drawable/ic_person_outline_black_24dp"
             android:title="Profile" />
         <item
-            android:id="@+id/nav_account"
+            android:id="@+id/nav_wallet"
             android:icon="@drawable/ic_account_wallet_black_24dp"
-            android:title="Account" />
+            android:title="Wallet" />
 
         <item
             android:id="@+id/nav_switch"

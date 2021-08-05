@@ -4,7 +4,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <include layout="@layout/game_tip_view_shimmer" />
-    <include layout="@layout/game_tip_view_shimmer" />
-    <include layout="@layout/game_tip_view_shimmer" />
+    <include layout="@layout/item_game_tip_shimmer" />
+    <include layout="@layout/item_game_tip_shimmer" />
+    <include layout="@layout/item_game_tip_shimmer" />
 </LinearLayout>

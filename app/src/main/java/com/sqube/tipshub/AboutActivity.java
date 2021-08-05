@@ -54,7 +54,7 @@ public class AboutActivity extends AppCompatActivity {
         @NonNull
         @Override
         public Holder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-            View view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.about_item, viewGroup, false);
+            View view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.item_about, viewGroup, false);
             return new Holder(view);
         }
 

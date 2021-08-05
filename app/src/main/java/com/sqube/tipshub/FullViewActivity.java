@@ -41,9 +41,7 @@ import adapters.TipsAdapter;
 import models.Draw;
 import models.GameTip;
 import models.ProfileMedium;
-import utils.Calculations;
 import utils.DatabaseHelper;
-import utils.FirebaseUtil;
 import utils.HttpConFunction;
 
 import static utils.Calculations.BTTS;
@@ -55,9 +53,9 @@ import static utils.Calculations.targetUrl;
 public class FullViewActivity extends AppCompatActivity {
 
     RecyclerView listClassic, listVIP, listOver, listBts, listDraw, listWon;
-    private JSONObject flagsJson;
     private Gson gson = new Gson();
 
+    private ArrayList<GameTip> allCurrentTips = new ArrayList<>();
     private ArrayList<GameTip> classicTips = new ArrayList<>();
     private ArrayList<GameTip> vipTips = new ArrayList<>();
     private ArrayList<GameTip> overTips = new ArrayList<>();
@@ -72,13 +70,14 @@ public class FullViewActivity extends AppCompatActivity {
     private TipsAdapter wonAdapter;
     private DrawAdapter drawAdapter = new DrawAdapter();
 
-    private ShimmerFrameLayout shimmerClassicTips, shimmerVipTips, shimmerOverTips, shimmerBtsTips, shimmerDrawTips, shimmerWonTips;
+    private ShimmerFrameLayout shimmerClassicTips, shimmerVipTips, shimmerOverTips,
+            shimmerBtsTips, shimmerDrawTips, shimmerWonTips;
 
     private SharedPreferences prefs;
 
-    private RelativeLayout lnrVip, lnrOver, lnrBts, lnrDraw;
+    private RelativeLayout lnrVip, lnrDraw;
     private boolean subscriber;
-    private int cutOff = 5;
+    private int CUT_OFF = 6;
 
     private DatabaseHelper dbHelper;
     private SQLiteDatabase db;
@@ -101,8 +100,6 @@ public class FullViewActivity extends AppCompatActivity {
         listWon = findViewById(R.id.listWon);
 
         lnrVip = findViewById(R.id.lnrVip);
-        lnrOver = findViewById(R.id.lnrOver);
-        lnrBts = findViewById(R.id.lnrBts);
         lnrDraw = findViewById(R.id.lnrDraw);
 
         txtDate = findViewById(R.id.txtDate);
@@ -124,38 +121,28 @@ public class FullViewActivity extends AppCompatActivity {
         shimmerWonTips = findViewById(R.id.shimmerWonTips); shimmerWonTips.startShimmer();
 
         prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        String json = prefs.getString("profile", "");
-        ProfileMedium myProfile = (json.equals("")) ? null : gson.fromJson(json, ProfileMedium.class);
-        subscriber = myProfile != null && myProfile.isD4_vipSubscriber();
-
         dbHelper = new DatabaseHelper(this);
         db = dbHelper.getReadableDatabase();
 
-        setLayoutVisibility();
-
-        flagsJson = HttpConFunction.getFlags(this.getResources().openRawResource(R.raw.flags));
         getClassicTips = new GetTips(CLASSIC);
         getOverTips = new GetTips(OVER);
         getBttsTips = new GetTips(BTTS);
         getWonTips = new GetTips(WONGAMES);
-        loadTips(false);
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
+    protected void onPostResume() {
+        super.onPostResume();
 
         String json = prefs.getString("profile", "");
         ProfileMedium myProfile = (json.equals("")) ? null : gson.fromJson(json, ProfileMedium.class);
-        boolean subscriber = myProfile != null && myProfile.isD4_vipSubscriber();
-        if(subscriber && !this.subscriber ){
-            this.subscriber = true;
-            setLayoutVisibility();
-            loadTips(false);
-        }
+        subscriber = myProfile != null && myProfile.isD4_vipSubscriber();
+
+        setLayoutVisibility();
+        loadTips();
     }
 
-    private void loadTips(boolean refreshed) {
+    private void loadTips() {
         if(subscriber)
             btnSeeAll.setVisibility(View.GONE);
         classicAdapter = new TipsAdapter(classicTips);
@@ -170,33 +157,20 @@ public class FullViewActivity extends AppCompatActivity {
         listBts.setAdapter(bttsAdapter);
         listDraw.setAdapter(drawAdapter);
         listWon.setAdapter(wonAdapter);
-        if(refreshed) {
-            classicTips.clear();
-            wonTips.clear();
+
+
+        try {
             getClassicTips.execute();
             getWonTips.execute();
-        }
-        else{
-            classicTips.clear();
-            if(!Calculations.getFreeGameTips().isEmpty()) {
-                for(GameTip tip: Calculations.getFreeGameTips()){
-                    classicTips.add(tip);
-                    if(classicTips.size() >= cutOff)
-                        break;
-                }
-                classicAdapter.notifyDataSetChanged();
-                shimmerClassicTips.stopShimmer();
-                shimmerClassicTips.setVisibility(View.GONE);
-            }
-            if(subscriber)
-                setVip(classicTips);
-
-            getWonTips.execute();
-        }
-
-        if(subscriber){
             getOverTips.execute();
             getBttsTips.execute();
+        }
+        catch (Exception e){
+            Log.i("FullView", "loadTips: "+ e.getMessage());
+        }
+
+        if(subscriber) {
+            setVipTips();
             getDrawTips();
         }
     }
@@ -242,35 +216,23 @@ public class FullViewActivity extends AppCompatActivity {
     private void setLayoutVisibility() {
         if(subscriber){
             lnrVip.setVisibility(View.GONE);
-            lnrOver.setVisibility(View.GONE);
-            lnrBts.setVisibility(View.GONE);
             lnrDraw.setVisibility(View.GONE);
 
             shimmerVipTips.setVisibility(View.VISIBLE);
-            shimmerOverTips.setVisibility(View.VISIBLE);
-            shimmerBtsTips.setVisibility(View.VISIBLE);
             shimmerDrawTips.setVisibility(View.VISIBLE);
             listVIP.setVisibility(View.VISIBLE);
-            listOver.setVisibility(View.VISIBLE);
-            listBts.setVisibility(View.VISIBLE);
             listDraw.setVisibility(View.VISIBLE);
-            cutOff = 12;
+            CUT_OFF = 12;
         }
         else{
             lnrVip.setVisibility(View.VISIBLE);
-            lnrOver.setVisibility(View.VISIBLE);
-            lnrBts.setVisibility(View.VISIBLE);
             lnrDraw.setVisibility(View.VISIBLE);
 
             shimmerVipTips.setVisibility(View.GONE);
-            shimmerOverTips.setVisibility(View.GONE);
-            shimmerBtsTips.setVisibility(View.GONE);
             shimmerDrawTips.setVisibility(View.GONE);
             listVIP.setVisibility(View.GONE);
-            listOver.setVisibility(View.GONE);
-            listBts.setVisibility(View.GONE);
             listDraw.setVisibility(View.GONE);
-            cutOff = 5;
+            CUT_OFF = 6;
         }
     }
 
@@ -280,9 +242,9 @@ public class FullViewActivity extends AppCompatActivity {
         return true;
     }
 
-    private void setVip(ArrayList<GameTip> tips) {
-        vipTips.clear();
-        for(GameTip tip: tips){
+    private void setVipTips() {
+        Collections.sort(allCurrentTips);
+        for(GameTip tip: allCurrentTips){
             vipTips.add(tip);
             if (vipTips.size()>=4)
                 break;
@@ -374,8 +336,7 @@ public class FullViewActivity extends AppCompatActivity {
                     gameTip.set_id(tipJSON.optString("id"));
                     gameTip.setAwayTeam(tipJSON.optString("away_team"));
                     gameTip.setHomeTeam(tipJSON.optString("home_team"));
-                    String region = tipJSON.optString("competition_cluster");
-                    gameTip.setRegion(flagsJson==null? region : flagsJson.optString(region.trim())+" "+region);
+                    gameTip.setRegion(tipJSON.optString("competition_cluster"));
                     gameTip.setLeague(tipJSON.optString("competition_name"));
                     gameTip.setPrediction(tipJSON.optString("prediction"));
                     gameTip.setTime(tipJSON.optString("start_date"));
@@ -401,22 +362,21 @@ public class FullViewActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(ArrayList<GameTip> tips) {
-            Log.i("GETTIPS", "onPostExecute: "+ tips);
             if(tips.isEmpty())
                 return;
 
             switch (market){
                 case CLASSIC:
+                    allCurrentTips.clear();
                     classicTips.clear();
                     for(GameTip tip: tips){
-                        classicTips.add(tip);
-                        if (classicTips.size()>=12)
-                            break;
+                        allCurrentTips.add(tip);
+                        if (classicTips.size()<CUT_OFF)
+                            classicTips.add(tip);
                     }
                     classicAdapter.notifyDataSetChanged();
                     shimmerClassicTips.stopShimmer();
                     shimmerClassicTips.setVisibility(View.GONE);
-                    setVip(tips);
                     break;
                 case OVER:
                     overTips.clear();

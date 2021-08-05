@@ -45,6 +45,8 @@ public class Profile {
   private long d3_bankerPostTime;
   private boolean d4_vipSubscriber;
   private boolean d5_allowChat;
+  private long d6_balance_wallet;
+  private long d7_balance_sub;
 
   //values for overall No Of Games, Won Games, and Won Games Percentage
   private long e0a_NOG;
@@ -546,5 +548,21 @@ public class Profile {
 
   public void setD5_allowChat(boolean d5_allowChat) {
     this.d5_allowChat = d5_allowChat;
+  }
+
+  public long getD6_balance_wallet() {
+    return d6_balance_wallet;
+  }
+
+  public void setD6_balance_wallet(long d6_balance_wallet) {
+    this.d6_balance_wallet = d6_balance_wallet;
+  }
+
+  public long getD7_balance_sub() {
+    return d7_balance_sub;
+  }
+
+  public void setD7_balance_sub(long d7_balance_sub) {
+    this.d7_balance_sub = d7_balance_sub;
   }
 }

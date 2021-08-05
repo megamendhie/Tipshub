@@ -18,7 +18,6 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import de.hdodenhof.circleimageview.CircleImageView;
 import models.GameTip;
 
 public class TipsAdapter extends RecyclerView.Adapter<TipsAdapter.TipsHolder> {
@@ -31,7 +30,7 @@ public class TipsAdapter extends RecyclerView.Adapter<TipsAdapter.TipsHolder> {
     @NonNull
     @Override
     public TipsHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view  = LayoutInflater.from(parent.getContext()).inflate(R.layout.game_tip_view, parent, false);
+        View view  = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_game_tip, parent, false);
         return new TipsHolder(view);
     }
 

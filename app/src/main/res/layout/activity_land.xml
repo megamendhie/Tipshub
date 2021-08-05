@@ -32,6 +32,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
+                    android:textSize="16sp"
                     android:text="Sports Prediction, Discussion, &amp; News"
                     android:textAppearance="@style/TextAppearance.AppCompat.Body2" />
             </LinearLayout>
@@ -60,7 +61,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="20dp"
+                    android:layout_marginTop="14dp"
                     android:padding="12dp"
                     android:text="Enjoy accurate soccer predictions from Tipshub. Create your network by following people you like. Post anything you want - prediction/tips, analysis, or latest news. Get latest updates on EPL and other major leagues"
                     android:textAlignment="center"
@@ -72,30 +73,32 @@
                     android:gravity="center"
                     android:orientation="horizontal">
 
-                    <Button
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnJoin"
                         style="@style/Base.Widget.AppCompat.Button"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:ems="8"
                         android:onClick="goToLogin"
-                        android:background="@color/colorAccent"
                         android:padding="@dimen/general_padding"
                         android:text="JOIN HERE"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                         android:textColor="@android:color/white"
                         android:textSize="18sp"
                         android:textStyle="bold" />
 
-                    <Button
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnHowTo"
                         style="@style/Base.Widget.AppCompat.Button"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:ems="8"
                         android:onClick="goToLogin"
-                        android:layout_marginStart="20dp"
-                        android:background="@color/colorAccent"
+                        android:layout_marginStart="14dp"
                         android:padding="@dimen/general_padding"
                         android:text="HOW IT WORKS"
                         android:textColor="@android:color/white"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                         android:textSize="18sp"
                         android:textStyle="bold" />
                 </LinearLayout>
@@ -123,13 +126,11 @@
                     android:src="@drawable/socialupdated"/>
 
             </LinearLayout>
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="12dp"
                 android:orientation="vertical">
-
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -147,7 +148,7 @@
                     android:layout_height="wrap_content"
                     app:layout_constraintTop_toBottomOf="@id/crdClassic"
                     app:shimmer_duration="800">
-                    <include layout="@layout/tips_loading"/>
+                    <include layout="@layout/item_tips_loading"/>
                 </com.facebook.shimmer.ShimmerFrameLayout>
 
                 <androidx.recyclerview.widget.RecyclerView
@@ -166,11 +167,12 @@
                     android:textStyle="bold"
                     android:text="See all predictions"
                     android:textSize="16sp"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
                     android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                     android:textColor="@color/colorPrimaryDark" />
 
             </LinearLayout>
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -199,8 +201,6 @@
                     android:layout_height="wrap_content"
                     android:minHeight="60dp"
                     android:layout_marginTop="6dp"/>
-
-
                 <TextView
                     android:id="@+id/txtOpenPost"
                     android:layout_width="match_parent"
@@ -212,10 +212,11 @@
                     android:textStyle="bold"
                     android:text="See more"
                     android:textSize="16sp"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
                     android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                     android:textColor="@color/colorPrimaryDark" />
             </LinearLayout>
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -239,7 +240,7 @@
                     android:layout_height="wrap_content"
                     app:layout_constraintTop_toBottomOf="@id/crdClassic"
                     app:shimmer_duration="800">
-                    <include layout="@layout/tips_loading"/>
+                    <include layout="@layout/item_tips_loading"/>
                 </com.facebook.shimmer.ShimmerFrameLayout>
 
                 <androidx.recyclerview.widget.RecyclerView
@@ -258,11 +259,12 @@
                     android:textStyle="bold"
                     android:text="See more"
                     android:textSize="16sp"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
                     android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                     android:textColor="@color/colorPrimaryDark" />
 
                 </LinearLayout>
-
             <TextView
                 android:id="@+id/txtContact"
                 android:layout_width="wrap_content"

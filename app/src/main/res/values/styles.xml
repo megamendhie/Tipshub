@@ -1,11 +1,30 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light.DarkActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+    <!-- Base application theme. -->
+    <style name="AppThemeCompact" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+    <style name="FlutAppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/raveAndroidColorPrimary</item>
+        <item name="colorPrimaryDark">@color/raveAndroidColorPrimaryDark</item>
+        <item name="colorAccent">@color/raveAndroidColorAccent</item>
+    </style>
+    <style name="FlutAppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -13,10 +32,10 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="DefaultTheme" parent="AppTheme.NoActionBar">
+    <style name="DefaultTheme" parent="FlutAppTheme.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorAccent">@color/raveAndroidColorAccent</item>
         <item name="OTPButtonStyle">@style/otpBtnStyle2</item>
         <item name="PayButtonStyle">@style/payBtnStyle2</item>
         <item name="OTPHeaderStyle">@style/otpHeaderStyle2</item>
@@ -35,6 +54,18 @@
         <item name="colorButtonNormal">@color/color_oxblood</item>
     </style>
 
+    <style name="CustomOutlinedBox" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="boxStrokeColor">@color/color_oxblood</item>
+        <item name="hintTextColor">@color/color_oxblood</item>
+        <item name="android:textColorHint">@color/color_oxblood</item>
+    </style>
+
+    <style name="CustomOutlinedBox2" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="boxStrokeColor">@color/colorAccent</item>
+        <item name="hintTextColor">@color/colorAccent</item>
+        <item name="android:textColorHint">@color/colorAccent</item>
+    </style>
+
     <style name="AppTheme.AppBarOverlay" parent="Base.ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="AppTheme.PopupOverlay" parent="Base.ThemeOverlay.AppCompat.Light" />
@@ -49,6 +80,10 @@
 
     <style name="FullscreenActionBarStyle" parent="Widget.AppCompat.ActionBar">
         <item name="android:background">@color/black_overlay</item>
+    </style>
+
+    <style name="CustomMaterialAlertDialog" parent="Theme.MaterialComponents.Light.Dialog.Alert">
+        <item name="colorPrimary">#358850</item>
     </style>
 
 </resources>

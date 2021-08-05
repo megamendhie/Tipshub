@@ -24,11 +24,9 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.signature.ObjectKey;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -198,7 +196,7 @@ public class PostActivity extends AppCompatActivity implements View.OnClickListe
     private void addCode() {
         AlertDialog.Builder builder = new AlertDialog.Builder(PostActivity.this);
         android.view.LayoutInflater inflater = getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.tips_code_view, null);
+        View dialogView = inflater.inflate(R.layout.item_tips_code, null);
         builder.setView(dialogView);
 
         final androidx.appcompat.app.AlertDialog dialog= builder.create();

@@ -4,8 +4,10 @@
     <dimen name="vertical_padding">10dp</dimen>
     <dimen name="general_padding">12dp</dimen>
     <dimen name="activity_horizontal_margin">16dp</dimen>
-    <dimen name="design_bottom_navigation_active_text_size">12sp</dimen>
     <dimen name="img_padding">1dp</dimen>
     <dimen name="placeholder_image">50dp</dimen>
     <dimen name="placeholder_text_height">12dp</dimen>
+
+    <dimen name="dim_text_margin">20dp</dimen>
+    <dimen name="edt_text_padding">14dp</dimen>
 </resources>

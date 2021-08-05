@@ -215,7 +215,7 @@
                         android:layout_height="wrap_content"
                         android:clickable="true"
                         android:background="@drawable/img_like_bg"
-                        app:srcCompat="@drawable/ic_thumb_up_black_24dp"/>
+                        app:srcCompat="@drawable/ic_thumbs_up_alt"/>
                     <TextView
                         android:id="@+id/txtLike"
                         android:layout_width="wrap_content"
@@ -236,7 +236,7 @@
                         android:layout_height="wrap_content"
                         android:clickable="true"
                         android:background="@drawable/img_like_bg"
-                        app:srcCompat="@drawable/ic_thumb_down_black_24dp"/>
+                        app:srcCompat="@drawable/ic_thumbs_down_alt"/>
                     <TextView
                         android:id="@+id/txtDislike"
                         android:layout_width="wrap_content"

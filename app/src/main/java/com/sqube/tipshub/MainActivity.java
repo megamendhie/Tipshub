@@ -40,14 +40,13 @@ import com.bumptech.glide.Glide;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
+import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
@@ -99,17 +98,15 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
     private ActionBar actionBar;
     private BottomNavigationView btmNav;
-    final Fragment fragmentHome = new HomeFragment();
-    final Fragment fragmentRec = new RecommendedFragment();
-    final Fragment fragmentBanker = new BankerFragment();
-    final Fragment fragmentNot = new NotificationFragment();
-    private Fragment fragmentActive = fragmentHome;
+    private Fragment fragmentHome, fragmentRec, fragmentBanker, fragmentNot;
+    private Fragment fragmentActive;
     private FragmentManager fragmentManager = getSupportFragmentManager();
 
     private DrawerLayout mDrawerLayout;
     private CircleImageView imgDp;
     TextView txtName, txtUsername, txtTips, txtFollowing, txtFollowers;
     String userId;
+    String TAG = "Tipshub MainAct";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -188,11 +185,24 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
             popUp();
         setBadge();
 
-        if(savedInstanceState!=null){
+
+        fragmentHome = new HomeFragment();
+        fragmentRec = new RecommendedFragment();
+        fragmentBanker = new BankerFragment();
+        fragmentNot = new NotificationFragment();
+        fragmentActive = fragmentHome;
+
+        if(savedInstanceState==null)
+            loadFragment();
+        else{
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.add(R.id.main_container, fragmentNot, FRAG_NOTIFICATION).hide(fragmentNot);
+            fragmentTransaction.add(R.id.main_container, fragmentBanker, FRAG_BANKER).hide(fragmentBanker);
+            fragmentTransaction.add(R.id.main_container, fragmentRec, FRAG_REC).hide(fragmentRec).commit();
             String tag = savedInstanceState.getString(LAST_FRAGMENT);
             switch (tag){
                 case FRAG_HOME:
-                    getSupportFragmentManager().beginTransaction().hide(fragmentActive).show(fragmentHome).commit();
+                    getSupportFragmentManager().beginTransaction().show(fragmentHome).commit();
                     fragmentActive = fragmentHome;
                     break;
                 case FRAG_REC:
@@ -209,8 +219,6 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                     break;
             }
         }
-        else
-            loadFragment();
 
         aSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if(isChecked)
@@ -298,14 +306,9 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     private void popUp(){
         String message = "<p><span style=\"color: #F80051; font-size: 16px;\"><strong>Error: Incorrect time</strong></span></p>\n" +
                 "<p>Your phone time is incorrect and this may affect some app functions. Kindly set your phone time.</p>";
-        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this, R.style.Theme_AppCompat_Light_Dialog_Alert);
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(MainActivity.this, R.style.CustomMaterialAlertDialog);
         builder.setCancelable(false).setMessage(Html.fromHtml(message))
-                .setNegativeButton("Okay", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        finish();
-                    }
-                })
+                .setNegativeButton("Okay", (dialogInterface, i) -> finish())
                 .show();
     }
 
@@ -395,7 +398,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
             case R.id.nav_logout:
                 showLogoutPrompt();
                 break;
-            case R.id.nav_account:
+            case R.id.nav_wallet:
                 startActivity(new Intent(MainActivity.this, AccountActivity.class));
                 break;
         }
@@ -403,23 +406,16 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     }
 
     private void showLogoutPrompt() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this,
-                R.style.Theme_AppCompat_Light_Dialog_Alert);
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(MainActivity.this, R.style.CustomMaterialAlertDialog);
         builder.setMessage("Do you want to logout of Tipshub?")
                 .setTitle("Logout")
                 .setIcon(R.drawable.ic_power_settings_new_color_24dp)
-                .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {}
-                })
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        if(FirebaseUtil.getFirebaseAuthentication().getCurrentUser()!=null)
-                            Logout();
-                        else
-                            Toast.makeText(MainActivity.this, "No user logged in", Toast.LENGTH_LONG).show();
-                    }
+                .setNegativeButton("No", (dialogInterface, i) -> {})
+                .setPositiveButton("Yes", (dialogInterface, i) -> {
+                    if(FirebaseUtil.getFirebaseAuthentication().getCurrentUser()!=null)
+                        Logout();
+                    else
+                        Toast.makeText(MainActivity.this, "No user logged in", Toast.LENGTH_LONG).show();
                 })
                 .show();
     }
@@ -509,38 +505,29 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         defaultMap.put(FB_RC_KEY_FORCE_UPDATE_VERSION, ""+versionCode);
         defaultMap.put(FB_RC_KEY_LATEST_VERSION, ""+versionCode);
 
-        // To set the default values for the remote config parameters
-        mFirebaseRemoteConfig.setDefaults(defaultMap);
-        /*
-        // To enable the developer mode
-        mFirebaseRemoteConfig.setConfigSettings(new FirebaseRemoteConfigSettings.Builder()
-                .setDeveloperModeEnabled(BuildConfig.DEBUG).build());
-       */
+        long cacheExpiration = BuildConfig.DEBUG? 60 : TimeUnit.HOURS.toSeconds(12);
+        FirebaseRemoteConfigSettings configSettings = new FirebaseRemoteConfigSettings.Builder()
+                .setMinimumFetchIntervalInSeconds(cacheExpiration).build();
 
-        Task<Void> fetchTask=mFirebaseRemoteConfig.fetch(BuildConfig.DEBUG?0: TimeUnit.HOURS.toSeconds(12));
-
-        fetchTask.addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if (task.isSuccessful()) {
-                    // After config data is successfully fetched, it must be activated before newly fetched
-                    // values are returned.
-                    mFirebaseRemoteConfig.activateFetched();
-                    boolean visible = true;
-                    String title = mFirebaseRemoteConfig.getString(FB_RC_KEY_TITLE);
-                    String description = mFirebaseRemoteConfig.getString(FB_RC_KEY_DESCRIPTION);
-                    int forceUpdateVersion = Integer.parseInt(mFirebaseRemoteConfig.getString(FB_RC_KEY_FORCE_UPDATE_VERSION));
-                    int latestAppVersion = Integer.parseInt(mFirebaseRemoteConfig.getString(FB_RC_KEY_LATEST_VERSION));
-                    Log.i("Move", "onComplete: version code: "+ versionCode + "latest code: " + latestAppVersion);
-                    if (latestAppVersion > versionCode){
-                        if(forceUpdateVersion>versionCode)
-                            visible = false;
-                        updateAlert(title, description, visible);
-                    }
-
-                } else {
-                    Toast.makeText(getApplicationContext(), "Fetch Failed",Toast.LENGTH_SHORT).show();
+        mFirebaseRemoteConfig.setConfigSettingsAsync(configSettings);
+        mFirebaseRemoteConfig.setDefaultsAsync(defaultMap);
+        mFirebaseRemoteConfig.fetchAndActivate().addOnCompleteListener(this, task -> {
+            if (task.isSuccessful()) {
+                // Config data is successfully fetched and activated
+                boolean visible = true;
+                String title = mFirebaseRemoteConfig.getString(FB_RC_KEY_TITLE);
+                String description = mFirebaseRemoteConfig.getString(FB_RC_KEY_DESCRIPTION);
+                int forceUpdateVersion = Integer.parseInt(mFirebaseRemoteConfig.getString(FB_RC_KEY_FORCE_UPDATE_VERSION));
+                int latestAppVersion = Integer.parseInt(mFirebaseRemoteConfig.getString(FB_RC_KEY_LATEST_VERSION));
+                Log.i(TAG, "checkForUpdate: version code: "+ versionCode + "latest code: " + latestAppVersion);
+                if (latestAppVersion > versionCode){
+                    if(forceUpdateVersion>versionCode)
+                        visible = false;
+                    updateAlert(title, description, visible);
                 }
+
+            } else {
+                Log.i(TAG, "checkForUpdate: remote config fetch failed");
             }
         });
     }
@@ -556,18 +543,8 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         Button btnUpdate = alertDialog.findViewById(R.id.btnUpdate);
         TextView btnLater = alertDialog.findViewById(R.id.btnLater);
         btnLater.setVisibility(visible? View.VISIBLE : View.GONE);
-        btnUpdate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                rateApp();
-            }
-        });
-        btnLater.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                alertDialog.cancel();
-            }
-        });
+        btnUpdate.setOnClickListener(view -> rateApp());
+        btnLater.setOnClickListener(view -> alertDialog.cancel());
         TextView txtTitle = alertDialog.findViewById(R.id.txtTitle);
         TextView txtDescription = alertDialog.findViewById(R.id.txtDescription);
         txtTitle.setText(title);
@@ -575,7 +552,8 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        outState.putString(LAST_FRAGMENT, fragmentActive.getTag());
         super.onSaveInstanceState(outState);
     }
 

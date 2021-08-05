@@ -23,8 +23,6 @@ import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -34,8 +32,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.OnProgressListener;
-import com.google.firebase.storage.UploadTask;
 import com.hbb20.CountryCodePicker;
 import com.theartofdev.edmodo.cropper.CropImage;
 
@@ -54,15 +50,15 @@ public class SettingsActivity extends AppCompatActivity {
     private CircleImageView imgDp;
     private EditText edtFirstName, edtLastName, edtUsername, edtEmail, edtBio, edtCarrierNumber, edtBankDetails;
     private CountryCodePicker ccp;
-    RadioGroup rdbGender, rdbSub;
-    RadioButton rdMale, rdFemale, rdSub0, rdSub1, rdSub2, rdSub3;
+    RadioGroup rdbGender, rdbSub, rdbChat;
+    RadioButton rdMale, rdFemale, rdSub0, rdSub1, rdSub2, rdSub3, rdYes, rdNo;
     private Profile profile;
     private ProgressDialog progressDialog;
     private DatabaseReference dbRef;
     private String userId;
     private Uri filePath = null;
     private int[] amount = {0,0,0,0};
-    private boolean numberValid;
+    private boolean numberValid, allowChat;
     private String currency, currencyRef;
     private final String[] currencySymbol = {"&#8358;", "&#36;", "&#8364;", "&#xa3;", "&#8373;", "KES ", "UGX ", "TZS ",
             "ZAR ", "ZMW ", "RWF ", "XAF ", "XOF "};
@@ -154,12 +150,15 @@ public class SettingsActivity extends AppCompatActivity {
         ccp.setPhoneNumberValidityChangeListener(isValidNumber -> numberValid =isValidNumber);
         rdbGender = findViewById(R.id.rdbGroupGender);
         rdbSub = findViewById(R.id.rdbGroupSub);
+        rdbChat = findViewById(R.id.rdbGroupChat);
         rdMale = findViewById(R.id.rdbMale);
         rdFemale = findViewById(R.id.rdbFemale);
         rdSub0 = findViewById(R.id.rdbSub0);
         rdSub1 = findViewById(R.id.rdbSub1);
         rdSub2 = findViewById(R.id.rdbSub2);
         rdSub3 = findViewById(R.id.rdbSub3);
+        rdYes = findViewById(R.id.rdbYes);
+        rdNo = findViewById(R.id.rdbNo);
         progressDialog = new ProgressDialog(this);
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         userId = user.getUid();
@@ -196,6 +195,12 @@ public class SettingsActivity extends AppCompatActivity {
                             rdFemale.toggle();
                             break;
                     }
+
+                    if(profile.isD5_allowChat())
+                        rdYes.toggle();
+                    else
+                        rdNo.toggle();
+
                     switch ((String.valueOf(profile.getD0_subAmount()))) {
                         case "1":
                             rdSub1.toggle();
@@ -286,6 +291,15 @@ public class SettingsActivity extends AppCompatActivity {
                 break;
         }
 
+        switch (rdbChat.getCheckedRadioButtonId()){
+            case R.id.rdbYes:
+                allowChat = true;
+                break;
+            case R.id.rdbNo:
+                allowChat = false;
+                break;
+        }
+
         //verify fields meet requirement
         if(TextUtils.isEmpty(firstName)){
             edtFirstName.setError("Enter name");
@@ -309,38 +323,32 @@ public class SettingsActivity extends AppCompatActivity {
         updatedObject.put("a0_firstName",firstName);
         updatedObject.put("a1_lastName",lastName);
         updatedObject.put("a5_bio",bio);
+        updatedObject.put("a9_bank",account);
         updatedObject.put("b0_country", country);
         updatedObject.put("b1_phone", phone);
-        updatedObject.put("a9_bank",account);
         updatedObject.put("d0_subAmount", sub);
+        updatedObject.put("d5_allowChat", allowChat);
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(SettingsActivity.this, R.style.Theme_AppCompat_Light_Dialog_Alert);
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(SettingsActivity.this, R.style.CustomMaterialAlertDialog);
         builder.setMessage("Save changes?")
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        //update profile with edited user information
-                        FirebaseUtil.getFirebaseFirestore().collection("profiles").document(userId).set(updatedObject, SetOptions.merge())
-                                .addOnCompleteListener(SettingsActivity.this, task -> {
-                                    if (task.isSuccessful()) {
-                                        Snackbar.make(edtBio, "Saved", Snackbar.LENGTH_SHORT).show();
-                                        if (!profile.getA0_firstName().equals(firstName) || !profile.getA1_lastName().equals(lastName))
-                                            Reusable.updateAlgoliaIndex(firstName, lastName, profile.getA2_username(),
-                                                    userId, profile.getC2_score(), false);
-                                        updateView();
-                                    }
-                                    else
-                                        Snackbar.make(edtBio, "Failed to save", Snackbar.LENGTH_SHORT).show();
-                                });
-                    }
+                .setPositiveButton("Yes", (dialogInterface, i) -> {
+                    //update profile with edited user information
+                    FirebaseUtil.getFirebaseFirestore().collection("profiles").document(userId).set(updatedObject, SetOptions.merge())
+                            .addOnCompleteListener(SettingsActivity.this, task -> {
+                                if (task.isSuccessful()) {
+                                    Snackbar.make(edtBio, "Saved", Snackbar.LENGTH_SHORT).show();
+                                    if (!profile.getA0_firstName().equals(firstName) || !profile.getA1_lastName().equals(lastName))
+                                        Reusable.updateAlgoliaIndex(firstName, lastName, profile.getA2_username(),
+                                                userId, profile.getC2_score(), false);
+                                    updateView();
+                                }
+                                else
+                                    Snackbar.make(edtBio, "Failed to save", Snackbar.LENGTH_SHORT).show();
+                            });
                 })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) { }
-                })
+                .setNegativeButton("Cancel", (dialogInterface, i) -> { })
                 .show();
     }
-
 
     public void grabImage(){
         CropImage.activity()
@@ -370,33 +378,23 @@ public class SettingsActivity extends AppCompatActivity {
         FirebaseStorage storage = FirebaseStorage.getInstance();
 
         storage.getReference().child("profile_images").child(userId).putFile(filePath)
-                .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                        taskSnapshot.getMetadata().getReference().getDownloadUrl()
-                                .addOnSuccessListener(uri -> {
-                                    String url = uri.toString();
-                                    FirebaseUtil.getFirebaseFirestore().collection("profiles").document(userId).update("b2_dpUrl", url);
-                                    progressDialog.dismiss();
-                                    Toast.makeText(SettingsActivity.this, "Image uploaded", Toast.LENGTH_SHORT).show();
-                                    imgDp.setImageURI(filePath);
-                                });
-                    }
+                .addOnSuccessListener(taskSnapshot -> taskSnapshot.getMetadata().getReference().getDownloadUrl()
+                        .addOnSuccessListener(uri -> {
+                            String url = uri.toString();
+                            FirebaseUtil.getFirebaseFirestore().collection("profiles")
+                                    .document(userId).update("b2_dpUrl", url);
+                            progressDialog.dismiss();
+                            Toast.makeText(SettingsActivity.this, "Image uploaded", Toast.LENGTH_SHORT).show();
+                            imgDp.setImageURI(filePath);
+                        }))
+                .addOnFailureListener(e -> {
+                    progressDialog.dismiss();
+                    Toast.makeText(SettingsActivity.this, "Failed "+e.getMessage(), Toast.LENGTH_SHORT).show();
                 })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        progressDialog.dismiss();
-                        Toast.makeText(SettingsActivity.this, "Failed "+e.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-                        double progress = (100.0 * taskSnapshot.getBytesTransferred() / taskSnapshot
-                                .getTotalByteCount());
-                        progressDialog.setMessage((int) progress + "%" + " completed" );
-                    }
+                .addOnProgressListener(taskSnapshot -> {
+                    double progress = (100.0 * taskSnapshot.getBytesTransferred() / taskSnapshot
+                            .getTotalByteCount());
+                    progressDialog.setMessage((int) progress + "%" + " completed" );
                 })
         ;
     }

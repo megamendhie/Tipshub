@@ -41,10 +41,13 @@ public class Subscription {
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
         String currentTime = sdf.format(today.getTime());
         Calendar c = Calendar.getInstance();
-        if(duration.equals("2 weeks"))
+        if(duration.equals("1 week"))
+            c.add(Calendar.WEEK_OF_MONTH, 1);
+        else if(duration.equals("2 weeks"))
             c.add(Calendar.WEEK_OF_MONTH, 2);
-        if(duration.equals("1 month"))
+        else
             c.add(Calendar.MONTH, 1);
+
         this.dateStart = currentTime;
         this.dateEnd = sdf.format(c.getTime());
         c.add(Calendar.DAY_OF_MONTH, -3);

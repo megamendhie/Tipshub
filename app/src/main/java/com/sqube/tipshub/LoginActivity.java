@@ -180,32 +180,26 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         progressDialog.setTitle("Signing in...");
         progressDialog.show();
         FirebaseUtil.getFirebaseAuthentication().signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        progressDialog.dismiss();
-                        prgLogin.setVisibility(View.GONE);
-                        if(task.isSuccessful()){
-                            editor.putString("PASSWORD", edtPassword.getText().toString().trim());
-                            editor.putString("EMAIL", edtEmail.getText().toString().trim());
-                            editor.apply();
-                            Snackbar.make(btnLogin, "Login successful", Snackbar.LENGTH_SHORT).show();
-                            user = FirebaseUtil.getFirebaseAuthentication().getCurrentUser();
-                            finish();
-                            if(openMainActivity)
-                                startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                        }
+                .addOnCompleteListener(this, task -> {
+                    progressDialog.dismiss();
+                    prgLogin.setVisibility(View.GONE);
+                    if(task.isSuccessful()){
+                        editor.putString("PASSWORD", edtPassword.getText().toString().trim());
+                        editor.putString("EMAIL", edtEmail.getText().toString().trim());
+                        editor.apply();
+                        Snackbar.make(btnLogin, "Login successful", Snackbar.LENGTH_SHORT).show();
+                        user = FirebaseUtil.getFirebaseAuthentication().getCurrentUser();
+                        finish();
+                        if(openMainActivity)
+                            startActivity(new Intent(LoginActivity.this, MainActivity.class));
                     }
                 })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        progressDialog.dismiss();
-                        enableViews("Login failed. " + e.getMessage());
-                        if(FirebaseUtil.getFirebaseAuthentication().getCurrentUser()!=null)
-                            FirebaseUtil.getFirebaseAuthentication().signOut();
-                    }
-        });
+                .addOnFailureListener(e -> {
+                    progressDialog.dismiss();
+                    enableViews("Login failed. " + e.getMessage());
+                    if(FirebaseUtil.getFirebaseAuthentication().getCurrentUser()!=null)
+                        FirebaseUtil.getFirebaseAuthentication().signOut();
+                });
     }
 
     public void authWithGoogle(GoogleSignInAccount account){
@@ -325,12 +319,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         Glide.with(this).load(user.getPhotoUrl()).into(imgDp);
         Button btnSave = dialog.findViewById(R.id.btnSave);
 
-        ccp.setPhoneNumberValidityChangeListener(new CountryCodePicker.PhoneNumberValidityChangeListener() {
-            @Override
-            public void onValidityChanged(boolean isValidNumber) {
-                numberValid[0] =isValidNumber;
-            }
-        });
+        ccp.setPhoneNumberValidityChangeListener(isValidNumber -> numberValid[0] =isValidNumber);
 
         btnSave.setOnClickListener(v -> {
             String username = edtUsername.getText().toString().trim();

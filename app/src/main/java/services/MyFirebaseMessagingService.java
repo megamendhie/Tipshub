@@ -5,11 +5,10 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.Build;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
@@ -63,6 +62,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
+
         final String COMMENT = "comment", POST = "post", FOLLOWING = "following", SUBSCRIPTION = "subscription";
 
         Intent intent = new Intent(this, MainActivity.class);
@@ -76,6 +76,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
             createNoificationChannel(notificationManager);
 
+        /*
         Log.i(TAG, "onMessageReceived: "+ remoteMessage.getData());
         String received_intent = remoteMessage.getData().get("type");
         if(received_intent==null){
@@ -94,6 +95,40 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 break;
         }
 
+         */
+
+        //register broadcast receiver
+        NotificationBroadcastReceiver nxnBroadcastReceiver = new NotificationBroadcastReceiver();
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addCategory(Intent.CATEGORY_DEFAULT);
+        intentFilter.addAction("NOTIFICATION_ACTION");
+        try {
+            registerReceiver(nxnBroadcastReceiver, intentFilter);
+        }
+        catch (IllegalArgumentException e){
+            e.printStackTrace();
+        }
+
+        // While making notification
+        String received_intent = remoteMessage.getData().get("type");
+        Intent broadcastIntent = new Intent("NOTIFICATION_ACTION");
+        broadcastIntent.putExtra("RECEIVED_INTENT", received_intent);
+        broadcastIntent.putExtra("NOTIFICATION_TIME", remoteMessage.getSentTime());
+        if(received_intent==null)
+            return;
+        switch (received_intent){
+            case COMMENT:
+            case POST:
+                broadcastIntent.putExtra("POST_ID", remoteMessage.getData().get("intentUrl"));
+                break;
+            case FOLLOWING:
+            case SUBSCRIPTION:
+                broadcastIntent.putExtra("USER_ID", remoteMessage.getData().get("sentFrom"));
+                break;
+        }
+        PendingIntent pendingIntentBroadcast = PendingIntent.getBroadcast(this, 0, broadcastIntent, 0);
+
+
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this , 0, intent,
                 PendingIntent.FLAG_ONE_SHOT);
@@ -101,7 +136,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Bitmap largeIcon = BitmapFactory.decodeResource(getResources(),
                 R.drawable.icn_medium);
 
-        Uri notificationSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.drawable.icon_svg)
                 .setLargeIcon(largeIcon)
@@ -111,7 +145,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 .setAutoCancel(true)
                 .setPriority(PRIORITY_DEFAULT)
                 .setDefaults(DEFAULT_ALL)
-                .setContentIntent(pendingIntent);
+                .setContentIntent(pendingIntentBroadcast);
 
         //Set notification color to match your app color template
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){

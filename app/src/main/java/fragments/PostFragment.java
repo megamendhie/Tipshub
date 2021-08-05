@@ -2,6 +2,7 @@ package fragments;
 
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import android.util.Log;
@@ -40,6 +41,7 @@ public class PostFragment extends Fragment {
         // Inflate the layout for this fragment
         View rootView  = inflater.inflate(R.layout.fragment_post, container, false);
         recyclerView = rootView.findViewById(R.id.postList);
+        ((DefaultItemAnimator) recyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         user = FirebaseUtil.getFirebaseAuthentication().getCurrentUser();
         if(user==null)
@@ -72,7 +74,7 @@ public class PostFragment extends Fragment {
         FirestoreRecyclerOptions<Post> response = new FirestoreRecyclerOptions.Builder<Post>()
                 .setQuery(query, Post.class)
                 .build();
-        postAdapter = new PostAdapter(response, myId, getContext());
+        postAdapter = new PostAdapter(response, myId, getContext(), false);
         recyclerView.setAdapter(postAdapter);
         if(postAdapter !=null){
             Log.i(TAG, "loadPost: started listening");

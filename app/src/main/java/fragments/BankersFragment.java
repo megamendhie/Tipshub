@@ -58,7 +58,7 @@ public class BankersFragment extends Fragment {
         Log.i(TAG, "loadPost: ");
         Query query = FirebaseUtil.getFirebaseFirestore().collection("posts").orderBy("time", Query.Direction.DESCENDING)
                 .whereEqualTo("userId", userId).whereEqualTo("type", 6);
-        postAdapter = new BankerAdapter(query, myId, getContext());
+        postAdapter = new BankerAdapter(query, myId, getContext(), false);
         recyclerView.setAdapter(postAdapter);
         if(postAdapter!=null){
             Log.i(TAG, "loadPost: started listening");

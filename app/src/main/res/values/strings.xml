@@ -25,7 +25,6 @@
         <item>Bet365</item>
     </array>
 
-
     <array name="club_arrays">
         <item>Liverpool</item>
         <item>Man City</item>
@@ -957,11 +956,18 @@
         <item>X/2</item>
     </array>
 
+    <array name="withdrawal_type">
+        <item>-select-</item>
+        <item>Bank account</item>
+        <item>mPesa</item>
+        <item>Mobile money</item>
+    </array>
+
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="txt_no_post">No posts here</string>
     <string name="nothing_to_display">Nothing to display</string>
-    <string name="txt_follow">Follow</string>
+    <string name="txt_follow">FOLLOW</string>
     <string name="txt_sub_title">How much do you want to charge your subscribers for 2 weeks?</string>
     <string name="txt_notice_dp"><![CDATA[>Update your picture, username, and phone no.]]></string>
     <string name="txt_later">LATER</string>
@@ -975,10 +981,15 @@
     <string name="title_activity_land">LandActivity</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
-    <string name="txt_subscription">Subscription gives you access to VIP, Over 2.5, BTTS, and weekend draws</string>
-    <string name="txt_view_now">SUBSCRIBE</string>
-    <string name="txt_sub_notice">Get all our tips by becoming a subscriber</string>
+    <string name="txt_subscription">Subscribe now to get our VIP and weekend draws</string>
+    <string name="txt_view_now">SUBSCRIBE NOW</string>
+    <string name="txt_sub_notice">For subscribers only</string>
     <string name="txt_repost">Repost</string>
     <string name="txt_delete">Delete</string>
     <string name="str_cannot_share_post">You can\'t share this post yet</string>
+    <string name="txt_try_again">-Try again or click here to contact us.</string>
+    <string name="txt_processing">Performing transaction... please wait</string>
+    <string name="txt_fund_wallet"><b>Fund wallet </b> - pay directly to your wallet through card, mpesa, or mobile money. This money is for subscriptions.</string>
+    <string name="txt_withdraw"><b>Withdraw </b>- you can withdraw the money paid to you by your subscribers.</string>
+    <string name="txt_get_acc"><b>Get Account</b>- if you have any difficulty in funding your wallet, kindly reach out to us for account details.</string>
 </resources>

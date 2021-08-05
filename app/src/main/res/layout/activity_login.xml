@@ -24,23 +24,25 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@android:drawable/editbox_background_normal"
-            android:layout_marginTop="40dp">
+            android:layout_marginTop="40dp"
+            android:hint="Enter your email"
+            style="@style/CustomOutlinedBox2">
 
             <EditText
                 android:id="@+id/edtEmail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@null"
                 android:maxLength="40"
                 android:ems="10"
-                android:hint="Enter your email"
                 android:inputType="textEmailAddress" />
         </com.google.android.material.textfield.TextInputLayout>
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:passwordToggleEnabled="true">
+            android:layout_marginTop="10dp"
+            app:passwordToggleEnabled="true"
+            android:hint="Choose password"
+            style="@style/CustomOutlinedBox2">
 
             <EditText
                 android:id="@+id/edtPassword"
@@ -49,15 +51,13 @@
                 android:ems="10"
                 android:maxLength="12"
                 android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890"
-                android:inputType="textPassword"
-                android:background="@android:drawable/editbox_background_normal"
-                android:hint="Choose password" />
+                android:inputType="textPassword"/>
         </com.google.android.material.textfield.TextInputLayout>
+
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp">
-
             <TextView
                 android:id="@+id/txtForgetPassword"
                 android:layout_width="wrap_content"
@@ -69,17 +69,20 @@
                 android:layout_alignParentStart="true"
                 android:text="Forgot password?" />
         </RelativeLayout>
-        <Button
-            style="@style/Base.Widget.AppCompat.Button"
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnLogin"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
             android:textSize="18sp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
             android:textColor="@android:color/white"
             android:textStyle="bold"
-            android:background="@color/colorAccent"
-            android:layout_margin="20dp"
-            android:text="Login" />
+            android:layout_marginTop="30dp"
+            android:layout_marginBottom="20dp"
+            android:text="LOGIN" />
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -111,12 +114,16 @@
             android:orientation="horizontal">
 
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/gSignIn"
-                style="@style/FirebaseUI.Button.AccountChooser.GoogleButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:textSize="18sp"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                 android:layout_weight="2"
+                app:backgroundTint="@color/white"
                 android:layout_marginStart="5dp"
                 android:paddingStart="10dp"
                 android:drawableLeft="@drawable/googleg_standard_color_18"
@@ -124,20 +131,21 @@
                 android:textStyle="bold"
                 android:text="Use Google" />
 
-            <Button
-                style="@style/Base.Widget.AppCompat.Button"
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSignup"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                 android:layout_weight="2"
                 android:layout_marginStart="5dp"
                 android:paddingStart="10dp"
-                android:drawableStart="@drawable/fui_ic_mail_white_24dp"
+                android:drawableLeft="@drawable/fui_ic_mail_white_24dp"
                 android:textSize="18sp"
                 android:textColor="@android:color/white"
                 android:textStyle="bold"
-                android:background="@color/colorAccent"
-                android:text="Sign up" />
+                android:text="SIGN UP" />
         </LinearLayout>
 
     </LinearLayout>

@@ -3,7 +3,6 @@ package adapters;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import androidx.annotation.NonNull;
 import com.google.android.material.snackbar.Snackbar;
@@ -310,19 +309,11 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerPostHold
                 String message = "<p><span style=\"color: #F80051; font-size: 16px;\"><strong>Your tips have delivered?</strong></span></p>\n" +
                         "<p>By clicking 'YES', you confirm that your prediction has delivered.</p>\n" +
                         "<p>Your account may be suspended or terminated if that's not true.</p>";
-                AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.Theme_AppCompat_Light_Dialog_Alert);
+                androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(context, R.style.CustomMaterialAlertDialog);
                 builder.setMessage(Html.fromHtml(message))
-                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                calculations.onPostWon(imgOverflow, postId, userId, type, anchorSnackbar);
-                            }
-                        })
-                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                //do nothing
-                            }
+                        .setPositiveButton("Yes", (dialogInterface, i) -> calculations.onPostWon(imgOverflow, postId, userId, type, anchorSnackbar))
+                        .setNegativeButton("Cancel", (dialogInterface, i) -> {
+                            //do nothing
                         })
                         .show();
             }
@@ -388,8 +379,7 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerPostHold
     }
 
     private void loginPrompt(View view) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext(),
-                R.style.Theme_AppCompat_Light_Dialog_Alert);
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(view.getContext(), R.style.CustomMaterialAlertDialog);
         builder.setMessage("You have to login first")
                 .setNegativeButton("Cancel", (dialogInterface, i) -> {})
                 .setPositiveButton("Login", (dialogInterface, i) -> view.getContext().startActivity(new Intent(view.getContext(), LoginActivity.class)))
@@ -397,8 +387,7 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerPostHold
     }
 
     private void unfollowPrompt(ImageView imgOverflow, String userID, String username){
-        AlertDialog.Builder builder = new AlertDialog.Builder(context,
-                R.style.Theme_AppCompat_Light_Dialog_Alert);
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(context, R.style.CustomMaterialAlertDialog);
         builder.setMessage(String.format("Do you want to unfollow %s?", username))
                 .setTitle("Unfollow")
                 .setNegativeButton("No", (dialogInterface, i) -> {
@@ -410,7 +399,7 @@ public class BankerAdapter extends FirestoreRecyclerAdapter<Post, BankerPostHold
 
     @Override
     public BankerPostHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.post_view_banker, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_post_banker, parent, false);
         return new BankerPostHolder(view);
     }
 

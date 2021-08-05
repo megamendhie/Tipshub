@@ -5,6 +5,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
@@ -49,7 +50,7 @@ public class NotificationCheckWorker extends Worker {
                     if(queryDocumentSnapshots!=null && !queryDocumentSnapshots.isEmpty()){
                         for(DocumentSnapshot snapshot: queryDocumentSnapshots.getDocuments()){
                             Notification notification = snapshot.toObject(Notification.class);
-                            showNotification(notification);
+                            showNotification(notification, snapshot.getId());
                         }
                     }
                 });
@@ -58,7 +59,7 @@ public class NotificationCheckWorker extends Worker {
         return Result.success(dataOutput);
     }
 
-    private void showNotification(Notification notification) {
+    private void showNotification(Notification notification, String notificationId) {
         NotificationManager manager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
         int notificationID = new Random().nextInt(3000);
         String channelId = "admin_channel";
@@ -79,6 +80,7 @@ public class NotificationCheckWorker extends Worker {
         Intent notificationIntent;
         final String COMMENT = "comment", POST = "post", FOLLOWING = "following", SUBSCRIPTION = "subscription";
 
+        /*
         String received_intent = notification.getType();
         switch (received_intent){
             case COMMENT:
@@ -96,9 +98,34 @@ public class NotificationCheckWorker extends Worker {
                 break;
 
         }
+         */
 
-        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), notificationID, notificationIntent,
-                PendingIntent.FLAG_ONE_SHOT);
+        //PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), notificationID, notificationIntent, PendingIntent.FLAG_ONE_SHOT);
+
+        //register broadcast receiver
+        NotificationBroadcastReceiver nsnBroadcast = new NotificationBroadcastReceiver();
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addCategory(Intent.CATEGORY_DEFAULT);
+        intentFilter.addAction("WORKER_ACTION");
+        getApplicationContext().registerReceiver(nsnBroadcast, intentFilter);
+
+        // While making notification
+        String received_intent = notification.getType();
+        Intent broadcastIntent = new Intent("NOTIFICATION_ACTION");
+        broadcastIntent.putExtra("RECEIVED_INTENT", received_intent);
+        broadcastIntent.putExtra("NOTIFICATION_ID", notificationID);
+        switch (received_intent){
+            case COMMENT:
+            case POST:
+                broadcastIntent.putExtra("POST_ID", notification.getIntentUrl());
+                break;
+            case FOLLOWING:
+            case SUBSCRIPTION:
+                broadcastIntent.putExtra("USER_ID", notification.getSentFrom());
+                break;
+        }
+
+        PendingIntent pendingIntentBroadcast = PendingIntent.getBroadcast(getApplicationContext(), 0, broadcastIntent, 0);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), channelId)
                 .setContentTitle(notification.getTitle())
@@ -108,7 +135,7 @@ public class NotificationCheckWorker extends Worker {
                 .setSmallIcon(R.drawable.icon_svg)
                 .setPriority(PRIORITY_DEFAULT)
                 .setDefaults(DEFAULT_ALL)
-                .setContentIntent(pendingIntent)
+                .setContentIntent(pendingIntentBroadcast)
                 .setAutoCancel(true);
 
         manager.notify(notificationID, builder.build());

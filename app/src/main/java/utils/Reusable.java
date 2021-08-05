@@ -1,6 +1,5 @@
 package utils;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -387,4 +386,5 @@ public final class Reusable {
             ref = ref.child("algolia_update");
         ref.push().setValue(userDetails);
     }
+
 }

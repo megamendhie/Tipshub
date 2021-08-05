@@ -12,8 +12,12 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ExtendedHomeActivity"
-            android:theme="@style/AppTheme.NoActionBar"/>
+        <activity
+            android:name=".NgSubActivity"
+            android:windowSoftInputMode="adjustPan" />
+        <activity
+            android:name=".ExtendedHomeActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".VipSubActivity" />
         <activity
             android:name=".LandActivity"
@@ -44,7 +48,9 @@
         <activity
             android:name=".SearchActivity"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".MainActivity">
+        <activity
+            android:name=".MainActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <action android:name="android.intent.action.MAIN" />

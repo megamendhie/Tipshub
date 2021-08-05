@@ -75,10 +75,10 @@ public class NotificationAdapter extends FirestoreRecyclerAdapter<Notification, 
         imgType.setVisibility(View.VISIBLE);
         switch (model.getAction()) {
             case "liked":
-                Glide.with(context).load(R.drawable.ic_thumb_up_color_24dp).into(imgType);
+                Glide.with(context).load(R.drawable.ic_thumbs_up_color_alt).into(imgType);
                 break;
             case "disliked":
-                Glide.with(context).load(R.drawable.ic_thumb_down_color_24dp).into(imgType);
+                Glide.with(context).load(R.drawable.ic_thumbs_down_color_alt).into(imgType);
                 break;
             case "reposted":
                 Glide.with(context).load(R.drawable.ic_retweet_color).into(imgType);
@@ -143,7 +143,7 @@ public class NotificationAdapter extends FirestoreRecyclerAdapter<Notification, 
     @Override
     public PostHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         Log.i(TAG, "onCreateViewHolder: ");
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.notification_view, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_notification, parent, false);
         return new PostHolder(view);
     }
 

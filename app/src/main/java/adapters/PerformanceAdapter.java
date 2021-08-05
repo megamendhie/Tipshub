@@ -1,6 +1,5 @@
 package adapters;
 
-import android.app.Activity;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import android.util.Log;
@@ -31,7 +30,7 @@ public class PerformanceAdapter extends RecyclerView.Adapter<PerformanceAdapter.
     public ListNewsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         Log.i("News started", "onCreateViewHolder: started");
         View convertView =  LayoutInflater.from(parent.getContext()).inflate(
-                    R.layout.tips_performance_view, parent, false);
+                    R.layout.item_tips_performance, parent, false);
         return new ListNewsViewHolder(convertView);
     }
 

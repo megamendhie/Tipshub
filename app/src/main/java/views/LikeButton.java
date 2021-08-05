@@ -27,10 +27,10 @@ public class LikeButton extends ImageView {
     private void init() {
         switch (state){
             case LIKED:
-                setImageResource(R.drawable.ic_thumb_up_color_24dp);
+                setImageResource(R.drawable.ic_thumbs_up_color_alt);
                 break;
             default:
-                setImageResource(R.drawable.ic_thumb_up_black_24dp);
+                setImageResource(R.drawable.ic_thumbs_up_alt);
                 break;
         }
     }

@@ -2,7 +2,6 @@ package adapters;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -247,7 +246,7 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<PostHolder> {
                 String message = "<p><span style=\"color: #F80051; font-size: 16px;\"><strong>Your tips have delivered?</strong></span></p>\n" +
                         "<p>By clicking 'YES', you confirm that your prediction has delivered.</p>\n" +
                         "<p>Your account may be suspended or terminated if that's not true.</p>";
-                AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.Theme_AppCompat_Light_Dialog_Alert);
+                androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(context, R.style.CustomMaterialAlertDialog);
                 builder.setMessage(Html.fromHtml(message))
                         .setPositiveButton("Yes", (dialogInterface, i) -> calculations.onPostWon(imgOverflow, postId, userId, type, true))
                         .setNegativeButton("Cancel", (dialogInterface, i) -> {
@@ -287,8 +286,7 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<PostHolder> {
     }
 
     private void unfollowPrompt(ImageView imgOverflow, String userID, String username){
-        AlertDialog.Builder builder = new AlertDialog.Builder(context,
-                R.style.Theme_AppCompat_Light_Dialog_Alert);
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(context, R.style.CustomMaterialAlertDialog);
         builder.setMessage(String.format("Do you want to unfollow %s?", username))
                 .setTitle("Unfollow")
                 .setNegativeButton("No", (dialogInterface, i) -> {
@@ -300,7 +298,7 @@ public class FilteredPostAdapter extends RecyclerView.Adapter<PostHolder> {
 
     @Override
     public PostHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.post_view, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_post, parent, false);
         return new PostHolder(view);
     }
 

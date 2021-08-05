@@ -7,7 +7,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -18,13 +17,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
@@ -45,33 +38,27 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.TimeZone;
-import java.util.Timer;
-import java.util.TimerTask;
 
-import adapters.FilteredPostAdapter;
 import adapters.NewsAdapter;
 import adapters.PeopleRecAdapter;
-import models.Post;
-import models.SnapId;
 import models.UserNetwork;
 import utils.DatabaseHelper;
 import utils.FirebaseUtil;
 import utils.HttpConFunction;
 import utils.Reusable;
 
-import static com.android.volley.Request.Method.GET;
 import static utils.Calculations.NEWS;
 
 public class RecommendedFragment extends Fragment implements View.OnClickListener {
     private String userId;
     private RecyclerView peopleList, newsList;
-    private final String TAG = "RecFragment";
     private boolean alreadyLoaded;
 
     private DatabaseHelper dbHelper;
     private SQLiteDatabase db;
     private ArrayList<HashMap<String, String>> dataList = new ArrayList<HashMap<String, String>>();
 
+    private View rootView;
     public RecommendedFragment() {
         // Required empty public   constructor
     }
@@ -87,8 +74,10 @@ public class RecommendedFragment extends Fragment implements View.OnClickListene
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        View rootView=inflater.inflate(R.layout.fragment_recommended, container, false);
+
+        // Inflate the layout for this fragment only if its null
+        if(rootView==null)
+            rootView = inflater.inflate(R.layout.fragment_recommended, container, false);
         peopleList = rootView.findViewById(R.id.peopleList);
         peopleList.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false));
 
@@ -229,7 +218,7 @@ public class RecommendedFragment extends Fragment implements View.OnClickListene
             Uri builtURI = Uri.parse(BASE_URL).buildUpon()
                     .appendQueryParameter(DOMAIN_NAME, "goal.com")
                     .appendQueryParameter(LANGUAGE, "en")
-                    .appendQueryParameter(PAGE_SIZE, "25")
+                    .appendQueryParameter(PAGE_SIZE, "29")
                     .appendQueryParameter(API_KEY, myAPI_Key)
                     .build();
 
@@ -261,11 +250,9 @@ public class RecommendedFragment extends Fragment implements View.OnClickListene
                         map.put(KEY_DESCRIPTION, jsonObject.optString(KEY_DESCRIPTION));
                         map.put(KEY_URL, jsonObject.optString(KEY_URL).toString());
                         map.put(KEY_URLTOIMAGE, jsonObject.optString(KEY_URLTOIMAGE));
-                        //long date = jsonObject.optLong(KEY_PUBLISHEDAT);
                         dt = oldFormat.parse(jsonObject.optString(KEY_PUBLISHEDAT));
                         String newsDate = newFormatter.format(dt);
                         map.put(KEY_PUBLISHEDAT, newsDate);
-                        //map.put(KEY_PUBLISHEDAT, jsonObject.optString(KEY_PUBLISHEDAT).toString());
 
                         dataList.add(map);
                     }
@@ -273,6 +260,7 @@ public class RecommendedFragment extends Fragment implements View.OnClickListene
                     //Save news to database
                     dbHelper.updateTip(db, NEWS, xml);
                 } catch (JSONException | ParseException e) {
+                    String TAG = "RecFragment";
                     Log.i(TAG, "onPostExecute: "+ e.getMessage());
                     Toast.makeText(getContext(), "Unexpected error", Toast.LENGTH_SHORT).show();
                 }

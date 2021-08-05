@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/fragment_bg"
     tools:context="fragments.BankerFragment">
     <androidx.core.widget.NestedScrollView
         android:id="@+id/nestBanker"
@@ -97,7 +98,9 @@
                 android:id="@+id/crdSubscription"
                 android:layout_marginTop="10dp"
                 app:layout_constraintTop_toBottomOf="@id/crdBankers"
-                android:layout_width="match_parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content">
 
                 <TextView
@@ -187,6 +190,6 @@
         android:tint="@color/white"
         android:layout_alignParentEnd="true"
         android:layout_gravity="bottom|end"
-        android:layout_marginBottom="37dp"
+        android:layout_marginBottom="47dp"
         android:layout_marginEnd="25dp"/>
 </RelativeLayout>

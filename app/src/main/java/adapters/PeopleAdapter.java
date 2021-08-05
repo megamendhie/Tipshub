@@ -1,8 +1,6 @@
 package adapters;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import androidx.annotation.NonNull;
 import com.google.android.material.snackbar.Snackbar;
@@ -12,7 +10,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -48,7 +45,7 @@ public class PeopleAdapter extends RecyclerView.Adapter<PeopleAdapter.PeopleHold
     @NonNull
     @Override
     public PeopleHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.user_view_land, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_user_land, parent, false);
         return new PeopleHolder(view);
     }
 
@@ -119,25 +116,15 @@ public class PeopleAdapter extends RecyclerView.Adapter<PeopleAdapter.PeopleHold
     }
 
     private void loginPrompt(View view) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(view.getRootView().getContext(),
-                R.style.Theme_AppCompat_Light_Dialog_Alert);
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(view.getRootView().getContext(), R.style.CustomMaterialAlertDialog);
         builder.setMessage("You have to login first")
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {}
-                })
-                .setPositiveButton("Login", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        view.getContext().startActivity(new Intent(view.getContext(), LoginActivity.class));
-                    }
-                })
+                .setNegativeButton("Cancel", (dialogInterface, i) -> {})
+                .setPositiveButton("Login", (dialogInterface, i) -> view.getContext().startActivity(new Intent(view.getContext(), LoginActivity.class)))
                 .show();
     }
 
     private void unfollowPrompt(TextView btnFollow, String userID, String username){
-        AlertDialog.Builder builder = new AlertDialog.Builder(btnFollow.getRootView().getContext(),
-                R.style.Theme_AppCompat_Light_Dialog_Alert);
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(btnFollow.getRootView().getContext(), R.style.CustomMaterialAlertDialog);
         builder.setMessage(String.format("Do you want to unfollow %s?", username))
                 .setTitle("Unfollow")
                 .setNegativeButton("No", (dialogInterface, i) -> {

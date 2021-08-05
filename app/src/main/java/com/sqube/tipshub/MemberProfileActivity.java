@@ -1,7 +1,6 @@
 package com.sqube.tipshub;
 
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -348,8 +347,7 @@ public class MemberProfileActivity extends AppCompatActivity implements View.OnC
     }
 
     public void startChat(View view) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(MemberProfileActivity.this,
-                R.style.Theme_AppCompat_Light_Dialog_Alert);
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(MemberProfileActivity.this, R.style.CustomMaterialAlertDialog);
         builder.setMessage(String.format("Do you want to chat with %s?", profile.getA2_username()))
                 .setTitle("Start chat")
                 .setNegativeButton("No", (dialogInterface, i) -> {
@@ -375,26 +373,18 @@ public class MemberProfileActivity extends AppCompatActivity implements View.OnC
     }
 
     private void loginPrompt() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(MemberProfileActivity.this,
-                R.style.Theme_AppCompat_Light_Dialog_Alert);
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(MemberProfileActivity.this, R.style.CustomMaterialAlertDialog);
         builder.setMessage("You have to login first")
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {}
-                })
-                .setPositiveButton("Login", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        startActivity(new Intent(MemberProfileActivity.this, LoginActivity.class));
-                        finish();
-                    }
+                .setNegativeButton("Cancel", (dialogInterface, i) -> {})
+                .setPositiveButton("Login", (dialogInterface, i) -> {
+                    startActivity(new Intent(MemberProfileActivity.this, LoginActivity.class));
+                    finish();
                 })
                 .show();
     }
 
     private void unfollowPrompt(){
-        AlertDialog.Builder builder = new AlertDialog.Builder(MemberProfileActivity.this,
-                R.style.Theme_AppCompat_Light_Dialog_Alert);
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(MemberProfileActivity.this, R.style.CustomMaterialAlertDialog);
         builder.setMessage(String.format("Do you want to unfollow %s?", profile.getA2_username()))
                 .setTitle("Unfollow")
                 .setNegativeButton("No", (dialogInterface, i) -> {

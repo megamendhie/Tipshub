@@ -9,193 +9,139 @@
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="14dp"
-        tools:context=".SubscriptionActivity">
+        android:scrollbars="vertical"
+        android:paddingTop="16dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="30dp">
+
 
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="30sp"
-                android:layout_marginTop="5dp"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-                android:text="Subscribe To:"/>
-
-            <de.hdodenhof.circleimageview.CircleImageView
-                android:id="@+id/imgDp"
-                android:layout_width="130dp"
-                android:layout_height="130dp"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="@dimen/vertical_padding" />
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="3dp">
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:paddingTop="4dp"
-                    android:layout_gravity="center_vertical"
-                    android:src="@drawable/symbol_at"/>
-
-                <TextView
-                    android:id="@+id/txtUsername"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textStyle="bold"
-                    android:textSize="24sp"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                    android:layout_marginStart="2dp"/>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal">
-                <ImageView
-                    android:id="@+id/imgPointIcon"
-                    android:layout_width="18dp"
-                    android:layout_height="18dp"
-                    android:layout_marginTop="2dp"
-                    app:srcCompat="@android:drawable/btn_star_big_on" />
-
-                <TextView
-                    android:id="@+id/txtPost"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                    android:layout_marginStart="3dp"/>
-
-
-                <TextView
-                    android:id="@+id/txtWon"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                    android:layout_marginStart="5dp"/>
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/txtAccuracy"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                android:layout_marginStart="5dp"/>
-
-            <RelativeLayout
+            <androidx.cardview.widget.CardView
+                android:id="@+id/crdFree"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/vertical_padding"
-                android:layout_marginEnd="@dimen/vertical_padding"
-                android:background="@android:drawable/editbox_background_normal">
-
-                <ProgressBar
-                    android:id="@+id/prgPost"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"/>
-                <LinearLayout
-                    android:id="@+id/lnr1"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-                    <TextView
-                        android:id="@+id/txtAmount"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="4"
-                        android:textStyle="bold"
-                        android:textColor="#F80051"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-                        android:layout_marginStart="5dp"/>
-
-                    <TextView
-                        android:id="@+id/btnSubscribe"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
-                        android:background="@drawable/tip_sub_bg"
-                        android:textColor="@color/white"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-                        android:textStyle="bold"
-                        android:paddingTop="6dp"
-                        android:paddingBottom="6dp"
-                        android:paddingStart="20dp"
-                        android:paddingEnd="20dp"
-                        android:textSize="18sp"
-                        android:text="PAY"/>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:layout_below="@id/lnr1"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="8dp">
-                    <TextView
-                        android:id="@+id/txtAmount2"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="4"
-                        android:textStyle="bold"
-                        android:textColor="#F80051"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-                        android:layout_marginStart="5dp"/>
-
-                    <TextView
-                        android:id="@+id/btnSubscribe2"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
-                        android:background="@drawable/tip_sub_bg"
-                        android:textColor="@color/white"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-                        android:textStyle="bold"
-                        android:paddingTop="6dp"
-                        android:paddingBottom="6dp"
-                        android:paddingStart="20dp"
-                        android:paddingEnd="20dp"
-                        android:textSize="18sp"
-                        android:text="PAY"/>
-                </LinearLayout>
-            </RelativeLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/likeGrey"
-                android:layout_marginTop="15dp"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="18sp"
                 android:layout_marginTop="10dp"
-                android:textStyle="bold"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                android:layout_marginStart="5dp"
-                android:text="Subscription benefits:"/>
+                android:layout_marginStart="1dp"
+                android:layout_marginEnd="1dp"
+                app:cardCornerRadius="10dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="12dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Subscribe To"
+                        android:textColor="@color/navy_blue"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                        android:textSize="20sp" />
+
+                    <de.hdodenhof.circleimageview.CircleImageView
+                        android:id="@+id/imgDp"
+                        android:layout_width="120dp"
+                        android:layout_height="120dp"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="@dimen/vertical_padding" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="3dp">
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:paddingTop="4dp"
+                            android:layout_gravity="center_vertical"
+                            android:src="@drawable/symbol_at"/>
+
+                        <TextView
+                            android:id="@+id/txtUsername"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textStyle="bold"
+                            android:textSize="22sp"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                            android:layout_marginStart="2dp"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal">
+                        <ImageView
+                            android:id="@+id/imgPointIcon"
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:layout_marginTop="2dp"
+                            app:srcCompat="@android:drawable/btn_star_big_on" />
+
+                        <TextView
+                            android:id="@+id/txtPost"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                            android:layout_marginStart="3dp"/>
+
+
+                        <TextView
+                            android:id="@+id/txtWon"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                            android:layout_marginStart="5dp"/>
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/txtAccuracy"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                        android:layout_marginStart="5dp"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/crdSubscription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginStart="1dp"
+            android:layout_marginEnd="1dp"
+            app:cardCornerRadius="16dp">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="12dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:textColor="@color/navy_blue"
+                android:text="Subscription benefits"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body2"/>
 
             <TextView
                 android:id="@+id/txtBenefitOne"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:layout_marginEnd="60dp"
+                android:layout_marginTop="6dp"
                 android:textSize="16sp"
+                android:drawablePadding="5dp"
                 android:drawableStart="@drawable/ic_play_arrow_black_24dp"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                 android:layout_marginStart="5dp"/>
 
             <TextView
@@ -205,9 +151,177 @@
                 android:layout_marginTop="5dp"
                 android:layout_marginEnd="60dp"
                 android:textSize="16sp"
+                android:drawablePadding="5dp"
                 android:drawableStart="@drawable/ic_play_arrow_black_24dp"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                 android:layout_marginStart="5dp"/>
+
+        </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="1dp"
+            android:layout_marginEnd="1dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="4dp"
+            app:cardCornerRadius="10dp">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="12dp">
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="20sp"
+                        android:textColor="@color/navy_blue"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                        android:text="Subscription plan"/>
+
+                    <ProgressBar
+                        android:id="@+id/prgSubscription"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_alignParentEnd="true"/>
+                </RelativeLayout>
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="6dp"
+                    android:gravity="center_horizontal">
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="5dp"
+                        android:layout_weight="1">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_horizontal"
+                            android:paddingTop="10dp"
+                            android:padding="10dp"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                                android:text="1 week"/>
+
+
+                            <TextView
+                                android:id="@+id/txtSub1"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="6dp"
+                                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                                android:textStyle="bold"
+                                android:textSize="16sp"/>
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnSub1"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="10dp"
+                                android:onClick="pay"
+                                app:backgroundTint="@color/color_oxblood"
+                                android:text="PAY"/>
+                        </LinearLayout>
+                    </androidx.cardview.widget.CardView>
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="5dp"
+                        android:layout_weight="1">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_horizontal"
+                            android:paddingTop="10dp"
+                            android:padding="10dp"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                                android:text="2 weeks"/>
+
+
+                            <TextView
+                                android:id="@+id/txtSub2"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="6dp"
+                                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                                android:textStyle="bold"
+                                android:textSize="16sp"/>
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnSub2"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="10dp"
+                                android:onClick="pay"
+                                app:backgroundTint="@color/color_oxblood"
+                                android:text="PAY"/>
+                        </LinearLayout>
+                    </androidx.cardview.widget.CardView>
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="5dp"
+                        android:layout_weight="1">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_horizontal"
+                            android:paddingTop="10dp"
+                            android:padding="10dp"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                                android:text="1 month"/>
+
+
+                            <TextView
+                                android:id="@+id/txtSub3"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="6dp"
+                                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                                android:textStyle="bold"
+                                android:textSize="16sp"/>
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnSub3"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="10dp"
+                                android:onClick="pay"
+                                app:backgroundTint="@color/color_oxblood"
+                                android:text="PAY"/>
+                        </LinearLayout>
+                    </androidx.cardview.widget.CardView>
+
+                </LinearLayout>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

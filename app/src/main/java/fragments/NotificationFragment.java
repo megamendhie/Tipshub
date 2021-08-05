@@ -25,6 +25,7 @@ import utils.FirebaseUtil;
 public class NotificationFragment extends Fragment {
 
 
+    private View rootView;
     public NotificationFragment() {
         // Required empty public constructor
     }
@@ -33,8 +34,9 @@ public class NotificationFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        // Inflate the layout for this fragment
-        View rootView=inflater.inflate(R.layout.fragment_notification, container, false);
+        // Inflate the layout for this fragment only if its null
+        if(rootView==null)
+            rootView = inflater.inflate(R.layout.fragment_notification, container, false);
         RecyclerView notificationList = rootView.findViewById(R.id.postList);
         notificationList.setLayoutManager(new LinearLayoutManager(getActivity()));
         SwipeRefreshLayout refresher = rootView.findViewById(R.id.refresher);

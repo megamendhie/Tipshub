@@ -11,12 +11,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.text.Html;
-import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
 
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.github.clans.fab.FloatingActionButton;
@@ -122,7 +119,7 @@ public class ExtendedHomeActivity extends AppCompatActivity {
         FirestoreRecyclerOptions<Post> response = new FirestoreRecyclerOptions.Builder<Post>()
                 .setQuery(query, Post.class)
                 .build();
-        postAdapter = new PostAdapter(response, userId, ExtendedHomeActivity.this);
+        postAdapter = new PostAdapter(response, userId, ExtendedHomeActivity.this, false);
         homeFeed.setAdapter(postAdapter);
         if(postAdapter!=null){
             postAdapter.startListening();
@@ -198,13 +195,10 @@ public class ExtendedHomeActivity extends AppCompatActivity {
                 "<p>Take it easy, "+username+". You have reached your tips limit for today.</p>\n" +
                 "<p>To prevent spam, each person can post tips only 4 times in a day.\n"+
                 "But there is no limit to normal post. Enjoy!</p>";
-        AlertDialog.Builder builder = new AlertDialog.Builder(ExtendedHomeActivity.this, R.style.Theme_AppCompat_Light_Dialog_Alert);
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(ExtendedHomeActivity.this, R.style.CustomMaterialAlertDialog);
         builder.setMessage(Html.fromHtml(message))
-                .setNegativeButton("Okay", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        //do nothing
-                    }
+                .setNegativeButton("Okay", (dialogInterface, i) -> {
+                    //do nothing
                 })
                 .show();
     }

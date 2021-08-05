@@ -5,7 +5,7 @@ import android.content.Intent;
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
-import android.util.Log;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,10 +34,10 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ListNewsViewHo
         View convertView =  null;
         if(viewType==0)
             convertView = LayoutInflater.from(parent.getContext()).inflate(
-                    R.layout.news_container, parent, false);
+                    R.layout.item_news, parent, false);
         else
             convertView = LayoutInflater.from(parent.getContext()).inflate(
-                    R.layout.news_container_small, parent, false);
+                    R.layout.item_news_small, parent, false);
 
         return new ListNewsViewHolder(convertView);
     }

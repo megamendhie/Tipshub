@@ -27,10 +27,10 @@ public class DislikeButton extends ImageView {
     private void init() {
         switch (state){
             case DISLIKED:
-                setImageResource(R.drawable.ic_thumb_down_color_24dp);
+                setImageResource(R.drawable.ic_thumbs_down_color_alt);
                 break;
             default:
-                setImageResource(R.drawable.ic_thumb_down_black_24dp);
+                setImageResource(R.drawable.ic_thumbs_down_alt);
                 break;
         }
     }

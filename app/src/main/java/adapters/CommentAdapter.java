@@ -245,8 +245,8 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
     }
 
     private void loginPrompt(View view) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(view.getRootView().getContext(),
-                R.style.Theme_AppCompat_Light_Dialog_Alert);
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(view.getRootView().getContext(),
+                R.style.CustomMaterialAlertDialog);
         builder.setMessage("You have to login first")
                 .setNegativeButton("Cancel", (dialogInterface, i) -> {})
                 .setPositiveButton("Login", (dialogInterface, i) -> view.getContext().startActivity(new Intent(view.getContext(), LoginActivity.class)))
@@ -310,8 +310,7 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
     }
 
     private void unfollowPrompt(ImageView imgOverflow, String userID, String username){
-        AlertDialog.Builder builder = new AlertDialog.Builder(context,
-                R.style.Theme_AppCompat_Light_Dialog_Alert);
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(context, R.style.CustomMaterialAlertDialog);
         builder.setMessage(String.format("Do you want to unfollow %s?", username))
                 .setTitle("Unfollow")
                 .setNegativeButton("No", (dialogInterface, i) -> {
@@ -323,22 +322,19 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
 
     private void deleteComment(String postId, View imgOverflow){
         final DocumentReference postPath =  FirebaseUtil.getFirebaseFirestore().collection("posts").document(mainPostId);
-        FirebaseUtil.getFirebaseFirestore().runTransaction(new Transaction.Function<Void>() {
-            @Override
-            public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
-                DocumentSnapshot snapshot = transaction.get(postPath);
-                //Check if post exist first
-                if(!snapshot.exists()){
-                    Log.i(TAG, "apply: snapshot is empty");
-                    return null;
-                }
-
-                Map<String, Object> updates = new HashMap<>();
-                final long commentCount = snapshot.toObject(Post.class).getCommentsCount() -1; //Retrieve commentCount stat
-                updates.put("commentsCount", Math.max(0,commentCount));
-                transaction.update(postPath, updates);
+        FirebaseUtil.getFirebaseFirestore().runTransaction((Transaction.Function<Void>) transaction -> {
+            DocumentSnapshot snapshot = transaction.get(postPath);
+            //Check if post exist first
+            if(!snapshot.exists()){
+                Log.i(TAG, "apply: snapshot is empty");
                 return null;
             }
+
+            Map<String, Object> updates = new HashMap<>();
+            final long commentCount = snapshot.toObject(Post.class).getCommentsCount() -1; //Retrieve commentCount stat
+            updates.put("commentsCount", Math.max(0,commentCount));
+            transaction.update(postPath, updates);
+            return null;
         }).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {

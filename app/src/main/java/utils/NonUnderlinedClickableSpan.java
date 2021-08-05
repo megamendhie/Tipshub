@@ -39,25 +39,22 @@ public class NonUnderlinedClickableSpan extends ClickableSpan {
                 String myUserId = FirebaseUtil.getFirebaseAuthentication().getCurrentUser().getUid();
                 String username = text.substring(1);
                 FirebaseUtil.getFirebaseFirestore().collection("profiles").whereEqualTo("a2_username", username)
-                        .limit(1).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if(task.getResult()==null|| task.getResult().isEmpty()){
-                            Toast.makeText(context, "unknown username", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
+                        .limit(1).get().addOnCompleteListener(task -> {
+                            if(task.getResult()==null|| task.getResult().isEmpty()){
+                                Toast.makeText(context, "unknown username", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
 
-                        String userId = task.getResult().getDocuments().get(0).getId();
-                        if(userId.equals(myUserId)){
-                            context.startActivity(new Intent(context, MyProfileActivity.class));
-                        }
-                        else{
-                            Intent intent = new Intent(context, MemberProfileActivity.class);
-                            intent.putExtra("userId", userId);
-                            context.startActivity(intent);
-                        }
-                    }
-                });
+                            String userId = task.getResult().getDocuments().get(0).getId();
+                            if(userId.equals(myUserId)){
+                                context.startActivity(new Intent(context, MyProfileActivity.class));
+                            }
+                            else{
+                                Intent intent = new Intent(context, MemberProfileActivity.class);
+                                intent.putExtra("userId", userId);
+                                context.startActivity(intent);
+                            }
+                        });
                 break;
             default:
                 /*

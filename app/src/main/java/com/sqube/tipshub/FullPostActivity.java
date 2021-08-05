@@ -1,6 +1,9 @@
 package com.sqube.tipshub;
 
 import android.app.AlertDialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -133,6 +136,13 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
         edtComment.setAdapter(club_adapter);
         edtComment.setTokenizer(new SpaceTokenizer());
         edtComment.setThreshold(4);
+        mpost.setOnLongClickListener(view -> {
+            ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+            ClipData clip = ClipData.newPlainText("Tipshub_post", model.getContent());
+            clipboard.setPrimaryClip(clip);
+            Toast.makeText(FullPostActivity.this, "Copied!", Toast.LENGTH_SHORT).show();
+            return false;
+        });
         CircleImageView imgMyDp = findViewById(R.id.imgMyDp);
         if(userId.equals(Calculations.GUEST))
             imgMyDp.setImageResource(R.drawable.dummy);
@@ -339,7 +349,7 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
             else{
                 Log.i(TAG, "onClick: "+ model.getType());
                 if(model.getType()>0)
-                    calculations.onDeletePost(imgOverflow, postId, userId,model.getStatus()==2, model.getType());
+                    calculations.onDeletePost(imgOverflow, postId, userId,model.getStatus()==2, model.getType(), false);
                 else {
                     FirebaseUtil.getFirebaseFirestore().collection("posts").document(postId).delete();
                     Snackbar.make(imgOverflow, "Deleted", Snackbar.LENGTH_SHORT).show();
@@ -359,19 +369,11 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
                 String message = "<p><span style=\"color: #F80051; font-size: 16px;\"><strong>Your tips have delivered?</strong></span></p>\n" +
                         "<p>By clicking 'YES', you confirm that your prediction has delivered.</p>\n" +
                         "<p>Your account may be suspended or terminated if that's not true.</p>";
-                AlertDialog.Builder builder = new AlertDialog.Builder(getApplicationContext(), R.style.Theme_AppCompat_Light_Dialog_Alert);
+                androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(getApplicationContext(), R.style.CustomMaterialAlertDialog);
                 builder.setMessage(Html.fromHtml(message))
-                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                calculations.onPostWon(imgOverflow, postId, userId, model.getType());
-                            }
-                        })
-                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                //do nothing
-                            }
+                        .setPositiveButton("Yes", (dialogInterface, i) -> calculations.onPostWon(imgOverflow, postId, userId, model.getType(), false))
+                        .setNegativeButton("Cancel", (dialogInterface, i) -> {
+                            //do nothing
                         })
                         .show();
             }
@@ -400,29 +402,22 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
                 return;
             }
             if(btnFollow.getText().equals("FOLLOW")){
-                calculations.followMember(imgOverflow, userId, model.getUserId());
+                calculations.followMember(imgOverflow, userId, model.getUserId(), false);
             }
             else{
-                calculations.unfollowMember(imgOverflow, userId, model.getUserId());
+                calculations.unfollowMember(imgOverflow, userId, model.getUserId(), false);
             }
             dialog.cancel();
         });
     }
 
     private void loginPrompt() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(FullPostActivity.this,
-                R.style.Theme_AppCompat_Light_Dialog_Alert);
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(FullPostActivity.this, R.style.CustomMaterialAlertDialog);
         builder.setMessage("You have to login first")
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {}
-                })
-                .setPositiveButton("Login", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        startActivity(new Intent(FullPostActivity.this, LoginActivity.class));
-                        finish();
-                    }
+                .setNegativeButton("Cancel", (dialogInterface, i) -> {})
+                .setPositiveButton("Login", (dialogInterface, i) -> {
+                    startActivity(new Intent(FullPostActivity.this, LoginActivity.class));
+                    finish();
                 })
                 .show();
     }
@@ -431,7 +426,7 @@ public class FullPostActivity extends AppCompatActivity implements View.OnClickL
         //loads comment into commentList
         commentReference = FirebaseUtil.getFirebaseFirestore().collection("comments");
         Query query = commentReference.whereEqualTo("commentOn", postId).orderBy("time", Query.Direction.DESCENDING);
-        commentAdapter = new CommentAdapter(postId, query, userId, FullPostActivity.this, getApplicationContext());
+        commentAdapter = new CommentAdapter(postId, query, userId, FullPostActivity.this, getApplicationContext(), false);
         commentsList.setAdapter(commentAdapter);
         if(commentAdapter !=null){
             commentAdapter.startListening();
