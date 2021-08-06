@@ -1,11 +1,15 @@
-apply plugin: 'com.android.application'
+plugins {
+    id 'com.android.application'
+    id 'com.google.gms.google-services'
+    id 'kotlin-android'
+}
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 30
     defaultConfig {
         applicationId "com.sqube.tipshub"
         minSdkVersion 19
-        targetSdkVersion 29
+        targetSdkVersion 30
         versionCode 20
         versionName "3.0.6"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -22,42 +26,41 @@ android {
         sourceCompatibility = '1.8'
         targetCompatibility = '1.8'
     }
+    buildFeatures{
+    }
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.google.firebase:firebase-core:18.0.0'       //Analytics
-    implementation 'com.google.firebase:firebase-auth:20.0.1'       //Authentication
-    implementation 'com.google.firebase:firebase-firestore:22.0.0'  //Cloud Firestore
-    implementation 'com.google.firebase:firebase-storage:19.2.0'    //Storage
-    implementation 'com.google.firebase:firebase-messaging:21.0.0'  //Messaging
-    implementation 'com.google.firebase:firebase-database:19.5.1' //RT database
-    implementation 'com.google.firebase:firebase-config:20.0.1'    //Remote Config
-    implementation 'com.firebaseui:firebase-ui-storage:6.2.0'
-    implementation 'com.firebaseui:firebase-ui-firestore:6.2.1'
-    implementation 'com.firebaseui:firebase-ui-auth:6.2.0'
+    implementation platform('com.google.firebase:firebase-bom:28.2.1')
+    implementation 'com.google.firebase:firebase-core'       //Analytics
+    implementation 'com.google.firebase:firebase-auth'       //Authentication
+    implementation 'com.google.firebase:firebase-firestore'  //Cloud Firestore
+    implementation 'com.google.firebase:firebase-storage'    //Storage
+    implementation 'com.google.firebase:firebase-messaging'  //Messaging
+    implementation 'com.google.firebase:firebase-database' //RT database
+    implementation 'com.google.firebase:firebase-config'    //Remote Config
+    implementation 'com.firebaseui:firebase-ui-storage:7.1.1'
+    implementation 'com.firebaseui:firebase-ui-firestore:7.1.1'
+    implementation 'com.firebaseui:firebase-ui-auth:7.1.1'
     implementation 'androidx.multidex:multidex:2.0.1'
-    implementation 'com.hbb20:ccp:2.2.9'
-    implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+    implementation 'com.hbb20:ccp:2.3.1'
+    implementation 'androidx.appcompat:appcompat:1.3.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.0'
     implementation 'androidx.arch.core:core-runtime:2.1.0'
-    implementation 'com.google.android.material:material:1.3.0-alpha03'
+    implementation 'com.google.android.material:material:1.5.0-alpha01'
     implementation 'com.github.clans:fab:1.6.4'
     implementation 'de.hdodenhof:circleimageview:2.2.0'
-    implementation "androidx.work:work-runtime:2.4.0"
+    implementation "androidx.work:work-runtime:2.5.0"
     implementation 'com.algolia:algoliasearch-android:3.+'
     implementation 'com.github.flutterwave.rave-android:rave_android:2.1.15'
-    implementation 'co.paystack.android:paystack:3.1.2'
+    implementation 'co.paystack.android:paystack:3.1.3'
     implementation 'com.theartofdev.edmodo:android-image-cropper:2.7.+'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'com.facebook.shimmer:shimmer:0.4.0'
-    implementation 'com.github.bumptech.glide:glide:4.10.0'
+    implementation 'com.github.bumptech.glide:glide:4.11.0'
     //debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.5.4'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.10.0'
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test:runner:1.2.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test:runner:1.4.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 }
-
-//apply plugin: 'realm-android'
-apply plugin: 'com.google.gms.google-services'
