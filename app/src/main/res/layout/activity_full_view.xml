@@ -152,8 +152,8 @@
                 android:layout_height="50dp"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="30dp"
-                android:tint="@color/white"
-                app:srcCompat="@drawable/ic_https_black_24dp" />
+                app:srcCompat="@drawable/ic_https_black_24dp"
+                app:tint="@color/white" />
 
             <TextView
                 android:id="@+id/txtUnlock"
@@ -256,8 +256,8 @@
                 android:layout_height="50dp"
                 android:layout_marginTop="30dp"
                 android:layout_centerHorizontal="true"
-                android:tint="@color/white"
-                app:srcCompat="@drawable/ic_https_black_24dp" />
+                app:srcCompat="@drawable/ic_https_black_24dp"
+                app:tint="@color/white" />
 
             <TextView
                 android:id="@+id/txtUnlock4"

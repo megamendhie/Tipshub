@@ -48,9 +48,9 @@
                 <ImageView
                     android:layout_width="30dp"
                     android:layout_height="30dp"
-                    android:tint="@color/white"
                     android:scaleType="centerInside"
-                    app:srcCompat="@drawable/ic_mail_outline_black_24dp" />
+                    app:srcCompat="@drawable/ic_mail_outline_black_24dp"
+                    app:tint="@color/white" />
 
                 <TextView
                     android:id="@+id/txtEmail"
@@ -86,9 +86,9 @@
                 <ImageView
                     android:layout_width="30dp"
                     android:layout_height="30dp"
-                    android:tint="@color/white"
                     app:srcCompat="@drawable/ic_whatsapp"
-                    android:scaleType="centerInside"/>
+                    android:scaleType="centerInside"
+                    app:tint="@color/white" />
 
                 <TextView
                     android:id="@+id/txtWhatsapp"
@@ -126,7 +126,7 @@
                     android:layout_height="30dp"
                     android:scaleType="centerInside"
                     app:srcCompat="@drawable/ic_twitter"
-                    android:tint="@color/white"/>
+                    app:tint="@color/white" />
 
                 <TextView
                     android:id="@+id/txtTwitter"
@@ -162,9 +162,9 @@
                 <ImageView
                     android:layout_width="30dp"
                     android:layout_height="30dp"
-                    android:tint="@color/white"
                     android:scaleType="centerInside"
-                    app:srcCompat="@drawable/ic_facebook" />
+                    app:srcCompat="@drawable/ic_facebook"
+                    app:tint="@color/white" />
 
                 <TextView
                     android:id="@+id/txtFacebook"

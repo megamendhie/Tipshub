@@ -148,9 +148,9 @@
                                     <ImageView
                                         android:layout_width="20dp"
                                         android:layout_height="20dp"
-                                        android:tint="@color/white"
                                         app:srcCompat="@drawable/ic_whatsapp"
-                                        android:scaleType="centerInside"/>
+                                        android:scaleType="centerInside"
+                                        app:tint="@color/white" />
 
                                     <TextView
                                         android:id="@+id/txtWhatsapp"

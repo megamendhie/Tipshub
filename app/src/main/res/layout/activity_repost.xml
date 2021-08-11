@@ -108,8 +108,8 @@
                         android:scaleType="centerCrop"
                         android:layout_marginEnd="6dp"
                         android:layout_marginTop="2dp"
-                        android:tint="#25b153"
-                        app:srcCompat="@drawable/ic_check_circle_green_24dp"/>
+                        app:srcCompat="@drawable/ic_check_circle_green_24dp"
+                        app:tint="#25b153" />
 
                 </LinearLayout>
                 <TextView
