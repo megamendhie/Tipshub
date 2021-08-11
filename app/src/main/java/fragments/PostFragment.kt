@@ -36,7 +36,7 @@ class PostFragment : Fragment() {
         recyclerView = rootView.findViewById(R.id.postList)
         (recyclerView?.getItemAnimator() as DefaultItemAnimator?)!!.supportsChangeAnimations = false
         recyclerView?.setLayoutManager(LinearLayoutManager(activity))
-        user = FirebaseUtil.getFirebaseAuthentication().currentUser
+        user = FirebaseUtil.firebaseAuthentication?.currentUser
         myId = if (user == null) Calculations.GUEST else user!!.uid
         userId = arguments?.getString("userId")
         loadPost()
@@ -45,7 +45,7 @@ class PostFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        user = FirebaseUtil.getFirebaseAuthentication().currentUser
+        user = FirebaseUtil.firebaseAuthentication?.currentUser
         myId = if (user == null) Calculations.GUEST else user!!.uid
         if (postAdapter != null) postAdapter!!.setUserId(myId)
     }
@@ -53,7 +53,7 @@ class PostFragment : Fragment() {
     private fun loadPost() {
         val TAG = "PostFragment"
         Log.i(TAG, "loadPost: ")
-        val query = FirebaseUtil.getFirebaseFirestore().collection("posts").orderBy("time", Query.Direction.DESCENDING).whereEqualTo("userId", userId)
+        val query = FirebaseUtil.firebaseFirestore?.collection("posts")!!.orderBy("time", Query.Direction.DESCENDING).whereEqualTo("userId", userId)
         val response = FirestoreRecyclerOptions.Builder<Post>()
                 .setQuery(query, Post::class.java)
                 .build()

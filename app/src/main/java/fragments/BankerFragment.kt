@@ -74,7 +74,7 @@ class BankerFragment : Fragment() {
         winningsList?.setLayoutManager(LinearLayoutManager(activity))
         bankersList?.setLayoutManager(LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false))
         intent = Intent(context, PostActivity::class.java)
-        val user = FirebaseUtil.getFirebaseAuthentication().currentUser
+        val user = FirebaseUtil.firebaseAuthentication?.currentUser
         userId = user!!.uid
         fabPost.setOnClickListener { v: View? ->
             json = prefs?.getString("profile", "")
@@ -112,7 +112,7 @@ class BankerFragment : Fragment() {
 
     private fun loadSub() {
         if (UserNetwork.getSubscribed() == null) {
-            FirebaseUtil.getFirebaseFirestore().collection("subscribed_to").document(userId!!).get()
+            FirebaseUtil.firebaseFirestore?.collection("subscribed_to")?.document(userId!!)?.get()!!
                     .addOnCompleteListener { task -> if (task.isSuccessful && task.result.contains("list")) loadList(task.result["list"] as ArrayList<String>?) else loadList(null) }
         } else loadList(UserNetwork.getSubscribed())
     }
@@ -128,7 +128,7 @@ class BankerFragment : Fragment() {
         val queries = arrayOfNulls<Query>(count)
         val tasks = arrayOfNulls<Task<*>>(count)
         for (i in 0 until count) {
-            queries[i] = FirebaseUtil.getFirebaseFirestore().collection("posts").orderBy("time", Query.Direction.DESCENDING)
+            queries[i] = FirebaseUtil.firebaseFirestore?.collection("posts")?.orderBy("time", Query.Direction.DESCENDING)!!
                     .whereEqualTo("userId", userIds[i]).whereEqualTo("type", 6).limit(2)
             tasks[i] = queries[i]!!.get()
         }
@@ -156,7 +156,7 @@ class BankerFragment : Fragment() {
     }
 
     private fun loadBankerTipsters() {
-        val query = FirebaseUtil.getFirebaseFirestore().collection("profiles").orderBy("e6c_WGP")
+        val query = FirebaseUtil.firebaseFirestore?.collection("profiles")?.orderBy("e6c_WGP")!!
                 .whereEqualTo("c1_banker", true).limit(10)
         val options = FirestoreRecyclerOptions.Builder<ProfileShort>()
                 .setQuery(query, ProfileShort::class.java)
@@ -168,7 +168,7 @@ class BankerFragment : Fragment() {
 
     private fun loadLatest() {
         Log.i(TAG, "loadPost: ")
-        val latestAdapter = BankerAdapter(FirebaseUtil.getFirebaseFirestore().collection("posts").orderBy("time", Query.Direction.DESCENDING)
+        val latestAdapter = BankerAdapter(FirebaseUtil.firebaseFirestore?.collection("posts")?.orderBy("time", Query.Direction.DESCENDING)!!
                 .whereEqualTo("type", 6).limit(8), userId, context, true)
         latestList!!.adapter = latestAdapter
         if (latestAdapter != null) latestAdapter.startListening()
@@ -176,7 +176,7 @@ class BankerFragment : Fragment() {
 
     private fun loadWinning() {
         Log.i(TAG, "loadWinning: ")
-        val winAdapter = BankerAdapter(FirebaseUtil.getFirebaseFirestore().collection("posts").orderBy("time", Query.Direction.DESCENDING)
+        val winAdapter = BankerAdapter(FirebaseUtil.firebaseFirestore?.collection("posts")?.orderBy("time", Query.Direction.DESCENDING)!!
                 .whereEqualTo("type", 6).whereEqualTo("status", 2).limit(8), userId, context, true)
         winningsList!!.adapter = winAdapter
         if (winAdapter != null) winAdapter.startListening()

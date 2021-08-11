@@ -24,7 +24,7 @@ class NotificationCheckWorker(context: Context, workerParams: WorkerParameters) 
     override fun doWork(): Result {
         val user = FirebaseAuth.getInstance().currentUser ?: return Result.success()
         val userId = user.uid
-        FirebaseUtil.getFirebaseFirestore().collection("notifications").orderBy("time", Query.Direction.DESCENDING)
+        FirebaseUtil.firebaseFirestore?.collection("notifications")!!.orderBy("time", Query.Direction.DESCENDING)
                 .whereEqualTo("sendTo", userId).whereEqualTo("seen", false).get()
                 .addOnSuccessListener { queryDocumentSnapshots: QuerySnapshot? ->
                     if (queryDocumentSnapshots != null && !queryDocumentSnapshots.isEmpty) {

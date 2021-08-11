@@ -33,7 +33,7 @@ import utils.FirebaseUtil
         val rootView = inflater.inflate(R.layout.fragment_bankers, container, false)
         recyclerView = rootView.findViewById(R.id.postList)
         recyclerView?.setLayoutManager(LinearLayoutManager(activity))
-        user = FirebaseUtil.getFirebaseAuthentication().currentUser
+        user = FirebaseUtil.firebaseAuthentication?.currentUser
         myId = if (user == null) Calculations.GUEST else user!!.uid
         userId = requireArguments().getString("userId")
         loadPost()
@@ -43,7 +43,7 @@ import utils.FirebaseUtil
     private fun loadPost() {
         val TAG = "PostFragment"
         Log.i(TAG, "loadPost: ")
-        val query = FirebaseUtil.getFirebaseFirestore().collection("posts").orderBy("time", Query.Direction.DESCENDING)
+        val query = FirebaseUtil.firebaseFirestore?.collection("posts")?.orderBy("time", Query.Direction.DESCENDING)!!
                 .whereEqualTo("userId", userId).whereEqualTo("type", 6)
         postAdapter = BankerAdapter(query, myId, context, false)
         recyclerView!!.adapter = postAdapter
@@ -55,7 +55,7 @@ import utils.FirebaseUtil
 
     override fun onResume() {
         super.onResume()
-        user = FirebaseUtil.getFirebaseAuthentication().currentUser
+        user = FirebaseUtil.firebaseAuthentication?.currentUser
         myId = if (user == null) Calculations.GUEST else user!!.uid
         if (postAdapter != null) postAdapter!!.setUserId(myId)
     }

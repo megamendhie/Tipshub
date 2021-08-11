@@ -29,6 +29,7 @@ class NotificationBroadcastReceiver : BroadcastReceiver() {
 
     private fun openNotification(context: Context, intent: Intent) {
         val receivedIntent = intent.getStringExtra("RECEIVED_INTENT")
+        val ref = FirebaseUtil.firebaseFirestore?.collection("notifications")
         Intent(context, MainActivity::class.java)
         val activityIntent: Intent
         when (receivedIntent) {
@@ -46,19 +47,19 @@ class NotificationBroadcastReceiver : BroadcastReceiver() {
         Log.i("NotificationBroadcast", "openNotification: clicked")
         if (action == "NOTIFICATION_ACTION") {
             val notificationTime = intent.getLongExtra("NOTIFICATION_TIME", 0)
-            FirebaseUtil.getFirebaseFirestore().collection("notifications").whereEqualTo("time", notificationTime)
+            ref?.whereEqualTo("time", notificationTime)!!
                     .limit(1).get().addOnCompleteListener { task: Task<QuerySnapshot?> ->
                         if (task.result == null || task.result!!.isEmpty) return@addOnCompleteListener
                         val notificationId = task.result!!.documents[0].id
                         val url: MutableMap<String, Any> = HashMap()
                         url["seen"] = true
-                        FirebaseUtil.getFirebaseFirestore().collection("notifications").document(notificationId)[url] = SetOptions.merge()
+                        ref.document(notificationId).set(url,  SetOptions.merge())
                     }
         } else if (action == "WORKER_ACTION") {
             val notificationId = intent.getStringExtra("NOTIFICATION_ID")
             val url: MutableMap<String, Any> = HashMap()
             url["seen"] = true
-            FirebaseUtil.getFirebaseFirestore().collection("notifications").document(notificationId!!)[url] = SetOptions.merge()
+            ref?.document(notificationId!!)?.set(url, SetOptions.merge())
         }
     }
 }

@@ -30,7 +30,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
         // Once the token is generated, subscribe to topic with the userId
         FCM.subscribeToTopic(SUBSCRIBE_TO)
-        val user = FirebaseUtil.getFirebaseAuthentication().currentUser ?: return
+        val user = FirebaseUtil.firebaseAuthentication?.currentUser ?: return
         FCM.subscribeToTopic(user.uid)
         val subscriptionList = UserNetwork.getSubscribed()
         if (subscriptionList != null && !subscriptionList.isEmpty()) {

@@ -19,16 +19,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
-import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.bumptech.glide.Glide
-import com.facebook.shimmer.ShimmerFrameLayout
 import com.firebase.ui.firestore.FirestoreRecyclerOptions
-import com.github.clans.fab.FloatingActionButton
 import com.github.clans.fab.FloatingActionMenu
 import com.google.android.gms.tasks.*
 import com.google.firebase.auth.UserProfileChangeRequest
@@ -45,8 +40,8 @@ import com.google.gson.Gson
 import com.hbb20.CountryCodePicker
 import com.sqube.tipshub.ExtendedHomeActivity
 import com.sqube.tipshub.FullViewActivity
-import com.sqube.tipshub.PostActivity
 import com.sqube.tipshub.R
+import com.sqube.tipshub.databinding.FragmentHomeBinding
 import com.theartofdev.edmodo.cropper.CropImage
 import de.hdodenhof.circleimageview.CircleImageView
 import models.*
@@ -58,14 +53,15 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class HomeFragment : Fragment() {
+    private var _binder: FragmentHomeBinding? = null
+    private val binder get():FragmentHomeBinding = _binder!!
+    private var txtError: TextView? = null
     private val TAG = "HomeFrag"
     private val HOME_FEED_STATE = "homeFeedState"
-    private var shimmerLayoutTips: ShimmerFrameLayout? = null
-    private var shimmerLayoutPosts: ShimmerFrameLayout? = null
     private val gson = Gson()
     private var prefs: SharedPreferences? = null
     private var fromEverybody = true
-    private val postList = ArrayList<Post?>()
+    private val postsList = ArrayList<Post?>()
     private val snapIds = ArrayList<SnapId>()
     private val trendingPostList = ArrayList<Post?>()
     private val trendingSnapIds = ArrayList<SnapId>()
@@ -74,20 +70,11 @@ class HomeFragment : Fragment() {
     private var postAdapter: PostAdapter? = null
     private var trendingAdapter: FilteredPostAdapter? = null
     private var fabMenu: FloatingActionMenu? = null
-    private var homeFeed: RecyclerView? = null
-    private var tipsFeed: RecyclerView? = null
-    private var bankerTipstersFeed: RecyclerView? = null
-    private var siteFeed: RecyclerView? = null
-    private var trendingFeed: RecyclerView? = null
     private var intent: Intent? = null
 
     //private SwipeRefreshLayout refresher;
     private val homepageTips = ArrayList<GameTip>()
     private var tipsAdapter: TipsAdapter? = null
-    private var crdTips: CardView? = null
-    private var crdPosts: CardView? = null
-    private var txtOpenFull: TextView? = null
-    private var txtError: TextView? = null
     private var json: String? = null
     private var myProfile: ProfileMedium? = null
     private var subscriber = false
@@ -95,10 +82,9 @@ class HomeFragment : Fragment() {
     private var dbHelper: DatabaseHelper? = null
     private var db: SQLiteDatabase? = null
     private var imgDp: CircleImageView? = null
-    private var rootView: View? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val user = FirebaseUtil.getFirebaseAuthentication().currentUser
+        val user = FirebaseUtil.firebaseAuthentication?.currentUser
         userId = user!!.uid
         username = user.displayName
         prefs = PreferenceManager.getDefaultSharedPreferences(context)
@@ -111,45 +97,28 @@ class HomeFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
+        _binder = FragmentHomeBinding.inflate(inflater, container, false)
 
-        // Inflate the layout for this fragment only if its null
-        if (rootView == null) rootView = inflater.inflate(R.layout.fragment_home, container, false)
-        intent = Intent(context, PostActivity::class.java)
-        homeFeed = rootView!!.findViewById(R.id.postList)
-        tipsFeed = rootView!!.findViewById(R.id.tipsList)
-        bankerTipstersFeed = rootView!!.findViewById(R.id.bankersList)
-        siteFeed = rootView!!.findViewById(R.id.sportSitesList)
-        trendingFeed = rootView!!.findViewById(R.id.trendingList)
-        shimmerLayoutTips = rootView!!.findViewById(R.id.shimmerTips)
-        shimmerLayoutPosts = rootView!!.findViewById(R.id.shimmerPosts)
-        crdTips = rootView!!.findViewById(R.id.crdTips)
-        crdPosts = rootView!!.findViewById(R.id.crdPosts)
-        val refresher: SwipeRefreshLayout = rootView!!.findViewById(R.id.refresher)
-        refresher.setColorSchemeResources(R.color.colorPrimary)
-        homeFeed?.layoutManager = LinearLayoutManager(context)
-        tipsFeed?.layoutManager = LinearLayoutManager(context)
-        trendingFeed?.layoutManager = LinearLayoutManager(activity)
-        bankerTipstersFeed?.layoutManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
-        siteFeed?.layoutManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
-        (homeFeed?.itemAnimator as DefaultItemAnimator?)!!.supportsChangeAnimations = false
+        binder.refresher.setColorSchemeResources(R.color.colorPrimary)
+        binder.postList.layoutManager = LinearLayoutManager(context)
+        binder.tipsList.layoutManager = LinearLayoutManager(context)
+        binder.trendingList.layoutManager = LinearLayoutManager(context)
+        binder.bankersList.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        binder.sportSitesList.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        (binder.postList.itemAnimator as DefaultItemAnimator?)!!.supportsChangeAnimations = false
         //((DefaultItemAnimator) trendingFeed.getItemAnimator()).setSupportsChangeAnimations(false);
-        fabMenu = rootView!!.findViewById(R.id.fabMenu)
-        val fabNormal: FloatingActionButton = rootView!!.findViewById(R.id.fabNormal)
-        val fabTip: FloatingActionButton = rootView!!.findViewById(R.id.fabPost)
-        //refresher = rootView.findViewById(R.id.refresher);
         //refresher.setColorSchemeResources(R.color.colorPrimary);
-        val txtOpenFullPost = rootView!!.findViewById<TextView>(R.id.txtOpenFullPost)
-        txtOpenFullPost.setOnClickListener { view: View? -> seeMore() }
-        txtOpenFull = rootView!!.findViewById(R.id.txtOpenFull)
-        txtOpenFull?.setOnClickListener(View.OnClickListener { view: View? -> requireContext().startActivity(Intent(context, FullViewActivity::class.java)) })
-        if (homepageTips.isEmpty()) shimmerLayoutTips?.startShimmer() else {
-            txtOpenFull?.visibility = View.VISIBLE
-            shimmerLayoutTips?.stopShimmer()
-            shimmerLayoutTips?.visibility = View.GONE
-            crdTips?.visibility = View.VISIBLE
+
+        binder.txtOpenFullPost.setOnClickListener {seeMore() }
+        binder.txtOpenFull.setOnClickListener{requireContext().startActivity(Intent(context, FullViewActivity::class.java)) }
+        if (homepageTips.isEmpty()) binder.shimmerTips.startShimmer() else {
+            binder.txtOpenFull.visibility = View.VISIBLE
+            binder.shimmerTips.stopShimmer()
+            binder.shimmerTips.visibility = View.GONE
+            binder.crdTips.visibility = View.VISIBLE
         }
-        shimmerLayoutPosts?.startShimmer()
-        fabTip.setOnClickListener { v: View? ->
+        binder.shimmerPosts.startShimmer()
+        binder.fabPost.setOnClickListener { v: View? ->
             fabMenu?.close(false)
             if (hasReachedMax()) {
                 popUp()
@@ -158,7 +127,7 @@ class HomeFragment : Fragment() {
             intent!!.putExtra("type", "tip")
             startActivity(intent)
         }
-        fabNormal.setOnClickListener { v: View? ->
+        binder.fabNormal.setOnClickListener { v: View? ->
             fabMenu?.close(false)
             intent!!.putExtra("type", "normal")
             startActivity(intent)
@@ -167,17 +136,17 @@ class HomeFragment : Fragment() {
         //confirm if user is seeing everybody's post
         fromEverybody = prefs!!.getBoolean("fromEverybody", true)
         tipsAdapter = TipsAdapter(homepageTips)
-        tipsFeed?.adapter = tipsAdapter
+        binder.tipsList.adapter = tipsAdapter
         onRefresh(savedInstanceState)
         loadBankerTipsters()
         loadSportSites()
         if (myProfile != null && (myProfile!!.a2_username.isEmpty() || myProfile!!.b1_phone.isEmpty())) promptForUsername()
-        refresher.setOnRefreshListener {
-            refresher.isRefreshing = true
+        binder.refresher.setOnRefreshListener {
+            binder.refresher.isRefreshing = true
             onRefresh(savedInstanceState)
-            refresher.isRefreshing = false
+            binder.refresher.isRefreshing = false
         }
-        return rootView
+        return binder.root
     }
 
     private fun onRefresh(savedInstanceState: Bundle?) {
@@ -195,7 +164,7 @@ class HomeFragment : Fragment() {
     private fun loadSportSites() {
         val siteList = ArrayList<Website?>()
         val websiteAdapter = WebsiteAdapter(siteList)
-        siteFeed!!.adapter = websiteAdapter
+        binder.sportSitesList.adapter = websiteAdapter
         val ref = FirebaseDatabase.getInstance().reference.child("sportSites")
         ref.keepSynced(true)
         ref.addValueEventListener(object : ValueEventListener {
@@ -214,19 +183,19 @@ class HomeFragment : Fragment() {
     }
 
     private fun loadBankerTipsters() {
-        val query = FirebaseUtil.getFirebaseFirestore().collection("profiles").orderBy("e6c_WGP").whereEqualTo("c1_banker", true).limit(10)
+        val query = FirebaseUtil.firebaseFirestore?.collection("profiles")?.orderBy("e6c_WGP")!!.whereEqualTo("c1_banker", true).limit(10)
         val options = FirestoreRecyclerOptions.Builder<ProfileShort>()
                 .setQuery(query, ProfileShort::class.java)
                 .build()
         val bankerTipsterAdapter = BankerTipsterAdapter(options)
-        bankerTipstersFeed!!.adapter = bankerTipsterAdapter
+        binder.bankersList.adapter = bankerTipsterAdapter
         bankerTipsterAdapter.startListening()
     }
 
     private fun loadTrendingPost() {
         trendingAdapter = FilteredPostAdapter(false, userId, context, trendingPostList, trendingSnapIds)
-        trendingFeed!!.adapter = trendingAdapter
-        FirebaseUtil.getFirebaseFirestore().collection("posts")
+        binder.trendingList.adapter = trendingAdapter
+        FirebaseUtil.firebaseFirestore?.collection("posts")!!
                 .orderBy("timeRelevance", Query.Direction.DESCENDING).limit(30).get()
                 .addOnSuccessListener { result: QuerySnapshot? ->
                     if (result == null || result.isEmpty) return@addOnSuccessListener
@@ -304,8 +273,8 @@ class HomeFragment : Fragment() {
             }
             txtError!!.visibility = View.GONE
             val finalGender = gender
-            FirebaseUtil.getFirebaseFirestore().collection("profiles")
-                    .whereEqualTo("a2_username", username).limit(1).get()
+            val ref = FirebaseUtil.firebaseFirestore?.collection("profiles")
+            ref?.whereEqualTo("a2_username", username)!!.limit(1).get()
                     .addOnCompleteListener { task: Task<QuerySnapshot?> ->
                         if (task.result == null || !task.result!!.isEmpty) {
                             edtUsername.error = "Username already exist"
@@ -324,10 +293,10 @@ class HomeFragment : Fragment() {
                         val profileUpdate = UserProfileChangeRequest.Builder()
                                 .setDisplayName(username)
                                 .build()
-                        FirebaseUtil.getFirebaseAuthentication().currentUser!!.updateProfile(profileUpdate)
+                        FirebaseUtil.firebaseAuthentication?.currentUser!!.updateProfile(profileUpdate)
 
                         //save username, phone number, and gender to database
-                        FirebaseUtil.getFirebaseFirestore().collection("profiles").document(userId!!)[url] = SetOptions.merge()
+                        ref.document(userId!!)[url] = SetOptions.merge()
                         Reusable.updateAlgoliaIndex(myProfile!!.a0_firstName, myProfile!!.a1_lastName, username, userId, myProfile!!.c2_score, true) //add to Algolia index
                         dialog.cancel()
                     }
@@ -341,14 +310,14 @@ class HomeFragment : Fragment() {
     }
 
     private fun uploadImage() {
-        txtError!!.text = "Uploading image..."
-        txtError!!.visibility = View.VISIBLE
-        FirebaseUtil.getFirebaseStorage().reference.child("profile_images").child(userId!!).putFile(filePath!!)
+        txtError?.text = "Uploading image..."
+        txtError?.visibility = View.VISIBLE
+        FirebaseUtil.firebaseStorage?.reference?.child("profile_images")?.child(userId!!)!!.putFile(filePath!!)
                 .addOnSuccessListener { taskSnapshot: UploadTask.TaskSnapshot ->
                     taskSnapshot.metadata!!.reference!!.downloadUrl
                             .addOnSuccessListener { uri: Uri ->
                                 val url = uri.toString()
-                                FirebaseUtil.getFirebaseFirestore().collection("profiles").document(userId!!).update("b2_dpUrl", url)
+                                FirebaseUtil.firebaseFirestore?.collection("profiles")?.document(userId!!)!!.update("b2_dpUrl", url)
                                 txtError!!.visibility = View.GONE
                                 Toast.makeText(context, "Image uploaded", Toast.LENGTH_SHORT).show()
                                 txtError!!.text = "Image uploaded"
@@ -390,17 +359,17 @@ class HomeFragment : Fragment() {
         }
         if (savedInstanceState != null) {
             val homeFeedState = savedInstanceState.getParcelable<Parcelable>(HOME_FEED_STATE)
-            homeFeed!!.layoutManager!!.onRestoreInstanceState(homeFeedState)
+            binder.postList.layoutManager!!.onRestoreInstanceState(homeFeedState)
         } else {
-            val layoutManager = homeFeed!!.layoutManager as LinearLayoutManager?
-            layoutManager!!.smoothScrollToPosition(homeFeed, null, 0)
+            val layoutManager = binder.postList.layoutManager as LinearLayoutManager?
+            layoutManager!!.smoothScrollToPosition(binder.postList, null, 0)
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        homeFeed!!.adapter = null
-        trendingFeed!!.adapter = null
+        binder.postList.adapter = null
+        binder.trendingList.adapter = null
         Log.i(TAG, "onDestroyView: ")
     }
 
@@ -436,19 +405,19 @@ class HomeFragment : Fragment() {
     }
 
     private fun loadPostFbAdapter() {
-        val query = FirebaseUtil.getFirebaseFirestore().collection("posts")
+        val query = FirebaseUtil.firebaseFirestore?.collection("posts")!!
                 .orderBy("time", Query.Direction.DESCENDING).limit(20)
         val response = FirestoreRecyclerOptions.Builder<Post>()
                 .setQuery(query, Post::class.java)
                 .build()
         postAdapter = PostAdapter(response, userId, context, true)
-        homeFeed!!.adapter = postAdapter
+        binder.postList.adapter = postAdapter
         if (postAdapter != null) {
             Log.i(TAG, "loadPost: started listening")
             postAdapter!!.startListening()
-            shimmerLayoutPosts!!.stopShimmer()
-            shimmerLayoutPosts!!.visibility = View.GONE
-            crdPosts!!.visibility = View.VISIBLE
+            binder.shimmerPosts.stopShimmer()
+            binder.shimmerPosts.visibility = View.GONE
+            binder.crdPosts.visibility = View.VISIBLE
         }
         //refresher.setRefreshing(false);
     }
@@ -467,7 +436,7 @@ class HomeFragment : Fragment() {
     private fun loadMerged() {
         if (postAdapter != null) postAdapter!!.stopListening()
         if (UserNetwork.getFollowing() == null) {
-            FirebaseUtil.getFirebaseFirestore().collection("followings").document(userId!!).get()
+            FirebaseUtil.firebaseFirestore?.collection("followings")?.document(userId!!)?.get()!!
                     .addOnCompleteListener { task: Task<DocumentSnapshot> -> if (task.isSuccessful && task.result.contains("list")) loadList(task.result["list"] as ArrayList<String?>?) else loadList(null) }
         } else loadList(UserNetwork.getFollowing())
     }
@@ -486,12 +455,12 @@ class HomeFragment : Fragment() {
         val queries = arrayOfNulls<Query>(count)
         val tasks = arrayOfNulls<Task<*>>(count)
         for (i in 0 until count) {
-            queries[i] = FirebaseUtil.getFirebaseFirestore().collection("posts").orderBy("time", Query.Direction.DESCENDING)
+            queries[i] = FirebaseUtil.firebaseFirestore?.collection("posts")!!.orderBy("time", Query.Direction.DESCENDING)
                     .whereEqualTo("userId", userIds[i]).limit(10)
             tasks[i] = queries[i]!!.get()
         }
         Tasks.whenAllSuccess<Any?>(*tasks).addOnSuccessListener { list: List<Any?> ->
-            postList.clear()
+            postsList.clear()
             snapIds.clear()
             val postList2 = ArrayList<Post?>()
             val snapIds2 = ArrayList<SnapId>()
@@ -510,25 +479,25 @@ class HomeFragment : Fragment() {
                 Collections.sort(postList2)
                 Collections.sort(snapIds2)
             }
-            val adapter = FilteredPostAdapter(true, userId, context, postList, snapIds)
-            homeFeed!!.adapter = adapter
+            val adapter = FilteredPostAdapter(true, userId, context, postsList, snapIds)
+            binder.postList.adapter = adapter
             val size = Math.min(20, postList2.size)
             for (i in 0 until size) {
-                postList.add(postList2[i])
+                postsList.add(postList2[i])
                 snapIds.add(snapIds2[i])
             }
-            val i = postList.size
+            val i = postsList.size
             adapter.notifyDataSetChanged()
             postList2.clear()
             snapIds2.clear()
-            shimmerLayoutPosts!!.stopShimmer()
-            shimmerLayoutPosts!!.visibility = View.GONE
-            crdPosts!!.visibility = View.VISIBLE
+            binder.shimmerPosts.stopShimmer()
+            binder.shimmerPosts.visibility = View.GONE
+            binder.crdPosts.visibility = View.VISIBLE
         }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        val homeFeedState = homeFeed!!.layoutManager!!.onSaveInstanceState()
+        val homeFeedState = binder.postList.layoutManager!!.onSaveInstanceState()
         outState.putParcelable(HOME_FEED_STATE, homeFeedState)
         super.onSaveInstanceState(outState)
     }
@@ -595,10 +564,10 @@ class HomeFragment : Fragment() {
                 if (k >= 3) break
             }
             tipsAdapter!!.notifyDataSetChanged()
-            txtOpenFull!!.visibility = View.VISIBLE
-            shimmerLayoutTips!!.stopShimmer()
-            shimmerLayoutTips!!.visibility = View.GONE
-            crdTips!!.visibility = View.VISIBLE
+            binder.txtOpenFull.visibility = View.VISIBLE
+            binder.shimmerTips.stopShimmer()
+            binder.shimmerTips.visibility = View.GONE
+            binder.crdTips.visibility = View.VISIBLE
         }
     }
 }

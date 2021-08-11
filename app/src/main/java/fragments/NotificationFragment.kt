@@ -27,9 +27,9 @@ class NotificationFragment : Fragment() {
         notificationList.layoutManager = LinearLayoutManager(activity)
         val refresher: SwipeRefreshLayout = rootView!!.findViewById(R.id.refresher)
         refresher.setColorSchemeResources(R.color.colorPrimary)
-        val user = FirebaseUtil.getFirebaseAuthentication().currentUser
+        val user = FirebaseUtil.firebaseAuthentication?.currentUser
         val userId = user!!.uid
-        val query = FirebaseUtil.getFirebaseFirestore().collection("notifications")
+        val query = FirebaseUtil.firebaseFirestore?.collection("notifications")!!
                 .orderBy("time", Query.Direction.DESCENDING).whereEqualTo("sendTo", userId).limit(40)
         val notificationAdapter = NotificationAdapter(query, userId, context)
         notificationList.adapter = notificationAdapter

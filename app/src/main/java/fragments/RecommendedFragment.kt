@@ -55,7 +55,7 @@ class RecommendedFragment : Fragment(), View.OnClickListener {
         btnInvite.setOnClickListener(this)
         val btnInviteWhatsapp = rootView!!.findViewById<Button>(R.id.btnInviteWhatsapp)
         btnInviteWhatsapp.setOnClickListener(this)
-        val user = FirebaseUtil.getFirebaseAuthentication().currentUser
+        val user = FirebaseUtil.firebaseAuthentication?.currentUser
         userId = user!!.uid
         alreadyLoaded = false
         loadNews()
@@ -71,9 +71,8 @@ class RecommendedFragment : Fragment(), View.OnClickListener {
     }
 
     private fun loadPeople() {
-        val recReference = FirebaseUtil.getFirebaseFirestore().collection("recommended").document(userId!!)
-                .collection("rec")
-        recReference.orderBy("count", Query.Direction.DESCENDING).limit(10).get()
+        val recReference = FirebaseUtil.firebaseFirestore?.collection("recommended")?.document(userId!!)?.collection("rec")
+        recReference!!.orderBy("count", Query.Direction.DESCENDING).limit(10).get()
                 .addOnCompleteListener(OnCompleteListener { task ->
                     if (task.result == null || task.result!!.isEmpty) {
                         loadPeopleFromProfile()
@@ -91,8 +90,8 @@ class RecommendedFragment : Fragment(), View.OnClickListener {
     }
 
     private fun loadPeopleFromProfile() {
-        FirebaseUtil.getFirebaseFirestore().collection("profiles").orderBy("c2_score",
-                Query.Direction.DESCENDING).limit(30).get().addOnCompleteListener { task ->
+        FirebaseUtil.firebaseFirestore?.collection("profiles")?.orderBy("c2_score",
+                Query.Direction.DESCENDING)!!.limit(30).get().addOnCompleteListener { task ->
             if (task.result != null && !task.result!!.isEmpty) {
                 val list = ArrayList<String?>()
                 for (snapshot in task.result!!.documents) {
