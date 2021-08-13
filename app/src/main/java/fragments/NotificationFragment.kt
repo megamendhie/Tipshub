@@ -31,7 +31,7 @@ class NotificationFragment : Fragment() {
         val userId = user!!.uid
         val query = FirebaseUtil.firebaseFirestore?.collection("notifications")!!
                 .orderBy("time", Query.Direction.DESCENDING).whereEqualTo("sendTo", userId).limit(40)
-        val notificationAdapter = NotificationAdapter(query, userId, context)
+        val notificationAdapter = NotificationAdapter(query, userId)
         notificationList.adapter = notificationAdapter
         notificationAdapter.startListening()
         refresher.setOnRefreshListener {

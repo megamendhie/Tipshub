@@ -145,7 +145,7 @@ public class AccountActivity extends AppCompatActivity {
 
         subscriberAdapter = new SubscriberAdapter(querySubscribers, getApplicationContext());
         subscriptionAdapter = new SubscriptionAdapter(querySubscriptions, getApplicationContext());
-        transactionAdapter = new TransactionAdapter(queryTransactions, userId);
+        transactionAdapter = new TransactionAdapter(queryTransactions);
 
         listSubscribers.setAdapter(subscriberAdapter);
         listSubscriptions.setAdapter(subscriptionAdapter);

@@ -17,7 +17,6 @@ import com.sqube.tipshub.LoginActivity
 import com.sqube.tipshub.MemberProfileActivity
 import com.sqube.tipshub.MyProfileActivity
 import com.sqube.tipshub.R
-import com.sqube.tipshub.databinding.ItemUserBinding
 import com.sqube.tipshub.databinding.ItemUserLandBinding
 import models.ProfileShort
 import models.UserNetwork

@@ -63,7 +63,7 @@ public class SearchActivity extends AppCompatActivity {
         final FirebaseUser user = FirebaseUtil.getFirebaseAuthentication().getCurrentUser();
         userId = user.getUid();
 
-        adapter = new PeopleAdapter(getApplicationContext(), userId, listOfUsers);
+        adapter = new PeopleAdapter(userId, listOfUsers);
         searchList.setLayoutManager(new LinearLayoutManager(this));
         searchList.setAdapter(adapter);
 
@@ -101,7 +101,7 @@ public class SearchActivity extends AppCompatActivity {
                                     if(listOfUsers.isEmpty())
                                         txtPrompt.setVisibility(View.VISIBLE);
                                     else
-                                        searchList.setAdapter(new PeopleAdapter(getApplicationContext(), userId, listOfUsers));
+                                        searchList.setAdapter(new PeopleAdapter(userId, listOfUsers));
 
                                 } catch (JSONException e1) {
                                     prgSearch.setVisibility(View.GONE);
@@ -111,7 +111,7 @@ public class SearchActivity extends AppCompatActivity {
                             }
                         }
                 );
-                searchList.setAdapter(new PeopleAdapter(getApplicationContext(),userId, listOfUsers));
+                searchList.setAdapter(new PeopleAdapter(userId, listOfUsers));
                 return false;
             }
 

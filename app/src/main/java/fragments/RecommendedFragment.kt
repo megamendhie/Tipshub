@@ -79,12 +79,12 @@ class RecommendedFragment : Fragment(), View.OnClickListener {
                         return@OnCompleteListener
                     }
                     if (task.result!!.documents.size > 6) {
-                        val list = ArrayList<String?>()
+                        val list = ArrayList<String>()
                         for (snapshot in task.result!!.documents) {
                             list.add(snapshot.id)
                         }
                         Collections.shuffle(list)
-                        peopleList!!.adapter = PeopleRecAdapter(context, userId, list)
+                        peopleList!!.adapter = PeopleRecAdapter(userId!!, list)
                     } else loadPeopleFromProfile()
                 })
     }
@@ -93,7 +93,7 @@ class RecommendedFragment : Fragment(), View.OnClickListener {
         FirebaseUtil.firebaseFirestore?.collection("profiles")?.orderBy("c2_score",
                 Query.Direction.DESCENDING)!!.limit(30).get().addOnCompleteListener { task ->
             if (task.result != null && !task.result!!.isEmpty) {
-                val list = ArrayList<String?>()
+                val list = ArrayList<String>()
                 for (snapshot in task.result!!.documents) {
                     val ref = snapshot.id
                     if (ref == userId) continue
@@ -102,7 +102,7 @@ class RecommendedFragment : Fragment(), View.OnClickListener {
                     list.add(ref)
                 }
                 Collections.shuffle(list)
-                peopleList!!.adapter = PeopleRecAdapter(context, userId, list)
+                peopleList!!.adapter = PeopleRecAdapter(userId!!, list)
             }
         }
     }
@@ -206,7 +206,7 @@ class RecommendedFragment : Fragment(), View.OnClickListener {
                     Log.i(TAG, "onPostExecute: " + e.message)
                     Toast.makeText(context, "Unexpected error", Toast.LENGTH_SHORT).show()
                 }
-                val adapter = NewsAdapter(activity, dataList)
+                val adapter = NewsAdapter(dataList)
                 newsList!!.layoutManager = LinearLayoutManager(context)
                 newsList!!.adapter = adapter
             } else {

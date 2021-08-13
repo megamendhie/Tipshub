@@ -10,30 +10,26 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.google.firebase.storage.FirebaseStorage
 import com.sqube.tipshub.R
+import com.sqube.tipshub.databinding.ItemSportSiteBinding
 import models.Website
 
-class WebsiteHolder internal constructor(itemView: View) : RecyclerView.ViewHolder(itemView) {
-    private val imgIcon: ImageView
-    private val txtName: TextView
+class WebsiteHolder internal constructor(private val binding: ItemSportSiteBinding) : RecyclerView.ViewHolder(binding.root) {
     fun setDisplay(website: Website) {
-        txtName.text = website.name
-        val storageReference = FirebaseStorage.getInstance().getReferenceFromUrl(website.icon)
-        storageReference.downloadUrl.addOnSuccessListener { uri: Uri ->
-            Log.i("PeopleAdapter", "onComplete: $uri")
-            try {
-                Glide.with(imgIcon.context).load(uri.toString()).fitCenter().into(imgIcon)
-            } catch (e: Exception) {
-                Log.w("{PeopleAdapter", "imgIcon GlideApp: " + e.message)
+        with(binding){
+            txtName.text = website.name
+            val storageReference = FirebaseStorage.getInstance().getReferenceFromUrl(website.icon)
+            storageReference.downloadUrl.addOnSuccessListener { uri: Uri ->
+                Log.i("PeopleAdapter", "onComplete: $uri")
+                try {
+                    Glide.with(imgIcon.context).load(uri.toString()).fitCenter().into(imgIcon)
+                } catch (e: Exception) {
+                    Log.w("{PeopleAdapter", "imgIcon GlideApp: " + e.message)
+                }
+            }
+            root.setOnClickListener { root.context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(website.link)))
             }
         }
-        itemView.setOnClickListener { view: View? ->
-            itemView.context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(
-                    website.link)))
-        }
+
     }
 
-    init {
-        imgIcon = itemView.findViewById(R.id.imgIcon)
-        txtName = itemView.findViewById(R.id.txtName)
-    }
 }

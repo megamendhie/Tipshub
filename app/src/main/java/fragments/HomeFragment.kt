@@ -24,7 +24,6 @@ import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.firebase.ui.firestore.FirestoreRecyclerOptions
-import com.github.clans.fab.FloatingActionMenu
 import com.google.android.gms.tasks.*
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.database.DataSnapshot
@@ -37,10 +36,11 @@ import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.storage.UploadTask
 import com.google.gson.Gson
-import com.hbb20.CountryCodePicker
 import com.sqube.tipshub.ExtendedHomeActivity
 import com.sqube.tipshub.FullViewActivity
+import com.sqube.tipshub.PostActivity
 import com.sqube.tipshub.R
+import com.sqube.tipshub.databinding.ActivitySignup2Binding
 import com.sqube.tipshub.databinding.FragmentHomeBinding
 import com.theartofdev.edmodo.cropper.CropImage
 import de.hdodenhof.circleimageview.CircleImageView
@@ -56,8 +56,8 @@ class HomeFragment : Fragment() {
     private var _binder: FragmentHomeBinding? = null
     private val binder get():FragmentHomeBinding = _binder!!
     private var txtError: TextView? = null
-    private val TAG = "HomeFrag"
-    private val HOME_FEED_STATE = "homeFeedState"
+    private val tag = "HomeFrag"
+    private val homeFeedState = "homeFeedState"
     private val gson = Gson()
     private var prefs: SharedPreferences? = null
     private var fromEverybody = true
@@ -69,8 +69,6 @@ class HomeFragment : Fragment() {
     private var username: String? = null
     private var postAdapter: PostAdapter? = null
     private var trendingAdapter: FilteredPostAdapter? = null
-    private var fabMenu: FloatingActionMenu? = null
-    private var intent: Intent? = null
 
     //private SwipeRefreshLayout refresher;
     private val homepageTips = ArrayList<GameTip>()
@@ -82,6 +80,7 @@ class HomeFragment : Fragment() {
     private var dbHelper: DatabaseHelper? = null
     private var db: SQLiteDatabase? = null
     private var imgDp: CircleImageView? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val user = FirebaseUtil.firebaseAuthentication?.currentUser
@@ -107,7 +106,6 @@ class HomeFragment : Fragment() {
         binder.sportSitesList.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         (binder.postList.itemAnimator as DefaultItemAnimator?)!!.supportsChangeAnimations = false
         //((DefaultItemAnimator) trendingFeed.getItemAnimator()).setSupportsChangeAnimations(false);
-        //refresher.setColorSchemeResources(R.color.colorPrimary);
 
         binder.txtOpenFullPost.setOnClickListener {seeMore() }
         binder.txtOpenFull.setOnClickListener{requireContext().startActivity(Intent(context, FullViewActivity::class.java)) }
@@ -118,18 +116,20 @@ class HomeFragment : Fragment() {
             binder.crdTips.visibility = View.VISIBLE
         }
         binder.shimmerPosts.startShimmer()
+
+        val intent = Intent(context, PostActivity::class.java)
         binder.fabPost.setOnClickListener { v: View? ->
-            fabMenu?.close(false)
+            binder.fabMenu.close(false)
             if (hasReachedMax()) {
                 popUp()
                 return@setOnClickListener
             }
-            intent!!.putExtra("type", "tip")
+            intent.putExtra("type", "tip")
             startActivity(intent)
         }
         binder.fabNormal.setOnClickListener { v: View? ->
-            fabMenu?.close(false)
-            intent!!.putExtra("type", "normal")
+            binder.fabMenu.close(false)
+            intent.putExtra("type", "normal")
             startActivity(intent)
         }
 
@@ -162,7 +162,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun loadSportSites() {
-        val siteList = ArrayList<Website?>()
+        val siteList = ArrayList<Website>()
         val websiteAdapter = WebsiteAdapter(siteList)
         binder.sportSitesList.adapter = websiteAdapter
         val ref = FirebaseDatabase.getInstance().reference.child("sportSites")
@@ -172,7 +172,7 @@ class HomeFragment : Fragment() {
                 if (!dataSnapshot.hasChildren()) return
                 siteList.clear()
                 for (snapshot in dataSnapshot.children) {
-                    val website = snapshot.getValue(Website::class.java)
+                    val website = snapshot.getValue(Website::class.java)!!
                     siteList.add(website)
                 }
                 websiteAdapter.notifyDataSetChanged()
@@ -212,46 +212,43 @@ class HomeFragment : Fragment() {
     }
 
     private fun promptForUsername() {
+        val dialogBinder = ActivitySignup2Binding.inflate(layoutInflater)
         val builder = AlertDialog.Builder(requireContext())
-        val inflater = layoutInflater
-        val dialogView = inflater.inflate(R.layout.activity_signup2, null)
-        builder.setView(dialogView)
+        builder.setView(dialogBinder.root)
         val dialog = builder.create()
         dialog.setCancelable(false)
         dialog.show()
 
         //Initialize variables
         val numberValid = booleanArrayOf(false)
-        txtError = dialog.findViewById(R.id.txtError)
-        val edtUsername = dialog.findViewById<EditText>(R.id.edtUsername)
-        val edtPhone = dialog.findViewById<EditText>(R.id.editText_carrierNumber)
-        val rdbGroup = dialog.findViewById<RadioGroup>(R.id.rdbGroupGender)
-        val btnSave = dialog.findViewById<Button>(R.id.btnSave)
-        imgDp = dialog.findViewById(R.id.imgDp)
-        imgDp!!.setOnClickListener { view: View? -> grabImage() }
-        val ccp = dialog.findViewById<CountryCodePicker>(R.id.ccp)
-        ccp!!.registerCarrierNumberEditText(edtPhone)
-        if (myProfile!!.b2_dpUrl.isEmpty()) Glide.with(this).load(R.drawable.dummy).into(imgDp!!) else Glide.with(this).load(myProfile!!.b2_dpUrl).into(imgDp!!)
-        ccp.setPhoneNumberValidityChangeListener { isValidNumber: Boolean -> numberValid[0] = isValidNumber }
-        btnSave!!.setOnClickListener { v: View? ->
-            val username = edtUsername!!.text.toString().trim { it <= ' ' }
-            val phone = ccp.fullNumber
-            val country = ccp.selectedCountryName
+        txtError = dialogBinder.txtError
+        dialogBinder.imgDp.setOnClickListener { grabImage() }
+        dialogBinder.ccp.registerCarrierNumberEditText(dialogBinder.edtPhone)
+        if (myProfile!!.b2_dpUrl.isEmpty())
+            Glide.with(this).load(R.drawable.dummy).into(imgDp!!)
+        else
+            Glide.with(this).load(myProfile!!.b2_dpUrl).into(imgDp!!)
+        dialogBinder.ccp.setPhoneNumberValidityChangeListener { isValidNumber: Boolean -> numberValid[0] = isValidNumber }
+        dialogBinder.btnSave.setOnClickListener { v: View? ->
+            val rdbGroup = dialogBinder.rdbGroupGender
+            val username = dialogBinder.edtUsername.text.toString().trim { it <= ' ' }
+            val phone = dialogBinder.ccp.fullNumber
+            val country = dialogBinder.ccp.selectedCountryName
             var gender = ""
-            when (rdbGroup!!.checkedRadioButtonId) {
+            when (rdbGroup.checkedRadioButtonId) {
                 R.id.rdbMale -> gender = "male"
                 R.id.rdbFemale -> gender = "female"
             }
 
             //verify fields meet requirement
             if (TextUtils.isEmpty(username)) {
-                edtUsername.error = "Enter username"
+                dialogBinder.edtUsername.error = "Enter username"
                 txtError!!.text = "Enter username"
                 txtError!!.visibility = View.VISIBLE
                 return@setOnClickListener
             }
             if (username.length < 3) {
-                edtUsername.error = "Username too short"
+                dialogBinder.edtUsername.error = "Username too short"
                 txtError!!.text = "Username too short"
                 txtError!!.visibility = View.VISIBLE
                 return@setOnClickListener
@@ -277,7 +274,7 @@ class HomeFragment : Fragment() {
             ref?.whereEqualTo("a2_username", username)!!.limit(1).get()
                     .addOnCompleteListener { task: Task<QuerySnapshot?> ->
                         if (task.result == null || !task.result!!.isEmpty) {
-                            edtUsername.error = "Username already exist"
+                            dialogBinder.edtUsername.error = "Username already exist"
                             Toast.makeText(context, "Username already exist. Try another one", Toast.LENGTH_SHORT).show()
                             return@addOnCompleteListener
                         }
@@ -358,7 +355,7 @@ class HomeFragment : Fragment() {
             loadMerged()
         }
         if (savedInstanceState != null) {
-            val homeFeedState = savedInstanceState.getParcelable<Parcelable>(HOME_FEED_STATE)
+            val homeFeedState = savedInstanceState.getParcelable<Parcelable>(homeFeedState)
             binder.postList.layoutManager!!.onRestoreInstanceState(homeFeedState)
         } else {
             val layoutManager = binder.postList.layoutManager as LinearLayoutManager?
@@ -370,7 +367,7 @@ class HomeFragment : Fragment() {
         super.onDestroyView()
         binder.postList.adapter = null
         binder.trendingList.adapter = null
-        Log.i(TAG, "onDestroyView: ")
+        Log.i(tag, "onDestroyView: ")
     }
 
     private fun popUp() {
@@ -413,7 +410,7 @@ class HomeFragment : Fragment() {
         postAdapter = PostAdapter(response, userId, context, true)
         binder.postList.adapter = postAdapter
         if (postAdapter != null) {
-            Log.i(TAG, "loadPost: started listening")
+            Log.i(tag, "loadPost: started listening")
             postAdapter!!.startListening()
             binder.shimmerPosts.stopShimmer()
             binder.shimmerPosts.visibility = View.GONE
@@ -498,7 +495,7 @@ class HomeFragment : Fragment() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         val homeFeedState = binder.postList.layoutManager!!.onSaveInstanceState()
-        outState.putParcelable(HOME_FEED_STATE, homeFeedState)
+        outState.putParcelable(this.homeFeedState, homeFeedState)
         super.onSaveInstanceState(outState)
     }
 
@@ -540,7 +537,7 @@ class HomeFragment : Fragment() {
                     if (tipJSON.has("probabilities")) {
                         val probabilities = tipJSON.optJSONObject("probabilities")
                         gameTip.probability = probabilities.optDouble(gameTip.prediction)
-                    } else Log.i(TAG, "getTips: null")
+                    } else Log.i(tag, "getTips: null")
                     val oddJSON = tipJSON.getJSONObject("odds")
                     if (oddJSON != null) {
                         gameTip.odd = oddJSON.optDouble(gameTip.prediction)
@@ -569,5 +566,10 @@ class HomeFragment : Fragment() {
             binder.shimmerTips.visibility = View.GONE
             binder.crdTips.visibility = View.VISIBLE
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        _binder = null
     }
 }

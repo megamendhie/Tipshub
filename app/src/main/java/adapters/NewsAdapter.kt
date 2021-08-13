@@ -16,12 +16,13 @@ import java.lang.Exception
 import java.util.ArrayList
 import java.util.HashMap
 
-class NewsAdapter(private val activity: Activity, private val data: ArrayList<HashMap<String, String>>) : RecyclerView.Adapter<NewsAdapter.ListNewsViewHolder>() {
+class NewsAdapter(private val data: ArrayList<HashMap<String, String>>) : RecyclerView.Adapter<NewsAdapter.ListNewsViewHolder>() {
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ListNewsViewHolder {
-        var convertView: View? = null
-        convertView = if (viewType == 0) LayoutInflater.from(parent.context).inflate(
-                R.layout.item_news, parent, false) else LayoutInflater.from(parent.context).inflate(
-                R.layout.item_news_small, parent, false)
+        val convertView: View = if (viewType == 0)
+            LayoutInflater.from(parent.context).inflate(R.layout.item_news, parent, false)
+        else
+            LayoutInflater.from(parent.context).inflate(R.layout.item_news_small, parent, false)
         return ListNewsViewHolder(convertView)
     }
 
@@ -31,17 +32,20 @@ class NewsAdapter(private val activity: Activity, private val data: ArrayList<Ha
 
     override fun onBindViewHolder(holder: ListNewsViewHolder, position: Int) {
         val news = data[position]
+        with(news){
+            holder.description.text = get("description")
+            holder.title.text = get("title")
+            holder.time.text = get("publishedAt")
+            val url = get("urlToImage") ?: ""
+            if (url.length > 5) Glide.with(holder.galleryImage.context).load(url).into(holder.galleryImage)
+        }
         try {
-            holder.description.text = news["description"]
-            holder.title.text = news["title"]
-            holder.time.text = news["publishedAt"]
-            if (news["urlToImage"]!!.length > 5) Glide.with(activity)
-                    .load(news["urlToImage"])
-                    .into(holder.galleryImage)
-            holder.crdContainer.setOnClickListener { v: View? ->
-                val i = Intent(activity.applicationContext, NewsStoryActivity::class.java)
-                i.putExtra("url", news["url"])
-                activity.startActivity(i)
+            holder.crdContainer.setOnClickListener {
+                val intent = Intent(it.context, NewsStoryActivity::class.java)
+                intent.putExtra("url", news["url"])
+                it.context.startActivity(intent)
+
+                val activity = it.context as Activity
                 activity.overridePendingTransition(R.anim.slide_right_in, R.anim.slide_left_out)
             }
         } catch (e: Exception) {
@@ -53,18 +57,11 @@ class NewsAdapter(private val activity: Activity, private val data: ArrayList<Ha
     }
 
     inner class ListNewsViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        var crdContainer: CardView
-        var galleryImage: ImageView
-        var description: TextView
-        var title: TextView
-        var time: TextView
+        val crdContainer: CardView = itemView.findViewById(R.id.crdContainer)
+        val galleryImage: ImageView = itemView.findViewById(R.id.galleryImage)
+        val description: TextView = itemView.findViewById(R.id.txtDescription)
+        val title: TextView = itemView.findViewById(R.id.title)
+        val time: TextView = itemView.findViewById(R.id.time)
 
-        init {
-            crdContainer = itemView.findViewById(R.id.crdContainer)
-            galleryImage = itemView.findViewById(R.id.galleryImage)
-            description = itemView.findViewById(R.id.txtDescription)
-            title = itemView.findViewById(R.id.title)
-            time = itemView.findViewById(R.id.time)
-        }
     }
 }

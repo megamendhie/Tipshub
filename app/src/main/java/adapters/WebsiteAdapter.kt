@@ -3,21 +3,21 @@ package adapters
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.sqube.tipshub.R
+import com.sqube.tipshub.databinding.ItemSportSiteBinding
 import models.Website
 import java.util.*
 
-class WebsiteAdapter(var siteList: ArrayList<Website>?) : RecyclerView.Adapter<WebsiteHolder>() {
+class WebsiteAdapter(val siteList: ArrayList<Website>) : RecyclerView.Adapter<WebsiteHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WebsiteHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_sport_site, parent, false)
-        return WebsiteHolder(view)
+        val binding = ItemSportSiteBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return WebsiteHolder(binding)
     }
 
     override fun onBindViewHolder(holder: WebsiteHolder, position: Int) {
-        holder.setDisplay(siteList!![position])
+        holder.setDisplay(siteList[position])
     }
 
     override fun getItemCount(): Int {
-        return if (siteList == null || siteList!!.isEmpty()) 0 else siteList!!.size
+        return siteList.size
     }
 }

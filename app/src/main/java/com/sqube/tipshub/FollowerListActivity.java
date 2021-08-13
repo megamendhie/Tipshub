@@ -56,13 +56,12 @@ public class FollowerListActivity extends AppCompatActivity {
                     }
                     if(task.getResult().contains("list")){
                         listOfPeople = (ArrayList<String>) task.getResult().get("list");
-                        peopleAdapter = new PeopleAdapter(getApplicationContext(),userId, listOfPeople);
+                        peopleAdapter = new PeopleAdapter(userId, listOfPeople);
                         peopleList.setAdapter(peopleAdapter);
                     }
                 })
                 .addOnFailureListener(e -> txtNote.setVisibility(View.VISIBLE));
     }
-
 
     @Override
     public void onResume() {
@@ -75,7 +74,6 @@ public class FollowerListActivity extends AppCompatActivity {
         if(peopleAdapter!=null)
             peopleAdapter.setUserId(userId);
     }
-
 
     private String getTitle(String searchType){
         switch (searchType){
