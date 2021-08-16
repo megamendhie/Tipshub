@@ -56,9 +56,9 @@ class HomeFragment : Fragment() {
     private var _binder: FragmentHomeBinding? = null
     private val binder get():FragmentHomeBinding = _binder!!
     private var txtError: TextView? = null
-    private val tag = "HomeFrag"
     private val homeFeedState = "homeFeedState"
     private val gson = Gson()
+    private val _tag = "HomeFragment"
     private var prefs: SharedPreferences? = null
     private var fromEverybody = true
     private val postsList = ArrayList<Post?>()
@@ -193,7 +193,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun loadTrendingPost() {
-        trendingAdapter = FilteredPostAdapter(false, userId, context, trendingPostList, trendingSnapIds)
+        trendingAdapter = FilteredPostAdapter(false, userId!!, requireContext(), trendingPostList, trendingSnapIds)
         binder.trendingList.adapter = trendingAdapter
         FirebaseUtil.firebaseFirestore?.collection("posts")!!
                 .orderBy("timeRelevance", Query.Direction.DESCENDING).limit(30).get()
@@ -367,7 +367,7 @@ class HomeFragment : Fragment() {
         super.onDestroyView()
         binder.postList.adapter = null
         binder.trendingList.adapter = null
-        Log.i(tag, "onDestroyView: ")
+        Log.i(_tag, "onDestroyView: ")
     }
 
     private fun popUp() {
@@ -407,10 +407,10 @@ class HomeFragment : Fragment() {
         val response = FirestoreRecyclerOptions.Builder<Post>()
                 .setQuery(query, Post::class.java)
                 .build()
-        postAdapter = PostAdapter(response, userId, context, true)
+        postAdapter = PostAdapter(response, userId, requireContext(), true)
         binder.postList.adapter = postAdapter
         if (postAdapter != null) {
-            Log.i(tag, "loadPost: started listening")
+            Log.i(_tag, "loadPost: started listening")
             postAdapter!!.startListening()
             binder.shimmerPosts.stopShimmer()
             binder.shimmerPosts.visibility = View.GONE
@@ -476,7 +476,7 @@ class HomeFragment : Fragment() {
                 Collections.sort(postList2)
                 Collections.sort(snapIds2)
             }
-            val adapter = FilteredPostAdapter(true, userId, context, postsList, snapIds)
+            val adapter = FilteredPostAdapter(true, userId!!, requireContext(), postsList, snapIds)
             binder.postList.adapter = adapter
             val size = Math.min(20, postList2.size)
             for (i in 0 until size) {
@@ -537,7 +537,7 @@ class HomeFragment : Fragment() {
                     if (tipJSON.has("probabilities")) {
                         val probabilities = tipJSON.optJSONObject("probabilities")
                         gameTip.probability = probabilities.optDouble(gameTip.prediction)
-                    } else Log.i(tag, "getTips: null")
+                    } else Log.i(_tag, "getTips: null")
                     val oddJSON = tipJSON.getJSONObject("odds")
                     if (oddJSON != null) {
                         gameTip.odd = oddJSON.optDouble(gameTip.prediction)

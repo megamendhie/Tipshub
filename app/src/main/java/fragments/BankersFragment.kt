@@ -45,7 +45,7 @@ import utils.FirebaseUtil
         Log.i(TAG, "loadPost: ")
         val query = FirebaseUtil.firebaseFirestore?.collection("posts")?.orderBy("time", Query.Direction.DESCENDING)!!
                 .whereEqualTo("userId", userId).whereEqualTo("type", 6)
-        postAdapter = BankerAdapter(query, myId, context, false)
+        postAdapter = BankerAdapter(query, myId, requireContext(), false)
         recyclerView!!.adapter = postAdapter
         if (postAdapter != null) {
             Log.i(TAG, "loadPost: started listening")

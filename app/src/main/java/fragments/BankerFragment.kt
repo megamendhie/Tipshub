@@ -13,22 +13,20 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.firebase.ui.firestore.FirestoreRecyclerOptions
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.gson.Gson
 import com.sqube.tipshub.PostActivity
 import com.sqube.tipshub.R
+import com.sqube.tipshub.databinding.FragmentBankerBinding
 import models.*
 import utils.FirebaseUtil
 import java.text.ParseException
@@ -45,38 +43,31 @@ class BankerFragment : Fragment() {
     private var json: String? = null
     private var myProfile: ProfileMedium? = null
     private var prefs: SharedPreferences? = null
-    private var txtNotice: TextView? = null
-    private var userId: String? = null
-    private var subscribedList: RecyclerView? = null
-    private var latestList: RecyclerView? = null
-    private var winningsList: RecyclerView? = null
-    private var bankersList: RecyclerView? = null
+    private var _userId: String? = null
+    private val userId: String get() = _userId!!
     private val TAG = "BankerFragment"
     private var intent: Intent? = null
-    private var rootView: View? = null
+    private var _binding: FragmentBankerBinding? = null
+    private val binding get() = _binding!!
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
 
         // Inflate the layout for this fragment only if its null
-        if (rootView == null) rootView = inflater.inflate(R.layout.fragment_banker, container, false)
+        _binding = FragmentBankerBinding.inflate(inflater, container, false)
         prefs = PreferenceManager.getDefaultSharedPreferences(context)
-        subscribedList = rootView!!.findViewById(R.id.subscribedList)
-        latestList = rootView!!.findViewById(R.id.latestList)
-        winningsList = rootView!!.findViewById(R.id.winningsList)
-        bankersList = rootView!!.findViewById(R.id.bankersList)
-        val fabPost: FloatingActionButton = rootView!!.findViewById(R.id.fabPost)
-        txtNotice = rootView!!.findViewById(R.id.txtNotice)
-        (subscribedList?.getItemAnimator() as DefaultItemAnimator?)!!.supportsChangeAnimations = false
-        (winningsList?.getItemAnimator() as DefaultItemAnimator?)!!.supportsChangeAnimations = false
-        (latestList?.getItemAnimator() as DefaultItemAnimator?)!!.supportsChangeAnimations = false
-        subscribedList?.setLayoutManager(LinearLayoutManager(activity))
-        latestList?.setLayoutManager(LinearLayoutManager(activity))
-        winningsList?.setLayoutManager(LinearLayoutManager(activity))
-        bankersList?.setLayoutManager(LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false))
+
+        (binding.subscribedList.itemAnimator as DefaultItemAnimator?)!!.supportsChangeAnimations = false
+        (binding.winningsList.itemAnimator as DefaultItemAnimator?)!!.supportsChangeAnimations = false
+        (binding.latestList.itemAnimator as DefaultItemAnimator?)!!.supportsChangeAnimations = false
+        binding.subscribedList.layoutManager = LinearLayoutManager(activity)
+        binding.latestList.layoutManager = LinearLayoutManager(activity)
+        binding.winningsList.layoutManager = LinearLayoutManager(activity)
+        binding.bankersList.layoutManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
         intent = Intent(context, PostActivity::class.java)
         val user = FirebaseUtil.firebaseAuthentication?.currentUser
-        userId = user!!.uid
-        fabPost.setOnClickListener { v: View? ->
+        _userId = user!!.uid
+        binding.fabPost.setOnClickListener {
             json = prefs?.getString("profile", "")
             myProfile = if (json == "") null else gson.fromJson(json, ProfileMedium::class.java)
             if (myProfile == null) {
@@ -107,19 +98,19 @@ class BankerFragment : Fragment() {
         loadLatest()
         loadWinning()
         loadSub()
-        return rootView
+        return binding.root
     }
 
     private fun loadSub() {
         if (UserNetwork.getSubscribed() == null) {
-            FirebaseUtil.firebaseFirestore?.collection("subscribed_to")?.document(userId!!)?.get()!!
+            FirebaseUtil.firebaseFirestore?.collection("subscribed_to")?.document(userId)?.get()!!
                     .addOnCompleteListener { task -> if (task.isSuccessful && task.result.contains("list")) loadList(task.result["list"] as ArrayList<String>?) else loadList(null) }
         } else loadList(UserNetwork.getSubscribed())
     }
 
     private fun loadList(userIds: ArrayList<String>?) {
         if (userIds == null || userIds.isEmpty()) {
-            txtNotice!!.text = "You haven't subscribed to anyone yet"
+            binding.txtNotice.text = "You haven't subscribed to anyone yet"
             return
         }
         val count = userIds.size
@@ -133,25 +124,25 @@ class BankerFragment : Fragment() {
             tasks[i] = queries[i]!!.get()
         }
         Tasks.whenAllSuccess<Any>(*tasks).addOnSuccessListener { list ->
-            val posts = ArrayList<Post?>()
+            val posts = ArrayList<Post>()
             val snapIds = ArrayList<SnapId>()
             for (`object` in list) {
                 val querySnapshot = `object` as QuerySnapshot
-                if (querySnapshot != null || !querySnapshot.isEmpty()) {
+                if (querySnapshot != null || !querySnapshot.isEmpty) {
                     for (snapshot in querySnapshot.documents) {
-                        val post = snapshot.toObject(Post::class.java)
+                        val post = snapshot.toObject(Post::class.java)!!
                         posts.add(post)
                         snapIds.add(SnapId(snapshot.id, post!!.time))
                     }
                 }
             }
             if (posts.isEmpty()) {
-                txtNotice!!.text = "No tips at the moment"
-                txtNotice!!.visibility = View.VISIBLE
-            } else txtNotice!!.visibility = View.GONE
+                binding.txtNotice.text = "No tips at the moment"
+                binding.txtNotice.visibility = View.VISIBLE
+            } else binding.txtNotice.visibility = View.GONE
             Collections.sort(posts)
             Collections.sort(snapIds)
-            subscribedList!!.adapter = FilteredBankerAdapter(userId, context, posts, snapIds)
+            binding.subscribedList.adapter = FilteredBankerAdapter(userId, requireContext(), posts, snapIds)
         }
     }
 
@@ -162,24 +153,24 @@ class BankerFragment : Fragment() {
                 .setQuery(query, ProfileShort::class.java)
                 .build()
         val bankerTipsterAdapter = BankerTipsterAdapter(options)
-        bankersList!!.adapter = bankerTipsterAdapter
+        binding.bankersList.adapter = bankerTipsterAdapter
         bankerTipsterAdapter.startListening()
     }
 
     private fun loadLatest() {
         Log.i(TAG, "loadPost: ")
         val latestAdapter = BankerAdapter(FirebaseUtil.firebaseFirestore?.collection("posts")?.orderBy("time", Query.Direction.DESCENDING)!!
-                .whereEqualTo("type", 6).limit(8), userId, context, true)
-        latestList!!.adapter = latestAdapter
-        if (latestAdapter != null) latestAdapter.startListening()
+                .whereEqualTo("type", 6).limit(8), userId, requireContext(), true)
+        binding.latestList.adapter = latestAdapter
+        latestAdapter.startListening()
     }
 
     private fun loadWinning() {
         Log.i(TAG, "loadWinning: ")
         val winAdapter = BankerAdapter(FirebaseUtil.firebaseFirestore?.collection("posts")?.orderBy("time", Query.Direction.DESCENDING)!!
-                .whereEqualTo("type", 6).whereEqualTo("status", 2).limit(8), userId, context, true)
-        winningsList!!.adapter = winAdapter
-        if (winAdapter != null) winAdapter.startListening()
+                .whereEqualTo("type", 6).whereEqualTo("status", 2).limit(8), userId, requireContext(), true)
+        binding.winningsList.adapter = winAdapter
+        winAdapter.startListening()
     }
 
     private fun popUp() {

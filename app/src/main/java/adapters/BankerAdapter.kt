@@ -8,19 +8,19 @@ import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.text.Html
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
+import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.signature.ObjectKey
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter
 import com.firebase.ui.firestore.FirestoreRecyclerOptions
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.firestore.Query
-import com.google.firebase.storage.StorageReference
 import com.sqube.tipshub.*
+import com.sqube.tipshub.databinding.ItemPostBankerBinding
 import models.Post
 import models.UserNetwork
 import services.GlideApp
@@ -37,51 +37,58 @@ import views.DislikeButton
 import views.LikeButton
 import java.util.*
 
-class BankerAdapter(query: Query?, userID: String?, context: Context, private val anchorSnackbar: Boolean) : FirestoreRecyclerAdapter<Post, BankerPostHolder>(FirestoreRecyclerOptions.Builder<Post>()
+class BankerAdapter(query: Query?, userID: String?, val context: Context, private val anchorSnackbar: Boolean) : FirestoreRecyclerAdapter<Post, BankerAdapter.BankerPostHolder>(FirestoreRecyclerOptions.Builder<Post>()
         .setQuery(query!!, Post::class.java)
         .build()) {
-    private val TAG = "BankerAdaper"
-    private val context: Context
     private var userId: String? = null
     private val calculations: Calculations
-    private val storageReference: StorageReference
+    private val storageReference = firebaseStorage!!.reference.child("profile_images")
     private val code = arrayOf("1xBet", "Bet9ja", "Nairabet", "SportyBet", "BlackBet", "Bet365")
     private val type = arrayOf("3-5 odds", "6-10 odds", "11-50 odds", "50+ odds", "Draws", "Banker tip")
+
     @SuppressLint("ClickableViewAccessibility")
     override fun onBindViewHolder(holder: BankerPostHolder, position: Int, model: Post) {
-        Log.i(TAG, "onBindViewHolder: executed")
+        val binding = holder.binding
         var makeVisible = false
         var makePublic = false
         val postId = snapshots.getSnapshot(position).id
-        holder.mUsername.setText(model.username)
-        holder.imgStatus.setVisibility(if (model.status == 1) View.GONE else View.VISIBLE)
-        if (model.bookingCode != null && !model.bookingCode.isEmpty()) {
-            holder.mCode.setText(model.bookingCode + " @" + code[model.recommendedBookie - 1])
-            holder.mCode.setVisibility(View.VISIBLE)
-        } else holder.mCode.setVisibility(View.GONE)
-        if (model.type == 0) {
-            holder.mType.setVisibility(View.GONE)
-        } else {
-            holder.mType.setVisibility(View.VISIBLE)
-            holder.mType.setText(type[model.type - 1])
+
+        with(binding){
+            txtUsername.text = model.username
+            imgStatus.visibility = if (model.status == 1) View.GONE else View.VISIBLE
+            if (model.bookingCode != null && !model.bookingCode.isEmpty()) {
+                txtCode.text = String.format("${model.bookingCode} @${code[model.recommendedBookie - 1]}")
+                txtCode.visibility = View.VISIBLE
+            } else txtCode.visibility = View.GONE
+            if (model.type == 0) {
+                txtPostType.visibility = View.GONE
+            } else {
+                txtPostType.visibility = View.VISIBLE
+                txtPostType.text = type[model.type - 1]
+            }
+            if (model.userId == userId) makeVisible = true else if (UserNetwork.getSubscribed() != null && UserNetwork.getSubscribed().contains(userId)) makeVisible = true
+            if (model.status == 2 || Date().time - model.time > 18 * 60 * 60 * 1000) makePublic = true
+            if (makeVisible || makePublic) {
+                lnrSub.visibility = View.GONE
+            } else {
+                txtPost.maxLines = 6
+                txtSub.text = String.format("Subscribe to ${model.username}")
+            }
+            txtPost.text = model.content
+            applyLinkfy(context, model.content, txtPost)
+            txtTime.text = getTime(model.time)
+            imgLike.setState(if (model.likes.contains(userId)) LikeButton.LIKED else LikeButton.NOT_LIKED)
+            imgDislike.setState(if (model.dislikes.contains(userId)) DislikeButton.DISLIKED else DislikeButton.NOT_DISLIKED)
+            txtComment.text = if (model.commentsCount == 0L) "" else model.commentsCount.toString()
+            txtLike.text = if (model.likesCount == 0L) "" else model.likesCount.toString()
+            txtDislike.text = if (model.dislikesCount == 0L) "" else model.dislikesCount.toString()
+            GlideApp.with(root.context).load(storageReference.child(model.userId))
+                    .placeholder(R.drawable.dummy).error(getPlaceholderImage(model.userId[0]))
+                    .signature(ObjectKey(model.userId + "_" + signature)).into(imgDp)
         }
-        if (model.userId == userId) makeVisible = true else if (UserNetwork.getSubscribed() != null && UserNetwork.getSubscribed().contains(userId)) makeVisible = true
-        if (model.status == 2 || Date().time - model.time > 18 * 60 * 60 * 1000) makePublic = true
-        if (makeVisible || makePublic) {
-            holder.lnrSub.setVisibility(View.GONE)
-        } else {
-            holder.mpost.setMaxLines(6)
-            holder.mSub.setText("Subscribe to " + model.username)
-        }
-        GlideApp.with(context)
-                .load(storageReference.child(model.userId))
-                .placeholder(R.drawable.dummy)
-                .error(getPlaceholderImage(model.userId[0]))
-                .signature(ObjectKey(model.userId + "_" + signature))
-                .into(holder.imgDp)
 
         //listen to dp click and open user profile
-        holder.imgDp.setOnClickListener { v ->
+        binding.imgDp.setOnClickListener { v ->
             if (model.userId == userId) {
                 context.startActivity(Intent(context, MyProfileActivity::class.java))
             } else {
@@ -92,7 +99,7 @@ class BankerAdapter(query: Query?, userID: String?, context: Context, private va
         }
 
         //listen to username click and open user profile
-        holder.mUsername.setOnClickListener { v ->
+        binding.txtUsername.setOnClickListener { v ->
             if (model.userId == userId) {
                 context.startActivity(Intent(context, MyProfileActivity::class.java))
             } else {
@@ -101,24 +108,16 @@ class BankerAdapter(query: Query?, userID: String?, context: Context, private va
                 context.startActivity(intent)
             }
         }
-        holder.mpost.setText(model.content)
-        applyLinkfy(context, model.content, holder.mpost)
-        holder.mTime.setText(getTime(model.time))
-        holder.imgLikes.setState(if (model.likes.contains(userId)) LikeButton.LIKED else LikeButton.NOT_LIKED)
-        holder.imgDislike.setState(if (model.dislikes.contains(userId)) DislikeButton.DISLIKED else DislikeButton.NOT_DISLIKED)
-        holder.mComment.setText(if (model.commentsCount == 0L) "" else model.commentsCount.toString())
-        holder.mLikes.setText(if (model.likesCount == 0L) "" else model.likesCount.toString())
-        holder.mDislikes.setText(if (model.dislikesCount == 0L) "" else model.dislikesCount.toString())
         val finalMakePublic = makePublic
         val finalMakeVisible = makeVisible
-        holder.imgShare.setOnClickListener { v ->
+        binding.imgShare.setOnClickListener {
             if (!finalMakePublic) {
-                Snackbar.make(holder.mComment, context.resources.getString(R.string.str_cannot_share_post), Snackbar.LENGTH_SHORT).show()
+                Snackbar.make(it, context.resources.getString(R.string.str_cannot_share_post), Snackbar.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-            shareTips(holder.imgShare.getContext(), model.username, model.content)
+            shareTips(binding.root.context, model.username, model.content)
         }
-        holder.mpost.setOnClickListener { v ->
+        binding.txtPost.setOnClickListener { v ->
             //display full post with comments if visibility or public is set true
             if (!finalMakePublic && !finalMakeVisible) {
                 val intent = Intent(context, SubscriptionActivity::class.java)
@@ -130,7 +129,7 @@ class BankerAdapter(query: Query?, userID: String?, context: Context, private va
             intent.putExtra("postId", postId)
             context.startActivity(intent)
         }
-        holder.lnrContainer.setOnClickListener { v ->
+        binding.containerPost.setOnClickListener { v ->
             //display full post with comments if visibility or public is set true
             if (!finalMakePublic && !finalMakeVisible) {
                 val intent = Intent(context, SubscriptionActivity::class.java)
@@ -142,81 +141,76 @@ class BankerAdapter(query: Query?, userID: String?, context: Context, private va
             intent.putExtra("postId", postId)
             context.startActivity(intent)
         }
-        holder.imgComment.setOnClickListener { v ->
+        binding.imgComment.setOnClickListener {
             //display full post with comments if visibility or public is set true
             if (!finalMakePublic && !finalMakeVisible) {
-                Snackbar.make(holder.mComment, "Access denied", Snackbar.LENGTH_SHORT).show()
+                Snackbar.make(it, "Access denied", Snackbar.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
             val intent = Intent(context, FullPostActivity::class.java)
             intent.putExtra("postId", postId)
             context.startActivity(intent)
         }
-        holder.imgLikes.setOnClickListener { v ->
+        binding.imgLike.setOnClickListener {
             if (userId == Calculations.GUEST) {
-                loginPrompt(holder.imgLikes)
+                loginPrompt(binding.imgLike)
                 return@setOnClickListener
             }
-            if (holder.imgDislike.getState() === DislikeButton.DISLIKED) {
-                holder.imgLikes.setState(LikeButton.LIKED)
-                holder.imgDislike.setState(LikeButton.NOT_LIKED)
-                holder.mLikes.setText((model.likesCount + 1).toString())
-                holder.mDislikes.setText(if (model.dislikesCount - 1 > 0) (model.dislikesCount - 1).toString() else "")
+            if (binding.imgDislike.getState() == DislikeButton.DISLIKED) {
+                binding.imgLike.setState(LikeButton.LIKED)
+                binding.imgDislike.setState(LikeButton.NOT_LIKED)
+                binding.txtLike.text = (model.likesCount + 1).toString()
+                binding.txtDislike.text = if (model.dislikesCount - 1 > 0) (model.dislikesCount - 1).toString() else ""
             } else {
-                if (holder.imgLikes.getState() === LikeButton.LIKED) {
-                    holder.imgLikes.setState(LikeButton.NOT_LIKED)
-                    holder.mLikes.setText(if (model.likesCount - 1 > 0) (model.likesCount - 1).toString() else "")
+                if (binding.imgLike.getState() == LikeButton.LIKED) {
+                    binding.imgLike.setState(LikeButton.NOT_LIKED)
+                    binding.txtLike.setText(if (model.likesCount - 1 > 0) (model.likesCount - 1).toString() else "")
                 } else {
-                    holder.imgLikes.setState(LikeButton.LIKED)
-                    holder.mLikes.setText((model.likesCount + 1).toString())
+                    binding.imgLike.setState(LikeButton.LIKED)
+                    binding.txtLike.setText((model.likesCount + 1).toString())
                 }
             }
             val substring = model.content.substring(0, Math.min(model.content.length, 90))
             calculations.onLike(postId, userId, model.userId, substring)
         }
-        holder.imgDislike.setOnClickListener { v ->
+        binding.imgDislike.setOnClickListener { v ->
             if (userId == Calculations.GUEST) {
-                loginPrompt(holder.imgDislike)
+                loginPrompt(binding.imgDislike)
                 return@setOnClickListener
             }
-            if (holder.imgLikes.getState() === LikeButton.LIKED) {
-                holder.imgLikes.setState(LikeButton.NOT_LIKED)
-                holder.imgDislike.setState(DislikeButton.DISLIKED)
-                holder.mLikes.setText(if (model.likesCount - 1 > 0) (model.likesCount - 1).toString() else "")
-                holder.mDislikes.setText((model.dislikesCount + 1).toString())
+            if (binding.imgLike.getState() == LikeButton.LIKED) {
+                binding.imgLike.setState(LikeButton.NOT_LIKED)
+                binding.imgDislike.setState(DislikeButton.DISLIKED)
+                binding.txtLike.text = if (model.likesCount - 1 > 0) (model.likesCount - 1).toString() else ""
+                binding.txtDislike.text = (model.dislikesCount + 1).toString()
             } else {
-                if (holder.imgDislike.getState() === DislikeButton.DISLIKED) {
-                    holder.imgDislike.setState(DislikeButton.NOT_DISLIKED)
-                    holder.mDislikes.setText(if (model.dislikesCount - 1 > 0) (model.dislikesCount - 1).toString() else "")
+                if (binding.imgDislike.getState() == DislikeButton.DISLIKED) {
+                    binding.imgDislike.setState(DislikeButton.NOT_DISLIKED)
+                    binding.txtDislike.text = if (model.dislikesCount - 1 > 0) (model.dislikesCount - 1).toString() else ""
                 } else {
-                    holder.imgDislike.setState(DislikeButton.DISLIKED)
-                    holder.mDislikes.setText((model.dislikesCount + 1).toString())
+                    binding.imgDislike.setState(DislikeButton.DISLIKED)
+                    binding.txtDislike.text = (model.dislikesCount + 1).toString()
                 }
             }
             val substring = model.content.substring(0, Math.min(model.content.length, 90))
             calculations.onDislike(postId, userId, model.userId, substring)
         }
-        holder.imgOverflow.setOnClickListener { v -> displayOverflow(model, model.userId, postId, model.status, model.type, holder.imgOverflow, finalMakePublic) }
+        binding.imgOverflow.setOnClickListener { displayOverflow(model, model.userId, postId, model.status, model.type, binding.imgOverflow, finalMakePublic) }
     }
 
     private fun displayOverflow(model: Post, userID: String, postId: String, status: Int, type: Int, imgOverflow: ImageView,
                                 makePublic: Boolean) {
         val builder = AlertDialog.Builder(imgOverflow.rootView.context)
         val inflater = LayoutInflater.from(imgOverflow.rootView.context)
-        val dialogView: View
-        dialogView = if (userID == userId) inflater.inflate(R.layout.dialog_mine, null) else inflater.inflate(R.layout.dialog_member, null)
+        val dialogView = if (userID == userId) inflater.inflate(R.layout.dialog_mine, null) else inflater.inflate(R.layout.dialog_member, null)
         builder.setView(dialogView)
         val dialog = builder.create()
         dialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         dialog.show()
-        val btnSubmit: Button
-        val btnDelete: Button
-        val btnRepost: Button
-        val btnFollow: Button
-        btnSubmit = dialog.findViewById(R.id.btnSubmit)
-        btnDelete = dialog.findViewById(R.id.btnDelete)
-        btnRepost = dialog.findViewById(R.id.btnRepost)
-        btnFollow = dialog.findViewById(R.id.btnFollow)
+        val btnSubmit: Button = dialog.findViewById(R.id.btnSubmit)
+        val btnDelete: Button = dialog.findViewById(R.id.btnDelete)
+        val btnRepost: Button = dialog.findViewById(R.id.btnRepost)
+        val btnFollow: Button = dialog.findViewById(R.id.btnFollow)
         val timeDifference = Date().time - model.time
         if (model.userId == userId && model.type > 0 && timeDifference > 9000000) btnDelete.isEnabled = false
         if (model.userId == userId && model.type == 0) btnSubmit.visibility = View.GONE else if (model.userId == userId && timeDifference > 144000000) btnSubmit.visibility = View.GONE else {
@@ -311,24 +305,18 @@ class BankerAdapter(query: Query?, userID: String?, context: Context, private va
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BankerPostHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_post_banker, parent, false)
-        return BankerPostHolder(view)
+        val binding = ItemPostBankerBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return BankerPostHolder(binding)
     }
 
     fun setUserId(userId: String?) {
         this.userId = userId
     }
 
+    inner class BankerPostHolder(val binding: ItemPostBankerBinding) : RecyclerView.ViewHolder(binding.root)
+
     init {
-        /*
-        Configure recycler adapter options:
-        query defines the request made to Firestore
-        Post.class instructs the adapter to convert each DocumentSnapshot to a Post object
-        */
-        Log.i(TAG, "BankerAdapter: created")
-        this.context = context
         setUserId(userID)
         calculations = Calculations(context)
-        storageReference = firebaseStorage!!.reference.child("profile_images")
     }
 }

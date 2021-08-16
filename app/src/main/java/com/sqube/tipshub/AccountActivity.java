@@ -143,8 +143,8 @@ public class AccountActivity extends AppCompatActivity {
 
         });
 
-        subscriberAdapter = new SubscriberAdapter(querySubscribers, getApplicationContext());
-        subscriptionAdapter = new SubscriptionAdapter(querySubscriptions, getApplicationContext());
+        subscriberAdapter = new SubscriberAdapter(querySubscribers);
+        subscriptionAdapter = new SubscriptionAdapter(querySubscriptions);
         transactionAdapter = new TransactionAdapter(queryTransactions);
 
         listSubscribers.setAdapter(subscriberAdapter);
