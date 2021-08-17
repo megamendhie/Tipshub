@@ -4,54 +4,52 @@ import adapters.PeopleAdapter
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.DocumentSnapshot
+import com.sqube.tipshub.databinding.ActivityFollowerListBinding
 import utils.Calculations
 import utils.FirebaseUtil.firebaseAuthentication
 import utils.FirebaseUtil.firebaseFirestore
 import java.util.*
 
 class FollowerListActivity : AppCompatActivity() {
-    private var peopleList: RecyclerView? = null
-    private var txtNote: TextView? = null
-    private var listOfPeople: ArrayList<String>? = ArrayList()
+    private var _binding: ActivityFollowerListBinding? = null
+    private val binding get() = _binding!!
+    private var listOfPeople: ArrayList<String> = ArrayList()
     private var userId: String? = null
     private var user: FirebaseUser? = null
     private var peopleAdapter: PeopleAdapter? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_follower_list)
+        _binding = ActivityFollowerListBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         val actionBar = supportActionBar
-        val intent = intent
         val searchType = intent.getStringExtra("search_type")
         val personId = intent.getStringExtra("personId")
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true)
-            actionBar.setTitle(getTitle(searchType))
+            actionBar.title = getTitle(searchType)
         }
-        txtNote = findViewById(R.id.txtNote)
-        peopleList = findViewById(R.id.peopleList)
-        peopleList.setLayoutManager(LinearLayoutManager(this@FollowerListActivity))
+        binding.peopleList.layoutManager = LinearLayoutManager(this@FollowerListActivity)
         user = firebaseAuthentication!!.currentUser
         userId = if (user == null) Calculations.GUEST else user!!.uid
         firebaseFirestore!!.collection(searchType!!).document(personId!!).get()
                 .addOnCompleteListener { task: Task<DocumentSnapshot?> ->
                     if (task.result == null || !task.result!!.exists()) {
-                        txtNote.setVisibility(View.VISIBLE)
+                        binding.txtNote.visibility = View.VISIBLE
                         return@addOnCompleteListener
                     }
                     if (task.result!!.contains("list")) {
-                        listOfPeople = task.result!!["list"] as ArrayList<String>?
-                        peopleAdapter = PeopleAdapter(userId, listOfPeople!!)
-                        peopleList.setAdapter(peopleAdapter)
+                        listOfPeople = task.result!!["list"] as ArrayList<String>
+                        peopleAdapter = PeopleAdapter(userId, listOfPeople)
+                        binding.peopleList.adapter = peopleAdapter
                     }
                 }
-                .addOnFailureListener { e: Exception? -> txtNote.setVisibility(View.VISIBLE) }
+                .addOnFailureListener { binding.txtNote.visibility = View.VISIBLE }
     }
 
     public override fun onResume() {

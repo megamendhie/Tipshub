@@ -1,34 +1,33 @@
 package com.sqube.tipshub
 
 import android.os.Bundle
-import android.text.Html
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.text.HtmlCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.sqube.tipshub.databinding.ActivityAboutBinding
+import com.sqube.tipshub.databinding.ItemAboutBinding
 import utils.AboutUtil
 
 class AboutActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_about)
+        val binding = ActivityAboutBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         val actionBar = supportActionBar
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true)
             actionBar.setHomeAsUpIndicator(R.drawable.ic_close_black_24dp)
             actionBar.title = "About"
         }
-        val listAbout = findViewById<RecyclerView>(R.id.listAbout)
         val showCongratsImage = intent.getBooleanExtra("showCongratsImage", false)
-        val imgCongrats = findViewById<ImageView>(R.id.imgCongrats)
-        imgCongrats.visibility = if (showCongratsImage) View.VISIBLE else View.GONE
-        listAbout.layoutManager = LinearLayoutManager(this)
-        listAbout.adapter = Adapt()
+        binding.imgCongrats.visibility = if (showCongratsImage) View.VISIBLE else View.GONE
+        binding.listAbout.layoutManager = LinearLayoutManager(this)
+        binding.listAbout.adapter = Adapt()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -36,11 +35,11 @@ class AboutActivity : AppCompatActivity() {
         return true
     }
 
-    inner class Adapt internal constructor() : RecyclerView.Adapter<Holder>() {
-        var aboutList = AboutUtil.aboutList
+    inner class Adapt  : RecyclerView.Adapter<Holder>() {
+        private var aboutList = AboutUtil.aboutList
         override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): Holder {
-            val view = LayoutInflater.from(applicationContext).inflate(R.layout.item_about, viewGroup, false)
-            return Holder(view)
+            val binding = ItemAboutBinding.inflate(LayoutInflater.from(applicationContext), viewGroup, false)
+            return Holder(binding)
         }
 
         override fun onBindViewHolder(holder: Holder, i: Int) {
@@ -52,17 +51,12 @@ class AboutActivity : AppCompatActivity() {
         }
     }
 
-    internal inner class Holder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        var txtHeading: TextView
-        var txtBody: TextView
-        private fun bindText(model: Map<String, String>) {
-            txtHeading.text = model["heading"]
-            txtBody.text = Html.fromHtml(model["body"])
-        }
-
-        init {
-            txtHeading = itemView.findViewById(R.id.txtHeading)
-            txtBody = itemView.findViewById(R.id.txtBody)
+    inner class Holder(val binding: ItemAboutBinding) : RecyclerView.ViewHolder(binding.root) {
+        fun bindText(model: Map<String, String>) {
+            with(binding){
+                txtHeading.text = model["heading"]
+                txtBody.text = HtmlCompat.fromHtml(model["body"]!!, HtmlCompat.FROM_HTML_MODE_LEGACY)
+            }
         }
     }
 }

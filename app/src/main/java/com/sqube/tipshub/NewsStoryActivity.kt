@@ -6,38 +6,38 @@ import android.view.View
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
+import com.sqube.tipshub.databinding.ActivityNewsStoryBinding
 
 class NewsStoryActivity : AppCompatActivity() {
     private var url: String? = null
-    private val SAVED_URL = "saved_url"
+    private val savedUrl = "saved_url"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val savedInstanceS = savedInstanceState
-        url = if (savedInstanceState != null) savedInstanceState.getString(SAVED_URL) else intent.getStringExtra("url")
-        setContentView(R.layout.activity_news_story)
-        val webView = findViewById<WebView>(R.id.wvNews)
-        val progressBar = findViewById<ProgressBar>(R.id.progressBar)
+        url = if (savedInstanceState != null) savedInstanceState.getString(savedUrl) else intent.getStringExtra("url")
+        val binding = ActivityNewsStoryBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         Log.i("News", "onCreate: $url")
-        webView.settings.builtInZoomControls = true
-        webView.settings.displayZoomControls = false
-        webView.settings.useWideViewPort = true
-        webView.settings.domStorageEnabled = true
-        webView.settings.pluginState = WebSettings.PluginState.ON
-        webView.settings.javaScriptEnabled = true
-        webView.settings.setSupportMultipleWindows(true)
-        webView.webViewClient = object : WebViewClient() {
-            override fun onPageFinished(view: WebView, url: String) {
-                super.onPageFinished(view, url)
-                progressBar.visibility = View.GONE
+        with(binding){
+            wvNews.settings.builtInZoomControls = true
+            wvNews.settings.displayZoomControls = false
+            wvNews.settings.useWideViewPort = true
+            wvNews.settings.domStorageEnabled = true
+            wvNews.settings.pluginState = WebSettings.PluginState.ON
+            wvNews.settings.javaScriptEnabled = true
+            wvNews.settings.setSupportMultipleWindows(true)
+            wvNews.webViewClient = object : WebViewClient() {
+                override fun onPageFinished(view: WebView, url: String) {
+                    super.onPageFinished(view, url)
+                    progressBar.visibility = View.GONE
+                }
             }
+            wvNews.loadUrl(url!!)
         }
-        webView.loadUrl(url!!)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        outState.putString(SAVED_URL, url)
+        outState.putString(savedUrl, url)
         super.onSaveInstanceState(outState)
     }
 }

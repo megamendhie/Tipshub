@@ -14,6 +14,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import androidx.appcompat.app.AlertDialog
+import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.signature.ObjectKey
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter
 import com.firebase.ui.firestore.FirestoreRecyclerOptions
@@ -44,27 +45,22 @@ class PostAdapter(response: FirestoreRecyclerOptions<Post?>?, userID: String?, c
     private var userId: String? = null
     private val storageReference: StorageReference
     private val calculations: Calculations
-    private val NORMAL_POST = 1
-    private val BANKER_POST = 0
     private val code = arrayOf("1xBet", "Bet9ja", "Nairabet", "SportyBet", "BlackBet", "Bet365")
     private val type = arrayOf("3-5 odds", "6-10 odds", "11-50 odds", "50+ odds", "Draws", "Banker tip")
-    override fun getItemViewType(position: Int): Int {
-        return if (getItem(position).type == 6 && getItem(position).status != 2) {
-            BANKER_POST
-        } else NORMAL_POST
-    }
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onBindViewHolder(holder: PostHolder, position: Int, model: Post) {
+        Log.i(TAG, "onBindViewHolder: executed")
         if (model.type == 6 && getItem(position).status != 2) {
             holder.binding.root.visibility = View.GONE
+            holder.binding.root.layoutParams = RecyclerView.LayoutParams(0,0)
             return
         }
-        Log.i(TAG, "onBindViewHolder: executed")
         val postId = snapshots.getSnapshot(position).id
         val binding = holder.binding
         holder.setPostId(postId)
 
+        //bind data to views
         with(binding){
             txtUsername.text = model.username
             imgStatus.visibility = if (model.status == 1) View.GONE else View.VISIBLE
@@ -129,13 +125,13 @@ class PostAdapter(response: FirestoreRecyclerOptions<Post?>?, userID: String?, c
                 loginPrompt(binding.imgLike)
                 return@setOnClickListener
             }
-            if (binding.imgDislike.getState() === DislikeButton.DISLIKED) {
+            if (binding.imgDislike.getState() == DislikeButton.DISLIKED) {
                 binding.imgLike.setState(LikeButton.LIKED)
                 binding.imgDislike.setState(DislikeButton.NOT_DISLIKED)
                 binding.txtLike.text = (model.likesCount + 1).toString()
                 binding.txtDislike.text = if (model.dislikesCount - 1 > 0) (model.dislikesCount - 1).toString() else ""
             }
-            else if (binding.imgLike.getState() === LikeButton.LIKED) {
+            else if (binding.imgLike.getState() == LikeButton.LIKED) {
                 binding.imgLike.setState(LikeButton.NOT_LIKED)
                 binding.txtLike.text = if (model.likesCount - 1 > 0) (model.likesCount - 1).toString() else ""
             }
@@ -151,13 +147,13 @@ class PostAdapter(response: FirestoreRecyclerOptions<Post?>?, userID: String?, c
                 loginPrompt(binding.imgDislike)
                 return@setOnClickListener
             }
-            if (binding.imgLike.getState() === LikeButton.LIKED) {
+            if (binding.imgLike.getState() == LikeButton.LIKED) {
                 binding.imgLike.setState(LikeButton.NOT_LIKED)
                 binding.imgDislike.setState(DislikeButton.DISLIKED)
                 binding.txtLike.text = if (model.likesCount - 1 > 0) (model.likesCount - 1).toString() else ""
                 binding.txtDislike.text = (model.dislikesCount + 1).toString()
             }
-            else if (binding.imgDislike.getState() === DislikeButton.DISLIKED) {
+            else if (binding.imgDislike.getState() == DislikeButton.DISLIKED) {
                 binding.imgDislike.setState(DislikeButton.NOT_DISLIKED)
                 binding.txtDislike.text = if (model.dislikesCount - 1 > 0) (model.dislikesCount - 1).toString() else ""
             }
@@ -174,7 +170,6 @@ class PostAdapter(response: FirestoreRecyclerOptions<Post?>?, userID: String?, c
 
     private fun displayChildContent(model: Post, binding: ItemPostBinding) {
         with(binding){
-            //holder.imgChildStatus.setVisibility(model.getStatus()==1? View.GONE: View.VISIBLE);
             if (model.childBookingCode != null && !model.childBookingCode.isEmpty()) {
                 txtChildCode.text = String.format(Locale.getDefault(), "%s @%s", model.childBookingCode, code[model.childBookie - 1])
                 txtChildCode.visibility = View.VISIBLE
@@ -191,7 +186,7 @@ class PostAdapter(response: FirestoreRecyclerOptions<Post?>?, userID: String?, c
             firebaseFirestore!!.collection("posts").document(model.childLink).get()
                     .addOnSuccessListener { documentSnapshot: DocumentSnapshot ->
                         if (!documentSnapshot.exists()) return@addOnSuccessListener
-                        binding.imgChildStatus.setVisibility(if (documentSnapshot.toObject(Post::class.java)!!.status == 1) View.INVISIBLE else View.VISIBLE)
+                        binding.imgChildStatus.visibility = if (documentSnapshot.toObject(Post::class.java)!!.status == 1) View.INVISIBLE else View.VISIBLE
                     }
             GlideApp.with(context).load(storageReference.child(model.childUserId))
                     .placeholder(getPlaceholderImage(model.childUserId[0]))
@@ -223,8 +218,8 @@ class PostAdapter(response: FirestoreRecyclerOptions<Post?>?, userID: String?, c
     private fun loginPrompt(view: View) {
         val builder = AlertDialog.Builder(view.rootView.context, R.style.CustomMaterialAlertDialog)
         builder.setMessage("You have to login first")
-                .setNegativeButton("Cancel") { dialogInterface: DialogInterface?, i: Int -> }
-                .setPositiveButton("Login") { dialogInterface: DialogInterface?, i: Int -> view.context.startActivity(Intent(view.context, LoginActivity::class.java)) }
+                .setNegativeButton("Cancel") { _: DialogInterface?, i: Int -> }
+                .setPositiveButton("Login") { _: DialogInterface?, i: Int -> view.context.startActivity(Intent(view.context, LoginActivity::class.java)) }
                 .show()
     }
 
@@ -317,8 +312,8 @@ class PostAdapter(response: FirestoreRecyclerOptions<Post?>?, userID: String?, c
         val builder = AlertDialog.Builder(context, R.style.CustomMaterialAlertDialog)
         builder.setMessage(String.format("Do you want to unfollow %s?", username))
                 .setTitle("Unfollow")
-                .setNegativeButton("No") { dialogInterface: DialogInterface?, i: Int -> }
-                .setPositiveButton("Yes") { dialogInterface: DialogInterface?, i: Int -> calculations.unfollowMember(imgOverflow, userId, userID, anchorSnackbar) }
+                .setNegativeButton("No") { _: DialogInterface?, i: Int -> }
+                .setPositiveButton("Yes") { _: DialogInterface?, i: Int -> calculations.unfollowMember(imgOverflow, userId, userID, anchorSnackbar) }
                 .show()
     }
 
@@ -332,11 +327,6 @@ class PostAdapter(response: FirestoreRecyclerOptions<Post?>?, userID: String?, c
     }
 
     init {
-        /*
-        Configure recycler adapter options:
-        query defines the request made to Firestore
-        Post.class instructs the adapter to convert each DocumentSnapshot to a Post object
-        */
         Log.i(TAG, "PostAdapter: created")
         this.context = context
         setUserId(userID)

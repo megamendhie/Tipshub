@@ -4,27 +4,25 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.sqube.tipshub.databinding.ActivityGuideBinding
 
 class GuideActivity : AppCompatActivity(), View.OnClickListener {
-    var txtGuidelines: TextView? = null
-    var txtPrivacyPolicy: TextView? = null
-    var txtCAC: TextView? = null
+    private var _binding: ActivityGuideBinding? = null
+    private val binding get()= _binding!!
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_guide)
+        _binding = ActivityGuideBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         val actionBar = supportActionBar
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true)
-            actionBar.setTitle("About/Privacy Policy")
+            actionBar.title = "About/Privacy Policy"
         }
-        txtGuidelines = findViewById(R.id.txtGuidelines)
-        txtGuidelines.setOnClickListener(this)
-        txtPrivacyPolicy = findViewById(R.id.txtPrivacyPolicy)
-        txtPrivacyPolicy.setOnClickListener(this)
-        txtCAC = findViewById(R.id.txtCAC)
-        txtCAC.setOnClickListener(this)
+        binding.txtGuidelines.setOnClickListener(this)
+        binding.txtPrivacyPolicy.setOnClickListener(this)
+        binding.txtCAC.setOnClickListener(this)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -34,13 +32,13 @@ class GuideActivity : AppCompatActivity(), View.OnClickListener {
 
     override fun onClick(v: View) {
         var intent: Intent? = null
-        when (v.id) {
-            R.id.txtGuidelines -> intent = Intent(this@GuideActivity, AboutActivity::class.java)
-            R.id.txtPrivacyPolicy -> {
+        when (v) {
+            binding.txtGuidelines -> intent = Intent(this@GuideActivity, AboutActivity::class.java)
+            binding.txtPrivacyPolicy -> {
                 intent = Intent(this@GuideActivity, NewsStoryActivity::class.java)
                 intent.putExtra("url", "https://tipshub.co/privacy-policy/")
             }
-            R.id.txtCAC -> {
+            binding.txtCAC -> {
                 intent = Intent(this@GuideActivity, NewsStoryActivity::class.java)
                 intent.putExtra("url", "https://tipshub.co/terms-and-conditions/")
             }

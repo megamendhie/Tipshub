@@ -12,18 +12,15 @@ import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.firebase.ui.firestore.FirestoreRecyclerOptions
-import com.github.clans.fab.FloatingActionButton
-import com.github.clans.fab.FloatingActionMenu
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.gson.Gson
+import com.sqube.tipshub.databinding.ActivityExtendedHomeBinding
 import models.Post
 import models.ProfileMedium
 import models.SnapId
@@ -35,7 +32,8 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class ExtendedHomeActivity : AppCompatActivity() {
-    private var homeFeed: RecyclerView? = null
+    private var _binding: ActivityExtendedHomeBinding? = null
+    private val binding get() = _binding!!
     private val gson = Gson()
     private var prefs: SharedPreferences? = null
     private var fromEverybody = true
@@ -49,18 +47,14 @@ class ExtendedHomeActivity : AppCompatActivity() {
     private var fAdapter: FilteredPostAdapter? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_extended_home)
-        val toolbar = findViewById<Toolbar>(R.id.toolbar)
-        setSupportActionBar(toolbar)
+        _binding = ActivityExtendedHomeBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        setSupportActionBar(binding.toolbar)
         val actionBar = supportActionBar
-        actionBar!!.setDisplayHomeAsUpEnabled(true)
-        homeFeed = findViewById(R.id.postList)
-        homeFeed.setLayoutManager(LinearLayoutManager(this))
-        val fabMenu = findViewById<FloatingActionMenu>(R.id.fabMenu)
-        val fabNormal = findViewById<FloatingActionButton>(R.id.fabNormal)
-        val fabTip = findViewById<FloatingActionButton>(R.id.fabPost)
-        val intent = Intent(this@ExtendedHomeActivity, PostActivity::class.java)
-        fromEverybody = getIntent().getBooleanExtra("fromEverybody", false)
+        actionBar?.setDisplayHomeAsUpEnabled(true)
+        binding.postList.layoutManager = LinearLayoutManager(this)
+        val intentPost = Intent(this@ExtendedHomeActivity, PostActivity::class.java)
+        fromEverybody = intent.getBooleanExtra("fromEverybody", false)
         fAdapter = FilteredPostAdapter(true, userId!!, this, postList, snapIds)
         val user = firebaseAuthentication!!.currentUser
         if (user != null) {
@@ -68,21 +62,21 @@ class ExtendedHomeActivity : AppCompatActivity() {
             username = user.displayName
         }
         prefs = PreferenceManager.getDefaultSharedPreferences(this)
-        json = prefs.getString("profile", "")
+        json = prefs?.getString("profile", "")
         myProfile = if (json == "") null else gson.fromJson(json, ProfileMedium::class.java)
-        fabTip.setOnClickListener { v: View? ->
-            fabMenu.close(false)
+        binding.fabPost.setOnClickListener { v: View? ->
+            binding.fabMenu.close(false)
             if (hasReachedMax()) {
                 popUp()
                 return@setOnClickListener
             }
-            intent.putExtra("type", "tip")
-            startActivity(intent)
+            intentPost.putExtra("type", "tip")
+            startActivity(intentPost)
         }
-        fabNormal.setOnClickListener { v: View? ->
-            fabMenu.close(false)
-            intent.putExtra("type", "normal")
-            startActivity(intent)
+        binding.fabNormal.setOnClickListener { v: View? ->
+            binding.fabMenu.close(false)
+            intentPost.putExtra("type", "normal")
+            startActivity(intentPost)
         }
         selectPostToLoad()
     }
@@ -91,7 +85,7 @@ class ExtendedHomeActivity : AppCompatActivity() {
         if (fromEverybody) {
             loadPostFbAdapter()
         } else {
-            homeFeed!!.adapter = fAdapter
+            binding.postList.adapter = fAdapter
             loadMerged()
         }
     }
@@ -103,11 +97,9 @@ class ExtendedHomeActivity : AppCompatActivity() {
                 .setQuery(query, Post::class.java)
                 .build()
         postAdapter = PostAdapter(response, userId, this@ExtendedHomeActivity, false)
-        homeFeed!!.adapter = postAdapter
+        binding.postList.adapter = postAdapter
         if (postAdapter != null) {
             postAdapter!!.startListening()
-            //shimmerLayoutPosts.stopShimmer();
-            //shimmerLayoutPosts.setVisibility(View.GONE);
         }
     }
 
@@ -131,7 +123,7 @@ class ExtendedHomeActivity : AppCompatActivity() {
 
         //create task and query for each followed id
         val queries = arrayOfNulls<Query>(count)
-        val tasks: Array<Task<*>> = arrayOfNulls(count)
+        val tasks = arrayOfNulls<Task<*>>(count)
         for (i in 0 until count) {
             queries[i] = firebaseFirestore!!.collection("posts").orderBy("time", Query.Direction.DESCENDING)
                     .whereEqualTo("userId", userIds[i]).limit(10)
@@ -142,7 +134,7 @@ class ExtendedHomeActivity : AppCompatActivity() {
             snapIds.clear()
             for (`object` in list) {
                 val querySnapshot = `object` as QuerySnapshot?
-                if (querySnapshot != null || !querySnapshot!!.isEmpty()) {
+                if (querySnapshot != null || !querySnapshot?.isEmpty!!) {
                     for (snapshot in querySnapshot.documents) {
                         val post = snapshot.toObject(Post::class.java)
                         if (post!!.type == 6 && post.status != 2) continue

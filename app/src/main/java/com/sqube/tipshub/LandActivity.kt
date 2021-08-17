@@ -12,11 +12,9 @@ import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.facebook.shimmer.ShimmerFrameLayout
 import com.firebase.ui.firestore.FirestoreRecyclerOptions
 import com.google.firebase.firestore.Query
-import com.sqube.tipshub.LandActivity
+import com.sqube.tipshub.databinding.ActivityLandBinding
 import models.GameTip
 import models.Post
 import org.json.JSONException
@@ -29,43 +27,39 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class LandActivity : AppCompatActivity() {
+    private var _binding: ActivityLandBinding? = null
+    private val binding get() =  _binding!!
     private val classicTips = ArrayList<GameTip>()
     private val wonTips = ArrayList<GameTip>()
     private val classicAdapter = TipsAdapter(classicTips)
     private val wonAdapter = TipsAdapter(wonTips)
     private var dbHelper: DatabaseHelper? = null
     private var db: SQLiteDatabase? = null
-    private var shimmerLandingTip: ShimmerFrameLayout? = null
-    private var shimmerRecentWinnings: ShimmerFrameLayout? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_land)
-        val listLandingTip = findViewById<RecyclerView>(R.id.listLandingTip)
-        val listLandingPost = findViewById<RecyclerView>(R.id.listLandingPost)
-        val listRecentWinnings = findViewById<RecyclerView>(R.id.listRecentWinnings)
-        listLandingTip.layoutManager = LinearLayoutManager(this)
-        listRecentWinnings.layoutManager = LinearLayoutManager(this)
-        listLandingPost.layoutManager = LinearLayoutManager(this)
-        shimmerLandingTip = findViewById(R.id.shimmerLandingTip)
-        shimmerLandingTip.startShimmer()
-        shimmerRecentWinnings = findViewById(R.id.shimmerRecentWinnings)
-        shimmerRecentWinnings.startShimmer()
-        listLandingTip.adapter = classicAdapter
-        listRecentWinnings.adapter = wonAdapter
+        _binding = ActivityLandBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        with(binding){
+            listLandingTip.layoutManager = LinearLayoutManager(this@LandActivity)
+            listRecentWinnings.layoutManager = LinearLayoutManager(this@LandActivity)
+            listLandingPost.layoutManager = LinearLayoutManager(this@LandActivity)
+            shimmerLandingTip.startShimmer()
+            shimmerRecentWinnings.startShimmer()
+            listLandingTip.adapter = classicAdapter
+            listRecentWinnings.adapter = wonAdapter
+        }
         dbHelper = DatabaseHelper(this)
         db = dbHelper!!.readableDatabase
         val query = firebaseFirestore!!.collection("posts")
                 .orderBy("time", Query.Direction.DESCENDING).limit(4)
-        val response = FirestoreRecyclerOptions.Builder<Post>()
-                .setQuery(query, Post::class.java)
-                .build()
+        val response = FirestoreRecyclerOptions.Builder<Post>().setQuery(query, Post::class.java).build()
         val postAdapter = PostAdapter(response, Calculations.GUEST, this@LandActivity, false)
-        listLandingPost.adapter = postAdapter
-        Log.i(TAG, "loadPost: started listening")
+        binding.listLandingPost.adapter = postAdapter
         postAdapter.startListening()
-        val getClassicTips: GetTips = GetTips(Calculations.CLASSIC)
+        val getClassicTips = GetTips(Calculations.CLASSIC)
         getClassicTips.execute()
-        val getWonTips: GetTips = GetTips(Calculations.WONGAMES)
+        val getWonTips = GetTips(Calculations.WONGAMES)
         getWonTips.execute()
     }
 
@@ -91,8 +85,8 @@ class LandActivity : AppCompatActivity() {
     private fun showPrompt(intent: Intent) {
         val builder = AlertDialog.Builder(this@LandActivity, R.style.CustomMaterialAlertDialog)
         builder.setMessage("You have to login first")
-                .setNegativeButton("Cancel") { dialogInterface: DialogInterface?, i: Int -> }
-                .setPositiveButton("Login") { dialogInterface: DialogInterface?, i: Int ->
+                .setNegativeButton("Cancel") { _: DialogInterface?, i: Int -> }
+                .setPositiveButton("Login") { _: DialogInterface?, i: Int ->
                     intent.putExtra("openMainActivity", true)
                     startActivity(intent)
                     finish()
@@ -100,7 +94,7 @@ class LandActivity : AppCompatActivity() {
                 .show()
     }
 
-    private inner class GetTips private constructor(private val market: String) : AsyncTask<String?, Void?, ArrayList<GameTip>>() {
+    private inner class GetTips (private val market: String) : AsyncTask<String, Void, ArrayList<GameTip>>() {
         override fun onPreExecute() {
             super.onPreExecute()
             var xml: String? = null
@@ -111,10 +105,10 @@ class LandActivity : AppCompatActivity() {
             if (xml != null && !xml.isEmpty()) onPostExecute(getTips(xml))
         }
 
-        protected override fun doInBackground(vararg strings: String): ArrayList<GameTip> {
+        override fun doInBackground(vararg strings: String): ArrayList<GameTip> {
             val httpConnection = HttpConFunction()
             var s: String? = null
-            val sdf = SimpleDateFormat("yyyy-MM-dd")
+            val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
             when (market) {
                 Calculations.CLASSIC -> {
                     val today = Date()
@@ -178,10 +172,9 @@ class LandActivity : AppCompatActivity() {
                         classicTips.add(tip)
                         if (classicTips.size >= 4) break
                     }
-                    Log.i(TAG, "onPostExecute: classicTips:$classicTips")
                     runOnUiThread { classicAdapter.notifyDataSetChanged() }
-                    shimmerLandingTip!!.stopShimmer()
-                    shimmerLandingTip!!.visibility = View.GONE
+                    binding.shimmerLandingTip.stopShimmer()
+                    binding.shimmerLandingTip.visibility = View.GONE
                 }
                 Calculations.WONGAMES -> {
                     wonTips.clear()
@@ -190,16 +183,11 @@ class LandActivity : AppCompatActivity() {
                         wonTips.add(tip)
                         if (wonTips.size >= 6) break
                     }
-                    Log.i(TAG, "onPostExecute: wonTips:$wonTips")
                     runOnUiThread { wonAdapter.notifyDataSetChanged() }
-                    shimmerRecentWinnings!!.stopShimmer()
-                    shimmerRecentWinnings!!.visibility = View.GONE
+                    binding.shimmerRecentWinnings.stopShimmer()
+                    binding.shimmerRecentWinnings.visibility = View.GONE
                 }
             }
         }
-    }
-
-    companion object {
-        private const val TAG = "LandActivityTAG"
     }
 }

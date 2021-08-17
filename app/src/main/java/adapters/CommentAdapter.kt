@@ -18,20 +18,16 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.signature.ObjectKey
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter
 import com.firebase.ui.firestore.FirestoreRecyclerOptions
-import com.google.android.gms.tasks.OnFailureListener
-import com.google.android.gms.tasks.OnSuccessListener
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.Transaction
 import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.StorageReference
 import com.sqube.tipshub.LoginActivity
 import com.sqube.tipshub.MemberProfileActivity
 import com.sqube.tipshub.MyProfileActivity
 import com.sqube.tipshub.R
 import com.sqube.tipshub.databinding.CommentViewBinding
-import de.hdodenhof.circleimageview.CircleImageView
 import models.Comment
 import models.Post
 import models.SnapId
@@ -46,8 +42,9 @@ import utils.Reusable.Companion.getPlaceholderImage
 import utils.Reusable.Companion.getTime
 import utils.Reusable.Companion.signature
 import java.util.*
+import kotlin.math.min
 
-class CommentAdapter(val mainPostId: String, query: Query?, userID: String?, val activity: Activity, val context: Context, private val anchorSnackbar: Boolean) : FirestoreRecyclerAdapter<Comment, CommentHolder>(FirestoreRecyclerOptions.Builder<Comment>()
+class CommentAdapter(private val mainPostId: String, query: Query?, userID: String?, val activity: Activity, val context: Context, private val anchorSnackbar: Boolean) : FirestoreRecyclerAdapter<Comment, CommentHolder>(FirestoreRecyclerOptions.Builder<Comment>()
         .setQuery((query)!!, Comment::class.java)
         .build()) {
     private val tag = "CommentAdapter"
@@ -163,7 +160,7 @@ class CommentAdapter(val mainPostId: String, query: Query?, userID: String?, val
                     binding.txtDislike.text = (model.dislikesCount + 1).toString()
                 }
             }
-            val substring: String = model.content.substring(0, Math.min(model.content.length, 90))
+            val substring: String = model.content.substring(0, min(model.content.length, 90))
             calculations.onCommentDislike(userId, model.userId, postId, mainPostId, substring)
         }
         binding.imgOverflow.setOnClickListener { displayOverflow(model, model.userId, postId, it) }
@@ -225,8 +222,8 @@ class CommentAdapter(val mainPostId: String, query: Query?, userID: String?, val
         val builder = AlertDialog.Builder(context, R.style.CustomMaterialAlertDialog)
         builder.setMessage(String.format("Do you want to unfollow %s?", username))
                 .setTitle("Unfollow")
-                .setNegativeButton("No", { dialogInterface: DialogInterface?, i: Int -> })
-                .setPositiveButton("Yes", { dialogInterface: DialogInterface?, i: Int -> calculations.unfollowMember(imgOverflow, userId, userID, anchorSnackbar) })
+                .setNegativeButton("No") { _: DialogInterface?, _: Int -> }
+                .setPositiveButton("Yes") { _: DialogInterface?, _: Int -> calculations.unfollowMember(imgOverflow, userId, userID, anchorSnackbar) }
                 .show()
     }
 

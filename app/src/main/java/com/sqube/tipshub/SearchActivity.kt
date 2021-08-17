@@ -15,15 +15,15 @@ import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.algolia.search.saas.*
+import com.sqube.tipshub.databinding.ActivitySearchBinding
 import org.json.JSONException
 import utils.Calculations
 import utils.FirebaseUtil.firebaseAuthentication
 import java.util.*
 
 class SearchActivity : AppCompatActivity() {
-    private var searchList: RecyclerView? = null
-    private var prgSearch: ProgressBar? = null
-    private var txtPrompt: TextView? = null
+    private var _binding: ActivitySearchBinding? = null
+    private val binding get() = _binding!!
     private var onQueryTextListener: SearchView.OnQueryTextListener? = null
     private val listOfUsers = ArrayList<String>()
     private var userId: String? = null
@@ -31,19 +31,16 @@ class SearchActivity : AppCompatActivity() {
     private var adapter: PeopleAdapter? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_search)
-        searchList = findViewById(R.id.searchList)
-        prgSearch = findViewById(R.id.prgSearch)
-        txtPrompt = findViewById(R.id.txtPrompt)
-        val toolbar = findViewById<Toolbar>(R.id.toolbar)
-        setSupportActionBar(toolbar)
+        _binding = ActivitySearchBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        setSupportActionBar(binding.toolbar)
         val actionBar = supportActionBar
         actionBar!!.setDisplayHomeAsUpEnabled(true)
         val user = firebaseAuthentication!!.currentUser
         userId = user!!.uid
         adapter = PeopleAdapter(userId, listOfUsers)
-        searchList.setLayoutManager(LinearLayoutManager(this))
-        searchList.setAdapter(adapter)
+        binding.searchList.layoutManager = LinearLayoutManager(this)
+        binding.searchList.adapter = adapter
         val client = Client(Calculations.applicationID, Calculations.apiKey)
         index = client.getIndex("dev_USERS")
         setOnQuery()
@@ -54,8 +51,8 @@ class SearchActivity : AppCompatActivity() {
             override fun onQueryTextSubmit(searchTerm: String): Boolean {
                 listOfUsers.clear()
                 adapter!!.notifyDataSetChanged()
-                prgSearch!!.visibility = View.VISIBLE
-                txtPrompt!!.visibility = View.GONE
+                binding.prgSearch.visibility = View.VISIBLE
+                binding.txtPrompt.visibility = View.GONE
                 val query = Query(searchTerm)
                         .setAttributesToRetrieve("objectID")
                         .setHitsPerPage(50)
@@ -69,16 +66,16 @@ class SearchActivity : AppCompatActivity() {
                             val userId = userObject.optString("objectID")
                             listOfUsers.add(userId)
                         }
-                        prgSearch!!.visibility = View.GONE
-                        if (listOfUsers.isEmpty()) txtPrompt!!.visibility = View.VISIBLE else searchList!!.adapter = PeopleAdapter(userId, listOfUsers)
+                        binding.prgSearch.visibility = View.GONE
+                        if (listOfUsers.isEmpty()) binding.txtPrompt.visibility = View.VISIBLE else binding.searchList.adapter = PeopleAdapter(userId, listOfUsers)
                     } catch (e1: JSONException) {
-                        prgSearch!!.visibility = View.GONE
+                        binding.prgSearch.visibility = View.GONE
                         e1.printStackTrace()
                         Toast.makeText(this@SearchActivity, e1.message, Toast.LENGTH_SHORT).show()
                     }
                 }
                 )
-                searchList!!.adapter = PeopleAdapter(userId, listOfUsers)
+                binding.searchList.adapter = PeopleAdapter(userId, listOfUsers)
                 return false
             }
 
@@ -90,12 +87,11 @@ class SearchActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (!listOfUsers.isEmpty()) searchList!!.requestFocus()
+        if (listOfUsers.isNotEmpty()) binding.searchList.requestFocus()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        val inflater = menuInflater
-        inflater.inflate(R.menu.search_menu, menu)
+        menuInflater.inflate(R.menu.search_menu, menu)
         val searchItem = menu.findItem(R.id.action_search)
         val searchManager = getSystemService(SEARCH_SERVICE) as SearchManager
         val searchView = searchItem.actionView as SearchView
