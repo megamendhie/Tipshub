@@ -15,7 +15,12 @@ android {
         versionName "3.0.6"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
-        vectorDrawables.useSupportLibrary = true;
+        vectorDrawables.useSupportLibrary = true
+
+        buildConfigField 'String', 'PSTK_PUBLIC_KEY', PSTK_PUBLIC_KEY
+        buildConfigField 'String', 'FLW_PUBLIC_KEY', FLW_PUBLIC_KEY
+        buildConfigField 'String', 'FLW_ENCRYPTION_KEY', FLW_ENCRYPTION_KEY
+        buildConfigField 'String', 'NEWS_API_KEY', NEWS_API_KEY
     }
     buildTypes {
         release {
@@ -46,11 +51,14 @@ dependencies {
     implementation 'com.firebaseui:firebase-ui-firestore:7.1.1'
     implementation 'com.firebaseui:firebase-ui-auth:7.1.1'
     implementation 'androidx.multidex:multidex:2.0.1'
+    implementation 'androidx.browser:browser:1.3.0'
     implementation 'com.hbb20:ccp:2.3.1'
+    implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
+    implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
     implementation 'androidx.appcompat:appcompat:1.3.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.0'
     implementation 'androidx.arch.core:core-runtime:2.1.0'
-    implementation 'com.google.android.material:material:1.5.0-alpha01'
+    implementation 'com.google.android.material:material:1.5.0-alpha02'
     implementation 'com.github.clans:fab:1.6.4'
     implementation 'de.hdodenhof:circleimageview:2.2.0'
     implementation "androidx.work:work-runtime:2.5.0"
