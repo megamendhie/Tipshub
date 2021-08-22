@@ -67,6 +67,9 @@
                                     android:id="@+id/btnFollow"
                                     android:layout_width="100dp"
                                     android:layout_height="wrap_content"
+                                    android:textSize="12sp"
+                                    android:textStyle="bold"
+                                    android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                                     android:layout_marginTop="64dp"
                                     android:background="@drawable/btn_bg"
                                     android:gravity="center"
@@ -74,13 +77,15 @@
                                     android:paddingTop="8dp"
                                     android:paddingEnd="6dp"
                                     android:paddingBottom="8dp"
-                                    android:text="@string/txt_follow"
-                                    android:textAppearance="@style/TextAppearance.AppCompat.Body2"/>
+                                    android:text="@string/txt_follow"/>
 
                                 <TextView
                                     android:id="@+id/btnSubscribe"
                                     android:layout_width="100dp"
                                     android:layout_height="wrap_content"
+                                    android:textSize="12sp"
+                                    android:textStyle="bold"
+                                    android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                                     android:layout_marginTop="64dp"
                                     android:layout_marginLeft="5dp"
                                     android:background="@drawable/btn_bg"
@@ -90,8 +95,7 @@
                                     android:paddingEnd="6dp"
                                     android:paddingBottom="8dp"
                                     android:text="SUBSCRIBE"
-                                    android:visibility="gone"
-                                    android:textAppearance="@style/TextAppearance.AppCompat.Body2" />
+                                    android:visibility="gone" />
                             </LinearLayout>
 
                         </FrameLayout>

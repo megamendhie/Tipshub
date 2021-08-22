@@ -228,7 +228,7 @@
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
             android:layout_gravity="bottom|end"
-            android:layout_marginBottom="40dp"
+            android:layout_marginBottom="20dp"
             android:layout_marginEnd="20dp"
             app:menu_animationDelayPerItem="30"
             app:menu_colorNormal="@color/colorAccent"

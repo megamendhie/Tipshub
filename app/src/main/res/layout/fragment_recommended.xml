@@ -3,8 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="@color/fragment_bg">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/nestRec"
@@ -62,6 +61,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
+                        android:textStyle="bold"
                         android:text="Inivite Friends to Join Tipshub"
                         android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                         android:textSize="16sp" />

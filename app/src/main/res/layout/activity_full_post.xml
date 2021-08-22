@@ -13,7 +13,6 @@
         android:layout_height="wrap_content"
         android:visibility="gone"
         android:layout_centerInParent="true"/>
-
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -95,7 +94,6 @@
                 android:textSize="16sp"
                 android:layout_marginTop="10dp"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
-
             <TextView
                 android:id="@+id/txtCode"
                 android:layout_width="wrap_content"
@@ -110,7 +108,6 @@
                 android:layout_gravity="end"
                 android:textColor="#0e0e0e"
                 android:textStyle="bold"/>
-
             <LinearLayout
                 android:id="@+id/container_child_post"
                 android:orientation="vertical"
@@ -193,12 +190,17 @@
                     android:textColor="#0e0e0e"
                     android:textStyle="bold"/>
             </LinearLayout>
-
+            <View
+                android:id="@+id/lnDivider"
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:layout_marginTop="10dp"
+                android:background="@color/greyBackground"/>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginTop="6dp"
+                android:layout_marginTop="10dp"
                 android:layout_marginStart="4dp"
                 android:layout_marginEnd="4dp"
                 android:weightSum="10">
@@ -220,8 +222,7 @@
                         android:id="@+id/txtLike"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="2dp"
-                        android:text="100"/>
+                        android:layout_marginStart="2dp"/>
                 </LinearLayout>
 
                 <LinearLayout
@@ -241,8 +242,7 @@
                         android:id="@+id/txtDislike"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="2dp"
-                        android:text="33"/>
+                        android:layout_marginStart="2dp"/>
                 </LinearLayout>
 
                 <LinearLayout
@@ -262,8 +262,7 @@
                         android:id="@+id/txtComment"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="2dp"
-                        android:text="33"/>
+                        android:layout_marginStart="2dp"/>
                 </LinearLayout>
 
                 <LinearLayout
@@ -283,13 +282,11 @@
                 </LinearLayout>
 
             </LinearLayout>
-
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginTop="5dp"
                 android:background="#3d3c3c"/>
-
             <TextView
                 android:id="@+id/txtAds"
                 android:layout_width="match_parent"
@@ -302,7 +299,6 @@
                 android:textSize="24sp"
                 android:gravity="center"
                 android:background="@color/bg_off_green"/>
-
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
@@ -321,7 +317,6 @@
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 app:stackFromEnd="true"
                 app:reverseLayout="true"/>
-
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
     <androidx.cardview.widget.CardView
@@ -354,8 +349,10 @@
                 android:layout_height="wrap_content"
                 app:fabCustomSize="40dp"
                 app:backgroundTint="@color/colorAccent"
+                app:tint="@color/white"
                 android:layout_marginStart="2dp"
-                app:srcCompat="@drawable/ic_send_black_24dp"/>
+                app:srcCompat="@drawable/ic_send_black_24dp"
+                android:contentDescription="Comment icon" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 

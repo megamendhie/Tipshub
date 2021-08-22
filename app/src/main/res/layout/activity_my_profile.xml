@@ -63,6 +63,9 @@
                                 android:id="@+id/btnEdit"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:textSize="12sp"
+                                android:textStyle="bold"
+                                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                                 android:text="EDIT"
                                 android:layout_marginTop="74dp"
                                 android:layout_marginRight="10dp"
@@ -71,7 +74,6 @@
                                 android:paddingEnd="16dp"
                                 android:paddingTop="6dp"
                                 android:paddingBottom="6dp"
-                                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                                 android:background="@drawable/btn_bg"/>
                         </FrameLayout>
 
