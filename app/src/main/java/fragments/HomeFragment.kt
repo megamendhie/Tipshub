@@ -183,7 +183,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun loadBankerTipsters() {
-        val query = FirebaseUtil.firebaseFirestore?.collection("profiles")?.orderBy("e6c_WGP")!!.whereEqualTo("c1_banker", true).limit(10)
+        val query = FirebaseUtil.firebaseFirestore?.collection("profiles")?.orderBy("e6c_WGP")?.whereEqualTo("c1_banker", true)!!.limit(10)
         val options = FirestoreRecyclerOptions.Builder<ProfileShort>()
                 .setQuery(query, ProfileShort::class.java)
                 .build()

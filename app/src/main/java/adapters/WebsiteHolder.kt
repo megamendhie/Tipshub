@@ -1,11 +1,8 @@
 package adapters
 
-import android.content.Intent
 import android.net.Uri
 import android.util.Log
-import android.view.View
-import android.widget.ImageView
-import android.widget.TextView
+import androidx.browser.customtabs.CustomTabsIntent
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.google.firebase.storage.FirebaseStorage
@@ -14,9 +11,13 @@ import com.sqube.tipshub.databinding.ItemSportSiteBinding
 import models.Website
 
 class WebsiteHolder internal constructor(private val binding: ItemSportSiteBinding) : RecyclerView.ViewHolder(binding.root) {
+    private val customTab = CustomTabsIntent.Builder()
+            .setToolbarColor(binding.root.context.resources.getColor(R.color.colorPrimary))
+            .build()
     fun setDisplay(website: Website) {
         with(binding){
             txtName.text = website.name
+            root.setOnClickListener { customTab.launchUrl(root.context, Uri.parse(website.link)) }
             val storageReference = FirebaseStorage.getInstance().getReferenceFromUrl(website.icon)
             storageReference.downloadUrl.addOnSuccessListener { uri: Uri ->
                 Log.i("PeopleAdapter", "onComplete: $uri")
@@ -26,10 +27,7 @@ class WebsiteHolder internal constructor(private val binding: ItemSportSiteBindi
                     Log.w("{PeopleAdapter", "imgIcon GlideApp: " + e.message)
                 }
             }
-            root.setOnClickListener { root.context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(website.link)))
-            }
         }
-
     }
 
 }
