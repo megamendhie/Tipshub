@@ -18,24 +18,31 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.firestore.Query
+import com.google.gson.Gson
 import com.sqube.tipshub.R
+import com.sqube.tipshub.databinding.FragmentRecommendedBinding
+import models.News
 import models.UserNetwork
+import network.NewsApi
 import org.json.JSONException
 import org.json.JSONObject
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import utils.*
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
 
 class RecommendedFragment : Fragment(), View.OnClickListener {
+    private var _binding: FragmentRecommendedBinding? = null
+    private val binding get() = _binding!!
+    private val _tag = "RecFragment"
     private var userId: String? = null
-    private var peopleList: RecyclerView? = null
-    private var newsList: RecyclerView? = null
     private var alreadyLoaded = false
     private var dbHelper: DatabaseHelper? = null
     private var db: SQLiteDatabase? = null
-    private val dataList = ArrayList<HashMap<String, String>>()
-    private var rootView: View? = null
+    private val gson = Gson()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         dbHelper = DatabaseHelper(context)
@@ -43,24 +50,17 @@ class RecommendedFragment : Fragment(), View.OnClickListener {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+                              savedInstanceState: Bundle?): View {
 
-        // Inflate the layout for this fragment only if its null
-        if (rootView == null) rootView = inflater.inflate(R.layout.fragment_recommended, container, false)
-        peopleList = rootView!!.findViewById(R.id.peopleList)
-        peopleList?.setLayoutManager(LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false))
-        newsList = rootView!!.findViewById(R.id.newsList)
-        newsList?.setLayoutManager(LinearLayoutManager(activity))
-        val btnInvite = rootView!!.findViewById<Button>(R.id.btnInvite)
-        btnInvite.setOnClickListener(this)
-        val btnInviteWhatsapp = rootView!!.findViewById<Button>(R.id.btnInviteWhatsapp)
-        btnInviteWhatsapp.setOnClickListener(this)
+        _binding = FragmentRecommendedBinding.inflate(inflater, container, false)
+        binding.peopleList.layoutManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
+        binding.btnInvite.setOnClickListener(this)
+        binding.btnInviteWhatsapp.setOnClickListener(this)
         val user = FirebaseUtil.firebaseAuthentication?.currentUser
         userId = user!!.uid
         alreadyLoaded = false
         loadNews()
-        //execute();
-        return rootView
+        return binding.root
     }
 
     override fun onStart() {
@@ -84,7 +84,7 @@ class RecommendedFragment : Fragment(), View.OnClickListener {
                             list.add(snapshot.id)
                         }
                         Collections.shuffle(list)
-                        peopleList!!.adapter = PeopleRecAdapter(userId!!, list)
+                        binding.peopleList.adapter = PeopleRecAdapter(userId!!, list)
                     } else loadPeopleFromProfile()
                 })
     }
@@ -102,15 +102,33 @@ class RecommendedFragment : Fragment(), View.OnClickListener {
                     list.add(ref)
                 }
                 Collections.shuffle(list)
-                peopleList!!.adapter = PeopleRecAdapter(userId!!, list)
+                binding.peopleList.adapter = PeopleRecAdapter(userId!!, list)
             }
         }
     }
 
     private fun loadNews() {
-        val newsTask = DownloadNews()
-        if (!Reusable.getNetworkAvailability(requireContext().applicationContext)) Toast.makeText(context, "No Internet Connection", Toast.LENGTH_LONG).show()
-        newsTask.execute()
+        binding.newsList.layoutManager = LinearLayoutManager(context)
+        val newsJson = dbHelper?.getTip(db, Calculations.NEWS)
+        val news = gson.fromJson(newsJson, News::class.java)
+        if(news?.status?.equals("ok") == true)binding.newsList.adapter = NewsAdapter(news.articles!!)
+        NewsApi.retrofitService.getNews().enqueue(object : Callback<News> {
+            override fun onResponse(call: Call<News>, response: Response<News>) {
+                val newsBody: News? = response.body()
+                Log.i(_tag, "onResponse: ${response.body()}")
+                if(newsBody?.status?.equals("ok") == true){
+                    binding.newsList.adapter = NewsAdapter(newsBody.articles!!)
+                    //Save news to database
+                    val xml = gson.toJson(newsBody, News::class.java)
+                    dbHelper!!.updateTip(db, Calculations.NEWS, xml)
+                }
+            }
+
+            override fun onFailure(call: Call<News>, t: Throwable) {
+                Log.i(_tag, "onFailure: ${t.message}")
+            }
+        })
+
     }
 
     override fun onClick(view: View) {
@@ -123,94 +141,15 @@ class RecommendedFragment : Fragment(), View.OnClickListener {
         invitationIntent.type = "text/plain"
         invitationIntent.putExtra(Intent.EXTRA_TEXT, invite)
         invitationIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY or Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
-        when (view.id) {
-            R.id.btnInvite -> startActivity(Intent.createChooser(invitationIntent, "Invite via:"))
-            R.id.btnInviteWhatsapp -> {
+        when (view) {
+            binding.btnInvite -> startActivity(Intent.createChooser(invitationIntent, "Invite via:"))
+            binding.btnInviteWhatsapp -> {
                 invitationIntent.setPackage("com.whatsapp")
                 try {
                     startActivity(invitationIntent)
                 } catch (e: Throwable) {
                     Toast.makeText(context, "No whatsapp installed", Toast.LENGTH_LONG).show()
                 }
-            }
-        }
-    }
-
-    private inner class DownloadNews : AsyncTask<String, Void, String>() {
-        var myAPI_Key = "417444c0502047d69c1c2a9dcc1672cd"
-        var KEY_AUTHOR = "author"
-        var KEY_TITLE = "title"
-        var KEY_DESCRIPTION = "description"
-        var KEY_URL = "url"
-        var KEY_URLTOIMAGE = "urlToImage"
-        var KEY_PUBLISHEDAT = "publishedAt"
-        var BASE_URL = "https://newsapi.org/v2/everything?"
-        var DOMAIN_NAME = "domains"
-        var LANGUAGE = "language"
-        var PAGE_SIZE = "pageSize"
-        var API_KEY = "apiKey"
-        override fun onPreExecute() {
-            super.onPreExecute()
-            val xml = dbHelper!!.getTip(db, Calculations.NEWS)
-            //if (xml != null && !xml.isEmpty())
-            //    onPostExecute(xml);
-        }
-
-        protected override fun doInBackground(vararg args: String): String? {
-            val httpConnection = HttpConFunction()
-            val builtURI = Uri.parse(BASE_URL).buildUpon()
-                    .appendQueryParameter(DOMAIN_NAME, "goal.com")
-                    .appendQueryParameter(LANGUAGE, "en")
-                    .appendQueryParameter(PAGE_SIZE, "29")
-                    .appendQueryParameter(API_KEY, myAPI_Key)
-                    .build()
-            return httpConnection.executeGet(builtURI.toString(), "RECOMMEND")
-        }
-
-        override fun onPostExecute(xml: String?) {
-            if (xml == null || xml.isEmpty()) {
-                return
-            }
-            if (xml.length > 10) { // Just checking if not empty
-                dataList.clear()
-                try {
-                    val jsonResponse = JSONObject(xml)
-                    val jsonArray = jsonResponse.optJSONArray("articles")
-                    val oldFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.ENGLISH)
-                    oldFormat.timeZone = TimeZone.getTimeZone("UTC")
-                    val newFormatter = SimpleDateFormat("dd MMM", Locale.ENGLISH)
-                    newFormatter.timeZone = TimeZone.getDefault()
-                    var dt: Date?
-                    for (i in 0 until jsonArray.length()) {
-                        val jsonObject = jsonArray.getJSONObject(i)
-                        val map = HashMap<String, String>()
-                        map[KEY_AUTHOR] = jsonObject.optString(KEY_AUTHOR)
-                        map[KEY_TITLE] = jsonObject.optString(KEY_TITLE)
-                        map[KEY_DESCRIPTION] = jsonObject.optString(KEY_DESCRIPTION)
-                        map[KEY_URL] = jsonObject.optString(KEY_URL).toString()
-                        map[KEY_URLTOIMAGE] = jsonObject.optString(KEY_URLTOIMAGE)
-                        dt = oldFormat.parse(jsonObject.optString(KEY_PUBLISHEDAT))
-                        val newsDate = newFormatter.format(dt)
-                        map[KEY_PUBLISHEDAT] = newsDate
-                        dataList.add(map)
-                    }
-
-                    //Save news to database
-                    dbHelper!!.updateTip(db, Calculations.NEWS, xml)
-                } catch (e: JSONException) {
-                    val TAG = "RecFragment"
-                    Log.i(TAG, "onPostExecute: " + e.message)
-                    Toast.makeText(context, "Unexpected error", Toast.LENGTH_SHORT).show()
-                } catch (e: ParseException) {
-                    val TAG = "RecFragment"
-                    Log.i(TAG, "onPostExecute: " + e.message)
-                    Toast.makeText(context, "Unexpected error", Toast.LENGTH_SHORT).show()
-                }
-                val adapter = NewsAdapter(dataList)
-                newsList!!.layoutManager = LinearLayoutManager(context)
-                newsList!!.adapter = adapter
-            } else {
-                Toast.makeText(context, "No news found", Toast.LENGTH_SHORT).show()
             }
         }
     }
