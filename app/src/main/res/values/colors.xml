@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#2A7FFF</color>
-    <color name="colorPrimaryDark">#2777F0</color>
-    <color name="colorAccent">#2777F0</color>
+    <color name="colorPrimary">#1E73F4</color>
+    <color name="colorPrimaryDark">#176FF4</color>
+    <color name="colorAccent">#1E73F4</color>
     <color name="colorAccentLight">#067ecf</color>
     <color name="colorPrimaryLight">#5D9CFA</color>
     <color name="likeGrey">#90A4AE</color>
@@ -16,7 +16,7 @@
     <color name="bg_off_green_deeper">#802A7FFF</color>
     <color name="bg_off_green_deepest">#972A7FFF</color>
     <color name="currencyGreen">#035829</color>
-    <color name="color_oxblood">#F80051</color>
+    <color name="color_oxblood">#F50057</color>
     <color name="comment_bg">#E9F5FC</color>
     <color name="comment_flagged">#FCD6E2</color>
     <color name="brown">#883B28</color>

@@ -10,4 +10,5 @@
 
     <dimen name="dim_text_margin">20dp</dimen>
     <dimen name="edt_text_padding">14dp</dimen>
+    <dimen name="dimen_post_dp">50dp</dimen>
 </resources>
