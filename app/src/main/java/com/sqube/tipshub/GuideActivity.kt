@@ -1,10 +1,12 @@
 package com.sqube.tipshub
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.browser.customtabs.CustomTabsIntent
 import com.sqube.tipshub.databinding.ActivityGuideBinding
 
 class GuideActivity : AppCompatActivity(), View.OnClickListener {
@@ -31,18 +33,11 @@ class GuideActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     override fun onClick(v: View) {
-        var intent: Intent? = null
+        val intentBrowser = CustomTabsIntent.Builder().setToolbarColor(resources.getColor(R.color.colorPrimary)).build()
         when (v) {
-            binding.txtGuidelines -> intent = Intent(this@GuideActivity, AboutActivity::class.java)
-            binding.txtPrivacyPolicy -> {
-                intent = Intent(this@GuideActivity, NewsStoryActivity::class.java)
-                intent.putExtra("url", "https://tipshub.co/privacy-policy/")
-            }
-            binding.txtCAC -> {
-                intent = Intent(this@GuideActivity, NewsStoryActivity::class.java)
-                intent.putExtra("url", "https://tipshub.co/terms-and-conditions/")
-            }
+            binding.txtGuidelines -> startActivity( Intent(this@GuideActivity, AboutActivity::class.java))
+            binding.txtPrivacyPolicy -> intentBrowser.launchUrl(this@GuideActivity, Uri.parse("https://tipshub.co/privacy-policy/"))
+            binding.txtCAC -> intentBrowser.launchUrl(this@GuideActivity, Uri.parse("https://tipshub.co/terms-and-conditions/"))
         }
-        intent?.let { startActivity(it) }
     }
 }
