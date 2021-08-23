@@ -15,6 +15,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -42,20 +43,20 @@ class BankerFragment : Fragment() {
     private val gson = Gson()
     private var json: String? = null
     private var myProfile: ProfileMedium? = null
-    private var prefs: SharedPreferences? = null
+    private lateinit var prefs: SharedPreferences
     private var _userId: String? = null
     private val userId: String get() = _userId!!
     private val TAG = "BankerFragment"
     private var intent: Intent? = null
-    private var _binding: FragmentBankerBinding? = null
-    private val binding get() = _binding!!
+    private lateinit var _binding: FragmentBankerBinding
+    private val binding get() = _binding
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+                              savedInstanceState: Bundle?): View {
 
         // Inflate the layout for this fragment only if its null
         _binding = FragmentBankerBinding.inflate(inflater, container, false)
-        prefs = PreferenceManager.getDefaultSharedPreferences(context)
+        prefs = requireContext().getSharedPreferences("${requireContext().applicationContext.packageName}_preferences", AppCompatActivity.MODE_PRIVATE)
 
         (binding.subscribedList.itemAnimator as DefaultItemAnimator?)!!.supportsChangeAnimations = false
         (binding.winningsList.itemAnimator as DefaultItemAnimator?)!!.supportsChangeAnimations = false
@@ -68,7 +69,7 @@ class BankerFragment : Fragment() {
         val user = FirebaseUtil.firebaseAuthentication?.currentUser
         _userId = user!!.uid
         binding.fabPost.setOnClickListener {
-            json = prefs?.getString("profile", "")
+            json = prefs.getString("profile", "")
             myProfile = if (json == "") null else gson.fromJson(json, ProfileMedium::class.java)
             if (myProfile == null) {
                 Toast.makeText(context, "Something went wrong", Toast.LENGTH_SHORT).show()
@@ -99,6 +100,10 @@ class BankerFragment : Fragment() {
         loadWinning()
         loadSub()
         return binding.root
+    }
+
+    fun scrollToTop(){
+        binding.nestBanker.smoothScrollTo(0,0)
     }
 
     private fun loadSub() {
@@ -132,7 +137,7 @@ class BankerFragment : Fragment() {
                     for (snapshot in querySnapshot.documents) {
                         val post = snapshot.toObject(Post::class.java)!!
                         posts.add(post)
-                        snapIds.add(SnapId(snapshot.id, post!!.time))
+                        snapIds.add(SnapId(snapshot.id, post.time))
                     }
                 }
             }

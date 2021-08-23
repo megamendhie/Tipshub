@@ -62,6 +62,9 @@ class RecommendedFragment : Fragment(), View.OnClickListener {
         loadNews()
         return binding.root
     }
+    fun scrollToTop(){
+        binding.nestRec.smoothScrollTo(0,0)
+    }
 
     override fun onStart() {
         super.onStart()

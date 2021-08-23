@@ -9,8 +9,6 @@ import android.database.sqlite.SQLiteDatabase
 import android.net.Uri
 import android.os.AsyncTask
 import android.os.Bundle
-import android.os.Parcelable
-import android.preference.PreferenceManager
 import android.text.Html
 import android.text.TextUtils
 import android.util.Log
@@ -19,6 +17,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -53,14 +52,13 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class HomeFragment : Fragment() {
-    private var _binder: FragmentHomeBinding? = null
-    private val binder get():FragmentHomeBinding = _binder!!
+    private var _binding: FragmentHomeBinding? = null
+    private val binding get():FragmentHomeBinding = _binding!!
     private var txtError: TextView? = null
     private val homeFeedState = "homeFeedState"
     private val gson = Gson()
     private val _tag = "HomeFragment"
-    private var prefs: SharedPreferences? = null
-    private var fromEverybody = true
+    private lateinit var prefs: SharedPreferences
     private val postsList = ArrayList<Post?>()
     private val snapIds = ArrayList<SnapId>()
     private val trendingPostList = ArrayList<Post?>()
@@ -86,8 +84,8 @@ class HomeFragment : Fragment() {
         val user = FirebaseUtil.firebaseAuthentication?.currentUser
         userId = user!!.uid
         username = user.displayName
-        prefs = PreferenceManager.getDefaultSharedPreferences(context)
-        json = prefs?.getString("profile", "")
+        prefs = requireContext().getSharedPreferences("${requireContext().applicationContext.packageName}_preferences", AppCompatActivity.MODE_PRIVATE)
+        json = prefs.getString("profile", "")
         myProfile = if (json == "") null else gson.fromJson(json, ProfileMedium::class.java)
         subscriber = myProfile != null && myProfile!!.isD4_vipSubscriber
         dbHelper = DatabaseHelper(context)
@@ -95,31 +93,31 @@ class HomeFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
-        _binder = FragmentHomeBinding.inflate(inflater, container, false)
+                              savedInstanceState: Bundle?): View {
+        _binding = FragmentHomeBinding.inflate(inflater, container, false)
 
-        binder.refresher.setColorSchemeResources(R.color.colorPrimary)
-        binder.postList.layoutManager = LinearLayoutManager(context)
-        binder.tipsList.layoutManager = LinearLayoutManager(context)
-        binder.trendingList.layoutManager = LinearLayoutManager(context)
-        binder.bankersList.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        binder.sportSitesList.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        (binder.postList.itemAnimator as DefaultItemAnimator?)!!.supportsChangeAnimations = false
+        binding.refresher.setColorSchemeResources(R.color.colorPrimary)
+        binding.postList.layoutManager = LinearLayoutManager(context)
+        binding.tipsList.layoutManager = LinearLayoutManager(context)
+        binding.trendingList.layoutManager = LinearLayoutManager(context)
+        binding.bankersList.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        binding.sportSitesList.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        (binding.postList.itemAnimator as DefaultItemAnimator?)!!.supportsChangeAnimations = false
         //((DefaultItemAnimator) trendingFeed.getItemAnimator()).setSupportsChangeAnimations(false);
 
-        binder.txtOpenFullPost.setOnClickListener {seeMore() }
-        binder.txtOpenFull.setOnClickListener{requireContext().startActivity(Intent(context, FullViewActivity::class.java)) }
-        if (homepageTips.isEmpty()) binder.shimmerTips.startShimmer() else {
-            binder.txtOpenFull.visibility = View.VISIBLE
-            binder.shimmerTips.stopShimmer()
-            binder.shimmerTips.visibility = View.GONE
-            binder.crdTips.visibility = View.VISIBLE
+        binding.txtOpenFullPost.setOnClickListener {seeMore() }
+        binding.txtOpenFull.setOnClickListener{requireContext().startActivity(Intent(context, FullViewActivity::class.java)) }
+        if (homepageTips.isEmpty()) binding.shimmerTips.startShimmer() else {
+            binding.txtOpenFull.visibility = View.VISIBLE
+            binding.shimmerTips.stopShimmer()
+            binding.shimmerTips.visibility = View.GONE
+            binding.crdTips.visibility = View.VISIBLE
         }
-        binder.shimmerPosts.startShimmer()
+        binding.shimmerPosts.startShimmer()
 
         val intent = Intent(context, PostActivity::class.java)
-        binder.fabPost.setOnClickListener { v: View? ->
-            binder.fabMenu.close(false)
+        binding.fabPost.setOnClickListener { v: View? ->
+            binding.fabMenu.close(false)
             if (hasReachedMax()) {
                 popUp()
                 return@setOnClickListener
@@ -127,35 +125,36 @@ class HomeFragment : Fragment() {
             intent.putExtra("type", "tip")
             startActivity(intent)
         }
-        binder.fabNormal.setOnClickListener { v: View? ->
-            binder.fabMenu.close(false)
+        binding.fabNormal.setOnClickListener { v: View? ->
+            binding.fabMenu.close(false)
             intent.putExtra("type", "normal")
             startActivity(intent)
         }
 
-        //confirm if user is seeing everybody's post
-        fromEverybody = prefs!!.getBoolean("fromEverybody", true)
         tipsAdapter = TipsAdapter(homepageTips)
-        binder.tipsList.adapter = tipsAdapter
-        onRefresh(savedInstanceState)
+        binding.tipsList.adapter = tipsAdapter
+        loadTips()
+        selectPostToLoad()
         loadBankerTipsters()
         loadSportSites()
+        loadTrendingPost()
         if (myProfile != null && (myProfile!!.a2_username.isEmpty() || myProfile!!.b1_phone.isEmpty())) promptForUsername()
-        binder.refresher.setOnRefreshListener {
-            binder.refresher.isRefreshing = true
-            onRefresh(savedInstanceState)
-            binder.refresher.isRefreshing = false
+        binding.refresher.setOnRefreshListener {
+            binding.refresher.isRefreshing = true
+            onRefresh()
+            binding.refresher.isRefreshing = false
         }
-        return binder.root
+        return binding.root
     }
 
-    private fun onRefresh(savedInstanceState: Bundle?) {
-        selectPostToLoad(savedInstanceState)
-        loadTips()
-        loadTrendingPost()
+    fun scrollToTop(){
+        binding.nestHome.smoothScrollTo(0,0)
     }
+
+    private fun onRefresh() = selectPostToLoad()
 
     private fun seeMore() {
+        val fromEverybody = prefs.getBoolean("fromEverybody", true)
         val intent = Intent(context, ExtendedHomeActivity::class.java)
         intent.putExtra("fromEverybody", fromEverybody)
         startActivity(intent)
@@ -164,7 +163,7 @@ class HomeFragment : Fragment() {
     private fun loadSportSites() {
         val siteList = ArrayList<Website>()
         val websiteAdapter = WebsiteAdapter(siteList)
-        binder.sportSitesList.adapter = websiteAdapter
+        binding.sportSitesList.adapter = websiteAdapter
         val ref = FirebaseDatabase.getInstance().reference.child("sportSites")
         ref.keepSynced(true)
         ref.addValueEventListener(object : ValueEventListener {
@@ -188,13 +187,13 @@ class HomeFragment : Fragment() {
                 .setQuery(query, ProfileShort::class.java)
                 .build()
         val bankerTipsterAdapter = BankerTipsterAdapter(options)
-        binder.bankersList.adapter = bankerTipsterAdapter
+        binding.bankersList.adapter = bankerTipsterAdapter
         bankerTipsterAdapter.startListening()
     }
 
     private fun loadTrendingPost() {
         trendingAdapter = FilteredPostAdapter(false, userId!!, requireContext(), trendingPostList, trendingSnapIds)
-        binder.trendingList.adapter = trendingAdapter
+        binding.trendingList.adapter = trendingAdapter
         FirebaseUtil.firebaseFirestore?.collection("posts")!!
                 .orderBy("timeRelevance", Query.Direction.DESCENDING).limit(30).get()
                 .addOnSuccessListener { result: QuerySnapshot? ->
@@ -343,31 +342,17 @@ class HomeFragment : Fragment() {
     }
 
     private fun loadTips() {
-        val getTips: GetTips = GetTips()
+        val getTips = GetTips()
         getTips.execute()
     }
 
-    private fun selectPostToLoad(savedInstanceState: Bundle?) {
-        //refresher.setRefreshing(true);
+    fun selectPostToLoad() {
+        val fromEverybody = prefs.getBoolean("fromEverybody", true)
         if (fromEverybody) {
             loadPostFbAdapter()
         } else {
             loadMerged()
         }
-        if (savedInstanceState != null) {
-            val homeFeedState = savedInstanceState.getParcelable<Parcelable>(homeFeedState)
-            binder.postList.layoutManager!!.onRestoreInstanceState(homeFeedState)
-        } else {
-            val layoutManager = binder.postList.layoutManager as LinearLayoutManager?
-            layoutManager!!.smoothScrollToPosition(binder.postList, null, 0)
-        }
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        binder.postList.adapter = null
-        binder.trendingList.adapter = null
-        Log.i(_tag, "onDestroyView: ")
     }
 
     private fun popUp() {
@@ -385,7 +370,7 @@ class HomeFragment : Fragment() {
 
     //method checks if user has reached max post for the day
     private fun hasReachedMax(): Boolean {
-        json = prefs!!.getString("profile", "")
+        json = prefs.getString("profile", "")
         myProfile = if (json == "") null else gson.fromJson(json, ProfileMedium::class.java)
         if (myProfile == null) return true
         val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
@@ -408,26 +393,15 @@ class HomeFragment : Fragment() {
                 .setQuery(query, Post::class.java)
                 .build()
         postAdapter = PostAdapter(response, userId, requireContext(), true)
-        binder.postList.adapter = postAdapter
+        binding.postList.adapter = postAdapter
         if (postAdapter != null) {
             Log.i(_tag, "loadPost: started listening")
             postAdapter!!.startListening()
-            binder.shimmerPosts.stopShimmer()
-            binder.shimmerPosts.visibility = View.GONE
-            binder.crdPosts.visibility = View.VISIBLE
+            binding.shimmerPosts.stopShimmer()
+            binding.shimmerPosts.visibility = View.GONE
+            binding.crdPosts.visibility = View.VISIBLE
         }
         //refresher.setRefreshing(false);
-    }
-
-    override fun onResume() {
-        super.onResume()
-        json = prefs!!.getString("profile", "")
-        myProfile = if (json == "") null else gson.fromJson(json, ProfileMedium::class.java)
-        val subscriber = myProfile != null && myProfile!!.isD4_vipSubscriber
-        if (subscriber && !this.subscriber) {
-            this.subscriber = true
-            loadTips()
-        }
     }
 
     private fun loadMerged() {
@@ -477,7 +451,7 @@ class HomeFragment : Fragment() {
                 Collections.sort(snapIds2)
             }
             val adapter = FilteredPostAdapter(true, userId!!, requireContext(), postsList, snapIds)
-            binder.postList.adapter = adapter
+            binding.postList.adapter = adapter
             val size = Math.min(20, postList2.size)
             for (i in 0 until size) {
                 postsList.add(postList2[i])
@@ -487,14 +461,14 @@ class HomeFragment : Fragment() {
             adapter.notifyDataSetChanged()
             postList2.clear()
             snapIds2.clear()
-            binder.shimmerPosts.stopShimmer()
-            binder.shimmerPosts.visibility = View.GONE
-            binder.crdPosts.visibility = View.VISIBLE
+            binding.shimmerPosts.stopShimmer()
+            binding.shimmerPosts.visibility = View.GONE
+            binding.crdPosts.visibility = View.VISIBLE
         }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        val homeFeedState = binder.postList.layoutManager!!.onSaveInstanceState()
+        val homeFeedState = binding.postList.layoutManager!!.onSaveInstanceState()
         outState.putParcelable(this.homeFeedState, homeFeedState)
         super.onSaveInstanceState(outState)
     }
@@ -551,7 +525,6 @@ class HomeFragment : Fragment() {
         }
 
         override fun onPostExecute(tips: ArrayList<GameTip>) {
-            //Log.i("GETTIPS", "onPostExecute: "+ tips);
             if (tips.isEmpty()) return
             homepageTips.clear()
             var k = 0
@@ -561,15 +534,15 @@ class HomeFragment : Fragment() {
                 if (k >= 3) break
             }
             tipsAdapter!!.notifyDataSetChanged()
-            binder.txtOpenFull.visibility = View.VISIBLE
-            binder.shimmerTips.stopShimmer()
-            binder.shimmerTips.visibility = View.GONE
-            binder.crdTips.visibility = View.VISIBLE
+            binding.txtOpenFull.visibility = View.VISIBLE
+            binding.shimmerTips.stopShimmer()
+            binding.shimmerTips.visibility = View.GONE
+            binding.crdTips.visibility = View.VISIBLE
         }
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        _binder = null
+        _binding = null
     }
 }
