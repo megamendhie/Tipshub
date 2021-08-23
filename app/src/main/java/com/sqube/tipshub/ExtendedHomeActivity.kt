@@ -8,6 +8,7 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.text.Html
+import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AlertDialog
@@ -35,7 +36,7 @@ class ExtendedHomeActivity : AppCompatActivity() {
     private var _binding: ActivityExtendedHomeBinding? = null
     private val binding get() = _binding!!
     private val gson = Gson()
-    private var prefs: SharedPreferences? = null
+    private lateinit var prefs: SharedPreferences
     private var fromEverybody = true
     private var userId: String? = null
     private var username: String? = null
@@ -50,20 +51,20 @@ class ExtendedHomeActivity : AppCompatActivity() {
         _binding = ActivityExtendedHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
-        val actionBar = supportActionBar
-        actionBar?.setDisplayHomeAsUpEnabled(true)
-        binding.postList.layoutManager = LinearLayoutManager(this)
-        val intentPost = Intent(this@ExtendedHomeActivity, PostActivity::class.java)
-        fromEverybody = intent.getBooleanExtra("fromEverybody", false)
-        fAdapter = FilteredPostAdapter(true, userId!!, this, postList, snapIds)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        prefs = getSharedPreferences("${applicationContext.packageName}_preferences", MODE_PRIVATE)
+        fromEverybody = intent.getBooleanExtra("fromEverybody", true)
         val user = firebaseAuthentication!!.currentUser
         if (user != null) {
             userId = user.uid
             username = user.displayName
         }
-        prefs = PreferenceManager.getDefaultSharedPreferences(this)
-        json = prefs?.getString("profile", "")
+        fAdapter = FilteredPostAdapter(true, userId!!, this, postList, snapIds)
+        json = prefs.getString("profile", "")
         myProfile = if (json == "") null else gson.fromJson(json, ProfileMedium::class.java)
+
+        binding.postList.layoutManager = LinearLayoutManager(this)
+        val intentPost = Intent(this@ExtendedHomeActivity, PostActivity::class.java)
         binding.fabPost.setOnClickListener { v: View? ->
             binding.fabMenu.close(false)
             if (hasReachedMax()) {
