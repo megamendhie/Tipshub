@@ -13,13 +13,14 @@ import com.sqube.tipshub.databinding.ActivityFollowerListBinding
 import utils.Calculations
 import utils.FirebaseUtil.firebaseAuthentication
 import utils.FirebaseUtil.firebaseFirestore
+import utils.GUEST
 import java.util.*
 
 class FollowerListActivity : AppCompatActivity() {
     private var _binding: ActivityFollowerListBinding? = null
     private val binding get() = _binding!!
     private var listOfPeople: ArrayList<String> = ArrayList()
-    private var userId: String? = null
+    private lateinit var userId: String
     private var user: FirebaseUser? = null
     private var peopleAdapter: PeopleAdapter? = null
 
@@ -36,10 +37,10 @@ class FollowerListActivity : AppCompatActivity() {
         }
         binding.peopleList.layoutManager = LinearLayoutManager(this@FollowerListActivity)
         user = firebaseAuthentication!!.currentUser
-        userId = if (user == null) Calculations.GUEST else user!!.uid
+        userId = user?.uid ?: GUEST
         firebaseFirestore!!.collection(searchType!!).document(personId!!).get()
                 .addOnCompleteListener { task: Task<DocumentSnapshot?> ->
-                    if (task.result == null || !task.result!!.exists()) {
+                    if (task.result == null || !task.isSuccessful || !task.result!!.exists()) {
                         binding.txtNote.visibility = View.VISIBLE
                         return@addOnCompleteListener
                     }
@@ -55,7 +56,7 @@ class FollowerListActivity : AppCompatActivity() {
     public override fun onResume() {
         super.onResume()
         user = firebaseAuthentication!!.currentUser
-        userId = if (user == null) Calculations.GUEST else user!!.uid
+        userId = if (user == null) GUEST else user!!.uid
         if (peopleAdapter != null) peopleAdapter!!.setUserId(userId)
     }
 

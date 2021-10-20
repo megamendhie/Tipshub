@@ -22,23 +22,20 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.gson.Gson
+import com.sqube.tipshub.databinding.ActivityFullPostBinding
+import com.sqube.tipshub.databinding.ActivityFullViewBinding
 import models.Draw
 import models.GameTip
 import models.ProfileMedium
 import org.json.JSONException
 import org.json.JSONObject
-import utils.DatabaseHelper
-import utils.HttpConFunction
+import utils.*
 import java.text.SimpleDateFormat
 import java.util.*
 
 class FullViewActivity : AppCompatActivity() {
-    var listClassic: RecyclerView? = null
-    var listVIP: RecyclerView? = null
-    var listOver: RecyclerView? = null
-    var listBts: RecyclerView? = null
-    var listDraw: RecyclerView? = null
-    var listWon: RecyclerView? = null
+    private var _binding: ActivityFullViewBinding? = null
+    private val binding get() = _binding!!
     private val gson = Gson()
     private val allCurrentTips = ArrayList<GameTip>()
     private val classicTips = ArrayList<GameTip>()
@@ -46,66 +43,40 @@ class FullViewActivity : AppCompatActivity() {
     private val overTips = ArrayList<GameTip>()
     private val bttTips = ArrayList<GameTip>()
     private val wonTips = ArrayList<GameTip>()
-    private var txtDate: TextView? = null
-    private var txtWeek: TextView? = null
-    private var btnSeeAll: TextView? = null
     private var classicAdapter: TipsAdapter? = null
     private var vipAdapter: TipsAdapter? = null
     private var overAdapter: TipsAdapter? = null
     private var bttsAdapter: TipsAdapter? = null
     private var wonAdapter: TipsAdapter? = null
     private val drawAdapter = DrawAdapter()
-    private var shimmerClassicTips: ShimmerFrameLayout? = null
-    private var shimmerVipTips: ShimmerFrameLayout? = null
-    private var shimmerOverTips: ShimmerFrameLayout? = null
-    private var shimmerBtsTips: ShimmerFrameLayout? = null
-    private var shimmerDrawTips: ShimmerFrameLayout? = null
-    private var shimmerWonTips: ShimmerFrameLayout? = null
     private var prefs: SharedPreferences? = null
-    private var lnrVip: RelativeLayout? = null
-    private var lnrDraw: RelativeLayout? = null
     private var subscriber = false
     private var CUT_OFF = 6
     private var dbHelper: DatabaseHelper? = null
     private var db: SQLiteDatabase? = null
-    var getClassicTips: GetTips? = null
-    var getOverTips: GetTips? = null
-    var getBttsTips: GetTips? = null
-    var getWonTips: GetTips? = null
+    private var getClassicTips: GetTips? = null
+    private var getOverTips: GetTips? = null
+    private var getBttsTips: GetTips? = null
+    private var getWonTips: GetTips? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        _binding = ActivityFullViewBinding.inflate(layoutInflater)
         setContentView(R.layout.activity_full_view)
-        val actionBar = supportActionBar
-        actionBar?.setDisplayHomeAsUpEnabled(true)
-        listClassic = findViewById(R.id.listClassic)
-        listVIP = findViewById(R.id.listVIP)
-        listOver = findViewById(R.id.listOver)
-        listBts = findViewById(R.id.listBts)
-        listDraw = findViewById(R.id.listDraw)
-        listWon = findViewById(R.id.listWon)
-        lnrVip = findViewById(R.id.lnrVip)
-        lnrDraw = findViewById(R.id.lnrDraw)
-        txtDate = findViewById(R.id.txtDate)
-        txtWeek = findViewById(R.id.txtWeek)
-        btnSeeAll = findViewById(R.id.btnSeeAll)
-        listClassic.setLayoutManager(LinearLayoutManager(this))
-        listVIP.setLayoutManager(LinearLayoutManager(this))
-        listOver.setLayoutManager(LinearLayoutManager(this))
-        listBts.setLayoutManager(LinearLayoutManager(this))
-        listDraw.setLayoutManager(LinearLayoutManager(this))
-        listWon.setLayoutManager(LinearLayoutManager(this))
-        shimmerClassicTips = findViewById(R.id.shimmerClassicTips)
-        shimmerClassicTips.startShimmer()
-        shimmerVipTips = findViewById(R.id.shimmerVipTips)
-        shimmerVipTips.startShimmer()
-        shimmerOverTips = findViewById(R.id.shimmerOverTips)
-        shimmerOverTips.startShimmer()
-        shimmerBtsTips = findViewById(R.id.shimmerBtsTips)
-        shimmerBtsTips.startShimmer()
-        shimmerDrawTips = findViewById(R.id.shimmerDrawTips)
-        shimmerDrawTips.startShimmer()
-        shimmerWonTips = findViewById(R.id.shimmerWonTips)
-        shimmerWonTips.startShimmer()
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        binding.listClassic.layoutManager = LinearLayoutManager(this)
+        binding.listVIP.layoutManager = LinearLayoutManager(this)
+        binding.listOver.layoutManager = LinearLayoutManager(this)
+        binding.listBts.layoutManager = LinearLayoutManager(this)
+        binding.listDraw.layoutManager = LinearLayoutManager(this)
+        binding.listWon.layoutManager = LinearLayoutManager(this)
+
+        binding.shimmerClassicTips.startShimmer()
+        binding.shimmerVipTips.startShimmer()
+        binding.shimmerOverTips.startShimmer()
+        binding.shimmerBtsTips.startShimmer()
+        binding.shimmerDrawTips.startShimmer()
+        binding.shimmerWonTips.startShimmer()
         prefs = PreferenceManager.getDefaultSharedPreferences(applicationContext)
         dbHelper = DatabaseHelper(this)
         db = dbHelper!!.readableDatabase
@@ -125,18 +96,18 @@ class FullViewActivity : AppCompatActivity() {
     }
 
     private fun loadTips() {
-        if (subscriber) btnSeeAll!!.visibility = View.GONE
+        if (subscriber) binding.btnSeeAll!!.visibility = View.GONE
         classicAdapter = TipsAdapter(classicTips)
         vipAdapter = TipsAdapter(vipTips)
         overAdapter = TipsAdapter(overTips)
         bttsAdapter = TipsAdapter(bttTips)
         wonAdapter = TipsAdapter(wonTips)
-        listClassic!!.adapter = classicAdapter
-        listVIP!!.adapter = vipAdapter
-        listOver!!.adapter = overAdapter
-        listBts!!.adapter = bttsAdapter
-        listDraw!!.adapter = drawAdapter
-        listWon!!.adapter = wonAdapter
+        binding.listClassic.adapter = classicAdapter
+        binding.listVIP.adapter = vipAdapter
+        binding.listOver.adapter = overAdapter
+        binding.listBts.adapter = bttsAdapter
+        binding.listDraw.adapter = drawAdapter
+        binding.listWon.adapter = wonAdapter
         try {
             getClassicTips!!.execute()
             getWonTips!!.execute()
@@ -153,7 +124,7 @@ class FullViewActivity : AppCompatActivity() {
 
     //String key = dataSnapshot.child("key").getValue(String.class);
     private val drawTips: Unit
-        private get() {
+        get() {
             val ref = FirebaseDatabase.getInstance().reference.child("SystemConfig").child("draws_vip")
             ref.keepSynced(true)
             ref.limitToFirst(1).addValueEventListener(object : ValueEventListener {
@@ -163,23 +134,23 @@ class FullViewActivity : AppCompatActivity() {
                     for (snap in dSnap.children) {
                         dataSnapshot = snap
                     }
-                    val drawList = ArrayList<Draw?>()
+                    val drawList = ArrayList<Draw>()
                     val date = dataSnapshot!!.child("date").getValue(String::class.java)
                     val week = dataSnapshot.child("week").getValue(String::class.java)
                     //String key = dataSnapshot.child("key").getValue(String.class);
                     val colorCode = dataSnapshot.child("colorCode").getValue(String::class.java)
-                    txtDate!!.text = date
-                    txtDate!!.visibility = View.VISIBLE
-                    txtWeek!!.text = week
-                    txtWeek!!.visibility = View.VISIBLE
+                    binding.txtDate.text = date
+                    binding.txtDate.visibility = View.VISIBLE
+                    binding.txtWeek.text = week
+                    binding.txtWeek.visibility = View.VISIBLE
                     val games = dataSnapshot.child("games")
                     for (snapshot in games.children) {
                         val draw = snapshot.getValue(Draw::class.java)
-                        drawList.add(draw)
+                        drawList.add(draw!!)
                     }
                     drawAdapter.setList(drawList, colorCode)
-                    shimmerDrawTips!!.stopShimmer()
-                    shimmerDrawTips!!.visibility = View.GONE
+                    binding.shimmerDrawTips.stopShimmer()
+                    binding.shimmerDrawTips.visibility = View.GONE
                 }
 
                 override fun onCancelled(databaseError: DatabaseError) {}
@@ -188,20 +159,20 @@ class FullViewActivity : AppCompatActivity() {
 
     private fun setLayoutVisibility() {
         if (subscriber) {
-            lnrVip!!.visibility = View.GONE
-            lnrDraw!!.visibility = View.GONE
-            shimmerVipTips!!.visibility = View.VISIBLE
-            shimmerDrawTips!!.visibility = View.VISIBLE
-            listVIP!!.visibility = View.VISIBLE
-            listDraw!!.visibility = View.VISIBLE
+            binding.lnrVip.visibility = View.GONE
+            binding.lnrDraw.visibility = View.GONE
+            binding.shimmerVipTips.visibility = View.VISIBLE
+            binding.shimmerDrawTips.visibility = View.VISIBLE
+            binding.listVIP.visibility = View.VISIBLE
+            binding.listDraw.visibility = View.VISIBLE
             CUT_OFF = 12
         } else {
-            lnrVip!!.visibility = View.VISIBLE
-            lnrDraw!!.visibility = View.VISIBLE
-            shimmerVipTips!!.visibility = View.GONE
-            shimmerDrawTips!!.visibility = View.GONE
-            listVIP!!.visibility = View.GONE
-            listDraw!!.visibility = View.GONE
+            binding.lnrVip.visibility = View.VISIBLE
+            binding.lnrDraw.visibility = View.VISIBLE
+            binding.shimmerVipTips.visibility = View.GONE
+            binding.shimmerDrawTips.visibility = View.GONE
+            binding.listVIP.visibility = View.GONE
+            binding.listDraw.visibility = View.GONE
             CUT_OFF = 6
         }
     }
@@ -218,11 +189,11 @@ class FullViewActivity : AppCompatActivity() {
             if (vipTips.size >= 4) break
         }
         vipAdapter!!.notifyDataSetChanged()
-        shimmerVipTips!!.stopShimmer()
-        shimmerVipTips!!.visibility = View.GONE
+        binding.shimmerVipTips.stopShimmer()
+        binding.shimmerVipTips.visibility = View.GONE
     }
 
-    inner class GetTips private constructor(private val market: String) : AsyncTask<String?, Void?, ArrayList<GameTip>>() {
+    inner class GetTips(private val market: String) : AsyncTask<String, Void, ArrayList<GameTip>>() {
         override fun onPreExecute() {
             super.onPreExecute()
             var xml: String? = null
@@ -311,8 +282,8 @@ class FullViewActivity : AppCompatActivity() {
                         if (classicTips.size < CUT_OFF) classicTips.add(tip)
                     }
                     classicAdapter!!.notifyDataSetChanged()
-                    shimmerClassicTips!!.stopShimmer()
-                    shimmerClassicTips!!.visibility = View.GONE
+                    binding.shimmerClassicTips.stopShimmer()
+                    binding.shimmerClassicTips.visibility = View.GONE
                 }
                 OVER -> {
                     overTips.clear()
@@ -322,8 +293,8 @@ class FullViewActivity : AppCompatActivity() {
                         if (overTips.size >= 4) break
                     }
                     overAdapter!!.notifyDataSetChanged()
-                    shimmerOverTips!!.stopShimmer()
-                    shimmerOverTips!!.visibility = View.GONE
+                    binding.shimmerOverTips.stopShimmer()
+                    binding.shimmerOverTips.visibility = View.GONE
                 }
                 BTTS -> {
                     bttTips.clear()
@@ -333,8 +304,8 @@ class FullViewActivity : AppCompatActivity() {
                         if (bttTips.size >= 4) break
                     }
                     bttsAdapter!!.notifyDataSetChanged()
-                    shimmerBtsTips!!.stopShimmer()
-                    shimmerBtsTips!!.visibility = View.GONE
+                    binding.shimmerBtsTips.stopShimmer()
+                    binding.shimmerBtsTips.visibility = View.GONE
                 }
                 WONGAMES -> {
                     wonTips.clear()
@@ -344,8 +315,8 @@ class FullViewActivity : AppCompatActivity() {
                         if (wonTips.size >= 6) break
                     }
                     wonAdapter!!.notifyDataSetChanged()
-                    shimmerWonTips!!.stopShimmer()
-                    shimmerWonTips!!.visibility = View.GONE
+                    binding.shimmerWonTips.stopShimmer()
+                    binding.shimmerWonTips.visibility = View.GONE
                 }
             }
         }

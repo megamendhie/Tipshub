@@ -1,5 +1,8 @@
 package com.sqube.tipshub;
 
+
+import static utils.Reusable.getPlaceholderImage;
+
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -41,8 +44,6 @@ import utils.Calculations;
 import utils.FirebaseUtil;
 import utils.Reusable;
 
-import static utils.Reusable.getPlaceholderImage;
-
 public class RepostActivity extends AppCompatActivity implements View.OnClickListener {
     ActionBar actionBar;
     Button btnPost;
@@ -63,7 +64,7 @@ public class RepostActivity extends AppCompatActivity implements View.OnClickLis
     private String childLink;
 
     boolean postExist=false;
-    private  String MODEL = "model";
+    private final String MODEL = "model";
     private String[] type = {"3-5 odds", "6-10 odds", "11-50 odds", "50+ odds", "Draws", "Banker tip"};
     private SharedPreferences prefs;
     private Calculations calculations;

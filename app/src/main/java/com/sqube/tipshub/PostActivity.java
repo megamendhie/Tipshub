@@ -308,7 +308,7 @@ public class PostActivity extends AppCompatActivity implements View.OnClickListe
         String title = "Sure Banker Tip";
         String message = username + " posted banker tip";
         Notification notification = new Notification("banker", title, message, "banker", userId,
-                user.getPhotoUrl().toString()!=null? user.getPhotoUrl().toString(): "", "sub_"+userId, userId);
+                user.getPhotoUrl()!=null? user.getPhotoUrl().toString(): "", "sub_"+userId, userId);
         FirebaseDatabase.getInstance().getReference().child("notifications").push().setValue(notification);
     }
 }

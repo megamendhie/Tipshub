@@ -55,10 +55,11 @@ import utils.Calculations;
 import utils.FirebaseUtil;
 
 import static com.sqube.tipshub.NgSubActivity.NG_SUB_ACTIVITY;
-import static utils.Calculations.NOTIFICATIONS;
-import static utils.Calculations.PROFILES;
-import static utils.Calculations.SUBSCRIPTIONS;
-import static utils.Calculations.TRANSACTIONS;
+import static utils.CommonsKt.NOTIFICATIONS;
+import static utils.CommonsKt.PROFILES;
+import static utils.CommonsKt.SUBSCRIPTIONS;
+import static utils.CommonsKt.TIPSHUB;
+import static utils.CommonsKt.TRANSACTIONS;
 import static utils.Reusable.getPlaceholderImage;
 
 public class AccountActivity extends AppCompatActivity {
@@ -401,7 +402,7 @@ public class AccountActivity extends AppCompatActivity {
         String message = credit? Html.fromHtml("You deposited " + currencySymbol[value] + amount + " to your wallet").toString():
                 Html.fromHtml("You withdrew " + currencySymbol[value] + amount + " from your wallet").toString();
         Notification notification = new Notification("transaction", title, message, type,
-                Calculations.TIPSHUB, "", userId,Calculations.TIPSHUB);
+                TIPSHUB, "", userId,TIPSHUB);
         FirebaseUtil.getFirebaseFirestore().collection(NOTIFICATIONS).add(notification);
         dbReference.child(NOTIFICATIONS).push().setValue(notification);
     }

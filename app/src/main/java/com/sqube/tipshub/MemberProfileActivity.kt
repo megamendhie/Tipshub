@@ -35,12 +35,13 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import com.sqube.tipshub.databinding.ActivityMemberProfileBinding
+import utils.GUEST
 import java.util.*
 
 class MemberProfileActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var _binding: ActivityMemberProfileBinding
     private val binding get() = _binding
-    private var userId: String? = null
+    private lateinit var userId: String
     private val USER_ID = "userId"
     private var database: FirebaseFirestore? = null
     private var user: FirebaseUser? = null
@@ -64,12 +65,11 @@ class MemberProfileActivity : AppCompatActivity(), View.OnClickListener {
         binding.lnrSubscription.setOnClickListener(this)
         binding.tabs.setupWithViewPager(binding.viewpager)
         user = firebaseAuthentication!!.currentUser
-        myID = if (user == null) Calculations.GUEST else user!!.uid
+        myID = if (user == null) GUEST else user!!.uid
         adapter = PerformanceAdapter(performanceList)
         binding.performanceList.layoutManager = LinearLayoutManager(this)
-        userId = if (savedInstanceState != null) savedInstanceState.getString(USER_ID) else intent.getStringExtra(USER_ID)
-        if (UserNetwork.getFollowing() == null) binding.btnFollow.visibility = View.GONE
-        else binding.btnFollow.text = if (UserNetwork.getFollowing().contains(userId)) "FOLLOWING" else "FOLLOW"
+        userId = if (savedInstanceState != null) savedInstanceState.getString(USER_ID)!! else intent.getStringExtra(USER_ID)!!
+        binding.btnFollow.text = if (UserNetwork.following.contains(userId)) "FOLLOWING" else "FOLLOW"
         database = FirebaseFirestore.getInstance()
         setupViewPager(binding.viewpager) //set up view pager with fragments
     }
@@ -77,12 +77,12 @@ class MemberProfileActivity : AppCompatActivity(), View.OnClickListener {
     override fun onResume() {
         super.onResume()
         user = firebaseAuthentication!!.currentUser
-        myID = if (user == null) Calculations.GUEST else user!!.uid
+        myID = if (user == null) GUEST else user!!.uid
     }
 
     override fun onPostResume() {
         super.onPostResume()
-        database!!.collection("profiles").document(userId!!).get()
+        database!!.collection("profiles").document(userId).get()
                 .addOnSuccessListener { documentSnapshot: DocumentSnapshot? ->
                     if (documentSnapshot == null || !documentSnapshot.exists()) return@addOnSuccessListener
                     profile = documentSnapshot.toObject(ProfileMedium::class.java)
@@ -107,19 +107,19 @@ class MemberProfileActivity : AppCompatActivity(), View.OnClickListener {
                     binding.txtPost.text = String.format(Locale.getDefault(), "%d  %s  • ", profile!!.e0a_NOG, tips)
                     binding.txtWon.text = String.format(Locale.getDefault(), "%d  won  • ", profile!!.e0b_WG)
                     binding.txtAccuracy.text = String.format(Locale.getDefault(), "%.1f%%", profile!!.e0c_WGP.toDouble())
-                    if (UserNetwork.getSubscribed() != null && profile!!.isC1_banker
-                            && !UserNetwork.getSubscribed().contains(userId)) binding.btnSubscribe.visibility = View.VISIBLE
+                    if (profile!!.isC1_banker && !UserNetwork.subscribed.contains(userId))
+                        binding.btnSubscribe.visibility = View.VISIBLE
 
                     //set Display picture
                     Glide.with(applicationContext).load(profile!!.b2_dpUrl)
                             .placeholder(R.drawable.dummy)
-                            .error(getPlaceholderImage(userId!![0]))
+                            .error(getPlaceholderImage(userId[0]))
                             .into(binding.imgDp)
-                    if (!performanceList.isEmpty()) return@addOnSuccessListener
+                    if (performanceList.isNotEmpty()) return@addOnSuccessListener
                     if (profile!!.e0a_NOG > 0) {
                         for (i in 1..6) {
                             val row = getRow(i)
-                            if (!row.isEmpty()) performanceList.add(row)
+                            if (row.isNotEmpty()) performanceList.add(row)
                         }
                         binding.performanceList.adapter = adapter
                     }
@@ -197,7 +197,7 @@ class MemberProfileActivity : AppCompatActivity(), View.OnClickListener {
         //set Display picture
         Glide.with(applicationContext).load(profile!!.b2_dpUrl)
                 .placeholder(R.drawable.dummy)
-                .error(getPlaceholderImage(userId!![0]))
+                .error(getPlaceholderImage(userId[0]))
                 .into(imgProfile)
     }
 
@@ -227,7 +227,7 @@ class MemberProfileActivity : AppCompatActivity(), View.OnClickListener {
                 startActivity(intent)
             }
             binding.btnFollow -> {
-                if (userId == Calculations.GUEST) {
+                if (userId == GUEST) {
                     loginPrompt()
                     return
                 }
@@ -237,14 +237,14 @@ class MemberProfileActivity : AppCompatActivity(), View.OnClickListener {
                 }
                 if (binding.btnFollow.text == "FOLLOW") {
                     val calculations = Calculations(this@MemberProfileActivity)
-                    calculations.followMember(binding.btnFollow, myID, userId, false)
+                    calculations.followMember(binding.btnFollow, myID, userId)
                     profile!!.c4_followers = profile!!.c4_followers + 1
                     binding.txtFollowers.text = profile!!.c4_followers.toString()
                     binding.btnFollow.text = "FOLLOWING"
                 } else unfollowPrompt()
             }
             binding.btnSubscribe -> {
-                if (userId == Calculations.GUEST) {
+                if (userId == GUEST) {
                     loginPrompt()
                     return
                 }
@@ -295,7 +295,7 @@ class MemberProfileActivity : AppCompatActivity(), View.OnClickListener {
                 .setNegativeButton("No") { dialogInterface: DialogInterface?, i: Int -> }
                 .setPositiveButton("Yes") { dialogInterface: DialogInterface?, i: Int ->
                     val calculations = Calculations(this@MemberProfileActivity)
-                    calculations.unfollowMember(binding.btnFollow, myID, userId, false)
+                    calculations.unfollowMember(binding.btnFollow, myID, userId)
                     profile!!.c4_followers = Math.max(0, profile!!.c4_followers - 1)
                     binding.txtFollowers.text = profile!!.c4_followers.toString()
                     binding.btnFollow.text = "FOLLOW"
@@ -319,7 +319,7 @@ class MemberProfileActivity : AppCompatActivity(), View.OnClickListener {
             mFragmentTitleList.add(title)
         }
 
-        override fun getPageTitle(position: Int): CharSequence? {
+        override fun getPageTitle(position: Int): CharSequence {
             return mFragmentTitleList[position]
         }
     }

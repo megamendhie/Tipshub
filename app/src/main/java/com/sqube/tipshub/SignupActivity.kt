@@ -29,14 +29,19 @@ import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.SetOptions
+import com.google.gson.Gson
 import com.hbb20.CountryCodePicker
 import com.sqube.tipshub.databinding.ActivitySignup2Binding
 import com.sqube.tipshub.databinding.ActivitySignupBinding
 import com.theartofdev.edmodo.cropper.CropImage
 import models.Profile
+import models.ProfileMedium
 import utils.FirebaseUtil.firebaseAuthentication
 import utils.FirebaseUtil.firebaseFirestore
 import utils.FirebaseUtil.firebaseStorage
+import utils.IS_VERIFIED
+import utils.PROFILE
+import utils.PROFILES
 import utils.Reusable.Companion.getNetworkAvailability
 import utils.Reusable.Companion.grabImage
 import utils.Reusable.Companion.updateAlgoliaIndex
@@ -52,7 +57,9 @@ class SignupActivity : AppCompatActivity(), View.OnClickListener {
     private var mGoogleSignInClient: GoogleSignInClient? = null
     private var filePath: Uri? = null
     private var openMainActivity = false
-    private var editor: SharedPreferences.Editor? = null
+    private lateinit var prefs: SharedPreferences
+    private lateinit var editor: SharedPreferences.Editor
+    private val gson = Gson()
     private var userId: String? = null
     private var firstName: String? = null
     private var lastName: String? = null
@@ -73,13 +80,30 @@ class SignupActivity : AppCompatActivity(), View.OnClickListener {
         supportActionBar?.setTitle("Sign Up")
         binding.gSignIn.setOnClickListener(this)
         binding.btnSignup.setOnClickListener(this)
-        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
+        prefs= getSharedPreferences("${applicationContext.packageName}_preferences", MODE_PRIVATE)
         editor = prefs.edit()
         progressDialog = ProgressDialog(this)
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail().build()
         mGoogleSignInClient = GoogleSignIn.getClient(this@SignupActivity, gso)
+    }
+
+    private fun saveProfileToPref(userId: String, closePage: Boolean) {
+        firebaseFirestore!!.collection(PROFILES).document(userId).get()
+                .addOnCompleteListener(this@SignupActivity) {
+                    if (it.isSuccessful && it.result != null && it.result.exists()) {
+                        val snapshot = it.result
+                        val json = gson.toJson(snapshot.toObject(ProfileMedium::class.java))
+                        editor.putBoolean(IS_VERIFIED, snapshot.toObject(ProfileMedium::class.java)!!.isC0_verified)
+                        editor.putString(PROFILE, json)
+                        editor.apply()
+                        if(closePage){
+                            finish()
+                            if (openMainActivity) startActivity(Intent(this@SignupActivity, MainActivity::class.java))
+                        }
+                    }
+                }
     }
 
     override fun onClick(v: View) {
@@ -221,11 +245,10 @@ class SignupActivity : AppCompatActivity(), View.OnClickListener {
                                     firebaseFirestore!!.collection("profiles").document(userId!!)
                                             .set(Profile(firstName, lastName, email, provider))
                                     grabImage(user!!.photoUrl.toString())
+                                    saveProfileToPref(userId!!, false)
                                     completeProfile()
-                                } else {
-                                    finish()
-                                    if (openMainActivity) startActivity(Intent(this@SignupActivity, MainActivity::class.java))
-                                }
+                                } else
+                                    saveProfileToPref(userId!!, true)
                             }
                         }
             } else {
@@ -301,7 +324,7 @@ class SignupActivity : AppCompatActivity(), View.OnClickListener {
         dialog.show()
 
         //Initialize variables
-        val numberValid = BooleanArray(1)
+        val numberValid = booleanArrayOf(false)
         bindingComplete.imgDp.setOnClickListener(this)
         val ccp = dialog.findViewById<CountryCodePicker>(R.id.ccp)
         ccp!!.registerCarrierNumberEditText(bindingComplete.edtPhone)
@@ -309,7 +332,7 @@ class SignupActivity : AppCompatActivity(), View.OnClickListener {
         else Glide.with(this).load(user!!.photoUrl).into(bindingComplete.imgDp)
         ccp.setPhoneNumberValidityChangeListener { isValidNumber: Boolean -> numberValid[0] = isValidNumber }
         bindingComplete.btnSave.setOnClickListener {
-            val username = bindingComplete.edtUsername.text.toString().trim()
+            val username = bindingComplete.edtUsername.text.toString().replace("\\s".toRegex(), "")
             val phone = ccp.fullNumber
             val country = ccp.selectedCountryName
             var gender = ""
@@ -348,7 +371,7 @@ class SignupActivity : AppCompatActivity(), View.OnClickListener {
             }
             bindingComplete.txtError.visibility = View.GONE
             val finalGender = gender
-            firebaseFirestore!!.collection("profiles")
+            firebaseFirestore!!.collection(PROFILES)
                     .whereEqualTo("a2_username", username).limit(1).get()
                     .addOnCompleteListener { task: Task<QuerySnapshot?> ->
                         if (task.result == null || !task.result!!.isEmpty) {
@@ -373,12 +396,24 @@ class SignupActivity : AppCompatActivity(), View.OnClickListener {
                         //save username, phone number, and gender to database
                         firebaseFirestore!!.collection("profiles").document(userId!!)[url] = SetOptions.merge()
                         updateAlgoliaIndex(firstName, lastName, username, userId, 0, true) //add to Algolia index
-                        dialog.cancel()
-                        finish()
-                        if (openMainActivity) startActivity(Intent(this@SignupActivity, MainActivity::class.java))
-                        val intent = Intent(this@SignupActivity, AboutActivity::class.java)
-                        intent.putExtra("showCongratsImage", true)
-                        startActivity(intent)
+
+                        firebaseFirestore!!.collection(PROFILES).document(userId!!).get()
+                                .addOnCompleteListener(this@SignupActivity) {
+                                    if (it.isSuccessful && it.result != null && it.result.exists()) {
+                                        val snapshot = it.result
+                                        val json = gson.toJson(snapshot.toObject(ProfileMedium::class.java))
+                                        editor.putBoolean(IS_VERIFIED, snapshot.toObject(ProfileMedium::class.java)!!.isC0_verified)
+                                        editor.putString(PROFILE, json)
+                                        editor.apply()
+
+                                        dialog.cancel()
+                                        finish()
+                                        if (openMainActivity) startActivity(Intent(this@SignupActivity, MainActivity::class.java))
+                                        val intent = Intent(this@SignupActivity, AboutActivity::class.java)
+                                        intent.putExtra("showCongratsImage", true)
+                                        startActivity(intent)
+                                    }
+                                }
                     }
         }
     }

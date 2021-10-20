@@ -6,22 +6,9 @@ import utils.Reusable.Companion.getPlaceholderImage
 import utils.Reusable.Companion.signature
 import utils.Reusable.Companion.applyLinkfy
 import utils.Reusable.Companion.getTime
-import utils.Calculations.onDeletePost
-import utils.Calculations.onPostWon
-import utils.Calculations.followMember
-import utils.Calculations.unfollowMember
-import adapters.CommentAdapter.setUserId
-import utils.Calculations.onLike
-import utils.Calculations.onDislike
 import utils.Reusable.Companion.shareTips
-import utils.Calculations.setCount
-import utils.Calculations.sendPushNotification
-import utils.Calculations.recommend
-import adapters.CommentAdapter.repliedList
-import adapters.CommentAdapter.resetRepliesList
 import androidx.appcompat.app.AppCompatActivity
 import android.text.TextWatcher
-import androidx.recyclerview.widget.RecyclerView
 import adapters.CommentAdapter
 import android.app.AlertDialog
 import android.content.*
@@ -31,119 +18,90 @@ import com.google.firebase.auth.FirebaseUser
 import utils.Calculations
 import com.google.firebase.storage.StorageReference
 import android.os.Bundle
-import com.sqube.tipshub.R
-import android.preference.PreferenceManager
 import com.google.firebase.storage.FirebaseStorage
-import utils.FirebaseUtil
 import utils.SpaceTokenizer
-import android.view.View.OnLongClickListener
 import services.GlideApp
 import com.bumptech.glide.signature.ObjectKey
-import com.google.android.gms.tasks.OnCompleteListener
-import android.view.LayoutInflater
 import android.graphics.drawable.ColorDrawable
-import com.sqube.tipshub.FlagActivity
 import com.google.android.material.snackbar.Snackbar
 import android.text.Html
 import models.UserNetwork
-import com.sqube.tipshub.RepostActivity
-import com.sqube.tipshub.LoginActivity
-import com.sqube.tipshub.MyProfileActivity
-import com.sqube.tipshub.MemberProfileActivity
-import com.sqube.tipshub.FullPostActivity
-import com.google.android.gms.tasks.OnSuccessListener
 import models.SnapId
 import android.text.TextUtils
 import kotlin.Throws
-import com.google.android.gms.tasks.OnFailureListener
 import android.text.Editable
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.*
 import com.google.android.gms.tasks.Task
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.firestore.*
 import com.google.firebase.firestore.EventListener
+import com.sqube.tipshub.databinding.ActivityFullPostBinding
 import de.hdodenhof.circleimageview.CircleImageView
 import models.Comment
-import java.lang.Exception
+import utils.GUEST
 import java.util.*
 
 class FullPostActivity() : AppCompatActivity(), View.OnClickListener, TextWatcher {
+    private lateinit var binding: ActivityFullPostBinding
     private var commentReference: CollectionReference? = null
     private var postReference: DocumentReference? = null
-    private var lnrFullPost: LinearLayout? = null
-    private var lnrChildPost: LinearLayout? = null
-    private var mpost: TextView? = null
-    private var mUsername: TextView? = null
-    private var mTime: TextView? = null
-    private var mLikes: TextView? = null
-    private var mDislikes: TextView? = null
-    private var mComment: TextView? = null
-    private var mCode: TextView? = null
-    private var mType: TextView? = null
-    private var imgDp: CircleImageView? = null
-    private var imgChildDp: CircleImageView? = null
-    private var imgOverflow: ImageView? = null
-    private var imgShare: ImageView? = null
-    private var imgLike: ImageView? = null
-    private var imgDislike: ImageView? = null
-    private var imgStatus: ImageView? = null
-    private var edtComment: MultiAutoCompleteTextView? = null
-    private var fabPost: FloatingActionButton? = null
-    private var prgPost: ProgressBar? = null
-    private var commentsList: RecyclerView? = null
     private var commentAdapter: CommentAdapter? = null
+
     private var model: Post? = null
-    private var intent: Intent? = null
+    private lateinit var funIntent: Intent
     private val POST_ID = "postId"
     private var comment: String? = null
     private val TAG = "FullPostActivity"
     private var user: FirebaseUser? = null
-    private var userId: String? = null
+    private lateinit var userId: String
     private var username: String? = null
     private var postId: String? = null
     private var childLink: String? = null
     private var childDisplayed = false
-    private var prefs: SharedPreferences? = null
+    private lateinit var prefs: SharedPreferences
     var calculations: Calculations? = null
     private val code = arrayOf("1xBet", "Bet9ja", "Nairabet", "SportyBet", "BlackBet", "Bet365")
     private val type =
         arrayOf("3-5 odds", "6-10 odds", "11-50 odds", "50+ odds", "Draws", "Banker tip")
     private var storageReference: StorageReference? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_full_post)
+        binding = ActivityFullPostBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         val actionBar = supportActionBar
         actionBar!!.setDisplayHomeAsUpEnabled(true)
         actionBar.setTitle("Post")
-        prefs = PreferenceManager.getDefaultSharedPreferences(applicationContext)
+        prefs = getSharedPreferences(applicationContext.packageName + "_preferences", Context.MODE_PRIVATE)
         init()
         calculations = Calculations(applicationContext)
         storageReference = FirebaseStorage.getInstance().reference.child("profile_images")
         user = firebaseAuthentication!!.currentUser
-        if (user == null) userId = GUEST else {
+        if (user == null)
+            userId = GUEST
+        else {
             userId = user!!.uid
             username = user!!.displayName
         }
-        commentsList = findViewById(R.id.listComments)
-        if (savedInstanceState != null) postId = savedInstanceState.getString(POST_ID) else postId =
-            getIntent().getStringExtra(POST_ID)
-        postReference = firebaseFirestore!!.collection("posts").document((postId)!!)
+        if (savedInstanceState != null) postId = savedInstanceState.getString(POST_ID)
+        else postId =
+            intent.getStringExtra(POST_ID)
+        postReference = firebaseFirestore!!.collection("posts").document(postId!!)
         val clubs = resources.getStringArray(R.array.club_arrays)
         val club_adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, clubs)
-        edtComment!!.setAdapter(club_adapter)
-        edtComment!!.setTokenizer(SpaceTokenizer())
-        edtComment!!.threshold = 4
-        mpost!!.setOnLongClickListener({ view: View? ->
+        binding.edtComment.setAdapter(club_adapter)
+        binding.edtComment.setTokenizer(SpaceTokenizer())
+        binding.edtComment.threshold = 4
+        binding.txtPost.setOnLongClickListener { view: View? ->
             val clipboard: ClipboardManager =
                 getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
             val clip: ClipData = ClipData.newPlainText("Tipshub_post", model!!.getContent())
             clipboard.setPrimaryClip(clip)
             Toast.makeText(this@FullPostActivity, "Copied!", Toast.LENGTH_SHORT).show()
             false
-        })
+        }
         val imgMyDp = findViewById<CircleImageView>(R.id.imgMyDp)
         if ((userId == GUEST)) imgMyDp.setImageResource(R.drawable.dummy) else GlideApp.with(
             applicationContext
@@ -159,36 +117,17 @@ class FullPostActivity() : AppCompatActivity(), View.OnClickListener, TextWatche
     }
 
     private fun init() {
-        mpost = findViewById(R.id.txtPost)
-        mUsername = findViewById(R.id.txtUsername)
-        mUsername.setOnClickListener(this)
-        mTime = findViewById(R.id.txtTime)
-        mLikes = findViewById(R.id.txtLike)
-        mDislikes = findViewById(R.id.txtDislike)
-        mComment = findViewById(R.id.txtComment)
-        mCode = findViewById(R.id.txtCode)
-        mType = findViewById(R.id.txtPostType)
-        fabPost = findViewById(R.id.fabPost)
-        fabPost.setOnClickListener(this)
-        edtComment = findViewById(R.id.edtComment)
-        edtComment.addTextChangedListener(this)
-        imgOverflow = findViewById(R.id.imgOverflow)
-        imgOverflow.setOnClickListener(this)
-        imgShare = findViewById(R.id.imgShare)
-        imgShare.setOnClickListener(this)
-        imgDp = findViewById(R.id.imgDp)
-        imgDp.setOnClickListener(this)
-        imgLike = findViewById(R.id.imgLike)
-        imgLike.setOnClickListener(this)
-        imgDislike = findViewById(R.id.imgDislike)
-        imgDislike.setOnClickListener(this)
-        imgStatus = findViewById(R.id.imgStatus)
-        prgPost = findViewById(R.id.prgPost)
-        prgPost.setVisibility(View.VISIBLE)
-        lnrFullPost = findViewById(R.id.container_post)
-        lnrFullPost.setVisibility(View.GONE)
-        lnrChildPost = findViewById(R.id.container_child_post)
-        lnrChildPost.setVisibility(View.GONE)
+        binding.txtUsername.setOnClickListener(this)
+        binding.fabPost.setOnClickListener(this)
+        binding.edtComment.addTextChangedListener(this)
+        binding.imgOverflow.setOnClickListener(this)
+        binding.imgShare.setOnClickListener(this)
+        binding.imgDp.setOnClickListener(this)
+        binding.imgLike.setOnClickListener(this)
+        binding.imgDislike.setOnClickListener(this)
+        binding.prgPost.visibility = View.VISIBLE
+        binding.containerPost.visibility = View.GONE
+        binding.containerChildPost.visibility = View.GONE
     }
 
     //listen for changes in likesCount, dislikesCount and update
@@ -204,53 +143,53 @@ class FullPostActivity() : AppCompatActivity(), View.OnClickListener, TextWatche
                     ).show()
                     finish()
                 } else {
-                    lnrFullPost!!.visibility = View.VISIBLE
-                    prgPost!!.visibility = View.GONE
+                    binding.containerPost.visibility = View.VISIBLE
+                    binding.prgPost.visibility = View.GONE
                     //retrieve post from database
                     model = documentSnapshot.toObject(Post::class.java)
 
                     //bind post contents to views
-                    imgStatus!!.visibility = if (model!!.status == 1) View.GONE else View.VISIBLE
-                    mUsername!!.text = model!!.username
-                    mpost!!.text = model!!.content
-                    applyLinkfy(applicationContext, model!!.content, (mpost)!!)
-                    mTime!!.text = getTime(model!!.time)
+                    binding.imgStatus.visibility = if (model!!.status == 1) View.GONE else View.VISIBLE
+                    binding.txtUsername.text = model!!.username
+                    binding.txtPost.text = model!!.content
+                    applyLinkfy(applicationContext, model!!.content, binding.txtPost)
+                    binding.txtTime.text = getTime(model!!.time)
 
                     //display booking code if available
                     if (model!!.bookingCode != null && !model!!.bookingCode.isEmpty()) {
-                        mCode!!.text =
+                        binding.txtCode.text =
                             model!!.bookingCode + " @" + code.get((model!!.recommendedBookie - 1))
-                        mCode!!.visibility = View.VISIBLE
-                    } else mCode!!.visibility = View.GONE
+                        binding.txtCode.visibility = View.VISIBLE
+                    } else binding.txtCode.visibility = View.GONE
                     if (model!!.type == 0) {
-                        mType!!.visibility = View.GONE
+                        binding.txtPostType.visibility = View.GONE
                     } else {
-                        mType!!.visibility = View.VISIBLE
-                        mType!!.text = type.get(model!!.type - 1)
+                        binding.txtPostType.visibility = View.VISIBLE
+                        binding.txtPostType.text = type.get(model!!.type - 1)
                     }
 
                     //display likes, dislikes, and comments
-                    imgLike!!.setColorFilter(
+                    binding.imgLike.setColorFilter(
                         if (model!!.likes.contains(userId)) resources.getColor(
                             R.color.likeGold
                         ) else resources.getColor(R.color.likeGrey)
                     )
-                    imgDislike!!.setColorFilter(
+                    binding.imgDislike.setColorFilter(
                         if (model!!.dislikes.contains(userId)) resources.getColor(
                             R.color.likeGold
                         ) else resources.getColor(R.color.likeGrey)
                     )
-                    mComment!!.text =
+                    binding.txtComment.text =
                         if (model!!.commentsCount == 0L) "" else model!!.commentsCount.toString()
-                    mLikes!!.text =
+                    binding.txtLike.text =
                         if (model!!.likesCount == 0L) "" else model!!.likesCount.toString()
-                    mDislikes!!.text =
+                    binding.txtDislike.text =
                         if (model!!.dislikesCount == 0L) "" else model!!.dislikesCount.toString()
                     GlideApp.with(applicationContext).load(storageReference!!.child(model!!.userId))
                         .placeholder(R.drawable.dummy)
                         .error(getPlaceholderImage(model!!.userId[0]))
                         .signature(ObjectKey(model!!.userId + "_" + signature))
-                        .into((imgDp)!!)
+                        .into(binding.imgDp)
                     if (model!!.isHasChild) {
                         childLink = model!!.childLink
                         displayChildContent()
@@ -269,50 +208,49 @@ class FullPostActivity() : AppCompatActivity(), View.OnClickListener, TextWatche
         val childCode = findViewById<TextView>(R.id.txtChildCode)
         val childType = findViewById<TextView>(R.id.txtChildType)
         val imgChildStatus = findViewById<ImageView>(R.id.imgChildStatus)
-        imgChildDp = findViewById(R.id.childDp)
-        imgChildDp.setOnClickListener(this)
+        binding.childDp.setOnClickListener(this)
         childDisplayed = true
         firebaseFirestore!!.collection("posts").document((childLink)!!).get()
-            .addOnCompleteListener({ task: Task<DocumentSnapshot> ->
+            .addOnCompleteListener { task: Task<DocumentSnapshot> ->
                 if (!task.getResult().exists()) {
-                    childPost.setText("This content has been deleted")
-                    imgChildDp.setVisibility(View.GONE)
-                    childUsername.setVisibility(View.GONE)
-                    childType.setVisibility(View.GONE)
-                    imgChildStatus.setVisibility(View.GONE)
-                    childCode.setVisibility(View.GONE)
-                    lnrChildPost!!.setBackgroundResource(R.color.placeholder_bg)
-                    lnrChildPost!!.setVisibility(View.VISIBLE) //display child layout if child post exists
+                    childPost.text = "This content has been deleted"
+                    binding.childDp.visibility = View.GONE
+                    childUsername.visibility = View.GONE
+                    childType.visibility = View.GONE
+                    imgChildStatus.visibility = View.GONE
+                    childCode.visibility = View.GONE
+                    binding.containerChildPost.setBackgroundResource(R.color.placeholder_bg)
+                    binding.containerChildPost.visibility = View.VISIBLE //display child layout if child post exists
                     return@addOnCompleteListener
                 }
                 val childModel: Post? =
                     task.getResult().toObject(Post::class.java) //retrieve child post
 
                 //bind post to views
-                imgChildStatus.setVisibility(if (childModel!!.getStatus() == 1) View.GONE else View.VISIBLE)
-                if (childModel.getBookingCode() != null && !childModel.getBookingCode().isEmpty()) {
-                    childCode.setText(childModel.getBookingCode() + " @" + code.get((childModel.getRecommendedBookie() - 1)))
-                    childCode.setVisibility(View.VISIBLE)
-                } else childCode.setVisibility(View.GONE)
-                if (childModel.getType() == 0) {
-                    childType.setVisibility(View.GONE)
+                imgChildStatus.visibility = if (childModel!!.getStatus() == 1) View.GONE else View.VISIBLE
+                if (childModel.bookingCode != null && !childModel.getBookingCode().isEmpty()) {
+                    childCode.text = childModel.getBookingCode() + " @" + code.get((childModel.getRecommendedBookie() - 1))
+                    childCode.visibility = View.VISIBLE
+                } else childCode.visibility = View.GONE
+                if (childModel.type == 0) {
+                    childType.visibility = View.GONE
                 } else {
-                    childType.setVisibility(View.VISIBLE)
-                    childType.setText(type.get(childModel.getType() - 1))
+                    childType.visibility = View.VISIBLE
+                    childType.text = type.get(childModel.getType() - 1)
                 }
-                childUsername.setText(childModel.getUsername())
-                childPost.setText(childModel.getContent())
-                applyLinkfy(getApplicationContext(), childModel.getContent(), childPost)
-                GlideApp.with(getApplicationContext())
-                    .load(storageReference!!.child(childModel.getUserId()))
+                childUsername.text = childModel.getUsername()
+                childPost.text = childModel.getContent()
+                applyLinkfy(applicationContext, childModel.content, childPost)
+                GlideApp.with(applicationContext)
+                    .load(storageReference!!.child(childModel.userId))
                     .placeholder(R.drawable.dummy)
-                    .error(getPlaceholderImage(childModel.getUserId().get(0)))
-                    .signature(ObjectKey(childModel.getUserId() + "_" + signature))
-                    .into(imgChildDp)
-                lnrChildPost!!.setVisibility(View.VISIBLE) //display child layout if child post exists
+                    .error(getPlaceholderImage(childModel.userId[0]))
+                    .signature(ObjectKey(childModel.userId + "_" + signature))
+                    .into(binding.childDp)
+                binding.containerChildPost.setVisibility(View.VISIBLE) //display child layout if child post exists
                 childPost.setOnClickListener(this@FullPostActivity)
-                lnrChildPost!!.setOnClickListener(this@FullPostActivity)
-            })
+                binding.containerChildPost.setOnClickListener(this@FullPostActivity)
+            }
     }
 
     //Displays overflow containing options like follow, subscribe, disagree, etc.
@@ -321,7 +259,8 @@ class FullPostActivity() : AppCompatActivity(), View.OnClickListener, TextWatche
         val inflater = layoutInflater
         val dialogView: View
         if ((model!!.userId == userId)) dialogView =
-            inflater.inflate(R.layout.dialog_mine, null) else dialogView =
+            inflater.inflate(R.layout.dialog_mine, null)
+        else dialogView =
             inflater.inflate(R.layout.dialog_member, null)
         builder.setView(dialogView)
         val dialog = builder.create()
@@ -346,29 +285,29 @@ class FullPostActivity() : AppCompatActivity(), View.OnClickListener, TextWatche
             if ((model!!.userId == userId) && (model!!.status == 2) && (timeDifference > 9000000)) btnSubmit.visibility =
                 View.GONE
         }
-        btnDelete.setOnClickListener({ v: View? ->
-            if ((btnDelete.getText().toString().toLowerCase() == "flag")) {
-                intent = Intent(this@FullPostActivity, FlagActivity::class.java)
-                intent!!.putExtra("postId", postId)
-                intent!!.putExtra("reportedUsername", model!!.getUsername())
-                intent!!.putExtra("reportedUserId", model!!.getUserId())
-                startActivity(intent)
+        btnDelete.setOnClickListener { v: View? ->
+            if ((btnDelete.text.toString().toLowerCase() == "flag")) {
+                funIntent = Intent(this@FullPostActivity, FlagActivity::class.java)
+                funIntent!!.putExtra("postId", postId)
+                funIntent!!.putExtra("reportedUsername", model!!.getUsername())
+                funIntent!!.putExtra("reportedUserId", model!!.getUserId())
+                startActivity(funIntent)
                 dialog.cancel()
             } else {
                 Log.i(TAG, "onClick: " + model!!.getType())
                 if (model!!.getType() > 0) calculations!!.onDeletePost(
-                    imgOverflow,
+                    binding.imgOverflow,
                     postId,
                     userId,
                     model!!.getStatus() == 2,
                     model!!.getType()
                 ) else {
                     firebaseFirestore!!.collection("posts").document((postId)!!).delete()
-                    Snackbar.make((imgOverflow)!!, "Deleted", Snackbar.LENGTH_SHORT).show()
+                    Snackbar.make(binding.imgOverflow, "Deleted", Snackbar.LENGTH_SHORT).show()
                 }
                 dialog.cancel()
             }
-        })
+        }
         btnSubmit.setOnClickListener(object : View.OnClickListener {
             override fun onClick(v: View) {
                 if (model!!.type > 0) popUp()
@@ -386,15 +325,15 @@ class FullPostActivity() : AppCompatActivity(), View.OnClickListener, TextWatche
                 )
                 builder.setMessage(Html.fromHtml(message))
                     .setPositiveButton(
-                        "Yes",
-                        { dialogInterface: DialogInterface?, i: Int ->
-                            calculations!!.onPostWon(
-                                imgOverflow,
-                                postId,
-                                userId,
-                                model!!.getType()
-                            )
-                        })
+                        "Yes"
+                    ) { dialogInterface: DialogInterface?, i: Int ->
+                        calculations!!.onPostWon(
+                            binding.imgOverflow,
+                            postId,
+                            userId,
+                            model!!.getType()
+                        )
+                    }
                     .setNegativeButton("Cancel", { dialogInterface: DialogInterface?, i: Int -> })
                     .show()
             }
@@ -402,29 +341,29 @@ class FullPostActivity() : AppCompatActivity(), View.OnClickListener, TextWatche
         val btnFollowText =
             if (UserNetwork.following.contains(model!!.userId)) "UNFOLLOW" else "FOLLOW"
         btnFollow.text = btnFollowText
-        btnRepost.setOnClickListener({ v: View? ->
+        btnRepost.setOnClickListener { v: View? ->
             if ((userId == GUEST)) {
                 loginPrompt()
                 return@setOnClickListener
             }
-            intent = Intent(this@FullPostActivity, RepostActivity::class.java)
-            intent!!.putExtra("postId", postId)
-            intent!!.putExtra("model", model)
-            startActivity(intent)
+            funIntent = Intent(this@FullPostActivity, RepostActivity::class.java)
+            funIntent.putExtra("postId", postId)
+            funIntent.putExtra("model", model)
+            startActivity(funIntent)
             dialog.cancel()
-        })
-        btnFollow.setOnClickListener({ v: View? ->
+        }
+        btnFollow.setOnClickListener { v: View? ->
             if ((userId == GUEST)) {
                 loginPrompt()
                 return@setOnClickListener
             }
             if ((btnFollow.getText() == "FOLLOW")) {
-                calculations!!.followMember(imgOverflow, (userId)!!, model!!.getUserId(), false)
+                calculations!!.followMember(binding.imgOverflow, (userId)!!, model!!.getUserId())
             } else {
-                calculations!!.unfollowMember(imgOverflow, userId, model!!.getUserId(), false)
+                calculations!!.unfollowMember(binding.imgOverflow, userId, model!!.getUserId())
             }
             dialog.cancel()
-        })
+        }
     }
 
     private fun loginPrompt() {
@@ -433,11 +372,11 @@ class FullPostActivity() : AppCompatActivity(), View.OnClickListener, TextWatche
             R.style.CustomMaterialAlertDialog
         )
         builder.setMessage("You have to login first")
-            .setNegativeButton("Cancel", { dialogInterface: DialogInterface?, i: Int -> })
-            .setPositiveButton("Login", { dialogInterface: DialogInterface?, i: Int ->
+            .setNegativeButton("Cancel") { dialogInterface: DialogInterface?, i: Int -> }
+            .setPositiveButton("Login") { dialogInterface: DialogInterface?, i: Int ->
                 startActivity(Intent(this@FullPostActivity, LoginActivity::class.java))
                 finish()
-            })
+            }
             .show()
     }
 
@@ -446,15 +385,8 @@ class FullPostActivity() : AppCompatActivity(), View.OnClickListener, TextWatche
         commentReference = firebaseFirestore!!.collection("comments")
         val query = commentReference!!.whereEqualTo("commentOn", postId)
             .orderBy("time", Query.Direction.DESCENDING)
-        commentAdapter = CommentAdapter(
-            (postId)!!,
-            query,
-            userId,
-            this@FullPostActivity,
-            applicationContext,
-            false
-        )
-        commentsList!!.adapter = commentAdapter
+        commentAdapter = CommentAdapter(postId!!, query, userId, this@FullPostActivity, applicationContext)
+        binding.listComments.adapter = commentAdapter
         if (commentAdapter != null) {
             commentAdapter!!.startListening()
         }
@@ -481,22 +413,22 @@ class FullPostActivity() : AppCompatActivity(), View.OnClickListener, TextWatche
             R.id.txtUsername, R.id.imgDp -> if ((model!!.userId == userId)) {
                 startActivity(Intent(this, MyProfileActivity::class.java))
             } else {
-                intent = Intent(this, MemberProfileActivity::class.java)
-                intent!!.putExtra("userId", model!!.userId)
-                startActivity(intent)
+                funIntent = Intent(this, MemberProfileActivity::class.java)
+                funIntent!!.putExtra("userId", model!!.userId)
+                startActivity(funIntent)
             }
             R.id.childDp -> if ((model!!.childUserId == userId)) {
                 startActivity(Intent(this, MyProfileActivity::class.java))
             } else {
-                intent = Intent(this, MemberProfileActivity::class.java)
-                intent!!.putExtra("userId", model!!.childUserId)
-                startActivity(intent)
+                funIntent = Intent(this, MemberProfileActivity::class.java)
+                funIntent.putExtra("userId", model!!.childUserId)
+                startActivity(funIntent)
             }
             R.id.imgOverflow -> displayOverflow()
             R.id.txtChildPost, R.id.container_child_post -> {
-                intent = Intent(applicationContext, FullPostActivity::class.java)
-                intent!!.putExtra("postId", childLink)
-                startActivity(intent)
+                funIntent = Intent(applicationContext, FullPostActivity::class.java)
+                funIntent.putExtra("postId", childLink)
+                startActivity(funIntent)
             }
             R.id.imgLike -> {
                 if ((userId == GUEST)) {
@@ -543,56 +475,54 @@ class FullPostActivity() : AppCompatActivity(), View.OnClickListener, TextWatche
 
     private fun onLike() {
         if (model!!.dislikes.contains(userId)) {
-            imgLike!!.setColorFilter(resources.getColor(R.color.likeGold))
-            imgDislike!!.setColorFilter(resources.getColor(R.color.likeGrey))
-            mLikes!!.text = (model!!.likesCount + 1).toString()
-            mDislikes!!.text =
+            binding.imgLike.setColorFilter(resources.getColor(R.color.likeGold))
+            binding.imgDislike.setColorFilter(resources.getColor(R.color.likeGrey))
+            binding.txtLike.text = (model!!.likesCount + 1).toString()
+            binding.txtDislike.text =
                 if (model!!.dislikesCount - 1 > 0) (model!!.dislikesCount - 1).toString() else ""
         } else {
             if (model!!.likes.contains(userId)) {
-                imgLike!!.setColorFilter(resources.getColor(R.color.likeGrey))
-                mLikes!!.text =
+                binding.imgLike.setColorFilter(resources.getColor(R.color.likeGrey))
+                binding.txtLike.text =
                     if (model!!.likesCount - 1 > 0) (model!!.likesCount - 1).toString() else ""
             } else {
-                imgLike!!.setColorFilter(resources.getColor(R.color.likeGold))
-                mLikes!!.text = (model!!.likesCount + 1).toString()
+                binding.imgLike.setColorFilter(resources.getColor(R.color.likeGold))
+                binding.txtLike.text = (model!!.likesCount + 1).toString()
             }
         }
     }
 
     private fun onDislike() {
         if (model!!.likes.contains(userId)) {
-            imgLike!!.setColorFilter(resources.getColor(R.color.likeGrey))
-            imgDislike!!.setColorFilter(resources.getColor(R.color.likeGold))
-            mLikes!!.text =
+            binding.imgLike.setColorFilter(resources.getColor(R.color.likeGrey))
+            binding.imgDislike.setColorFilter(resources.getColor(R.color.likeGold))
+            binding.txtLike.text =
                 if (model!!.likesCount - 1 > 0) (model!!.likesCount - 1).toString() else ""
-            mDislikes!!.text = (model!!.dislikesCount + 1).toString()
+            binding.txtDislike.text = (model!!.dislikesCount + 1).toString()
         } else {
             if (model!!.dislikes.contains(userId)) {
-                imgDislike!!.setColorFilter(resources.getColor(R.color.likeGrey))
-                mDislikes!!.text =
+                binding.imgDislike.setColorFilter(resources.getColor(R.color.likeGrey))
+                binding.txtDislike.text =
                     if (model!!.dislikesCount - 1 > 0) (model!!.dislikesCount - 1).toString() else ""
             } else {
-                imgDislike!!.setColorFilter(resources.getColor(R.color.likeGold))
-                mDislikes!!.text = (model!!.dislikesCount + 1).toString()
+                binding.imgDislike.setColorFilter(resources.getColor(R.color.likeGold))
+                binding.txtDislike.text = (model!!.dislikesCount + 1).toString()
             }
         }
     }
 
     private fun postComment() {
-        val isVerified = prefs!!.getBoolean("isVerified", false)
+        val isVerified = prefs.getBoolean("isVerified", false)
         commentReference!!.add(Comment(username, userId, comment, postId, false, isVerified))
-            .addOnSuccessListener(object : OnSuccessListener<DocumentReference?> {
-                override fun onSuccess(documentReference: DocumentReference?) {
-                    val content = comment
-                    comment = ""
-                    if (userId != model!!.userId) {
-                        calculations!!.recommend(userId, model!!.userId)
-                        sendNotification(content)
-                        notifyMentionedUsers(content)
-                    }
+            .addOnSuccessListener {
+                val content = comment
+                comment = ""
+                if (userId != model!!.userId) {
+                    calculations!!.recommend(userId, model!!.userId)
+                    sendNotification(content)
+                    notifyMentionedUsers(content)
                 }
-            })
+            }
     }
 
     //send notification to mentioned users
@@ -609,19 +539,19 @@ class FullPostActivity() : AppCompatActivity(), View.OnClickListener, TextWatche
                     "mentioned you", "comment", substring
                 )
             }
-            edtComment!!.setText("")
+            binding.edtComment.setText("")
             commentAdapter!!.resetRepliesList()
         }
     }
 
     fun increaseCommentCount() {
-        comment = edtComment!!.text.toString()
+        comment = binding.edtComment.text.toString()
         if (TextUtils.isEmpty(comment)) {
-            edtComment!!.error = "Type your comment"
+            binding.edtComment.error = "Type your comment"
             return
         } else {
-            fabPost!!.isEnabled = false
-            edtComment!!.isEnabled = false
+            binding.fabPost.isEnabled = false
+            binding.edtComment.isEnabled = false
         }
         firebaseFirestore!!.runTransaction(object : Transaction.Function<Void?> {
             @Throws(FirebaseFirestoreException::class)
@@ -636,7 +566,7 @@ class FullPostActivity() : AppCompatActivity(), View.OnClickListener, TextWatche
                         "Seems the post has been deleted",
                         Toast.LENGTH_SHORT
                     ).show()
-                    fabPost!!.isEnabled = true
+                    binding.fabPost.isEnabled = true
                     return null
                 }
 
@@ -649,33 +579,30 @@ class FullPostActivity() : AppCompatActivity(), View.OnClickListener, TextWatche
                 return null
             }
         })
-            .addOnSuccessListener(object : OnSuccessListener<Void?> {
-                override fun onSuccess(aVoid: Void?) {
-                    Log.d(TAG, "Transaction success!")
-                    postComment()
-                    fabPost!!.isEnabled = true
-                    edtComment!!.isEnabled = true
-                    edtComment!!.setText("")
-                    Snackbar.make((edtComment)!!, "Comment added", Snackbar.LENGTH_SHORT).show()
-                }
-            })
-            .addOnFailureListener(object : OnFailureListener {
-                override fun onFailure(e: Exception) {
-                    fabPost!!.isEnabled = true
-                    Toast.makeText(this@FullPostActivity, "Connection failed", Toast.LENGTH_SHORT)
-                        .show()
-                }
-            })
+            .addOnSuccessListener {
+                Log.d(TAG, "Transaction success!")
+                postComment()
+                binding.fabPost.isEnabled = true
+                binding.edtComment.isEnabled = true
+                binding.edtComment.setText("")
+                Snackbar.make(binding.edtComment, "Comment added", Snackbar.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener {
+                binding.fabPost.isEnabled = true
+                Toast.makeText(this@FullPostActivity, "Connection failed", Toast.LENGTH_SHORT)
+                    .show()
+            }
     }
 
     override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
     override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
         if (s.toString().trim { it <= ' ' }.length > 1) {
-            comment = edtComment!!.text.toString()
+            comment = binding.edtComment.text.toString()
         }
     }
 
     override fun afterTextChanged(s: Editable) {}
+
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putString(POST_ID, postId)
         super.onSaveInstanceState(outState)

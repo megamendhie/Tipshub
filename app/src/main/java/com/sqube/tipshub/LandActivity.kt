@@ -5,12 +5,14 @@ import adapters.TipsAdapter
 import android.content.DialogInterface
 import android.content.Intent
 import android.database.sqlite.SQLiteDatabase
+import android.net.Uri
 import android.os.AsyncTask
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.browser.customtabs.CustomTabsIntent
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.firebase.ui.firestore.FirestoreRecyclerOptions
 import com.google.firebase.firestore.Query
@@ -19,10 +21,8 @@ import models.GameTip
 import models.Post
 import org.json.JSONException
 import org.json.JSONObject
-import utils.Calculations
-import utils.DatabaseHelper
+import utils.*
 import utils.FirebaseUtil.firebaseFirestore
-import utils.HttpConFunction
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -54,12 +54,12 @@ class LandActivity : AppCompatActivity() {
         val query = firebaseFirestore!!.collection("posts")
                 .orderBy("time", Query.Direction.DESCENDING).limit(4)
         val response = FirestoreRecyclerOptions.Builder<Post>().setQuery(query, Post::class.java).build()
-        val postAdapter = PostAdapter(response, Calculations.GUEST, this@LandActivity, false)
+        val postAdapter = PostAdapter(response, GUEST, this@LandActivity)
         binding.listLandingPost.adapter = postAdapter
         postAdapter.startListening()
-        val getClassicTips = GetTips(Calculations.CLASSIC)
+        val getClassicTips = GetTips(CLASSIC)
         getClassicTips.execute()
-        val getWonTips = GetTips(Calculations.WONGAMES)
+        val getWonTips = GetTips(WONGAMES)
         getWonTips.execute()
     }
 
@@ -74,9 +74,8 @@ class LandActivity : AppCompatActivity() {
             R.id.txtOpenFull, R.id.txtOpenPost, R.id.txtOpenFullR -> showPrompt(Intent(this@LandActivity, LoginActivity::class.java))
             R.id.txtContact -> startActivity(Intent(this@LandActivity, ContactActivity::class.java))
             R.id.txtPolicy -> {
-                val intent = Intent(this@LandActivity, NewsStoryActivity::class.java)
-                intent.putExtra("url", "https://tipshub.co/privacy-policy/")
-                startActivity(intent)
+                val intent = CustomTabsIntent.Builder().setToolbarColor(resources.getColor(R.color.colorPrimary)).build()
+                intent.launchUrl(this@LandActivity, Uri.parse("https://tipshub.co/privacy-policy/"))
             }
             R.id.btnHowTo, R.id.txtGuidelines -> startActivity(Intent(this@LandActivity, AboutActivity::class.java))
         }
@@ -99,8 +98,8 @@ class LandActivity : AppCompatActivity() {
             super.onPreExecute()
             var xml: String? = null
             when (market) {
-                Calculations.CLASSIC -> xml = dbHelper!!.getTip(db, Calculations.CLASSIC)
-                Calculations.WONGAMES -> xml = dbHelper!!.getTip(db, Calculations.WONGAMES)
+                CLASSIC -> xml = dbHelper!!.getTip(db, CLASSIC)
+                WONGAMES -> xml = dbHelper!!.getTip(db, WONGAMES)
             }
             if (xml != null && !xml.isEmpty()) onPostExecute(getTips(xml))
         }
@@ -110,18 +109,18 @@ class LandActivity : AppCompatActivity() {
             var s: String? = null
             val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
             when (market) {
-                Calculations.CLASSIC -> {
+                CLASSIC -> {
                     val today = Date()
                     val todaysDate = sdf.format(today.time)
-                    s = httpConnection.executeGet(Calculations.targetUrl + "iso_date=" + todaysDate, "HOME")
-                    if (s != null && s.length >= 10) dbHelper!!.updateTip(db, Calculations.CLASSIC, s)
+                    s = httpConnection.executeGet(targetUrl + "iso_date=" + todaysDate, "HOME")
+                    if (s != null && s.length >= 10) dbHelper!!.updateTip(db, CLASSIC, s)
                 }
-                Calculations.WONGAMES -> {
+                WONGAMES -> {
                     val c = Calendar.getInstance()
                     c.add(Calendar.DAY_OF_MONTH, -1)
                     val yesterdaysDate = sdf.format(c.time)
-                    s = httpConnection.executeGet(Calculations.targetUrl + "iso_date=" + yesterdaysDate, "HOME")
-                    if (s != null && s.length >= 10) dbHelper!!.updateTip(db, Calculations.WONGAMES, s)
+                    s = httpConnection.executeGet(targetUrl + "iso_date=" + yesterdaysDate, "HOME")
+                    if (s != null && s.length >= 10) dbHelper!!.updateTip(db, WONGAMES, s)
                 }
             }
             return getTips(s)
@@ -136,7 +135,7 @@ class LandActivity : AppCompatActivity() {
                 for (i in 0 until data.length()) {
                     val tipJSON = data.getJSONObject(i)
                     val gameTip = GameTip()
-                    if (market == Calculations.WONGAMES && tipJSON.optString("status") != "won") continue
+                    if (market == WONGAMES && tipJSON.optString("status") != "won") continue
                     gameTip._id = tipJSON.optString("id")
                     gameTip.awayTeam = tipJSON.optString("away_team")
                     gameTip.homeTeam = tipJSON.optString("home_team")
@@ -166,7 +165,7 @@ class LandActivity : AppCompatActivity() {
             Log.i("GETTIPS", "onPostExecute: $tips")
             if (tips.isEmpty()) return
             when (market) {
-                Calculations.CLASSIC -> {
+                CLASSIC -> {
                     classicTips.clear()
                     for (tip in tips) {
                         classicTips.add(tip)
@@ -176,7 +175,7 @@ class LandActivity : AppCompatActivity() {
                     binding.shimmerLandingTip.stopShimmer()
                     binding.shimmerLandingTip.visibility = View.GONE
                 }
-                Calculations.WONGAMES -> {
+                WONGAMES -> {
                     wonTips.clear()
                     Collections.sort(tips)
                     for (tip in tips) {

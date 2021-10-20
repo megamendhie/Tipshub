@@ -22,7 +22,6 @@ import fragments.HomeFragment
 import fragments.RecommendedFragment
 import fragments.BankerFragment
 import fragments.NotificationFragment
-import utils.Calculations
 import android.widget.CompoundButton
 import androidx.core.view.GravityCompat
 import androidx.work.WorkManager
@@ -56,6 +55,7 @@ import com.google.android.gms.tasks.Task
 import com.google.firebase.firestore.Query
 import com.sqube.tipshub.databinding.ActivityMainBinding
 import com.sqube.tipshub.databinding.NavHeaderBinding
+import utils.*
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -92,10 +92,8 @@ class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
         bindingHeader = NavHeaderBinding.bind(binding.navView.getHeaderView(0))
         setContentView(binding.root)
 
-        //initialize actionBar
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_menu_black_24dp)
-
         binding.bottomNavigation.setOnNavigationItemSelectedListener(this)
 
         //initialize Preference
@@ -125,14 +123,32 @@ class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
         }
         serviceIntent = Intent(this@MainActivity, UserDataFetcher::class.java)
         startService(serviceIntent)
-        firebaseAuthentication!!.addAuthStateListener { firebaseAuth: FirebaseAuth? ->
-            if (firebaseAuthentication!!.currentUser == null) {
+        firebaseAuthentication!!.addAuthStateListener {
+            if (it.currentUser == null) {
+                editor.putBoolean(IS_VERIFIED, false)
+                editor.putString(PROFILE, "")
+                editor.apply()
                 val intent = Intent(this@MainActivity, LoginActivity::class.java)
                 intent.putExtra("openMainActivity", true)
                 finish()
                 startActivity(intent)
             }
+            else
+                firebaseFirestore!!.collection(PROFILES).document(it.currentUser!!.uid).get()
+                        .addOnCompleteListener(this@MainActivity) {
+                            if(it.isSuccessful && it.result != null && it.result.exists()){
+                                val snapshot = it.result
+
+                                //set user profile to SharePreference
+                                Log.i(tag, "onEvent: happended now")
+                                val json = gson.toJson(snapshot.toObject(ProfileMedium::class.java))
+                                editor.putBoolean(IS_VERIFIED, snapshot.toObject(ProfileMedium::class.java)!!.isC0_verified)
+                                editor.putString(PROFILE, json)
+                                editor.apply()
+                            }
+            }
         }
+
         mFirebaseRemoteConfig = FirebaseRemoteConfig.getInstance()
         user = firebaseAuthentication!!.currentUser
         userId = user!!.uid
@@ -142,10 +158,10 @@ class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
         setBadge()
         if (savedInstanceState == null) {
             fragmentManager.beginTransaction().apply {
-                add(R.id.main_container, fragmentNot, Calculations.FRAG_NOTIFICATION).hide(fragmentNot)
-                add(R.id.main_container, fragmentBanker, Calculations.FRAG_BANKER).hide(fragmentBanker)
-                add(R.id.main_container, fragmentRec, Calculations.FRAG_REC).hide(fragmentRec)
-                add(R.id.main_container, fragmentHome, Calculations.FRAG_HOME)
+                add(R.id.main_container, fragmentNot, FRAG_NOTIFICATION).hide(fragmentNot)
+                add(R.id.main_container, fragmentBanker, FRAG_BANKER).hide(fragmentBanker)
+                add(R.id.main_container, fragmentRec, FRAG_REC).hide(fragmentRec)
+                add(R.id.main_container, fragmentHome, FRAG_HOME)
             }.commit()
         }
         else {
@@ -161,8 +177,8 @@ class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
 
     private fun setWorkManager() {
         val workManager = WorkManager.getInstance(this@MainActivity)
-        if (prefs.getBoolean(Calculations.WORKER_ACTIVATED, false)) {
-            val id = UUID.fromString(prefs.getString(Calculations.NOTIFICATION_WORKER_ID, ""))
+        if (prefs.getBoolean(WORKER_ACTIVATED, false)) {
+            val id = UUID.fromString(prefs.getString(NOTIFICATION_WORKER_ID, ""))
             workManager.getWorkInfoByIdLiveData(id).observe(this, { workInfo: WorkInfo? ->
                 if (workInfo == null) {
                     Log.i("WorkManager", "setWorkManager: Worker is null")
@@ -178,8 +194,8 @@ class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
                     .setInitialDelay(6, TimeUnit.HOURS).build()
             workManager.enqueue(workRequestDaily)
             val uuid = workRequest.id.toString()
-            editor.putBoolean(Calculations.WORKER_ACTIVATED, true)
-            editor.putString(Calculations.NOTIFICATION_WORKER_ID, uuid)
+            editor.putBoolean(WORKER_ACTIVATED, true)
+            editor.putString(NOTIFICATION_WORKER_ID, uuid)
             editor.apply()
         }
     }
@@ -352,7 +368,7 @@ class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
     private fun logout() {
         val FCM = FirebaseMessaging.getInstance()
         FCM.unsubscribeFromTopic(userId!!)
-        val sub_to = UserNetwork.getSubscribed()
+        val sub_to = UserNetwork.subscribed
         if (sub_to != null && !sub_to.isEmpty()) {
             for (s in sub_to) {
                 FCM.unsubscribeFromTopic("sub_$s")
@@ -366,9 +382,9 @@ class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
     }
 
     private fun clearCache() {
-        UserNetwork.setFollowers(null)
-        UserNetwork.setFollowing(null)
-        UserNetwork.setSubscribed(null)
+        UserNetwork.followersList = null
+        UserNetwork.followingList = null
+        UserNetwork.subscribedList = null
     }
 
     private fun checkForUpdate() {
@@ -420,7 +436,7 @@ class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        outState.putString(Calculations.LAST_FRAGMENT, fragmentActive.tag)
+        outState.putString(LAST_FRAGMENT, fragmentActive.tag)
         super.onSaveInstanceState(outState)
     }
 

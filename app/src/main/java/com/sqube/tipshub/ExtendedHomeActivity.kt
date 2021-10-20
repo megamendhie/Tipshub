@@ -6,9 +6,7 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.preference.PreferenceManager
 import android.text.Html
-import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AlertDialog
@@ -17,7 +15,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.firebase.ui.firestore.FirestoreRecyclerOptions
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
-import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.gson.Gson
@@ -28,6 +25,7 @@ import models.SnapId
 import models.UserNetwork
 import utils.FirebaseUtil.firebaseAuthentication
 import utils.FirebaseUtil.firebaseFirestore
+import utils.GUEST
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -38,7 +36,7 @@ class ExtendedHomeActivity : AppCompatActivity() {
     private val gson = Gson()
     private lateinit var prefs: SharedPreferences
     private var fromEverybody = true
-    private var userId: String? = null
+    private lateinit var userId: String
     private var username: String? = null
     private var json: String? = null
     private var myProfile: ProfileMedium? = null
@@ -59,7 +57,9 @@ class ExtendedHomeActivity : AppCompatActivity() {
             userId = user.uid
             username = user.displayName
         }
-        fAdapter = FilteredPostAdapter(true, userId!!, this, postList, snapIds)
+        else
+            userId = GUEST
+        fAdapter = FilteredPostAdapter(true, userId, this, postList, snapIds)
         json = prefs.getString("profile", "")
         myProfile = if (json == "") null else gson.fromJson(json, ProfileMedium::class.java)
 
@@ -97,7 +97,7 @@ class ExtendedHomeActivity : AppCompatActivity() {
         val response = FirestoreRecyclerOptions.Builder<Post>()
                 .setQuery(query, Post::class.java)
                 .build()
-        postAdapter = PostAdapter(response, userId, this@ExtendedHomeActivity, false)
+        postAdapter = PostAdapter(response, userId, this@ExtendedHomeActivity)
         binding.postList.adapter = postAdapter
         if (postAdapter != null) {
             postAdapter!!.startListening()
@@ -106,18 +106,15 @@ class ExtendedHomeActivity : AppCompatActivity() {
 
     private fun loadMerged() {
         if (postAdapter != null) postAdapter!!.stopListening()
-        if (UserNetwork.getFollowing() == null) {
-            firebaseFirestore!!.collection("followings").document(userId!!).get()
-                    .addOnCompleteListener { task: Task<DocumentSnapshot> -> if (task.isSuccessful && task.result.contains("list")) loadList(task.result["list"] as ArrayList<String?>?) else loadList(null) }
-        } else loadList(UserNetwork.getFollowing())
+        loadList(UserNetwork.following)
     }
 
-    private fun loadList(ids: ArrayList<String?>?) {
+    private fun loadList(ids: ArrayList<String>?) {
         val userIds = ArrayList<String?>()
         userIds.add(userId)
 
         //check if following list has data
-        if (ids != null && !ids.isEmpty()) {
+        if (ids != null && ids.isNotEmpty()) {
             userIds.addAll(ids)
         }
         val count = userIds.size
@@ -167,7 +164,7 @@ class ExtendedHomeActivity : AppCompatActivity() {
 
     //method checks if user has reached max post for the day
     private fun hasReachedMax(): Boolean {
-        json = prefs!!.getString("profile", "")
+        json = prefs.getString("profile", "")
         myProfile = if (json == "") null else gson.fromJson(json, ProfileMedium::class.java)
         if (myProfile == null) return true
         val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())

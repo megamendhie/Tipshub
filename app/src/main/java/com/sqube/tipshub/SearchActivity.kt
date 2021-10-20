@@ -19,6 +19,8 @@ import com.sqube.tipshub.databinding.ActivitySearchBinding
 import org.json.JSONException
 import utils.Calculations
 import utils.FirebaseUtil.firebaseAuthentication
+import utils.apiKey
+import utils.applicationID
 import java.util.*
 
 class SearchActivity : AppCompatActivity() {
@@ -26,7 +28,7 @@ class SearchActivity : AppCompatActivity() {
     private val binding get() = _binding!!
     private var onQueryTextListener: SearchView.OnQueryTextListener? = null
     private val listOfUsers = ArrayList<String>()
-    private var userId: String? = null
+    private lateinit var userId: String
     private var index: Index? = null
     private var adapter: PeopleAdapter? = null
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,7 +43,7 @@ class SearchActivity : AppCompatActivity() {
         adapter = PeopleAdapter(userId, listOfUsers)
         binding.searchList.layoutManager = LinearLayoutManager(this)
         binding.searchList.adapter = adapter
-        val client = Client(Calculations.applicationID, Calculations.apiKey)
+        val client = Client(applicationID, apiKey)
         index = client.getIndex("dev_USERS")
         setOnQuery()
     }
