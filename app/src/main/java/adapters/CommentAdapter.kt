@@ -35,6 +35,7 @@ import models.UserNetwork
 import services.GlideApp
 import utils.Calculations
 import utils.FirebaseUtil.firebaseFirestore
+import utils.GUEST
 import utils.Reusable
 import utils.Reusable.Companion.applyLinkfy
 import utils.Reusable.Companion.getNetworkAvailability
@@ -44,16 +45,16 @@ import utils.Reusable.Companion.signature
 import java.util.*
 import kotlin.math.min
 
-class CommentAdapter(private val mainPostId: String, query: Query?, userID: String?, val activity: Activity, val context: Context, private val anchorSnackbar: Boolean) : FirestoreRecyclerAdapter<Comment, CommentHolder>(FirestoreRecyclerOptions.Builder<Comment>()
+class CommentAdapter(private val mainPostId: String, query: Query?, userID: String, val activity: Activity, val context: Context) : FirestoreRecyclerAdapter<Comment, CommentHolder>(FirestoreRecyclerOptions.Builder<Comment>()
         .setQuery((query)!!, Comment::class.java)
         .build()) {
     private val tag = "CommentAdapter"
-    private var userId: String? = userID
+    private var userId: String = userID
     private val calculations = Calculations(context)
     private val storageReference = FirebaseStorage.getInstance().reference.child("profile_images")
     val repliedList = ArrayList<SnapId>()
 
-    fun setUserId(userId: String?) {
+    fun setUserId(userId: String) {
         this.userId = userId
     }
 
@@ -110,7 +111,7 @@ class CommentAdapter(private val mainPostId: String, query: Query?, userID: Stri
             }
         }
         binding.imgLike.setOnClickListener {
-            if ((userId == Calculations.GUEST)) { loginPrompt(binding.imgLike)
+            if ((userId == GUEST)) { loginPrompt(binding.imgLike)
                 return@setOnClickListener
             }
             if (model.dislikes.contains(userId)) {
@@ -132,7 +133,7 @@ class CommentAdapter(private val mainPostId: String, query: Query?, userID: Stri
             calculations.onCommentLike(userId, model.userId, postId, mainPostId, substring)
         }
         binding.imgReply.setOnClickListener {
-            if ((userId == Calculations.GUEST)) { loginPrompt(binding.imgReply)
+            if ((userId == GUEST)) { loginPrompt(binding.imgReply)
                 return@setOnClickListener
             }
             val edtComment: EditText = activity.findViewById(R.id.edtComment)
@@ -142,7 +143,7 @@ class CommentAdapter(private val mainPostId: String, query: Query?, userID: Stri
             repliedList.add(SnapId(model.userId, model.username))
         }
         binding.imgDislike.setOnClickListener {
-            if ((userId == Calculations.GUEST)) { loginPrompt(it)
+            if ((userId == GUEST)) { loginPrompt(it)
                 return@setOnClickListener
             }
             if (model.likes.contains(userId)) {
@@ -191,10 +192,10 @@ class CommentAdapter(private val mainPostId: String, query: Query?, userID: Stri
         val btnShare: Button = dialog.findViewById(R.id.btnShare)
         btnSubmit.visibility = View.GONE
         if (commentUserId != userId) btnDelete.visibility = View.GONE
-        if (UserNetwork.getFollowing() == null)
+        if (UserNetwork.following == null)
             btnFollow.visibility = View.GONE
         else
-            btnFollow.text = if (UserNetwork.getFollowing().contains(commentUserId)) "UNFOLLOW" else "FOLLOW"
+            btnFollow.text = if (UserNetwork.following.contains(commentUserId)) "UNFOLLOW" else "FOLLOW"
         btnShare.setOnClickListener { reusable.shareComment(btnShare.context, model.username, model.content)
             dialog.cancel()
         }
@@ -204,12 +205,12 @@ class CommentAdapter(private val mainPostId: String, query: Query?, userID: Stri
                 dialog.cancel()
                 return@setOnClickListener
             }
-            if ((userId == Calculations.GUEST)) {
+            if ((userId == GUEST)) {
                 loginPrompt(btnFollow)
                 return@setOnClickListener
             }
             if ((btnFollow.text == "FOLLOW")) {
-                calculations.followMember(imgOverflow, userId, commentUserId, anchorSnackbar)
+                calculations.followMember(imgOverflow, userId, commentUserId)
             } else unfollowPrompt(imgOverflow, commentUserId, model.username)
             dialog.cancel()
         }
@@ -223,7 +224,7 @@ class CommentAdapter(private val mainPostId: String, query: Query?, userID: Stri
         builder.setMessage(String.format("Do you want to unfollow %s?", username))
                 .setTitle("Unfollow")
                 .setNegativeButton("No") { _: DialogInterface?, _: Int -> }
-                .setPositiveButton("Yes") { _: DialogInterface?, _: Int -> calculations.unfollowMember(imgOverflow, userId, userID, anchorSnackbar) }
+                .setPositiveButton("Yes") { _: DialogInterface?, _: Int -> calculations.unfollowMember(imgOverflow, userId, userID) }
                 .show()
     }
 

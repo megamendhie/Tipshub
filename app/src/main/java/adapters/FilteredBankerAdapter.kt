@@ -66,7 +66,7 @@ class FilteredBankerAdapter(userID: String, val context: Context, private val po
         if (!makePublic) {
             btnRepost.visibility = View.GONE
         }
-        if (UserNetwork.getFollowing() == null) btnFollow.visibility = View.GONE else btnFollow.text = if (UserNetwork.getFollowing().contains(userID)) "UNFOLLOW" else "FOLLOW"
+        if (UserNetwork.following == null) btnFollow.visibility = View.GONE else btnFollow.text = if (UserNetwork.following.contains(userID)) "UNFOLLOW" else "FOLLOW"
         btnDelete.setOnClickListener { v: View? ->
             if (btnDelete.text.toString().toLowerCase() == "flag") {
                 val intent = Intent(context, FlagActivity::class.java)
@@ -76,7 +76,8 @@ class FilteredBankerAdapter(userID: String, val context: Context, private val po
                 context.startActivity(intent)
                 dialog.cancel()
             } else {
-                if (model.type > 0) calculations.onDeletePost(imgOverflow, postId, userId, status == 2, type, true) else {
+                if (model.type > 0) calculations.onDeletePost(imgOverflow, postId, userId, status == 2, type)
+                else {
                     firebaseFirestore!!.collection("posts").document(postId).delete()
                     Snackbar.make(imgOverflow, "Deleted", Snackbar.LENGTH_SHORT).show()
                 }
@@ -98,7 +99,7 @@ class FilteredBankerAdapter(userID: String, val context: Context, private val po
                 return@setOnClickListener
             }
             if (btnFollow.text == "FOLLOW") {
-                calculations.followMember(imgOverflow, userId, userID, true)
+                calculations.followMember(imgOverflow, userId, userID)
             } else unfollowPrompt(imgOverflow, userID, model.username)
             dialog.cancel()
         }
@@ -108,8 +109,8 @@ class FilteredBankerAdapter(userID: String, val context: Context, private val po
         val builder = androidx.appcompat.app.AlertDialog.Builder(context, R.style.CustomMaterialAlertDialog)
         builder.setMessage(String.format("Do you want to unfollow %s?", username))
                 .setTitle("Unfollow")
-                .setNegativeButton("No") { dialogInterface: DialogInterface?, i: Int -> }
-                .setPositiveButton("Yes") { dialogInterface: DialogInterface?, i: Int -> calculations.unfollowMember(imgOverflow, userId, userID, true) }
+                .setNegativeButton("No") { _: DialogInterface?, _: Int -> }
+                .setPositiveButton("Yes") { _: DialogInterface?, _: Int -> calculations.unfollowMember(imgOverflow, userId, userID) }
                 .show()
     }
 

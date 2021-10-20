@@ -18,6 +18,7 @@ import com.google.firebase.firestore.Query
 import com.google.firebase.storage.FirebaseStorage
 import com.sqube.tipshub.databinding.ItemSubscriptionBinding
 import models.Subscription
+import utils.TIPSHUB
 
 class SubscriptionAdapter(query: Query?) : FirestoreRecyclerAdapter<Subscription, SubscriptionAdapter.SubscriptionViewHolder>(FirestoreRecyclerOptions.Builder<Subscription>()
         .setQuery(query!!, Subscription::class.java)
@@ -32,19 +33,19 @@ class SubscriptionAdapter(query: Query?) : FirestoreRecyclerAdapter<Subscription
             txtAmount.text = Html.fromHtml(model.amount)
             txtStatus.text = if (model.isActive) "active" else "ended"
 
-            if (model.subToId == Calculations.TIPSHUB)
+            if (model.subToId == TIPSHUB)
                 GlideApp.with(root.context).load(R.drawable.icn_mid).into(imgDp)
             else
                 GlideApp.with(root.context).load(storageReference.child(model.subToId)).placeholder(R.drawable.dummy)
                     .error(getPlaceholderImage(model.subToId[0])).into(imgDp)
             txtUsername.setOnClickListener { v: View? ->
-                if (model.subToId == Calculations.TIPSHUB) return@setOnClickListener
+                if (model.subToId == TIPSHUB) return@setOnClickListener
                 val intent = Intent(root.context, MemberProfileActivity::class.java)
                 intent.putExtra("userId", model.subToId)
                 root.context.startActivity(intent)
             }
             imgDp.setOnClickListener(View.OnClickListener {
-                if (model.subToId == Calculations.TIPSHUB) return@OnClickListener
+                if (model.subToId == TIPSHUB) return@OnClickListener
                 val intent = Intent(root.context, MemberProfileActivity::class.java)
                 intent.putExtra("userId", model.subToId)
                 root.context.startActivity(intent)

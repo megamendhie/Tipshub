@@ -22,17 +22,13 @@ import models.ProfileShort
 import models.UserNetwork
 import utils.Calculations
 import utils.FirebaseUtil.firebaseFirestore
+import utils.GUEST
 import utils.Reusable.Companion.getNetworkAvailability
 import utils.Reusable.Companion.getPlaceholderImage
+import java.lang.IndexOutOfBoundsException
 import java.util.*
 
-class PeopleAdapter(userId: String?, list: ArrayList<String>) : RecyclerView.Adapter<PeopleAdapter.PeopleHolder>() {
-    private var userId: String? = null
-    private val list: ArrayList<String>
-    init {
-        setUserId(userId)
-        this.list = list
-    }
+class PeopleAdapter(private var userId: String, val list: ArrayList<String>) : RecyclerView.Adapter<PeopleAdapter.PeopleHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PeopleHolder {
         val binding = ItemUserLandBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -49,8 +45,13 @@ class PeopleAdapter(userId: String?, list: ArrayList<String>) : RecyclerView.Ada
         firebaseFirestore!!.collection("profiles").document(ref).get()
                 .addOnCompleteListener { task: Task<DocumentSnapshot> ->
                     if (!task.isSuccessful || task.isCanceled || !task.result.exists()) {
-                        list.removeAt(i)
-                        notifyDataSetChanged()
+                        try {
+                            list.removeAt(i)
+                            notifyDataSetChanged()
+                        }
+                        catch (e: IndexOutOfBoundsException){
+                            Log.i("pplRec", "onBindViewHolder exception: size= ${list.size} and index is $i")
+                        }
                         return@addOnCompleteListener
                     }
                     val model = task.result.toObject(ProfileShort::class.java)!!
@@ -59,7 +60,7 @@ class PeopleAdapter(userId: String?, list: ArrayList<String>) : RecyclerView.Ada
                         val tips = if (e0a_NOG > 1) "tips" else "tip"
                         binding.txtPost.text = String.format(Locale.getDefault(), "%d  %s  • ", e0a_NOG, tips)
                         binding.txtAccuracy.text = String.format(Locale.getDefault(), "%.1f%%", e0c_WGP.toDouble())
-                        binding.btnFollow.text = if (UserNetwork.getFollowing() == null || !UserNetwork.getFollowing().contains(ref)) "FOLLOW" else "FOLLOWING"
+                        binding.btnFollow.text = if (UserNetwork.following == null || !UserNetwork.following.contains(ref)) "FOLLOW" else "FOLLOWING"
                     }
                     if (ref == userId) binding.btnFollow.visibility = View.GONE
                     try {
@@ -84,13 +85,13 @@ class PeopleAdapter(userId: String?, list: ArrayList<String>) : RecyclerView.Ada
                             Snackbar.make(binding.btnFollow, "No Internet connection", Snackbar.LENGTH_SHORT).show()
                             return@setOnClickListener
                         }
-                        if (userId == Calculations.GUEST) {
+                        if (userId == GUEST) {
                             loginPrompt(binding.btnFollow)
                             return@setOnClickListener
                         }
                         if (binding.btnFollow.text.toString().toUpperCase() == "FOLLOW") {
                             val calculations = Calculations(binding.root.context)
-                            calculations.followMember(binding.imgDp, userId, ref, false)
+                            calculations.followMember(binding.imgDp, userId, ref)
                             binding.btnFollow.text = "FOLLOWING"
                         } else unfollowPrompt(binding.btnFollow, ref, model.a2_username)
                     }
@@ -112,7 +113,7 @@ class PeopleAdapter(userId: String?, list: ArrayList<String>) : RecyclerView.Ada
                 .setNegativeButton("No") { dialogInterface: DialogInterface?, i: Int -> }
                 .setPositiveButton("Yes") { dialogInterface: DialogInterface?, i: Int ->
                     val calculations = Calculations(btnFollow.context)
-                    calculations.unfollowMember(btnFollow, userId, userID, false)
+                    calculations.unfollowMember(btnFollow, userId, userID)
                     btnFollow.text = "FOLLOW"
                 }
                 .show()
@@ -122,7 +123,7 @@ class PeopleAdapter(userId: String?, list: ArrayList<String>) : RecyclerView.Ada
         return list.size
     }
 
-    fun setUserId(userId: String?) {
+    fun setUserId(userId: String) {
         this.userId = userId
     }
 

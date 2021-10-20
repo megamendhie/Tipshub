@@ -29,6 +29,7 @@ import models.UserNetwork
 import services.GlideApp
 import utils.Calculations
 import utils.FirebaseUtil.firebaseFirestore
+import utils.GUEST
 import utils.Reusable.Companion.applyLinkfy
 import utils.Reusable.Companion.getNetworkAvailability
 import utils.Reusable.Companion.getPlaceholderImage
@@ -39,10 +40,10 @@ import views.DislikeButton
 import views.LikeButton
 import java.util.*
 
-class PostAdapter(response: FirestoreRecyclerOptions<Post?>?, userID: String?, context: Context, private val anchorSnackbar: Boolean) : FirestoreRecyclerAdapter<Post, PostHolder>(response!!) {
+class PostAdapter(response: FirestoreRecyclerOptions<Post?>?, userID: String, context: Context) : FirestoreRecyclerAdapter<Post, PostHolder>(response!!) {
     private val TAG = "PostAdapter"
     private val context: Context
-    private var userId: String? = null
+    private var userId: String = userID
     private val storageReference: StorageReference
     private val calculations: Calculations
     private val code = arrayOf("1xBet", "Bet9ja", "Nairabet", "SportyBet", "BlackBet", "Bet365")
@@ -121,7 +122,7 @@ class PostAdapter(response: FirestoreRecyclerOptions<Post?>?, userID: String?, c
             context.startActivity(intent)
         }
         binding.imgLike.setOnClickListener { view ->
-            if (userId == Calculations.GUEST) {
+            if (userId == GUEST) {
                 loginPrompt(binding.imgLike)
                 return@setOnClickListener
             }
@@ -143,7 +144,7 @@ class PostAdapter(response: FirestoreRecyclerOptions<Post?>?, userID: String?, c
             calculations.onLike(postId, userId, model.userId, substring)
         }
         binding.imgDislike.setOnClickListener { v ->
-            if (userId == Calculations.GUEST) {
+            if (userId == GUEST) {
                 loginPrompt(binding.imgDislike)
                 return@setOnClickListener
             }
@@ -254,7 +255,7 @@ class PostAdapter(response: FirestoreRecyclerOptions<Post?>?, userID: String?, c
                 dialog.cancel()
             } else {
                 Log.i(TAG, "onClick: " + model.type)
-                if (model.type > 0) calculations.onDeletePost(imgOverflow, postId, userId, status == 2, type, anchorSnackbar) else {
+                if (model.type > 0) calculations.onDeletePost(imgOverflow, postId, userId, status == 2, type) else {
                     firebaseFirestore!!.collection("posts").document(postId).delete()
                     Snackbar.make(imgOverflow, "Deleted", Snackbar.LENGTH_SHORT).show()
                 }
@@ -275,15 +276,15 @@ class PostAdapter(response: FirestoreRecyclerOptions<Post?>?, userID: String?, c
                     """.trimIndent()
                 val builder = AlertDialog.Builder(context, R.style.CustomMaterialAlertDialog)
                 builder.setMessage(Html.fromHtml(message))
-                        .setPositiveButton("Yes") { _: DialogInterface?, i: Int -> calculations.onPostWon(imgOverflow, postId, userId, type, anchorSnackbar) }
+                        .setPositiveButton("Yes") { _: DialogInterface?, i: Int -> calculations.onPostWon(imgOverflow, postId, userId, type) }
                         .setNegativeButton("Cancel") { _: DialogInterface?, i: Int -> }
                         .show()
             }
         })
 
-        if (UserNetwork.getFollowing() == null) btnFollow.visibility = View.GONE else btnFollow.text = if (UserNetwork.getFollowing().contains(userID)) "UNFOLLOW" else "FOLLOW"
+        if (UserNetwork.following == null) btnFollow.visibility = View.GONE else btnFollow.text = if (UserNetwork.following.contains(userID)) "UNFOLLOW" else "FOLLOW"
         btnRepost.setOnClickListener { v: View? ->
-            if (userId == Calculations.GUEST) {
+            if (userId == GUEST) {
                 dialog.cancel()
                 loginPrompt(btnRepost)
                 return@setOnClickListener
@@ -296,13 +297,12 @@ class PostAdapter(response: FirestoreRecyclerOptions<Post?>?, userID: String?, c
         }
         btnFollow.setOnClickListener { v: View? ->
             if (!getNetworkAvailability(context)) {
-                if (anchorSnackbar) Snackbar.make(btnFollow, "No Internet connection", Snackbar.LENGTH_SHORT)
-                        .setAnchorView(R.id.bottom_navigation).show() else Snackbar.make(btnFollow, "No Internet connection", Snackbar.LENGTH_SHORT).show()
+                Snackbar.make(btnFollow, "No Internet connection", Snackbar.LENGTH_SHORT).show()
                 dialog.cancel()
                 return@setOnClickListener
             }
             if (btnFollow.text == "FOLLOW") {
-                calculations.followMember(imgOverflow, userId, userID, anchorSnackbar)
+                calculations.followMember(imgOverflow, userId, userID)
             } else unfollowPrompt(imgOverflow, userID, model.username)
             dialog.cancel()
         }
@@ -313,7 +313,7 @@ class PostAdapter(response: FirestoreRecyclerOptions<Post?>?, userID: String?, c
         builder.setMessage(String.format("Do you want to unfollow %s?", username))
                 .setTitle("Unfollow")
                 .setNegativeButton("No") { _: DialogInterface?, i: Int -> }
-                .setPositiveButton("Yes") { _: DialogInterface?, i: Int -> calculations.unfollowMember(imgOverflow, userId, userID, anchorSnackbar) }
+                .setPositiveButton("Yes") { _: DialogInterface?, i: Int -> calculations.unfollowMember(imgOverflow, userId, userID) }
                 .show()
     }
 
@@ -322,7 +322,7 @@ class PostAdapter(response: FirestoreRecyclerOptions<Post?>?, userID: String?, c
         return PostHolder(binding)
     }
 
-    fun setUserId(userId: String?) {
+    fun setUserId(userId: String){
         this.userId = userId
     }
 

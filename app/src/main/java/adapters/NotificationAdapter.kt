@@ -25,6 +25,7 @@ import utils.Calculations
 import utils.Reusable.Companion.getPlaceholderImage
 import utils.Reusable.Companion.getTime
 import utils.Reusable.Companion.signature
+import utils.TIPSHUB
 
 class NotificationAdapter(query: Query?, userID: String) : FirestoreRecyclerAdapter<Notification, NotificationAdapter.PostHolder>(FirestoreRecyclerOptions.Builder<Notification>()
         .setQuery(query!!, Notification::class.java)
@@ -67,7 +68,7 @@ class NotificationAdapter(query: Query?, userID: String) : FirestoreRecyclerAdap
                 else -> binding.imgType.visibility = View.INVISIBLE
             }
 
-            if (model.sentFrom == Calculations.TIPSHUB) GlideApp.with(binding.root.context).load(R.drawable.icn_mid).into(binding.imgDp)
+            if (model.sentFrom == TIPSHUB) GlideApp.with(binding.root.context).load(R.drawable.icn_mid).into(binding.imgDp)
             else GlideApp.with(binding.root.context).load(storageReference.child(model.sentFrom))
                     .placeholder(R.drawable.dummy)
                     .error(getPlaceholderImage(model.sentFrom[0]))
@@ -75,7 +76,7 @@ class NotificationAdapter(query: Query?, userID: String) : FirestoreRecyclerAdap
                     .into(binding.imgDp)
 
             binding.container.setOnClickListener {
-                if (model.intentUrl == Calculations.TIPSHUB) return@setOnClickListener
+                if (model.intentUrl == TIPSHUB) return@setOnClickListener
                 when (model.type) {
                     "comment", "post" -> {
                         val intent = Intent(binding.root.context, FullPostActivity::class.java)
@@ -92,7 +93,7 @@ class NotificationAdapter(query: Query?, userID: String) : FirestoreRecyclerAdap
                 }
             }
             binding.imgDp.setOnClickListener {
-                if (model.sentFrom == Calculations.TIPSHUB) return@setOnClickListener
+                if (model.sentFrom == TIPSHUB) return@setOnClickListener
                 if (model.sentFrom == userId) {
                     binding.root.context.startActivity(Intent(binding.root.context, MyProfileActivity::class.java))
                 } else {

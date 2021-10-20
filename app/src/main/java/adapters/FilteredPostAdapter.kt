@@ -137,7 +137,8 @@ class FilteredPostAdapter(private val search: Boolean, val userId: String, val c
                 context.startActivity(intent)
                 dialog.cancel()
             } else {
-                if (model.type > 0) calculations.onDeletePost(imgOverflow, postId, userId, status == 2, type, true) else {
+                if (model.type > 0) calculations.onDeletePost(imgOverflow, postId, userId, status == 2, type)
+                else {
                     firebaseFirestore!!.collection("posts").document(postId).delete()
                     Snackbar.make(imgOverflow, "Deleted", Snackbar.LENGTH_SHORT).show()
                 }
@@ -158,12 +159,12 @@ class FilteredPostAdapter(private val search: Boolean, val userId: String, val c
                     """.trimIndent()
                 val builder = androidx.appcompat.app.AlertDialog.Builder(context, R.style.CustomMaterialAlertDialog)
                 builder.setMessage(Html.fromHtml(message))
-                        .setPositiveButton("Yes") { dialogInterface: DialogInterface?, i: Int -> calculations.onPostWon(imgOverflow, postId, userId, type, true) }
-                        .setNegativeButton("Cancel") { dialogInterface: DialogInterface?, i: Int -> }
+                        .setPositiveButton("Yes") { _: DialogInterface?, i: Int -> calculations.onPostWon(imgOverflow, postId, userId, type) }
+                        .setNegativeButton("Cancel") { _: DialogInterface?, i: Int -> }
                         .show()
             }
         })
-        if (UserNetwork.getFollowing() == null) btnFollow.visibility = View.GONE else btnFollow.text = if (UserNetwork.getFollowing().contains(userID)) "UNFOLLOW" else "FOLLOW"
+        if (UserNetwork.following == null) btnFollow.visibility = View.GONE else btnFollow.text = if (UserNetwork.following.contains(userID)) "UNFOLLOW" else "FOLLOW"
         btnRepost.setOnClickListener { v: View? ->
             val intent = Intent(context, RepostActivity::class.java)
             intent.putExtra("postId", postId)
@@ -179,7 +180,7 @@ class FilteredPostAdapter(private val search: Boolean, val userId: String, val c
                 return@setOnClickListener
             }
             if (btnFollow.text == "FOLLOW") {
-                calculations.followMember(imgOverflow, userId, userID, true)
+                calculations.followMember(imgOverflow, userId, userID)
             } else unfollowPrompt(imgOverflow, userID, model.username)
             dialog.cancel()
         }
@@ -190,7 +191,7 @@ class FilteredPostAdapter(private val search: Boolean, val userId: String, val c
         builder.setMessage(String.format("Do you want to unfollow %s?", username))
                 .setTitle("Unfollow")
                 .setNegativeButton("No") { dialogInterface: DialogInterface?, i: Int -> }
-                .setPositiveButton("Yes") { dialogInterface: DialogInterface?, i: Int -> calculations.unfollowMember(imgOverflow, userId, userID, true) }
+                .setPositiveButton("Yes") { dialogInterface: DialogInterface?, i: Int -> calculations.unfollowMember(imgOverflow, userId, userID) }
                 .show()
     }
 
@@ -373,7 +374,7 @@ class FilteredPostAdapter(private val search: Boolean, val userId: String, val c
                         if (change.type == DocumentChange.Type.ADDED) {
                             Log.i(tag, "onEvent: added again $time")
                             val post = change.document.toObject(Post::class.java)
-                            if (post.userId != userId) if (UserNetwork.getFollowing() == null || !UserNetwork.getFollowing().contains(post.userId)) return@addSnapshotListener
+                            if (post.userId != userId) if (UserNetwork.following == null || !UserNetwork.following.contains(post.userId)) return@addSnapshotListener
                             postList.add(0, post)
                             snapIds.add(0, SnapId(change.document.id, post.time))
                             notifyDataSetChanged()

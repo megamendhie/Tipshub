@@ -27,6 +27,7 @@ import services.GlideApp
 import utils.Calculations
 import utils.FirebaseUtil.firebaseFirestore
 import utils.FirebaseUtil.firebaseStorage
+import utils.GUEST
 import utils.Reusable.Companion.applyLinkfy
 import utils.Reusable.Companion.getNetworkAvailability
 import utils.Reusable.Companion.getPlaceholderImage
@@ -37,10 +38,10 @@ import views.DislikeButton
 import views.LikeButton
 import java.util.*
 
-class BankerAdapter(query: Query?, userID: String?, val context: Context, private val anchorSnackbar: Boolean) : FirestoreRecyclerAdapter<Post, BankerAdapter.BankerPostHolder>(FirestoreRecyclerOptions.Builder<Post>()
+class BankerAdapter(query: Query?, userID: String, val context: Context, private val anchorSnackbar: Boolean) : FirestoreRecyclerAdapter<Post, BankerAdapter.BankerPostHolder>(FirestoreRecyclerOptions.Builder<Post>()
         .setQuery(query!!, Post::class.java)
         .build()) {
-    private var userId: String? = null
+    private var userId: String = userID
     private val calculations: Calculations
     private val storageReference = firebaseStorage!!.reference.child("profile_images")
     private val code = arrayOf("1xBet", "Bet9ja", "Nairabet", "SportyBet", "BlackBet", "Bet365")
@@ -66,7 +67,7 @@ class BankerAdapter(query: Query?, userID: String?, val context: Context, privat
                 txtPostType.visibility = View.VISIBLE
                 txtPostType.text = type[model.type - 1]
             }
-            if (model.userId == userId) makeVisible = true else if (UserNetwork.getSubscribed() != null && UserNetwork.getSubscribed().contains(userId)) makeVisible = true
+            if (model.userId == userId) makeVisible = true else if (UserNetwork.subscribed != null && UserNetwork.subscribed.contains(userId)) makeVisible = true
             if (model.status == 2 || Date().time - model.time > 18 * 60 * 60 * 1000) makePublic = true
             if (makeVisible || makePublic) {
                 lnrSub.visibility = View.GONE
@@ -152,7 +153,7 @@ class BankerAdapter(query: Query?, userID: String?, val context: Context, privat
             context.startActivity(intent)
         }
         binding.imgLike.setOnClickListener {
-            if (userId == Calculations.GUEST) {
+            if (userId == GUEST) {
                 loginPrompt(binding.imgLike)
                 return@setOnClickListener
             }
@@ -174,7 +175,7 @@ class BankerAdapter(query: Query?, userID: String?, val context: Context, privat
             calculations.onLike(postId, userId, model.userId, substring)
         }
         binding.imgDislike.setOnClickListener { v ->
-            if (userId == Calculations.GUEST) {
+            if (userId == GUEST) {
                 loginPrompt(binding.imgDislike)
                 return@setOnClickListener
             }
@@ -220,7 +221,7 @@ class BankerAdapter(query: Query?, userID: String?, val context: Context, privat
         if (!makePublic) {
             btnRepost.visibility = View.GONE
         }
-        if (UserNetwork.getFollowing() == null) btnFollow.visibility = View.GONE else btnFollow.text = if (UserNetwork.getFollowing().contains(userID)) "UNFOLLOW" else "FOLLOW"
+        if (UserNetwork.following == null) btnFollow.visibility = View.GONE else btnFollow.text = if (UserNetwork.following.contains(userID)) "UNFOLLOW" else "FOLLOW"
         btnSubmit.setOnClickListener(object : View.OnClickListener {
             override fun onClick(v: View) {
                 if (model.type > 0) popUp()
@@ -235,7 +236,7 @@ class BankerAdapter(query: Query?, userID: String?, val context: Context, privat
                     """.trimIndent()
                 val builder = androidx.appcompat.app.AlertDialog.Builder(context, R.style.CustomMaterialAlertDialog)
                 builder.setMessage(Html.fromHtml(message))
-                        .setPositiveButton("Yes") { dialogInterface: DialogInterface?, i: Int -> calculations.onPostWon(imgOverflow, postId, userId, type, anchorSnackbar) }
+                        .setPositiveButton("Yes") { dialogInterface: DialogInterface?, i: Int -> calculations.onPostWon(imgOverflow, postId, userId, type) }
                         .setNegativeButton("Cancel") { dialogInterface: DialogInterface?, i: Int -> }
                         .show()
             }
@@ -249,7 +250,7 @@ class BankerAdapter(query: Query?, userID: String?, val context: Context, privat
                 context.startActivity(intent)
                 dialog.cancel()
             } else {
-                if (model.type > 0) calculations.onDeletePost(imgOverflow, postId, userId, status == 2, type, anchorSnackbar) else {
+                if (model.type > 0) calculations.onDeletePost(imgOverflow, postId, userId, status == 2, type) else {
                     firebaseFirestore!!.collection("posts").document(postId).delete()
                     Snackbar.make(imgOverflow, "Deleted", Snackbar.LENGTH_SHORT).show()
                 }
@@ -257,7 +258,7 @@ class BankerAdapter(query: Query?, userID: String?, val context: Context, privat
             dialog.cancel()
         }
         btnRepost.setOnClickListener { v: View? ->
-            if (userId == Calculations.GUEST) {
+            if (userId == GUEST) {
                 dialog.cancel()
                 loginPrompt(btnRepost)
                 return@setOnClickListener
@@ -276,12 +277,12 @@ class BankerAdapter(query: Query?, userID: String?, val context: Context, privat
                 dialog.cancel()
                 return@setOnClickListener
             }
-            if (userId == Calculations.GUEST) {
+            if (userId == GUEST) {
                 loginPrompt(btnFollow)
                 return@setOnClickListener
             }
             if (btnFollow.text == "FOLLOW") {
-                calculations.followMember(imgOverflow, userId, userID, anchorSnackbar)
+                calculations.followMember(imgOverflow, userId, userID)
             } else unfollowPrompt(imgOverflow, userID, model.username)
             dialog.cancel()
         }
@@ -299,8 +300,8 @@ class BankerAdapter(query: Query?, userID: String?, val context: Context, privat
         val builder = androidx.appcompat.app.AlertDialog.Builder(context, R.style.CustomMaterialAlertDialog)
         builder.setMessage(String.format("Do you want to unfollow %s?", username))
                 .setTitle("Unfollow")
-                .setNegativeButton("No") { dialogInterface: DialogInterface?, i: Int -> }
-                .setPositiveButton("Yes") { dialogInterface: DialogInterface?, i: Int -> calculations.unfollowMember(imgOverflow, userId, userID, anchorSnackbar) }
+                .setNegativeButton("No") { _: DialogInterface?, _: Int -> }
+                .setPositiveButton("Yes") { _: DialogInterface?, _: Int -> calculations.unfollowMember(imgOverflow, userId, userID)}
                 .show()
     }
 
@@ -309,7 +310,7 @@ class BankerAdapter(query: Query?, userID: String?, val context: Context, privat
         return BankerPostHolder(binding)
     }
 
-    fun setUserId(userId: String?) {
+    fun setUserId(userId: String) {
         this.userId = userId
     }
 
