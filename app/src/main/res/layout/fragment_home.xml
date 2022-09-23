@@ -5,7 +5,7 @@
     android:id="@+id/refresher"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="fragments.HomeFragment">
+    tools:context="com.sqube.tipshub.fragments.HomeFragment">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -18,27 +18,217 @@
             android:isScrollContainer="true"
             android:measureAllChildren="true"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingBottom="4dp">
 
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/crdPanel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dp"
+                    app:cardCornerRadius="12dp"
+                    app:layout_constraintTop_toTopOf="parent">
+                    <GridLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:columnCount="3"
+                        android:rowCount="2">
+
+                        <LinearLayout
+                            android:id="@+id/lnrMnu"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_row="0"
+                            android:layout_column="0"
+                            android:layout_columnWeight="1"
+                            android:background="#4D176FF4"
+                            android:foreground="?android:attr/selectableItemBackground"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:padding="4dp">
+
+                            <de.hdodenhof.circleimageview.CircleImageView
+                                android:layout_width="@dimen/hm_img_sz"
+                                android:layout_height="@dimen/hm_img_sz"
+                                android:layout_margin="4dp"
+                                android:src="@drawable/football"
+                                app:civ_border_color="#19204E"
+                                app:civ_border_width="1dp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="Menu"
+                                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/lnrEpl"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_row="0"
+                            android:layout_column="1"
+                            android:layout_columnWeight="1"
+                            android:background="#4DD6D6D6"
+                            android:foreground="?android:attr/selectableItemBackground"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:padding="4dp">
+
+                            <de.hdodenhof.circleimageview.CircleImageView
+                                android:layout_width="@dimen/hm_img_sz"
+                                android:layout_height="@dimen/hm_img_sz"
+                                android:layout_margin="4dp"
+                                android:src="@drawable/epl_logo" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="Epl"
+                                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/lnrLvs"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_row="0"
+                            android:layout_column="2"
+                            android:layout_columnWeight="1"
+                            android:background="#66DF1B3F"
+                            android:foreground="?android:attr/selectableItemBackground"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:padding="4dp">
+
+                            <de.hdodenhof.circleimageview.CircleImageView
+                                android:layout_width="@dimen/hm_img_sz"
+                                android:layout_height="@dimen/hm_img_sz"
+                                android:layout_margin="4dp"
+                                android:src="@drawable/youtube_play_icon" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="Livestream"
+                                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/lnrNews"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_row="1"
+                            android:layout_column="0"
+                            android:layout_columnWeight="1"
+                            android:background="#4D169A13"
+                            android:foreground="?android:attr/selectableItemBackground"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:padding="4dp">
+
+                            <de.hdodenhof.circleimageview.CircleImageView
+                                android:layout_width="@dimen/hm_img_sz"
+                                android:layout_height="@dimen/hm_img_sz"
+                                android:layout_margin="4dp"
+                                android:src="@drawable/news_lg" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="News"
+                                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/lnrscore"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_row="1"
+                            android:layout_column="1"
+                            android:layout_columnWeight="1"
+                            android:background="#4DFCB300"
+                            android:foreground="?android:attr/selectableItemBackground"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:padding="4dp">
+
+                            <de.hdodenhof.circleimageview.CircleImageView
+                                android:layout_width="@dimen/hm_img_sz"
+                                android:layout_height="@dimen/hm_img_sz"
+                                android:layout_margin="4dp"
+                                android:src="@drawable/livescore_logo" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="Scores"
+                                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/lnrMore"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_row="1"
+                            android:layout_column="2"
+                            android:layout_columnWeight="1"
+                            android:background="#4D19204E"
+                            android:foreground="?android:attr/selectableItemBackground"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:padding="4dp">
+
+                            <ImageView
+                                android:layout_width="@dimen/hm_img_sz"
+                                android:layout_height="@dimen/hm_img_sz"
+                                android:layout_margin="4dp"
+                                android:background="@drawable/circle_deep_blue"
+                                app:srcCompat="@drawable/ic_more_horiz"
+                                app:tint="#FFFFFF" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="More"
+                                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+                    </GridLayout>
+                </androidx.cardview.widget.CardView>
+
                 <androidx.cardview.widget.CardView
                     android:id="@+id/crdTips"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
-                    app:layout_constraintTop_toTopOf="parent">
+                    android:layout_marginTop="6dp"
+                    app:layout_constraintTop_toBottomOf="@id/crdPanel">
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:paddingStart="10dp"
                         android:paddingTop="6dp"
                         android:paddingBottom="6dp"
-                        android:paddingStart="10dp"
-                        android:textSize="20sp"
-                        android:gravity="center_vertical"
                         android:text="Tipshub prediction"
                         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                        android:textSize="20sp"
                         android:textStyle="bold" />
                 </androidx.cardview.widget.CardView>
 
@@ -47,8 +237,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     app:layout_constraintTop_toBottomOf="@id/crdTips"
-                    app:shimmer_duration="800">
-                    <include layout="@layout/item_tips_loading"/>
+                    app:shimmer_duration="1000">
+
+                    <include layout="@layout/item_tips_loading" />
                 </com.facebook.shimmer.ShimmerFrameLayout>
 
                 <androidx.recyclerview.widget.RecyclerView
@@ -65,16 +256,16 @@
                     android:layout_height="wrap_content"
                     android:drawableRight="@drawable/ic_keyboard_arrow_right_color_24dp"
                     android:gravity="center_vertical|end"
-                    android:text="All predictions"
-                    android:visibility="gone"
-                    android:textSize="18sp"
                     android:paddingTop="6dp"
                     android:paddingBottom="6dp"
+                    android:text="All predictions"
                     android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                     android:textColor="@color/colorPrimaryDark"
-                    app:layout_constraintTop_toBottomOf="@id/tipsList"
+                    android:textSize="18sp"
+                    android:visibility="gone"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"/>
+                    app:layout_constraintTop_toBottomOf="@id/tipsList" />
 
                 <androidx.cardview.widget.CardView
                     android:id="@+id/crdPosts"
@@ -87,13 +278,13 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:paddingStart="10dp"
                         android:paddingTop="6dp"
                         android:paddingBottom="6dp"
-                        android:paddingStart="10dp"
-                        android:textSize="20sp"
-                        android:gravity="center_vertical"
                         android:text="Posts from users"
                         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                        android:textSize="20sp"
                         android:textStyle="bold" />
                 </androidx.cardview.widget.CardView>
 
@@ -108,35 +299,38 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:orientation="vertical">
+
                         <include layout="@layout/placeholder" />
+
                         <include layout="@layout/placeholder" />
+
                         <include layout="@layout/placeholder" />
                     </LinearLayout>
                 </com.facebook.shimmer.ShimmerFrameLayout>
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/postList"
-                    app:layout_constraintTop_toBottomOf="@id/shimmerPosts"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     android:minHeight="20dp"
                     android:nestedScrollingEnabled="false"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/shimmerPosts" />
 
                 <TextView
                     android:id="@+id/txtOpenFullPost"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
+                    android:layout_marginBottom="3dp"
                     android:drawableRight="@drawable/ic_keyboard_arrow_right_color_24dp"
                     android:gravity="center_vertical|end"
-                    android:text="See more posts"
-                    android:textSize="18sp"
-                    android:layout_marginBottom="3dp"
                     android:paddingTop="6dp"
                     android:paddingBottom="6dp"
+                    android:text="See more posts"
                     android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                     android:textColor="@color/colorPrimaryDark"
+                    android:textSize="18sp"
                     app:layout_constraintTop_toBottomOf="@id/postList" />
 
                 <androidx.cardview.widget.CardView
@@ -146,6 +340,7 @@
                     android:layout_marginTop="4dp"
                     android:layout_marginBottom="4dp"
                     app:layout_constraintTop_toBottomOf="@id/txtOpenFullPost">
+
                     <RelativeLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -156,11 +351,11 @@
                             android:id="@+id/txtCrdBankers"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:textSize="20sp"
+                            android:layout_alignParentStart="true"
                             android:paddingStart="10dp"
                             android:text="Top Banker Tipsters"
-                            android:layout_alignParentStart="true"
                             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                            android:textSize="20sp"
                             android:textStyle="bold" />
 
                         <androidx.recyclerview.widget.RecyclerView
@@ -168,7 +363,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_below="@id/txtCrdBankers"
-                            android:layout_marginTop="4dp"/>
+                            android:layout_marginTop="4dp" />
 
                     </RelativeLayout>
                 </androidx.cardview.widget.CardView>
@@ -178,10 +373,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:layout_marginTop="6dp"
-                    android:layout_marginEnd="4dp"
-                    android:layout_marginStart="4dp"
                     android:layout_marginBottom="6dp"
                     app:layout_constraintTop_toBottomOf="@id/crdBankers">
+
                     <RelativeLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -192,11 +386,11 @@
                             android:id="@+id/txtCrdSportSites"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:textSize="20sp"
+                            android:layout_alignParentStart="true"
                             android:paddingStart="10dp"
                             android:text="Sports Sites"
-                            android:layout_alignParentStart="true"
                             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                            android:textSize="20sp"
                             android:textStyle="bold" />
 
                         <androidx.recyclerview.widget.RecyclerView
@@ -204,18 +398,18 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_below="@id/txtCrdSportSites"
-                            android:layout_marginTop="4dp"/>
+                            android:layout_marginTop="4dp" />
 
                     </RelativeLayout>
                 </androidx.cardview.widget.CardView>
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/trendingList"
-                    android:nestedScrollingEnabled="false"
-                    android:layout_marginTop="@dimen/img_padding"
-                    app:layout_constraintTop_toBottomOf="@id/crdSportSites"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/img_padding"
+                    android:nestedScrollingEnabled="false"
+                    app:layout_constraintTop_toBottomOf="@id/crdSportSites" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.core.widget.NestedScrollView>

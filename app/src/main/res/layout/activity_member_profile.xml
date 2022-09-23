@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     xmlns:card_view="http://schemas.android.com/tools"
-    tools:context=".MemberProfileActivity">
+    tools:context=".activities.MemberProfileActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/layBar"

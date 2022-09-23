@@ -8,7 +8,7 @@
     android:paddingLeft="@dimen/vertical_padding"
     android:paddingRight="@dimen/vertical_padding"
     android:paddingTop="@dimen/vertical_padding"
-    tools:context=".PostActivity">
+    tools:context=".activities.PostActivity">
 
     <ProgressBar
         android:id="@+id/prgLogin"

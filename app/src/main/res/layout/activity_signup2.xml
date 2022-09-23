@@ -8,7 +8,7 @@
     android:paddingStart="@dimen/vertical_padding"
     android:paddingEnd="@dimen/vertical_padding"
     android:orientation="vertical"
-    tools:context=".SignupActivity">
+    tools:context=".activities.SignupActivity">
 
     <TextView
         android:layout_width="match_parent"

@@ -5,7 +5,7 @@
     android:id="@+id/refresher"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="fragments.NotificationFragment">
+    tools:context="com.sqube.tipshub.fragments.NotificationFragment">
 
 <androidx.recyclerview.widget.RecyclerView
     android:id="@+id/postList"

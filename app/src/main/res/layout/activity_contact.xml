@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="#FFFFFF"
     xmlns:card_view="http://schemas.android.com/tools"
-    tools:context=".ContactActivity">
+    tools:context=".activities.ContactActivity">
 
     <RelativeLayout
         android:layout_width="match_parent"

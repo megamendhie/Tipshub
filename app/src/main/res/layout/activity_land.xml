@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".LandActivity">
+    tools:context=".activities.LandActivity">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -84,7 +84,7 @@
                         android:text="JOIN HERE"
                         android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                         android:textColor="@android:color/white"
-                        android:textSize="18sp"
+                        android:textSize="16sp"
                         android:textStyle="bold" />
 
                     <com.google.android.material.button.MaterialButton
@@ -99,7 +99,7 @@
                         android:text="HOW IT WORKS"
                         android:textColor="@android:color/white"
                         android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-                        android:textSize="18sp"
+                        android:textSize="16sp"
                         android:textStyle="bold" />
                 </LinearLayout>
             </LinearLayout>
