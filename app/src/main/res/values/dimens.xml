@@ -11,4 +11,5 @@
     <dimen name="dim_text_margin">20dp</dimen>
     <dimen name="edt_text_padding">14dp</dimen>
     <dimen name="dimen_post_dp">50dp</dimen>
+    <dimen name="hm_img_sz">45dp</dimen>
 </resources>
