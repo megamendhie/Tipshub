@@ -8,7 +8,7 @@ import com.bumptech.glide.Glide
 import com.google.firebase.storage.FirebaseStorage
 import com.sqube.tipshub.R
 import com.sqube.tipshub.databinding.ItemSportSiteBinding
-import models.Website
+import com.sqube.tipshub.models.Website
 
 class WebsiteHolder internal constructor(private val binding: ItemSportSiteBinding) : RecyclerView.ViewHolder(binding.root) {
     private val customTab = CustomTabsIntent.Builder()

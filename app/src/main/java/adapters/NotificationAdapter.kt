@@ -14,18 +14,17 @@ import com.firebase.ui.firestore.FirestoreRecyclerOptions
 import com.google.firebase.firestore.Query
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
-import com.sqube.tipshub.FullPostActivity
-import com.sqube.tipshub.MemberProfileActivity
-import com.sqube.tipshub.MyProfileActivity
+import com.sqube.tipshub.activities.FullPostActivity
+import com.sqube.tipshub.activities.MemberProfileActivity
+import com.sqube.tipshub.activities.MyProfileActivity
 import com.sqube.tipshub.R
 import com.sqube.tipshub.databinding.ItemNotificationBinding
-import models.Notification
+import com.sqube.tipshub.models.Notification
 import services.GlideApp
-import utils.Calculations
-import utils.Reusable.Companion.getPlaceholderImage
-import utils.Reusable.Companion.getTime
-import utils.Reusable.Companion.signature
-import utils.TIPSHUB
+import com.sqube.tipshub.utils.Reusable.Companion.getPlaceholderImage
+import com.sqube.tipshub.utils.Reusable.Companion.getTime
+import com.sqube.tipshub.utils.Reusable.Companion.signature
+import com.sqube.tipshub.utils.TIPSHUB
 
 class NotificationAdapter(query: Query?, userID: String) : FirestoreRecyclerAdapter<Notification, NotificationAdapter.PostHolder>(FirestoreRecyclerOptions.Builder<Notification>()
         .setQuery(query!!, Notification::class.java)

@@ -11,7 +11,7 @@ import android.widget.ImageView
 import androidx.cardview.widget.CardView
 import android.widget.TextView
 import androidx.browser.customtabs.CustomTabsIntent
-import models.Article
+import com.sqube.tipshub.models.Article
 
 class NewsAdapter(private val data: List<Article>) : RecyclerView.Adapter<NewsAdapter.ListNewsViewHolder>() {
     private val customTab = CustomTabsIntent.Builder()

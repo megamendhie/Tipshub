@@ -1,25 +1,18 @@
 package adapters
 
-import utils.FirebaseUtil.firebaseAuthentication
-import utils.Reusable.Companion.getPlaceholderImage
+import com.sqube.tipshub.utils.FirebaseUtil.firebaseAuthentication
+import com.sqube.tipshub.utils.Reusable.Companion.getPlaceholderImage
 import com.firebase.ui.firestore.FirestoreRecyclerOptions
-import models.ProfileShort
+import com.sqube.tipshub.models.ProfileShort
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter
 import adapters.BankerTipsterAdapter.BankerTipsterHolder
-import android.content.Intent
 import android.util.Log
-import com.sqube.tipshub.MyProfileActivity
-import com.sqube.tipshub.MemberProfileActivity
 import android.view.ViewGroup
 import android.view.LayoutInflater
-import android.view.View
 import com.sqube.tipshub.R
 import androidx.recyclerview.widget.RecyclerView
-import android.widget.TextView
 import com.bumptech.glide.Glide
 import com.sqube.tipshub.databinding.ItemBankerTipsterBinding
-import de.hdodenhof.circleimageview.CircleImageView
-import utils.Calculations
 import java.lang.Exception
 
 class BankerTipsterAdapter(options: FirestoreRecyclerOptions<ProfileShort?>) : FirestoreRecyclerAdapter<ProfileShort, BankerTipsterHolder>(options) {

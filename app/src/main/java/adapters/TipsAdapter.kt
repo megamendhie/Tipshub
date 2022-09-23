@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.sqube.tipshub.R
 import com.sqube.tipshub.databinding.ItemGameTipBinding
-import models.GameTip
+import com.sqube.tipshub.models.GameTip
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*

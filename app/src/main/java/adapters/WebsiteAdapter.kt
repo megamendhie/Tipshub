@@ -4,7 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.sqube.tipshub.databinding.ItemSportSiteBinding
-import models.Website
+import com.sqube.tipshub.models.Website
 import java.util.*
 
 class WebsiteAdapter(val siteList: ArrayList<Website>) : RecyclerView.Adapter<WebsiteHolder>() {

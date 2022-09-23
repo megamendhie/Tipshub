@@ -3,7 +3,6 @@ package adapters
 import adapters.TransactionAdapter.TransactionHolder
 import android.annotation.SuppressLint
 import android.text.format.DateFormat
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -13,7 +12,7 @@ import com.firebase.ui.firestore.FirestoreRecyclerOptions
 import com.google.firebase.firestore.Query
 import com.sqube.tipshub.R
 import com.sqube.tipshub.databinding.ItemTransactionBinding
-import models.Transaction
+import com.sqube.tipshub.models.Transaction
 
 class TransactionAdapter(query: Query?) : FirestoreRecyclerAdapter<Transaction, TransactionHolder>(FirestoreRecyclerOptions.Builder<Transaction>()
         .setQuery(query!!, Transaction::class.java)

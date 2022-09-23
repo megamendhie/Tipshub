@@ -1,15 +1,7 @@
 package adapters
 
-import utils.Reusable.Companion.getNewDate
-import utils.Reusable.Companion.getPlaceholderImage
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter
 import com.firebase.ui.firestore.FirestoreRecyclerOptions
-import android.text.Html
-import utils.Calculations
-import services.GlideApp
-import com.sqube.tipshub.R
-import android.content.Intent
-import com.sqube.tipshub.MemberProfileActivity
 import android.view.ViewGroup
 import android.view.LayoutInflater
 import android.view.View
@@ -17,8 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.firestore.Query
 import com.google.firebase.storage.FirebaseStorage
 import com.sqube.tipshub.databinding.ItemSubscriptionBinding
-import models.Subscription
-import utils.TIPSHUB
+import com.sqube.tipshub.models.Subscription
 
 class SubscriptionAdapter(query: Query?) : FirestoreRecyclerAdapter<Subscription, SubscriptionAdapter.SubscriptionViewHolder>(FirestoreRecyclerOptions.Builder<Subscription>()
         .setQuery(query!!, Subscription::class.java)

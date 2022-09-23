@@ -12,25 +12,20 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.signature.ObjectKey
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.storage.FirebaseStorage
 import com.sqube.tipshub.*
+import com.sqube.tipshub.activities.*
 import com.sqube.tipshub.databinding.ItemPostBinding
-import models.Post
-import models.SnapId
-import models.UserNetwork
-import services.GlideApp
-import utils.Calculations
-import utils.FirebaseUtil.firebaseFirestore
-import utils.Reusable.Companion.applyLinkfy
-import utils.Reusable.Companion.getNetworkAvailability
-import utils.Reusable.Companion.getPlaceholderImage
-import utils.Reusable.Companion.getTime
-import utils.Reusable.Companion.shareTips
-import utils.Reusable.Companion.signature
-import views.DislikeButton
-import views.LikeButton
+import com.sqube.tipshub.models.Post
+import com.sqube.tipshub.models.SnapId
+import com.sqube.tipshub.models.UserNetwork
+import com.sqube.tipshub.utils.Calculations
+import com.sqube.tipshub.utils.FirebaseUtil.firebaseFirestore
+import com.sqube.tipshub.utils.Reusable.Companion.getNetworkAvailability
+import com.sqube.tipshub.utils.Reusable.Companion.shareTips
+import com.sqube.tipshub.views.DislikeButton
+import com.sqube.tipshub.views.LikeButton
 import java.util.*
 
 class FilteredBankerAdapter(userID: String, val context: Context, private val postList: ArrayList<Post>, private val snapIds: ArrayList<SnapId>) : RecyclerView.Adapter<FilteredBankerAdapter.FilteredPostHolder>() {

@@ -3,7 +3,7 @@ package adapters
 import android.content.Intent
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
-import com.sqube.tipshub.FullPostActivity
+import com.sqube.tipshub.activities.FullPostActivity
 import com.sqube.tipshub.databinding.ItemPostBinding
 
 class PostHolder(val binding: ItemPostBinding) : RecyclerView.ViewHolder(binding.root) {

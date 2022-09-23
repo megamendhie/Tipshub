@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.sqube.tipshub.R
 import com.sqube.tipshub.databinding.DrawItemBinding
-import models.Draw
+import com.sqube.tipshub.models.Draw
 import java.util.*
 
 class DrawAdapter : RecyclerView.Adapter<DrawViewHolder>() {
