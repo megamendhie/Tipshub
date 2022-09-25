@@ -129,6 +129,50 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@color/placeholder_bg"
+                android:padding="12dp"
+                android:orientation="vertical">
+                <ImageView
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_gravity="center_horizontal"
+                    app:srcCompat="@drawable/ic_language_black_24dp"
+                    app:tint="@color/colorAccent" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:textAlignment="center"
+                    android:textColor="@color/colorAccent"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                    android:textStyle="bold"
+                    android:textSize="22sp"
+                    android:text="Tipshub forum"/>
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/listLandingPost"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="60dp"
+                    android:layout_marginTop="6dp"/>
+                <TextView
+                    android:id="@+id/txtOpenPost"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:onClick="goToLogin"
+                    android:drawableRight="@drawable/ic_keyboard_arrow_right_color_24dp"
+                    android:gravity="center_vertical|end"
+                    android:layout_marginTop="2dp"
+                    android:textStyle="bold"
+                    android:text="See more"
+                    android:textSize="16sp"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                    android:textColor="@color/colorPrimaryDark" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:padding="12dp"
                 android:orientation="vertical">
                 <TextView
@@ -173,98 +217,6 @@
                     android:textColor="@color/colorPrimaryDark" />
 
             </LinearLayout>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/placeholder_bg"
-                android:padding="12dp"
-                android:orientation="vertical">
-                <ImageView
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:layout_gravity="center_horizontal"
-                    app:srcCompat="@drawable/ic_language_black_24dp"
-                    app:tint="@color/colorAccent" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:textAlignment="center"
-                    android:textColor="@color/colorAccent"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-                    android:textStyle="bold"
-                    android:textSize="22sp"
-                    android:text="Post from users"/>
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/listLandingPost"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:minHeight="60dp"
-                    android:layout_marginTop="6dp"/>
-                <TextView
-                    android:id="@+id/txtOpenPost"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:onClick="goToLogin"
-                    android:drawableRight="@drawable/ic_keyboard_arrow_right_color_24dp"
-                    android:gravity="center_vertical|end"
-                    android:layout_marginTop="2dp"
-                    android:textStyle="bold"
-                    android:text="See more"
-                    android:textSize="16sp"
-                    android:paddingTop="8dp"
-                    android:paddingBottom="8dp"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-                    android:textColor="@color/colorPrimaryDark" />
-            </LinearLayout>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="12dp"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:textAlignment="center"
-                    android:textColor="@color/colorAccent"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-                    android:textStyle="bold"
-                    android:textSize="22sp"
-                    android:text="Some recent winnings"/>
-
-                <com.facebook.shimmer.ShimmerFrameLayout
-                    android:id="@+id/shimmerRecentWinnings"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:layout_constraintTop_toBottomOf="@id/crdClassic"
-                    app:shimmer_duration="800">
-                    <include layout="@layout/item_tips_loading"/>
-                </com.facebook.shimmer.ShimmerFrameLayout>
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/listRecentWinnings"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
-
-                <TextView
-                    android:id="@+id/txtOpenFullR"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:onClick="goToLogin"
-                    android:drawableRight="@drawable/ic_keyboard_arrow_right_color_24dp"
-                    android:gravity="center_vertical|end"
-                    android:layout_marginTop="2dp"
-                    android:textStyle="bold"
-                    android:text="See more"
-                    android:textSize="16sp"
-                    android:paddingTop="8dp"
-                    android:paddingBottom="8dp"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-                    android:textColor="@color/colorPrimaryDark" />
-
-                </LinearLayout>
             <TextView
                 android:id="@+id/txtContact"
                 android:layout_width="wrap_content"

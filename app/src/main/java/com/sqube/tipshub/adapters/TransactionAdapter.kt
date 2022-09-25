@@ -1,6 +1,6 @@
-package adapters
+package com.sqube.tipshub.adapters
 
-import adapters.TransactionAdapter.TransactionHolder
+import com.sqube.tipshub.adapters.TransactionAdapter.TransactionHolder
 import android.annotation.SuppressLint
 import android.text.format.DateFormat
 import android.view.LayoutInflater

@@ -45,22 +45,17 @@ import java.text.NumberFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import adapters.SubscriberAdapter;
-import adapters.SubscriptionAdapter;
-import adapters.TransactionAdapter;
+import com.sqube.tipshub.adapters.SubscriberAdapter;
+import com.sqube.tipshub.adapters.SubscriptionAdapter;
+import com.sqube.tipshub.adapters.TransactionAdapter;
 import de.hdodenhof.circleimageview.CircleImageView;
 import com.sqube.tipshub.models.Notification;
 import com.sqube.tipshub.models.ProfileMedium;
 import com.sqube.tipshub.models.Transaction;
 import com.sqube.tipshub.utils.FirebaseUtil;
 
-import static com.sqube.tipshub.activities.NgSubActivity.NG_SUB_ACTIVITY;
-import static com.sqube.tipshub.utils.CommonsKt.NOTIFICATIONS;
-import static com.sqube.tipshub.utils.CommonsKt.PROFILES;
-import static com.sqube.tipshub.utils.CommonsKt.SUBSCRIPTIONS;
-import static com.sqube.tipshub.utils.CommonsKt.TIPSHUB;
-import static com.sqube.tipshub.utils.CommonsKt.TRANSACTIONS;
-import static com.sqube.tipshub.utils.Reusable.getPlaceholderImage;
+import static com.sqube.tipshub.utils.CommonsKt.*;
+import static com.sqube.tipshub.utils.Reusable.*;
 
 public class AccountActivity extends AppCompatActivity {
     private static final String TAG = "AccActivity";
@@ -331,6 +326,7 @@ public class AccountActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        int NG_SUB_ACTIVITY = 63;
         if (requestCode == RaveConstants.RAVE_REQUEST_CODE && data != null) {
             String message = data.getStringExtra("response");
             if (resultCode == RavePayActivity.RESULT_SUCCESS) {
@@ -356,7 +352,7 @@ public class AccountActivity extends AppCompatActivity {
                         .show();
             }
         }
-        else if(requestCode==NG_SUB_ACTIVITY && resultCode==RESULT_OK){
+        else if(requestCode== NG_SUB_ACTIVITY && resultCode==RESULT_OK){
             Log.i(TAG, "onActivityResult from paystack: Success");
             method = "card";
             updateDatabase(true, "");
@@ -540,7 +536,7 @@ public class AccountActivity extends AppCompatActivity {
     }
 
     public void startWhatsapp(View view) {
-        String mssg = "Hello Tipshub\nI want to fund my wallet. Send me payment details.";
+        String mssg = "Hello Tipshub";
         String toNumber = "2349041463249";
         Uri uri = Uri.parse("http://api.whatsapp.com/send?phone="+toNumber +"&text="+mssg);
         try {
@@ -548,12 +544,12 @@ public class AccountActivity extends AppCompatActivity {
             whatsApp.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY |
                     Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
             whatsApp.setData(uri);
-            getPackageManager().getPackageInfo("com.whatsapp", PackageManager.GET_META_DATA);
             startActivity(whatsApp);
         }
-        catch (PackageManager.NameNotFoundException e){
+        catch (Exception e){
             Toast.makeText(this, "No WhatApp installed", Toast.LENGTH_LONG).show();
         }
+
     }
 
     @Override

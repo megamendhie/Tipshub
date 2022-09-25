@@ -1,4 +1,4 @@
-package adapters
+package com.sqube.tipshub.adapters
 
 import android.view.LayoutInflater
 import android.view.ViewGroup

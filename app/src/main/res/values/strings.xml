@@ -989,7 +989,7 @@
     <string name="str_cannot_share_post">You can\'t share this post yet</string>
     <string name="txt_try_again">-Try again or click here to contact us.</string>
     <string name="txt_processing">Performing transaction... please wait</string>
-    <string name="txt_fund_wallet"><b>Fund wallet </b> - pay directly to your wallet through card, mpesa, or mobile money. This money is for subscriptions.</string>
+    <string name="txt_fund_wallet"><b>Deposit </b> - pay directly to your wallet through card, mpesa, or mobile money. You can use this to subscribe on the app.</string>
     <string name="txt_withdraw"><b>Withdraw </b>- you can withdraw the money paid to you by your subscribers.</string>
-    <string name="txt_get_acc"><b>Get Account</b>- if you have any difficulty in funding your wallet, kindly reach out to us for account details.</string>
+    <string name="txt_get_acc"><b>Contact us</b>- if you have any issue in depositing or withdrawing, click to contact us.</string>
 </resources>

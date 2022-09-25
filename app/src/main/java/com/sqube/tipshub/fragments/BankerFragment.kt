@@ -1,8 +1,8 @@
 package com.sqube.tipshub.fragments
 
-import adapters.BankerAdapter
-import adapters.BankerTipsterAdapter
-import adapters.FilteredBankerAdapter
+import com.sqube.tipshub.adapters.BankerAdapter
+import com.sqube.tipshub.adapters.BankerTipsterAdapter
+import com.sqube.tipshub.adapters.FilteredBankerAdapter
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences

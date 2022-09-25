@@ -1,6 +1,6 @@
-package adapters
+package com.sqube.tipshub.adapters
 
-import adapters.DrawAdapter.DrawViewHolder
+import com.sqube.tipshub.adapters.DrawAdapter.DrawViewHolder
 import android.graphics.drawable.GradientDrawable
 import android.view.LayoutInflater
 import android.view.View

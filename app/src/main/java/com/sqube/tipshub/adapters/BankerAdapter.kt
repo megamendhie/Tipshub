@@ -1,4 +1,4 @@
-package adapters
+package com.sqube.tipshub.adapters
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
@@ -14,6 +14,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.signature.ObjectKey
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter
 import com.firebase.ui.firestore.FirestoreRecyclerOptions
 import com.google.android.material.snackbar.Snackbar
@@ -23,12 +24,17 @@ import com.sqube.tipshub.activities.*
 import com.sqube.tipshub.databinding.ItemPostBankerBinding
 import com.sqube.tipshub.models.Post
 import com.sqube.tipshub.models.UserNetwork
+import com.sqube.tipshub.services.GlideApp
 import com.sqube.tipshub.utils.Calculations
 import com.sqube.tipshub.utils.FirebaseUtil.firebaseFirestore
 import com.sqube.tipshub.utils.FirebaseUtil.firebaseStorage
 import com.sqube.tipshub.utils.GUEST
+import com.sqube.tipshub.utils.Reusable.Companion.applyLinkfy
 import com.sqube.tipshub.utils.Reusable.Companion.getNetworkAvailability
+import com.sqube.tipshub.utils.Reusable.Companion.getPlaceholderImage
+import com.sqube.tipshub.utils.Reusable.Companion.getTime
 import com.sqube.tipshub.utils.Reusable.Companion.shareTips
+import com.sqube.tipshub.utils.Reusable.Companion.signature
 import com.sqube.tipshub.views.DislikeButton
 import com.sqube.tipshub.views.LikeButton
 import java.util.*

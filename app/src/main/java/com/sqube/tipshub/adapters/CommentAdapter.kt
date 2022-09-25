@@ -1,6 +1,6 @@
-package adapters
+package com.sqube.tipshub.adapters
 
-import adapters.CommentAdapter.CommentHolder
+import com.sqube.tipshub.adapters.CommentAdapter.CommentHolder
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
@@ -32,7 +32,7 @@ import com.sqube.tipshub.models.Comment
 import com.sqube.tipshub.models.Post
 import com.sqube.tipshub.models.SnapId
 import com.sqube.tipshub.models.UserNetwork
-import services.GlideApp
+import com.sqube.tipshub.services.GlideApp
 import com.sqube.tipshub.utils.Calculations
 import com.sqube.tipshub.utils.FirebaseUtil.firebaseFirestore
 import com.sqube.tipshub.utils.GUEST

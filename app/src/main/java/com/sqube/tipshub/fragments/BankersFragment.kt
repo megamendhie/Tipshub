@@ -1,6 +1,6 @@
 package com.sqube.tipshub.fragments
 
-import adapters.BankerAdapter
+import com.sqube.tipshub.adapters.BankerAdapter
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater

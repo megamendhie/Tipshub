@@ -1,6 +1,6 @@
 package com.sqube.tipshub.activities
 
-import adapters.PeopleAdapter
+import com.sqube.tipshub.adapters.PeopleAdapter
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View

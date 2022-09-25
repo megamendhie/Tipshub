@@ -45,7 +45,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import com.sqube.tipshub.models.Notification;
 import com.sqube.tipshub.models.Post;
 import com.sqube.tipshub.models.ProfileMedium;
-import services.GlideApp;
+import com.sqube.tipshub.services.GlideApp;
 import com.sqube.tipshub.utils.FirebaseUtil;
 import com.sqube.tipshub.utils.Reusable;
 import com.sqube.tipshub.utils.SpaceTokenizer;

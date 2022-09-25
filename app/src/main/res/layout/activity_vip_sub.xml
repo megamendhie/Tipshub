@@ -3,8 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".activities.VipSubActivity">
+    android:layout_height="match_parent">
   <androidx.core.widget.NestedScrollView
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
@@ -47,7 +46,7 @@
               android:drawableLeft="@drawable/ic_check_circle_green_24dp"
               android:layout_marginTop="4dp"
               android:drawablePadding="5dp"
-              android:text="6 classic tips daily"
+              android:text="6 - 8 tips daily (Wednesday - Sunday)"
               android:textAppearance="@style/TextAppearance.AppCompat.Body2" />
 
           <TextView
@@ -57,15 +56,7 @@
               android:layout_marginTop="4dp"
               android:drawablePadding="5dp"
               android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-              android:text="Over 2.5 tips"/>
-          <TextView
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:drawableLeft="@drawable/ic_check_circle_green_24dp"
-              android:layout_marginTop="4dp"
-              android:drawablePadding="5dp"
-              android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-              android:text="Both Teams To Score tips"/>
+              android:text="Between 3-10 odds"/>
         </LinearLayout>
       </androidx.cardview.widget.CardView>
 
@@ -97,7 +88,7 @@
               android:layout_marginTop="4dp"
               android:drawablePadding="5dp"
               android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-              android:text="12 classic tips daily"/>
+              android:text="3 - 6 tips daily (Wednesday - Sunday)"/>
           <TextView
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
@@ -105,7 +96,7 @@
               android:layout_marginTop="4dp"
               android:drawablePadding="5dp"
               android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-              android:text="Over 2.5 tips"/>
+              android:text="Between 2-3 sure odds"/>
           <TextView
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
@@ -113,7 +104,7 @@
               android:layout_marginTop="4dp"
               android:drawablePadding="5dp"
               android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-              android:text="Both Teams To Score tips"/>
+              android:text="Proper analysis of games"/>
           <TextView
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
@@ -121,22 +112,14 @@
               android:layout_marginTop="4dp"
               android:drawablePadding="5dp"
               android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-              android:text="4 VIP tips daily"/>
-          <TextView
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:drawableLeft="@drawable/ic_check_circle_green_24dp"
-              android:layout_marginTop="4dp"
-              android:drawablePadding="5dp"
-              android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-              android:text="3 pool draws every weekend"/>
+              android:text="3 sure draws every weekend (35+ odds)"/>
           <TextView
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
               android:layout_marginTop="16dp"
               android:drawablePadding="5dp"
               android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-              android:text="Note: VIP tips are the best tips with very high accuracy and are most likey to deliver."/>
+              android:text="Note: VIP tips well analyzed and highly accurate."/>
         </LinearLayout>
       </androidx.cardview.widget.CardView>
 

@@ -1,24 +1,27 @@
-package adapters
+package com.sqube.tipshub.adapters
 
-import adapters.TipsAdapter.TipsHolder
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.sqube.tipshub.R
 import com.sqube.tipshub.databinding.ItemGameTipBinding
-import com.sqube.tipshub.models.GameTip
-import java.text.ParseException
-import java.text.SimpleDateFormat
-import java.util.*
+import com.sqube.tipshub.models.Tip
+import kotlin.collections.ArrayList
 
-class TipsAdapter(private val tips: ArrayList<GameTip>) : RecyclerView.Adapter<TipsHolder>() {
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TipsHolder {
+class FirebaseTipsAdapter : RecyclerView.Adapter<FirebaseTipsAdapter.FbTipsHolder>() {
+    var tips = arrayListOf<Tip>()
+
+    fun updateTips(tips: ArrayList<Tip>){
+        this.tips = tips
+        notifyDataSetChanged()
+    }
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FbTipsHolder {
         val binding = ItemGameTipBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return TipsHolder(binding)
+        return FbTipsHolder(binding)
     }
 
-    override fun onBindViewHolder(holder: TipsHolder, position: Int) {
+    override fun onBindViewHolder(holder: FbTipsHolder, position: Int) {
         holder.bindItems(tips[position])
     }
 
@@ -26,12 +29,12 @@ class TipsAdapter(private val tips: ArrayList<GameTip>) : RecyclerView.Adapter<T
         return tips.size
     }
 
-    inner class TipsHolder(val binding: ItemGameTipBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class FbTipsHolder(val binding: ItemGameTipBinding) : RecyclerView.ViewHolder(binding.root) {
         private val imgFlag = binding.imgFlag
 
         private fun setFlag(country: String) {
             when (country) {
-                "Champions League", "Europa League", "Nations League", "World Cup" -> imgFlag.setImageResource(R.drawable.flag_world)
+                "Champions League", "Europe", "Europa League", "Nations League", "World Cup" -> imgFlag.setImageResource(R.drawable.flag_world)
                 "Ascension Island", "Tristan da Cunha", "Diego Garcia", "United Kingdom" -> imgFlag.setImageResource(R.drawable.flag_united_kingdom)
                 "Northern Ireland" -> imgFlag.setImageResource(R.drawable.flag_northern_ireland)
                 "Wales" -> imgFlag.setImageResource(R.drawable.flag_wales)
@@ -282,7 +285,7 @@ class TipsAdapter(private val tips: ArrayList<GameTip>) : RecyclerView.Adapter<T
             }
         }
 
-        fun bindItems(tip: GameTip) {
+        fun bindItems(tip: Tip) {
             with(binding){
                 val region = tip.region + "  -"
                 txtLeague.text = tip.league
@@ -290,33 +293,13 @@ class TipsAdapter(private val tips: ArrayList<GameTip>) : RecyclerView.Adapter<T
                 txtPrediction.text = tip.prediction
                 txtHomeTeam.text = tip.homeTeam
                 txtAwayTeam.text = tip.awayTeam
-                txtResult.text = if (tip.result.isEmpty()) "vs" else tip.result
-                txtProbability.text = String.format(Locale.getDefault(), "%.2f%%", 100 * tip.probability)
-                txtTime.text = getFormattedTime(tip.time)
-                if (tip.status == "lost") imgStatus.visibility = View.INVISIBLE else {
-                    imgStatus.setImageResource(if (tip.status == "pending") R.drawable.ic_hourglass_empty_color_24dp else R.drawable.ic_check_circle_green_24dp)
+                txtTime.text = tip.time
+                when (tip.status) {
+                    "p" -> imgStatus.setImageResource(R.drawable.ic_hourglass_empty_color_24dp)
+                    "w" -> imgStatus.setImageResource(R.drawable.ic_check_circle_green_24dp)
+                    else -> imgStatus.visibility = View.INVISIBLE
                 }
-                imgStatus.visibility = if (tip.status == "lost") View.INVISIBLE else View.VISIBLE
-                setFlag(tip.region)
-            }
-        }
-
-        private fun getFormattedTime(time: String): String {
-            val oldFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.ENGLISH)
-            oldFormat.timeZone = TimeZone.getTimeZone("GMT")
-            val newFormatter = SimpleDateFormat("dd MMM - hh:mma", Locale.ENGLISH)
-            newFormatter.timeZone = TimeZone.getDefault()
-            var date: Date? = null
-            try {
-                date = oldFormat.parse(time)
-            } catch (e: ParseException) {
-                e.printStackTrace()
-            }
-            return if (date == null) "" else {
-                var dateTime = newFormatter.format(date)
-                dateTime = dateTime.replace("PM", "pm")
-                dateTime = dateTime.replace("AM", "am")
-                dateTime
+                setFlag(tip.region!!)
             }
         }
     }

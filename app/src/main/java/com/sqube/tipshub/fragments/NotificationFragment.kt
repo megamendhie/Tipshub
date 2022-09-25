@@ -1,6 +1,6 @@
 package com.sqube.tipshub.fragments
 
-import adapters.NotificationAdapter
+import com.sqube.tipshub.adapters.NotificationAdapter
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View

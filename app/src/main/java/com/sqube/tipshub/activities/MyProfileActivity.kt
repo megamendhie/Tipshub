@@ -18,7 +18,7 @@ import androidx.fragment.app.FragmentPagerAdapter
 import android.graphics.drawable.ColorDrawable
 import com.bumptech.glide.Glide
 import com.google.firebase.firestore.DocumentSnapshot
-import adapters.PerformanceAdapter
+import com.sqube.tipshub.adapters.PerformanceAdapter
 import android.app.AlertDialog
 import android.graphics.Color
 import android.view.MenuItem

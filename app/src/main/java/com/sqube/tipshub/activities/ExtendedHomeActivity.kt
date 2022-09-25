@@ -1,7 +1,7 @@
 package com.sqube.tipshub.activities
 
-import adapters.FilteredPostAdapter
-import adapters.PostAdapter
+import com.sqube.tipshub.adapters.FilteredPostAdapter
+import com.sqube.tipshub.adapters.PostAdapter
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences

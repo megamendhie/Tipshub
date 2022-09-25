@@ -1,4 +1,4 @@
-package adapters
+package com.sqube.tipshub.adapters
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -20,7 +20,7 @@ import com.sqube.tipshub.activities.MyProfileActivity
 import com.sqube.tipshub.R
 import com.sqube.tipshub.databinding.ItemNotificationBinding
 import com.sqube.tipshub.models.Notification
-import services.GlideApp
+import com.sqube.tipshub.services.GlideApp
 import com.sqube.tipshub.utils.Reusable.Companion.getPlaceholderImage
 import com.sqube.tipshub.utils.Reusable.Companion.getTime
 import com.sqube.tipshub.utils.Reusable.Companion.signature

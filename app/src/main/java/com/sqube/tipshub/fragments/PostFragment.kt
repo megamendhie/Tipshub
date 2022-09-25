@@ -1,6 +1,6 @@
 package com.sqube.tipshub.fragments
 
-import adapters.PostAdapter
+import com.sqube.tipshub.adapters.PostAdapter
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater

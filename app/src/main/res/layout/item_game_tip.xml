@@ -3,7 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    app:cardCornerRadius="8dp"
+    xmlns:tools="http://schemas.android.com/tools"
+    app:cardCornerRadius="10dp"
     android:layout_marginTop="3dp"
     android:layout_marginStart="5dp"
     android:layout_marginEnd="5dp"
@@ -13,7 +14,7 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/bg_off_green_deep"
+        android:background="#4DF8B102"
         android:paddingStart="6dp"
         android:paddingEnd="6dp"
         android:paddingTop="4dp"
@@ -84,7 +85,8 @@
                 android:layout_gravity="center_vertical"
                 android:layout_weight="3"
                 android:baselineAligned="false"
-                android:text="Arsenal"
+                tools:text="Arsenal"
+                android:textStyle="bold"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body2" />
 
             <TextView
@@ -98,7 +100,7 @@
                 android:gravity="center_horizontal"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                 android:textColor="@color/colorAccent"
-                android:text="1-1" />
+                android:text="vs" />
 
             <TextView
                 android:id="@+id/txtAwayTeam"
@@ -106,7 +108,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_weight="3"
-                android:text="Wolves batippstelllo"
+                android:textStyle="bold"
+                tools:text="Wolves batippstelllo"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body2" />
 
             <TextView
@@ -114,12 +117,14 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                 android:layout_weight="1.5"
                 android:paddingStart="5dp"
                 android:text="1X" />
 
             <ImageView
                 android:id="@+id/imgStatus"
+                app:srcCompat="@drawable/ic_check_circle_green_24dp"
                 android:layout_width="22dp"
                 android:layout_height="22dp"
                 android:layout_gravity="center_vertical"/>
@@ -129,6 +134,7 @@
             android:id="@+id/txtProbability"
             android:layout_gravity="end"
             android:gravity="center_vertical"
+            android:visibility="gone"
             android:text="57.78%"
             android:textAppearance="@style/TextAppearance.AppCompat.Body2"
             android:textColor="@color/white"

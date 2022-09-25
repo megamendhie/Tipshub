@@ -8,7 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.auth.FirebaseUser
 import com.sqube.tipshub.models.ProfileMedium
-import adapters.PerformanceAdapter
+import com.sqube.tipshub.adapters.PerformanceAdapter
 import android.app.AlertDialog
 import android.os.Bundle
 import androidx.viewpager.widget.ViewPager

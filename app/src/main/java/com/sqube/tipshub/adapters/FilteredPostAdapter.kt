@@ -1,4 +1,4 @@
-package adapters
+package com.sqube.tipshub.adapters
 
 import android.app.AlertDialog
 import android.content.Context
@@ -25,13 +25,15 @@ import com.sqube.tipshub.databinding.ItemPostBinding
 import com.sqube.tipshub.models.Post
 import com.sqube.tipshub.models.SnapId
 import com.sqube.tipshub.models.UserNetwork
-import services.GlideApp
+import com.sqube.tipshub.services.GlideApp
 import com.sqube.tipshub.utils.Calculations
 import com.sqube.tipshub.utils.FirebaseUtil.firebaseFirestore
 import com.sqube.tipshub.utils.FirebaseUtil.storageReference
 import com.sqube.tipshub.utils.Reusable.Companion.applyLinkfy
 import com.sqube.tipshub.utils.Reusable.Companion.getNetworkAvailability
 import com.sqube.tipshub.utils.Reusable.Companion.getPlaceholderImage
+import com.sqube.tipshub.utils.Reusable.Companion.getTime
+import com.sqube.tipshub.utils.Reusable.Companion.shareTips
 import com.sqube.tipshub.utils.Reusable.Companion.signature
 import com.sqube.tipshub.views.DislikeButton
 import com.sqube.tipshub.views.LikeButton

@@ -40,7 +40,7 @@ import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import com.sqube.tipshub.models.Post;
-import services.GlideApp;
+import com.sqube.tipshub.services.GlideApp;
 import com.sqube.tipshub.utils.Calculations;
 import com.sqube.tipshub.utils.FirebaseUtil;
 import com.sqube.tipshub.utils.Reusable;
@@ -66,7 +66,7 @@ public class RepostActivity extends AppCompatActivity implements View.OnClickLis
 
     boolean postExist=false;
     private final String MODEL = "model";
-    private String[] type = {"3-5 odds", "6-10 odds", "11-50 odds", "50+ odds", "Draws", "Banker tip"};
+    private final String[] type = {"3-5 odds", "6-10 odds", "11-50 odds", "50+ odds", "Draws", "Banker tip"};
     private SharedPreferences prefs;
     private Calculations calculations;
 

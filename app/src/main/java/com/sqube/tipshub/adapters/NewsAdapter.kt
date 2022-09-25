@@ -1,4 +1,4 @@
-package adapters
+package com.sqube.tipshub.adapters
 
 import androidx.recyclerview.widget.RecyclerView
 import android.view.ViewGroup

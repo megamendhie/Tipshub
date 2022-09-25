@@ -1,7 +1,7 @@
 package com.sqube.tipshub.fragments
 
-import adapters.NewsAdapter
-import adapters.PeopleRecAdapter
+import com.sqube.tipshub.adapters.NewsAdapter
+import com.sqube.tipshub.adapters.PeopleRecAdapter
 import android.content.Intent
 import android.database.sqlite.SQLiteDatabase
 import android.os.Bundle

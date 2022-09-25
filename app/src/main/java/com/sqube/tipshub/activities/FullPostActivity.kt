@@ -9,7 +9,7 @@ import com.sqube.tipshub.utils.Reusable.Companion.getTime
 import com.sqube.tipshub.utils.Reusable.Companion.shareTips
 import androidx.appcompat.app.AppCompatActivity
 import android.text.TextWatcher
-import adapters.CommentAdapter
+import com.sqube.tipshub.adapters.CommentAdapter
 import android.app.AlertDialog
 import android.content.*
 import android.graphics.Color
@@ -20,7 +20,6 @@ import com.google.firebase.storage.StorageReference
 import android.os.Bundle
 import com.google.firebase.storage.FirebaseStorage
 import com.sqube.tipshub.utils.SpaceTokenizer
-import services.GlideApp
 import com.bumptech.glide.signature.ObjectKey
 import android.graphics.drawable.ColorDrawable
 import com.google.android.material.snackbar.Snackbar
@@ -41,6 +40,7 @@ import com.sqube.tipshub.R
 import com.sqube.tipshub.databinding.ActivityFullPostBinding
 import de.hdodenhof.circleimageview.CircleImageView
 import com.sqube.tipshub.models.Comment
+import com.sqube.tipshub.services.GlideApp
 import com.sqube.tipshub.utils.GUEST
 import java.util.*
 

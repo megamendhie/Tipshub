@@ -1,6 +1,6 @@
 package com.sqube.tipshub.fragments
 
-import adapters.*
+import com.sqube.tipshub.adapters.*
 import android.app.Activity
 import android.content.Context
 import android.content.DialogInterface
@@ -40,10 +40,7 @@ import com.google.firebase.storage.UploadTask
 import com.google.gson.Gson
 import com.sqube.tipshub.*
 import com.sqube.tipshub.R
-import com.sqube.tipshub.activities.ExtendedHomeActivity
-import com.sqube.tipshub.activities.FullViewActivity
-import com.sqube.tipshub.activities.LeaguesActivity
-import com.sqube.tipshub.activities.PostActivity
+import com.sqube.tipshub.activities.*
 import com.sqube.tipshub.databinding.ActivitySignup2Binding
 import com.sqube.tipshub.databinding.FragmentHomeBinding
 import com.theartofdev.edmodo.cropper.CropImage
@@ -75,7 +72,7 @@ class HomeFragment : Fragment() {
     private var trendingAdapter: FilteredPostAdapter? = null
 
     private val homepageTips = ArrayList<GameTip>()
-    private var tipsAdapter: TipsAdapter? = null
+    private val tipsAdapter = FirebaseTipsAdapter()
     private lateinit var json: String
     private var myProfile: ProfileMedium? = null
     private var subscriber = false
@@ -115,10 +112,9 @@ class HomeFragment : Fragment() {
         binding.bankersList.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         binding.sportSitesList.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         (binding.postList.itemAnimator as DefaultItemAnimator?)!!.supportsChangeAnimations = false
-        //((DefaultItemAnimator) trendingFeed.getItemAnimator()).setSupportsChangeAnimations(false);
 
         binding.txtOpenFullPost.setOnClickListener {seeMore() }
-        binding.txtOpenFull.setOnClickListener{requireContext().startActivity(Intent(context, FullViewActivity::class.java)) }
+        binding.txtOpenFull.setOnClickListener{requireContext().startActivity(Intent(context, FullViewSbActivity::class.java)) }
         if (homepageTips.isEmpty()) binding.shimmerTips.startShimmer() else {
             binding.txtOpenFull.visibility = View.VISIBLE
             binding.shimmerTips.stopShimmer()
@@ -150,7 +146,6 @@ class HomeFragment : Fragment() {
         binding.lnrscore.setOnClickListener { openSite("https://www.livescore.com/") }
         binding.lnrMore.setOnClickListener { requireContext().startActivity(Intent(requireContext(), LeaguesActivity::class.java)) }
 
-        tipsAdapter = TipsAdapter(homepageTips)
         binding.tipsList.adapter = tipsAdapter
         loadTips()
         selectPostToLoad()
@@ -221,7 +216,8 @@ class HomeFragment : Fragment() {
     }
 
     private fun loadTrendingPost() {
-        trendingAdapter = FilteredPostAdapter(false, userId!!, requireContext(), trendingPostList, trendingSnapIds)
+        trendingAdapter = FilteredPostAdapter(false,
+            userId, requireContext(), trendingPostList, trendingSnapIds)
         binding.trendingList.adapter = trendingAdapter
         FirebaseUtil.firebaseFirestore?.collection("posts")!!
                 .orderBy("timeRelevance", Query.Direction.DESCENDING).limit(30).get()
@@ -304,7 +300,7 @@ class HomeFragment : Fragment() {
                             return@addOnCompleteListener
                         }
 
-                        //Map new user datails, and ready to save to db
+                        //Map new user details, and ready to save to db
                         val url: MutableMap<String, String?> = HashMap()
                         url["a2_username"] = username
                         url["a4_gender"] = finalGender
@@ -318,7 +314,7 @@ class HomeFragment : Fragment() {
                         FirebaseUtil.firebaseAuthentication?.currentUser!!.updateProfile(profileUpdate)
 
                         //save username, phone number, and gender to database
-                        ref.document(userId!!)[url] = SetOptions.merge()
+                        ref.document(userId)[url] = SetOptions.merge()
                         Reusable.updateAlgoliaIndex(myProfile!!.a0_firstName, myProfile!!.a1_lastName, username, userId, myProfile!!.c2_score, true) //add to Algolia index
                         dialog.cancel()
                     }
@@ -361,15 +357,45 @@ class HomeFragment : Fragment() {
             if (resultCode == Activity.RESULT_OK) {
                 filePath = result.uri
                 uploadImage()
-            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
-                val error = result.error
+            }
+            else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
             }
         }
     }
 
+    /**
+     * load soccer tips from soccer
+     */
     private fun loadTips() {
-        val getTips = GetTips()
-        getTips.execute()
+        val ref = FirebaseDatabase.getInstance().reference.child("free_tips")
+            .orderByChild("time")
+        ref.keepSynced(true)
+        ref.limitToFirst(1).addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(dSnap: DataSnapshot) {
+                if (!dSnap.hasChildren()) return
+                val dataSnapshot = dSnap.children.elementAt(0)
+                val tips = arrayListOf<Tip>()
+                if(!dataSnapshot.hasChild("games"))
+                    return
+
+                val games = dataSnapshot.child("games")
+                var k = 0;
+                for (snapshot in games.children) {
+                    if(k>=3)
+                        break
+                    val tip = snapshot.getValue(Tip::class.java)!!
+                    tips.add(tip)
+                    k++
+                }
+                tipsAdapter.updateTips(tips)
+                binding.txtOpenFull.visibility = View.VISIBLE
+                binding.shimmerTips.stopShimmer()
+                binding.shimmerTips.visibility = View.GONE
+                binding.crdTips.visibility = View.VISIBLE
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {}
+        })
     }
 
     fun selectPostToLoad() {
@@ -494,74 +520,6 @@ class HomeFragment : Fragment() {
         val homeFeedState = binding.postList.layoutManager!!.onSaveInstanceState()
         outState.putParcelable(this.homeFeedState, homeFeedState)
         super.onSaveInstanceState(outState)
-    }
-
-    inner class GetTips : AsyncTask<String, Void, ArrayList<GameTip>>() {
-        override fun onPreExecute() {
-            super.onPreExecute()
-            val xml = dbHelper!!.getTip(db, CLASSIC)
-            if (xml != null && !xml.isEmpty()) onPostExecute(getTips(xml))
-        }
-
-        override fun doInBackground(vararg strings: String): ArrayList<GameTip> {
-            val today = Date()
-            val sdf = SimpleDateFormat("yyyy-MM-dd")
-            val todayDate = sdf.format(today.time)
-            val httpConnection = HttpConFunction()
-            val s = httpConnection.executeGet(targetUrl + "iso_date=" + todayDate, "HOME")
-            if (s != null && s.length >= 10) dbHelper!!.updateTip(db, CLASSIC, s)
-            return getTips(s)
-        }
-
-        private fun getTips(s: String?): ArrayList<GameTip> {
-            val tips = ArrayList<GameTip>()
-            if (s == null) return tips
-            try {
-                val jsonObject = JSONObject(s)
-                val data = jsonObject.getJSONArray("data")
-                for (i in 0 until data.length()) {
-                    val tipJSON = data.getJSONObject(i)
-                    val gameTip = GameTip()
-                    gameTip._id = tipJSON.optString("id")
-                    gameTip.awayTeam = tipJSON.optString("away_team")
-                    gameTip.homeTeam = tipJSON.optString("home_team")
-                    gameTip.region = tipJSON.optString("competition_cluster")
-                    gameTip.league = tipJSON.optString("competition_name")
-                    gameTip.prediction = tipJSON.optString("prediction")
-                    gameTip.time = tipJSON.optString("start_date")
-                    gameTip.result = tipJSON.optString("result")
-                    gameTip.status = tipJSON.optString("status")
-                    if (tipJSON.has("probabilities")) {
-                        val probabilities = tipJSON.optJSONObject("probabilities")
-                        gameTip.probability = probabilities.optDouble(gameTip.prediction)
-                    } else Log.i(_tag, "getTips: null")
-                    val oddJSON = tipJSON.getJSONObject("odds")
-                    if (oddJSON != null) {
-                        gameTip.odd = oddJSON.optDouble(gameTip.prediction)
-                    }
-                    tips.add(gameTip)
-                }
-            } catch (e: JSONException) {
-                e.printStackTrace()
-            }
-            return tips
-        }
-
-        override fun onPostExecute(tips: ArrayList<GameTip>) {
-            if (tips.isEmpty()) return
-            homepageTips.clear()
-            var k = 0
-            for (tip in tips) {
-                homepageTips.add(tip)
-                k++
-                if (k >= 3) break
-            }
-            tipsAdapter!!.notifyDataSetChanged()
-            binding.txtOpenFull.visibility = View.VISIBLE
-            binding.shimmerTips.stopShimmer()
-            binding.shimmerTips.visibility = View.GONE
-            binding.crdTips.visibility = View.VISIBLE
-        }
     }
 
     override fun onDestroy() {

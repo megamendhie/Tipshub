@@ -7,7 +7,7 @@
 .DS_Store
 /build
 /app/release
-/app/gradle.properties
+gradle.properties
 /app/google-services.json
 /captures
 .externalNativeBuild

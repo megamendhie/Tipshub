@@ -1,4 +1,4 @@
 /build
-/src/main/java/com/sqube/tipshub/SubscriptionActivity.java
-/src/main/java/utils/Calculations.java
-/src/main/java/com/sqube/tipshub/VipSubActivity.java
+/src/main/java/com/sqube/tipshub/activities/SubscriptionActivity.java
+/src/main/java/com/sqube/tipshub/utils/Calculations.java
+/src/main/java/com/sqube/tipshub/activities/VipSubActivity.java

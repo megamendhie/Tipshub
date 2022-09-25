@@ -1,4 +1,4 @@
-package adapters
+package com.sqube.tipshub.adapters
 
 import android.content.DialogInterface
 import android.content.Intent
@@ -17,7 +17,7 @@ import com.sqube.tipshub.activities.LoginActivity
 import com.sqube.tipshub.activities.MemberProfileActivity
 import com.sqube.tipshub.activities.MyProfileActivity
 import com.sqube.tipshub.R
-import com.sqube.tipshub.databinding.ItemUserLandBinding
+import com.sqube.tipshub.databinding.ItemUserBinding
 import com.sqube.tipshub.models.ProfileShort
 import com.sqube.tipshub.models.UserNetwork
 import com.sqube.tipshub.utils.Calculations
@@ -28,10 +28,10 @@ import com.sqube.tipshub.utils.Reusable.Companion.getPlaceholderImage
 import java.lang.IndexOutOfBoundsException
 import java.util.*
 
-class PeopleAdapter(private var userId: String, val list: ArrayList<String>) : RecyclerView.Adapter<PeopleAdapter.PeopleHolder>() {
+class PeopleRecAdapter(val userId: String, val list: ArrayList<String>) : RecyclerView.Adapter<PeopleRecAdapter.PeopleHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PeopleHolder {
-        val binding = ItemUserLandBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        val binding = ItemUserBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return PeopleHolder(binding)
     }
 
@@ -42,6 +42,7 @@ class PeopleAdapter(private var userId: String, val list: ArrayList<String>) : R
     override fun onBindViewHolder(holder: PeopleHolder, i: Int) {
         val binding = holder.binding
         val ref = list[i]
+        Log.i("pplRec", "onBindViewHolder: size= ${list.size} and index is $i")
         firebaseFirestore!!.collection("profiles").document(ref).get()
                 .addOnCompleteListener { task: Task<DocumentSnapshot> ->
                     if (!task.isSuccessful || task.isCanceled || !task.result.exists()) {
@@ -60,18 +61,15 @@ class PeopleAdapter(private var userId: String, val list: ArrayList<String>) : R
                         val tips = if (e0a_NOG > 1) "tips" else "tip"
                         binding.txtPost.text = String.format(Locale.getDefault(), "%d  %s  • ", e0a_NOG, tips)
                         binding.txtAccuracy.text = String.format(Locale.getDefault(), "%.1f%%", e0c_WGP.toDouble())
-                        binding.btnFollow.text = if (UserNetwork.following == null || !UserNetwork.following.contains(ref)) "FOLLOW" else "FOLLOWING"
-                    }
-                    if (ref == userId) binding.btnFollow.visibility = View.GONE
-                    try {
-                        Glide.with(binding.root.context).load(model.b2_dpUrl)
+                        binding.btnFollow.text = if (UserNetwork.following == null || !UserNetwork.following.contains(ref)) "FOLLOW"
+                        else "FOLLOWING"
+                        Glide.with(binding.imgDp.context).load(b2_dpUrl)
                                 .placeholder(R.drawable.dummy)
                                 .error(getPlaceholderImage(ref[0]))
                                 .into(binding.imgDp)
-                    } catch (e: Exception) {
-                        Log.w("{PeopleAdapter", "onBindViewHolder: " + e.message)
                     }
-                    binding.lnrContainer.setOnClickListener { v: View? ->
+
+                    binding.lnrContainer.setOnClickListener { v: View ->
                         if (ref == userId) {
                             binding.lnrContainer.context.startActivity(Intent(binding.root.context, MyProfileActivity::class.java))
                         } else {
@@ -80,9 +78,10 @@ class PeopleAdapter(private var userId: String, val list: ArrayList<String>) : R
                             binding.lnrContainer.context.startActivity(intent)
                         }
                     }
-                    binding.btnFollow.setOnClickListener { v: View? ->
+                    binding.btnFollow.setOnClickListener { v: View ->
                         if (!getNetworkAvailability(binding.root.context)) {
-                            Snackbar.make(binding.btnFollow, "No Internet connection", Snackbar.LENGTH_SHORT).show()
+                            Snackbar.make(binding.btnFollow, "No Internet connection", Snackbar.LENGTH_SHORT)
+                                    .setAnchorView(R.id.bottom_navigation).show()
                             return@setOnClickListener
                         }
                         if (userId == GUEST) {
@@ -107,7 +106,7 @@ class PeopleAdapter(private var userId: String, val list: ArrayList<String>) : R
     }
 
     private fun unfollowPrompt(btnFollow: TextView, userID: String, username: String) {
-        val builder = AlertDialog.Builder(btnFollow.rootView.context, R.style.CustomMaterialAlertDialog)
+        val builder = AlertDialog.Builder(btnFollow.context, R.style.CustomMaterialAlertDialog)
         builder.setMessage(String.format("Do you want to unfollow %s?", username))
                 .setTitle("Unfollow")
                 .setNegativeButton("No") { dialogInterface: DialogInterface?, i: Int -> }
@@ -123,10 +122,5 @@ class PeopleAdapter(private var userId: String, val list: ArrayList<String>) : R
         return list.size
     }
 
-    fun setUserId(userId: String) {
-        this.userId = userId
-    }
-
-    inner class PeopleHolder(val binding: ItemUserLandBinding) : RecyclerView.ViewHolder(binding.root)
-
+    inner class PeopleHolder (val binding: ItemUserBinding) : RecyclerView.ViewHolder(binding.root)
 }

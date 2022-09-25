@@ -31,13 +31,10 @@ import co.paystack.android.model.Card;
 import co.paystack.android.model.Charge;
 
 public class NgSubActivity extends AppCompatActivity {
-
-    public static int NG_SUB_ACTIVITY = 63;
-
     private String userId;
     private String email;
 
-    enum Status {SUCCESSFUL, PENDING;}
+    enum Status {SUCCESSFUL, PENDING}
 
     private EditText mEditCardNum;
     private EditText mEditCVV;

@@ -1,7 +1,7 @@
 package com.sqube.tipshub.activities
 
-import adapters.DrawAdapter
-import adapters.TipsAdapter
+import com.sqube.tipshub.adapters.DrawAdapter
+import com.sqube.tipshub.adapters.TipsAdapter
 import android.content.Intent
 import android.content.SharedPreferences
 import android.database.sqlite.SQLiteDatabase

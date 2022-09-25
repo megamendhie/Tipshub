@@ -1,14 +1,21 @@
-package adapters
+package com.sqube.tipshub.adapters
 
 import android.annotation.SuppressLint
+import android.content.Intent
+import android.text.Html
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter
 import com.firebase.ui.firestore.FirestoreRecyclerOptions
 import com.google.firebase.firestore.Query
 import com.google.firebase.storage.FirebaseStorage
+import com.sqube.tipshub.R
+import com.sqube.tipshub.activities.MemberProfileActivity
 import com.sqube.tipshub.databinding.ItemSubscriptionBinding
 import com.sqube.tipshub.models.Subscription
+import com.sqube.tipshub.services.GlideApp
+import com.sqube.tipshub.utils.Reusable.Companion.getNewDate
+import com.sqube.tipshub.utils.Reusable.Companion.getPlaceholderImage
 
 class SubscriberAdapter(query: Query?) : FirestoreRecyclerAdapter<Subscription, SubscriptionAdapter.SubscriptionViewHolder>(FirestoreRecyclerOptions.Builder<Subscription>()
         .setQuery(query!!, Subscription::class.java)

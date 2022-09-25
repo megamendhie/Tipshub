@@ -1,17 +1,20 @@
-package adapters
+package com.sqube.tipshub.adapters
 
+import android.content.Intent
 import com.sqube.tipshub.utils.FirebaseUtil.firebaseAuthentication
 import com.sqube.tipshub.utils.Reusable.Companion.getPlaceholderImage
 import com.firebase.ui.firestore.FirestoreRecyclerOptions
 import com.sqube.tipshub.models.ProfileShort
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter
-import adapters.BankerTipsterAdapter.BankerTipsterHolder
+import com.sqube.tipshub.adapters.BankerTipsterAdapter.BankerTipsterHolder
 import android.util.Log
 import android.view.ViewGroup
 import android.view.LayoutInflater
 import com.sqube.tipshub.R
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.sqube.tipshub.activities.MemberProfileActivity
+import com.sqube.tipshub.activities.MyProfileActivity
 import com.sqube.tipshub.databinding.ItemBankerTipsterBinding
 import java.lang.Exception
 
