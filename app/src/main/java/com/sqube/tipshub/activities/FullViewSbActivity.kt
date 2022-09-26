@@ -19,16 +19,18 @@ import com.sqube.tipshub.databinding.ActivityFullViewSbBinding
 import com.sqube.tipshub.models.Draw
 import com.sqube.tipshub.models.ProfileMedium
 import com.sqube.tipshub.models.Tip
+import com.sqube.tipshub.utils.TipsHolder
 import java.util.*
 
 class FullViewSbActivity : AppCompatActivity() {
     private var _binding: ActivityFullViewSbBinding? = null
     private val binding get() = _binding!!
-    private val gson = Gson()
     private val freeAdapter = FirebaseTipsAdapter()
     private var vipAdapter = FirebaseTipsAdapter()
     private val drawAdapter = DrawAdapter()
     private lateinit var prefs: SharedPreferences
+    private var listFree = arrayListOf<Tip>()
+    private var listVip = arrayListOf<Tip>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,10 +43,32 @@ class FullViewSbActivity : AppCompatActivity() {
         binding.shimmerFreeTips.startShimmer()
 
         loadFreeTips()
-        val subscriber = isSubscriber()
-        if (subscriber) {
-            loadVipTips()
-            loadDrawTips()
+        loadVipTips()
+        loadDrawTips()
+
+        binding.fabFree.setOnClickListener {
+            val intent = Intent(this, PostTipsActivity::class.java)
+            intent.putExtra("FREE", true)
+            TipsHolder.tipsList = arrayListOf(Tip())
+            startActivity(intent)
+        }
+        binding.fabVip.setOnClickListener {
+            val intent = Intent(this, PostTipsActivity::class.java)
+            intent.putExtra("FREE", false)
+            TipsHolder.tipsList = arrayListOf(Tip())
+            startActivity(intent)
+        }
+        binding.imgFree.setOnClickListener {
+            val intent = Intent(this, PostTipsActivity::class.java)
+            intent.putExtra("FREE", true)
+            TipsHolder.tipsList = listFree
+            startActivity(intent)
+        }
+        binding.imgVip.setOnClickListener {
+            val intent = Intent(this, PostTipsActivity::class.java)
+            intent.putExtra("FREE", false)
+            TipsHolder.tipsList = listVip
+            startActivity(intent)
         }
 
     }
@@ -54,13 +78,6 @@ class FullViewSbActivity : AppCompatActivity() {
         binding.listVIP.layoutManager = LinearLayoutManager(this)
         binding.listDraw.layoutManager = LinearLayoutManager(this)
         binding.listFree.adapter = freeAdapter
-    }
-
-    private fun isSubscriber(): Boolean{
-        val json = prefs.getString("profile", "")
-        val myProfile = if (json == "") null else gson.fromJson(json, ProfileMedium::class.java)
-        val subscriber = myProfile?.isD4_vipSubscriber ?: false
-        return subscriber
     }
 
     private fun loadFreeTips() {
@@ -81,6 +98,7 @@ class FullViewSbActivity : AppCompatActivity() {
                     tips.add(tip)
                 }
                 freeAdapter.updateTips(tips)
+                listFree = tips
                 binding.shimmerFreeTips.stopShimmer()
                 binding.shimmerFreeTips.visibility = GONE
             }
@@ -112,6 +130,7 @@ class FullViewSbActivity : AppCompatActivity() {
                     tips.add(tip)
                 }
                 vipAdapter.updateTips(tips)
+                listFree = tips
                 binding.shimmerVipTips.stopShimmer()
                 binding.shimmerVipTips.visibility = GONE
             }
@@ -168,5 +187,4 @@ class FullViewSbActivity : AppCompatActivity() {
     fun openSub(view: View?) {
         startActivity(Intent(this, VipSubActivity::class.java))
     }
-
 }
