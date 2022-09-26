@@ -16,6 +16,12 @@
         <item>Draws</item>
     </array>
 
+    <array name="status_type">
+        <item>pending</item>
+        <item>won</item>
+        <item>lost</item>
+    </array>
+
     <array name="code_type">
         <item>1xBet</item>
         <item>Bet9ja</item>
