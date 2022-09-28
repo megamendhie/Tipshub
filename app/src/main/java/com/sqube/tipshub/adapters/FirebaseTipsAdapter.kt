@@ -33,8 +33,8 @@ class FirebaseTipsAdapter : RecyclerView.Adapter<FirebaseTipsAdapter.FbTipsHolde
         private val imgFlag = binding.imgFlag
 
         private fun setFlag(country: String) {
-            when (country) {
-                "Champions League", "Europe", "Europa League", "Nations League", "World Cup" -> imgFlag.setImageResource(R.drawable.flag_world)
+            when (country.trim()) {
+                "Champions League", "Europe", "Africa", "Europa League", "Nations League", "World Cup" -> imgFlag.setImageResource(R.drawable.flag_world)
                 "Ascension Island", "Tristan da Cunha", "Diego Garcia", "United Kingdom" -> imgFlag.setImageResource(R.drawable.flag_united_kingdom)
                 "Northern Ireland" -> imgFlag.setImageResource(R.drawable.flag_northern_ireland)
                 "Wales" -> imgFlag.setImageResource(R.drawable.flag_wales)
@@ -46,6 +46,7 @@ class FirebaseTipsAdapter : RecyclerView.Adapter<FirebaseTipsAdapter.FbTipsHolde
                 "Antigua & Barbuda" -> imgFlag.setImageResource(R.drawable.flag_antigua_and_barbuda)
                 "Anguilla" -> imgFlag.setImageResource(R.drawable.flag_anguilla)
                 "Albania" -> imgFlag.setImageResource(R.drawable.flag_albania)
+                "Algeria" -> imgFlag.setImageResource(R.drawable.flag_algeria)
                 "Armenia" -> imgFlag.setImageResource(R.drawable.flag_armenia)
                 "Angola" -> imgFlag.setImageResource(R.drawable.flag_angola)
                 "Antarctica" -> imgFlag.setImageResource(R.drawable.flag_antarctica)
